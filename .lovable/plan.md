@@ -1,165 +1,151 @@
 
-# AUDIT BETA-TESTEUR COMPLET - MED MNG
-**Date** : 1er Mars 2026
-**Profil testeur** : Etudiant medecine, premier usage (non connecte)
+# Audit Beta-Testeur Complet - MED-MNG
+**Date**: 1er Mars 2026
+**Profil testeur**: Etudiant medecine, premier usage (non connecte)
 
 ---
 
-## SCORE GLOBAL : 17/20
+## Score Global : 8/10
 
 ---
 
-## CE QUI FONCTIONNE BIEN
+## Ce qui fonctionne bien
 
-### Accueil (Desktop)
+### Accueil (Desktop + Mobile)
 - Message d'accroche clair : "Apprends la medecine en musique"
 - 2 CTA distincts : "Creer un compte gratuit" et "Voir les 367 cours"
-- Badges de valeur presents (Paroles = Cours, Memoire x3, Sans effort)
-- Navigation avec 5 liens principaux visibles (Accueil, EDN, ECOS, Chat IA, Tarifs)
-- Cookie banner RGPD present avec 3 options (Essentiels, Parametres, Accepter tout)
-- Bouton Accessibilite visible
-- Mode sombre actif par defaut, theme coherent
-
-### Accueil (Mobile 390px)
-- Responsive correct, pas de debordement horizontal
-- CTA empiles proprement en colonne
-- Logo et nav simplifiee avec menu hamburger
-- Texte lisible, tailles adaptees
+- Badges de valeur (Paroles = Cours, Memoire x3, Sans effort)
+- Navigation desktop avec 5 liens visibles (Accueil, EDN, ECOS, Chat, Tarifs + Plus)
+- Mobile : layout responsive correct, pas de debordement horizontal
+- Hamburger menu sur mobile
 
 ### Page EDN (/edn-complete)
-- 367 items affiches avec compteurs "4972 competences"
-- Cards riches avec badges (Rang A, Rang B, Musique, BD, Roman)
-- Pourcentage de completude visible (100%, 70%, etc.)
-- Barre de recherche avec placeholder informatif
-- Filtres (Tous/Toutes specialites/Par code)
+- 367 items affiches avec 4985 competences
+- Barre de recherche fonctionnelle (IC-1, specialite...)
 - Toggle Grille/Liste
-- Banniere informative "Acces gratuit illimite aux revisions EDN"
-- Indicateur de credits (80/160)
-- Sous-navigation riche (SRS, Examen, Cas, Flash, Stats, Planning IA)
+- Banniere informative gratuite
+- Filtres (Tous, specialites, tri)
+- Boutons rapides (SRS, Examen, Cas, Flash, Analytics)
+- Skeleton loading pendant le chargement (~3-4s)
 
 ### Page ECOS (/ecos)
-- 12 situations cliniques affichees
-- Cards avec specialites, descriptions et CTA "Commencer"
+- 12 situations affichees avec descriptions cliniques
+- Badges specialites sur chaque carte
 - Barre de recherche
-- Indicateur "~15 min/situation"
+- Temps estime par situation (~15 min)
+
+### Page Flashcards (/flashcards)
+- Interface claire avec onglets (Decks, Cartes, Stats)
+- Message "Connexion requise" pour les non-connectes (toast rouge)
+- Etat vide "Aucun deck cree" avec CTA
 
 ### Page Chat IA (/chat)
 - Interface de chat fonctionnelle
-- Questions suggerees (cardiologie, neurologie, urgences)
 - Mode vocal disponible
-- Disclaimer medical present en bas
+- Avertissement pedagogique en bas de page
 
 ### Page Tarifs (/med-mng/pricing)
-- 3 plans clairs : Gratuit, Pro Etudiant (19EUR/mois), Premium (39EUR/mois)
-- Badges rassurants (7 jours essai gratuit, Sans engagement, Annulation en 1 clic)
-- Comparaison features lisible
-- Indicateur social proof "37+ etudiants inscrits"
+- 3 plans affiches (Gratuit, Pro Etudiant 19EUR/mois, Premium 39EUR/mois)
+- Badges rassurants (7 jours essai, sans engagement, annulation 1 clic)
+- Social proof "37+ etudiants inscrits"
 
-### Pages Legales
-- Mentions Legales : EMOTIONSCARE SASU, SIRET, TVA, responsable publication
-- Footer avec liens vers : CGU, Mentions Legales, Confidentialite, CGV, Cookies, Contact
+### Page 404
+- Design propre avec boutons Retour et Accueil
+- Pas de page blanche
 
-### Securite (Supabase Linter)
-- Pas d'erreur critique RLS
-- 5 warnings (search_path mutable, extension en public, 3 RLS policies "always true")
-- Aucune table sans RLS
+### Pages legales (Mobile teste)
+- Mentions legales completes avec SIRET, RCS
+- Responsive correct
 
-### Donnees
-- 367/367 items avec Rang A (365) et Rang B (367) - couverture quasi-complete
-- Compteurs synchronises avec les donnees JSONB reelles
-- 100 OIC Rang B generes par IA pour combler les lacunes
+### Cookie Banner RGPD
+- 3 options : Essentiels, Parametres, Accepter tout
+- Fonctionne correctement
 
 ---
 
-## PROBLEMES IDENTIFIES
+## Problemes detectes
 
-### CRITIQUE (-1 point)
+### 1. Warnings Console - forwardRef (Priorite Moyenne)
+**3 types de warnings persistants :**
+- `forwardRef render functions accept exactly two parameters` - vient de `theme-provider.tsx:28` (le forwardRef precedemment applique ne consomme pas le parametre `ref`)
+- `Function components cannot be given refs` - sur `AppFooter.tsx:31` et `QueryClientProvider` dans App.tsx
+- Ces warnings apparaissent sur CHAQUE chargement de page
 
-| # | Probleme | Impact | Details |
-|---|----------|--------|---------|
-| 1 | **Erreurs console "forwardRef"** | Console polluee, hygiene code | ~5 warnings React "Function components cannot be given refs" au chargement de CHAQUE page. Concerne : `LanguageProvider`, `GlobalAudioProvider`, `TooltipProvider`, `AccessibilityProvider`, `SkipLinks` dans `ComposedProviders`. Viole le DoD "0 console errors en production". |
+**Impact** : Console non propre, non professionnel en dev. Invisible en production.
 
-### IMPORTANT (-1 point chacun)
+**Correction** : 
+- `theme-provider.tsx` : le forwardRef wrapping ne passe pas le ref correctement (fonction a 1 param au lieu de 2)
+- `AppFooter.tsx` : composant lazy-loaded recoit un ref sans le supporter
+- `App.tsx:342` : un composant dans le render tree recoit un ref inutilement
 
-| # | Probleme | Impact | Details |
-|---|----------|--------|---------|
-| 2 | **3 RLS policies "always true"** | Securite - donnees potentiellement exposees | 3 tables ont des politiques INSERT/UPDATE/DELETE avec `USING (true)` ou `WITH CHECK (true)`. A auditer et restreindre aux utilisateurs authentifies. |
-| 3 | **Lien "Chat IA" dans la navbar ne fonctionne pas en clic direct** | UX - le clic depuis la page EDN ne navigue pas | Quand on est sur la page EDN et qu'on clique "Chat IA", la page ne change pas (reste sur EDN). La route `/chat` fonctionne en acces direct. Probleme probable de gestion des clics ou re-render. |
+### 2. RLS Policy "Always True" sur verification_results (Priorite Haute)
+**Probleme** : La policy `Allow service role insert on verification_results` utilise `WITH CHECK (true)` mais est assignee au role `{public}`, pas `{service_role}`.
 
-### MINEUR (-0 points mais a corriger)
+**Impact** : N'importe quel utilisateur anonyme peut inserer des donnees dans `verification_results`.
 
-| # | Probleme | Impact | Priorite |
-|---|----------|--------|----------|
-| 4 | Extensions Postgres dans le schema `public` | Securite (warning) | Faible |
-| 5 | Functions sans `search_path` defini | Securite (warning) | Faible |
-| 6 | 2 items sans Rang A (IC-30, IC-142) | Completude donnees 99.5% vs 100% | Faible |
+**Correction** : Changer le role de `public` a `service_role`, ou ajouter une condition `auth.uid() IS NOT NULL`.
+
+### 3. Les 2 autres warnings RLS "Always True" du linter
+Le linter rapporte 3 warnings au total. Le seul reellement dangereux est `verification_results`. Les autres sont des policies `service_role` (acces admin uniquement) qui sont intentionnellement `true` - c'est un pattern acceptable car le service_role bypasse deja RLS.
+
+### 4. pwa_metrics : Policies redondantes (Priorite Basse)
+**Probleme** : 8 policies INSERT sur `pwa_metrics` avec des conditions similaires qui se chevauchent.
+
+**Impact** : Complexite inutile, potentielles incoherences de permissions.
+
+**Correction** : Consolider en 2-3 policies claires (anon insert si user_id IS NULL, authenticated insert si user_id = auth.uid()).
+
+### 5. Chargement EDN lent (~3-4s) (Priorite Basse)
+Le spinner s'affiche pendant 3-4 secondes avant le contenu. Le skeleton loading est present mais le temps initial reste notable.
 
 ---
 
-## PARCOURS TESTES
+## Plan de corrections
+
+### Phase 1 : Securite RLS (5 min)
+- Corriger la policy `verification_results` INSERT : changer le role de `public` a `service_role` ou ajouter `auth.uid() IS NOT NULL`
+
+### Phase 2 : Console propre (10 min)
+- Corriger `theme-provider.tsx` : le forwardRef doit accepter 2 parametres (props, ref)
+- Corriger `AppFooter.tsx` : ajouter forwardRef ou retirer le ref du lazy loading
+- Retirer le passage de ref inutile dans App.tsx vers les composants qui ne le supportent pas
+
+### Phase 3 : Nettoyage RLS pwa_metrics (15 min)
+- Consolider les 8 policies INSERT en 2-3 policies claires
+- Supprimer les doublons
+
+---
+
+## Parcours testes
 
 | Parcours | Statut | Notes |
 |----------|--------|-------|
-| Accueil Desktop | OK | Design clean, CTAs visibles |
+| Accueil Desktop | OK | Claire, 2 CTA, badges |
 | Accueil Mobile (390px) | OK | Responsive correct |
-| Navigation EDN | OK | 367 items, cards riches |
-| Navigation ECOS | OK | 12 situations |
-| Chat IA (acces direct) | OK | Interface fonctionnelle |
-| Chat IA (clic navbar depuis EDN) | **KO** | Navigation ne fonctionne pas |
-| Tarifs | OK | 3 plans clairs |
-| Mentions Legales | OK | Informations completes |
-| Cookie Banner | OK | 3 options RGPD |
-| Footer (liens legaux) | OK | CGU, ML, Confidentialite, Contact |
-| Recherche EDN | OK | Barre de recherche presente |
-| Mode sombre | OK | Actif par defaut, coherent |
+| EDN /edn-complete | OK | 367 items, recherche, filtres |
+| ECOS /ecos | OK | 12 situations, cartes riches |
+| Flashcards /flashcards | OK | Toast connexion requise |
+| Chat IA /chat | OK | Interface fonctionnelle |
+| Tarifs /med-mng/pricing | OK | 3 plans, badges |
+| 404 | OK | Page propre, boutons retour |
+| Mentions legales (mobile) | OK | Contenu complet, SIRET |
+| Cookie Banner | OK | 3 options |
+| Console errors | 3 warnings forwardRef | Non bloquants |
+| Securite RLS | 1 policy dangereuse | verification_results |
 
 ---
 
-## PLAN DE CORRECTIONS
+## Score detaille
 
-### Phase 1 - Critique (Score 17 -> 18/20)
-
-**1. Corriger les warnings "forwardRef" dans ComposedProviders**
-- Fichiers concernes : `src/providers/ComposedProviders.tsx`, `src/contexts/LanguageContext.tsx`, `src/contexts/GlobalAudioContext.tsx`, `src/components/ui/AccessibilityProvider.tsx`
-- Action : Wrapper les providers fonctionnels avec `React.forwardRef` ou corriger la logique de `ComposedProviders` qui passe des refs a des composants qui n'en acceptent pas
-
-### Phase 2 - Important (Score 18 -> 19/20)
-
-**2. Auditer et corriger les 3 RLS policies "always true"**
-- Identifier les tables concernees via `supabase--analytics-query`
-- Remplacer les `USING (true)` par des conditions basees sur `auth.uid()`
-
-**3. Corriger la navigation "Chat IA" depuis d'autres pages**
-- Investiguer pourquoi le `Link to={ROUTE_PATHS.chat}` ne navigue pas depuis la page EDN
-- Probable conflit avec un gestionnaire d'evenements ou un probleme de re-render
-
-### Phase 3 - Nettoyage (Score 19 -> 20/20)
-
-**4. Deplacer les extensions Postgres hors du schema `public`**
-**5. Definir `search_path` sur les fonctions SQL**
-**6. Completer les 2 items manquants en Rang A**
-
----
-
-## DETAILS TECHNIQUES
-
-### Console Errors (Production)
-```text
-Warning: Function components cannot be given refs.
-  - InternationalizationProvider (ComposedProviders)
-  - LanguageProvider (ComposedProviders)
-  - GlobalAudioProvider (ComposedProviders)
-  - TooltipProvider (ComposedProviders)
-  - AccessibilityProvider (ComposedProviders)
-  - SkipLinks (App)
-```
-
-### Supabase Linter Warnings
-- 1x `function_search_path_mutable`
-- 1x `extension_in_public`
-- 3x `permissive_rls_policy` (INSERT/UPDATE/DELETE avec `true`)
-
-### Couverture Donnees
-- Rang A : 365/367 (99.5%) - manquent IC-30, IC-142
-- Rang B : 367/367 (100%)
-- Total OIC : 4972 competences
+| Critere | Note | Details |
+|---------|------|---------|
+| Navigation | 10/10 | Tous liens fonctionnels |
+| Design/UX | 9/10 | Propre, coherent, responsive |
+| Contenu | 10/10 | 367 items, 12 ECOS |
+| Performance | 7/10 | EDN 3-4s de chargement |
+| Console | 6/10 | 3 warnings forwardRef persistants |
+| Securite | 7/10 | 1 policy RLS "always true" sur public |
+| RGPD | 10/10 | Cookie banner, pages legales |
+| Accessibilite | 9/10 | Bouton accessibilite, SkipLinks |
+| PWA | 8/10 | Install, offline, mais policies redondantes |
+| Global | **8/10** | |
