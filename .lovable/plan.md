@@ -1,219 +1,148 @@
 
-# Audit Directeur Marketing & Commercial - MED-MNG
-**Date** : 1er Mars 2026
-**Score Global : 6.5/10**
+
+# Audit GEO & SEO Complet - Sitemap, Meta Tags & Structured Data
+
+**Score actuel : 7/10** -- Objectif apres corrections : 9.5/10
 
 ---
 
-## RESUME EXECUTIF
+## PROBLEMES CRITIQUES DETECTES
 
-MED-MNG dispose d'un produit fort (367 items EDN en musique, positionnement unique) et d'un branding premium coherent. Cependant, la plateforme souffre de **lacunes critiques dans le funnel de conversion** : aucun tracking du `checkout_start`, une social proof faible (37 inscrits, 0 abonnes payants), et des CTAs qui ne dirigent pas systematiquement vers l'inscription. Le SEO technique est solide mais le contenu manque de preuves d'efficacite reelles.
+### 1. 10 pillar pages SEO absentes du sitemap ET du seoConfig (CRITIQUE)
 
----
+Les 10 pages pilier SEO (2000+ mots chacune, principal levier d'acquisition organique) ne sont referencees **nulle part** :
 
-## 1. FUNNEL DE CONVERSION (4/10) - CRITIQUE
+- `/preparation-ecos-2026`
+- `/reussir-edn`
+- `/fiches-ecos-interactives`
+- `/simulation-examen-edn`
+- `/cas-cliniques-edn`
+- `/erreurs-frequentes-ecos`
+- `/classement-edn-explique`
+- `/rang-a-vs-rang-b`
+- `/travailler-cas-cliniques`
+- `/exemple-cas-clinique`
 
-### Constat
-Le funnel de conversion est **incomplet** :
+**Impact** : Google ne les indexe probablement pas. Elles n'ont pas de meta description via AutoSEO (tombent dans le fallback generique). Pas de canonical, pas de keywords dedies. Le `llms.txt` reference `/fiches-ecos-interactives` mais le sitemap non.
 
-```text
-page_view (44 events) -> signup (tracked) -> checkout_start (JAMAIS TRACKED) -> checkout_complete (tracked)
+**Correction** :
+- Ajouter les 10 routes dans `src/config/seoConfig.ts` (SEO_CONFIG) avec title, description, keywords, canonical, ogType: 'article'
+- Ajouter les 10 routes dans `scripts/generate-sitemap.ts` (PUBLIC_ROUTES) et dans `public/sitemap.xml`
+- Priorite sitemap : 0.8 (contenu pilier), changefreq: monthly
+
+### 2. AutoSEO ne passe qu'un seul JSON-LD sur la homepage (BUG)
+
+Dans `AutoSEO.tsx` ligne 40 :
+```
+structuredData={structuredData ? structuredData[0] : undefined}
 ```
 
-- `checkout_start` n'est **jamais emis** dans le code. Il est defini dans `conversionTracking.ts` mais aucun composant ne l'appelle.
-- Resultat : impossible de mesurer le taux d'abandon entre la page Tarifs et le paiement Stripe.
-- **0 abonnes payants** dans la table `subscribers` (vide).
-- Seulement **12 utilisateurs** inscrits au total.
-- Seulement **44 page_view** trackes (tracking incomplet, uniquement sur /pricing).
+Seul le premier schema (Organization) est passe a SEOHead. Les 3 autres (SoftwareApplication, EducationalApplication, FAQPage) sont ignores. `GlobalJsonLd` compense partiellement ce probleme car il est aussi present dans App.tsx, mais cela cree des **doublons** du schema Organization sur la homepage.
 
-### Actions recommandees
+**Correction** : Retirer la logique structuredData de `AutoSEO.tsx` puisque `GlobalJsonLd` gere deja tous les JSON-LD de maniere plus complete. Cela elimine aussi les doublons.
 
-1. **Ajouter `trackConversionEvent('checkout_start')` dans `useSubscription.createCheckout()`** avant l'appel a `create-checkout`. C'est le point exact ou l'utilisateur clique "S'abonner".
+### 3. JSON-LD AggregateRating avec fausses donnees (RISQUE)
 
-2. **Tracker les `page_view` sur toutes les pages cles** (accueil, EDN, ECOS, signup), pas uniquement /pricing.
-
-3. **Ajouter un event `cta_click`** pour mesurer l'efficacite de chaque CTA (hero, feature showcase, final CTA).
-
----
-
-## 2. SOCIAL PROOF & CREDIBILITE (5/10)
-
-### Constat
-- La page Tarifs affiche "37+ etudiants inscrits" mais la base ne contient que **12 utilisateurs**.
-- Les **4 temoignages** sont fictifs (Marie L., Thomas K., Sarah M., Lucas P.) avec des CHU inventes.
-- La note "4.9/5" affichee dans les stats n'est basee sur aucune donnee reelle.
-- Aucun systeme de collecte d'avis reel n'est en place.
-
-### Actions recommandees
-
-1. **Corriger le chiffre "37+" par le nombre reel** (12) ou le retirer completement. Un chiffre faux detruit la confiance.
-2. **Marquer explicitement les temoignages comme fictifs** ("Temoignages bases sur des retours beta") ou les remplacer par de vrais retours.
-3. **Implementer un systeme de collecte d'avis** post-utilisation (email automatique apres 7 jours d'usage).
-4. **Afficher des metriques verifiables** : "367 items couverts" et "100% du programme R2C" sont vrais et percutants - les mettre en avant.
-
----
-
-## 3. STRATEGIE DE PRICING (7/10)
-
-### Constat
-- 3 plans bien differencies : Gratuit, Pro Etudiant (19EUR), Premium (39EUR)
-- Essai 7 jours avec trial Stripe correctement configure
-- Pack 6 mois Pro a 99EUR (economie 15EUR) - bonne idee mais presentation discrete
-- Tableau comparatif Pro vs Premium clair et utile
-- Trust badges pertinents (sans engagement, annulation 1 clic)
-
-### Problemes
-
-- **L'offre "Standard" dans Stripe (19EUR) s'appelle "Pro Etudiant" dans l'UI** mais "standard" dans le code. Confusion potentielle.
-- Le plan Gratuit n'a **pas de limites clairement communiquees** dans le Hero. L'utilisateur ne sait pas ce qu'il obtient gratuitement vs payant avant d'arriver sur /pricing.
-- **Pas de comparaison Gratuit vs Payant** sur la page pricing - le plan Gratuit est juste "Gratuit" sans detail des limites.
-
-### Actions recommandees
-
-1. **Harmoniser les noms de plans** : "Standard" partout ou "Pro Etudiant" partout, pas les deux.
-2. **Communiquer les limites du gratuit** dans le Hero : "3 chansons gratuites" ou "10 QCM/jour gratuits".
-3. **Ajouter une ancre prix** sur le Hero : "A partir de 0EUR" ou "Gratuit pour commencer" (deja present dans le CTA final, mais absent du Hero).
-
----
-
-## 4. PARCOURS D'ACQUISITION (6/10)
-
-### Constat du funnel Hero -> Inscription
-
-```text
-Hero ("Creer un compte gratuit") -> /med-mng/signup -> inscription -> onboarding
+Dans `jsonLdSchemas.ts` :
+```
+aggregateRating: { ratingValue: '4.8', ratingCount: '256' }
 ```
 
-**Points positifs :**
-- CTA principal clair : "Creer un compte gratuit" en gradient avec ombre
-- CTA secondaire pertinent : "Voir les 367 cours" (explore sans engagement)
-- Message en 3 secondes : "Apprends la medecine en musique" - excellent
+La plateforme a 12 utilisateurs et 0 avis reel. Google peut infliger une penalite manuelle pour des donnees structurees trompeuses. Present dans `createSoftwareApplicationSchema()` ET `createProductSchema()`.
 
-**Points negatifs :**
-- **5 sections a scroller avant le CTA final** (Hero, Music Player, Features, Testimonials, Final CTA). L'utilisateur non convaincu quitte avant.
-- **Aucun CTA d'inscription dans les sections intermediaires** (Features, Testimonials). Seuls les CTAs dans Features redirigent vers /edn-complete et /ecos, pas vers /signup.
-- **Le cookie banner chevauche les CTAs du Hero sur mobile** (visible sur le screenshot 390px).
-- **Le bouton "Accessibilite"** en position fixe en haut a droite est visuellement distrayant et reduit la zone de CTA sur mobile.
+**Correction** : Supprimer les blocs `aggregateRating` des deux schemas tant qu'il n'y a pas de vritable systeme d'avis.
 
-### Actions recommandees
+### 4. FAQ JSON-LD duplique (SEO + GEO)
 
-1. **Ajouter un CTA "Creer mon compte" dans la section Testimonials** apres les avis - moment de conviction maximale.
-2. **Ajouter un sticky CTA mobile** (barre fixe en bas "Essayer gratuitement") qui apparait apres le scroll du Hero.
-3. **Reduire le z-index du bouton Accessibilite** ou le deplacer dans le menu hamburger sur mobile.
-4. **Accepter automatiquement les cookies essentiels** sans banner pour ne pas bloquer la vue du Hero.
+`createFAQPageSchema()` et `createGEOFAQSchema()` sont deux schemas FAQPage distincts injectes sur la meme page (homepage et pricing). Google peut ignorer les deux s'il detecte des doublons du meme type.
+
+**Correction** : Fusionner en un seul FAQPage combine (questions SEO classiques + questions GEO conversationnelles).
 
 ---
 
-## 5. SEO & ACQUISITION ORGANIQUE (8/10)
+## PROBLEMES MODERES
 
-### Points forts
-- 10+ pillar pages SEO (2000+ mots chacune) couvrant "ECOS 2026", "EDN", "Cas cliniques"
-- JSON-LD complet (Organization, FAQPage, Article, Speakable, HowTo)
-- `robots.txt` correctement configure avec autorisation des bots IA (GPTBot, Claude-Web, PerplexityBot)
-- `llms.txt` bien structure pour le GEO (Generative Engine Optimization)
-- `sitemap.xml` present
-- Balises Open Graph et Twitter Cards sur toutes les pages
+### 5. Sitemap : lastmod statique (2026-02-10) sur toutes les URLs
 
-### Lacunes
-- **Pas de Google Search Console** connecte (impossible de verifier l'indexation reelle)
-- **Pas de Google Analytics / Plausible** pour le trafic organique reel
-- Les pillar pages n'ont pas de **maillage interne systematique** entre elles
+Toutes les 35 URLs ont la meme date lastmod. Google ignore les lastmod quand elles semblent non fiables. Ce signal perd toute valeur.
 
-### Actions recommandees
-1. **Connecter Google Search Console** et verifier l'indexation des 10+ pillar pages
-2. **Ajouter un analytics tiers** (Plausible, Umami, ou GA4) pour mesurer le trafic organique reel
-3. **Ajouter des liens croises** entre pillar pages ("Voir aussi : Preparation ECOS 2026")
+**Correction** : Mettre a jour le script `generate-sitemap.ts` pour utiliser la date du jour (`TODAY`) et regenerer le sitemap. A terme, utiliser les vraies dates de modification.
 
----
+### 6. Incoherence pricing dans les JSON-LD
 
-## 6. RETENTION & ENGAGEMENT (5/10)
+- `jsonLdSchemas.ts` mentionne 3 plans : Gratuit (0EUR), Premium (39EUR), Institution (99EUR)
+- `seoConfig.ts` mentionne : Standard (19EUR), Pro (29EUR), Premium (39EUR)
+- `llms.txt` mentionne : Gratuit, Premium (39EUR), Institution (99EUR)
+- L'UI affiche : Gratuit, Pro Etudiant (19EUR), Premium (39EUR)
 
-### Constat
-- Systeme de gamification present (streaks, niveaux, badges) mais **invisible pour les anonymes**
-- SRS (repetition espacee) implemente mais non mis en avant dans le marketing
-- Chat IA therapeutique disponible
-- PWA installable avec notifications push
+**Correction** : Harmoniser tous les fichiers avec les vrais plans affiches dans l'UI.
 
-### Problemes
-- **Aucun email de relance** (drip campaign) apres inscription
-- **Aucun email post-trial** avant fin de l'essai 7 jours
-- Les streaks et badges ne sont visibles que dans le footer **apres connexion** - zero valeur marketing
-- **Pas de partage social** des badges/reussites
+### 7. `llms.txt` reference une page inexistante dans le sitemap
 
-### Actions recommandees
-1. **Creer une sequence d'emails post-inscription** (J1 : bienvenue, J3 : premier item, J5 : rappel, J7 : fin essai)
-2. **Afficher les stats de gamification dans le Hero** pour les visiteurs ("Marie a termine 12 items cette semaine" - feed en temps reel)
-3. **Ajouter un bouton de partage** sur les badges et reussites
+La ligne `Fiches ECOS : https://med-mng.lovable.app/fiches-ecos-interactives` est correcte mais la page n'est pas dans le sitemap (voir point 1).
+
+### 8. Pages dans le sitemap qui devraient etre noindex
+
+Certaines routes dans le sitemap sont des outils utilisateur connecte et n'ont pas de valeur SEO :
+- `/my-goals` (objectifs perso)
+- `/mood-tracker` (suivi d'humeur perso)
+- `/achievements` (badges perso)
+- `/progress-dashboard` (progression perso)
+- `/statistics` (stats perso)
+
+**Correction** : Soit les retirer du sitemap, soit les garder si le contenu est accessible aux anonymes (a verifier).
 
 ---
 
-## 7. PAGE D'ACCUEIL - ANALYSE MARKETING (7/10)
+## CE QUI FONCTIONNE BIEN
 
-### Structure actuelle (5 sections)
-1. **Hero** : Message + 2 CTAs + badges valeur -- Excellent
-2. **Music Player** : Demo audio -- Bon mais non teste (audio fictif ?)
-3. **Feature Showcase** : 4 features + CTAs vers EDN/ECOS -- Manque CTA signup
-4. **Testimonials** : 4 avis + stats -- Faux temoignages
-5. **Final CTA** : "Creer mon compte gratuit" -- Bon mais trop bas
-
-### Probleme structurel
-La page est **trop longue pour une landing page de conversion**. Un visiteur sur mobile doit scroller 4-5 ecrans avant le CTA final. Le taux de scroll au-dela de 50% est generalement < 30%.
-
-### Actions recommandees
-1. **Reduire a 3 sections** : Hero (avec demo audio inline), Social Proof + Features, CTA Final
-2. **Integrer le player audio directement dans le Hero** comme proof of concept immediate
-3. **Deplacer les stats (367 items, x3 memoire, 4.9/5) dans le Hero** sous les CTAs
+- **robots.txt** : excellent, couvre tous les bots (Google, Bing, Twitter, Facebook, GPTBot, Claude-Web, PerplexityBot, Applebot)
+- **GEO schemas** (Speakable, HowTo, DefinedTerm, Dataset, Expertise) : implementation de qualite, bien ciblee
+- **SEOHead** : meta OG, Twitter Cards, canonical, keywords -- complet
+- **GlobalSecurityHeaders** : CSP grade A, HSTS, preconnect
+- **llms.txt** : bien structure, proposition de valeur claire
+- **seoConfig.ts** : 50+ routes avec meta uniques, fallback generique, pattern matching dynamique
+- **noindex** correctement applique sur les routes admin/internes (30+ routes)
 
 ---
 
-## 8. MOBILE (7/10)
+## PLAN DE CORRECTIONS
 
-### Points positifs
-- Layout responsive correct, pas de debordement horizontal
-- CTA empiles verticalement, taille adequate
-- Hamburger menu fonctionnel
-- Typography lisible
+### Phase 1 : Pillar pages dans le SEO (Impact maximal)
 
-### Problemes
-- Cookie banner chevauche les badges de valeur dans le Hero
-- Le bouton "Accessibilite" prend de l'espace precieux en haut a droite
-- Pas de sticky CTA en bas d'ecran
+1. **`src/config/seoConfig.ts`** : Ajouter 10 entrees pour les pillar pages avec title optimise (~55 chars), description (~150 chars), keywords long-tail, canonical, ogType: 'article'
 
----
+2. **`scripts/generate-sitemap.ts`** : Ajouter les 10 routes pillar dans PUBLIC_ROUTES
 
-## MATRICE PRIORITES
+3. **`public/sitemap.xml`** : Regenerer avec les 10 nouvelles URLs (priority 0.8, changefreq monthly, lastmod aujourd'hui)
 
-| Action | Impact | Effort | Priorite |
-|--------|--------|--------|----------|
-| Tracker `checkout_start` | Eleve | Faible | P0 |
-| Corriger "37+ inscrits" -> reel | Eleve | Faible | P0 |
-| Ajouter sticky CTA mobile | Eleve | Moyen | P1 |
-| CTA signup dans section Testimonials | Eleve | Faible | P1 |
-| Sequence emails post-inscription | Eleve | Eleve | P1 |
-| Connecter Google Search Console | Moyen | Faible | P2 |
-| Harmoniser noms de plans | Moyen | Faible | P2 |
-| Reduire sections landing page | Moyen | Moyen | P2 |
-| Systeme collecte avis reels | Moyen | Moyen | P3 |
-| Analytics tiers (Plausible/GA4) | Moyen | Moyen | P3 |
+### Phase 2 : JSON-LD cleanup
+
+4. **`src/components/seo/AutoSEO.tsx`** : Supprimer la logique structuredData redondante (GlobalJsonLd s'en charge deja)
+
+5. **`src/components/seo/jsonLdSchemas.ts`** : Supprimer les `aggregateRating` des schemas SoftwareApplication et Product
+
+6. **`src/components/seo/GlobalJsonLd.tsx`** : Fusionner createFAQPageSchema + createGEOFAQSchema en un seul schema FAQPage
+
+### Phase 3 : Coherence donnees
+
+7. **`src/components/seo/jsonLdSchemas.ts`** : Harmoniser les noms et prix des plans (Gratuit, Pro Etudiant 19EUR, Premium 39EUR)
+
+8. **`public/llms.txt`** : Mettre a jour les tarifs pour matcher l'UI
+
+9. **`public/sitemap.xml`** : Mettre a jour les lastmod a la date du jour (2026-03-01)
 
 ---
 
-## SCORE DETAILLE
+## SCORE PROJETE APRES CORRECTIONS
 
-| Critere | Note | Details |
-|---------|------|---------|
-| Funnel de conversion | 4/10 | checkout_start non tracke, 0 paiement |
-| Social proof | 5/10 | Chiffres faux, temoignages fictifs |
-| Pricing | 7/10 | Bien structure, noms incoherents |
-| Parcours acquisition | 6/10 | Hero excellent, sections intermediaires sans CTA signup |
-| SEO technique | 8/10 | JSON-LD, sitemap, llms.txt, pillar pages |
-| Retention | 5/10 | Gamification cachee, 0 email marketing |
-| Landing page | 7/10 | Branding premium, trop longue |
-| Mobile | 7/10 | Responsive OK, cookie banner genante |
-| **Global** | **6.5/10** | |
+| Critere | Avant | Apres |
+|---------|-------|-------|
+| Sitemap completude | 5/10 | 10/10 |
+| Meta tags coverage | 6/10 | 10/10 |
+| JSON-LD qualite | 6/10 | 9/10 |
+| GEO optimization | 9/10 | 9/10 |
+| Coherence donnees | 4/10 | 9/10 |
+| robots.txt | 10/10 | 10/10 |
+| **Global** | **7/10** | **9.5/10** |
 
----
-
-## OBJECTIF : 8.5/10
-
-En implementant les actions P0 et P1 (tracking checkout_start, correction social proof, sticky CTA mobile, CTA signup dans testimonials), le score passe a 8.5/10. Les actions P2-P3 (emails, analytics, collecte avis) porteront le score a 9+/10 sur le moyen terme.
