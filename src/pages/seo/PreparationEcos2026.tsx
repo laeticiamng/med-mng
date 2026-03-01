@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, BookOpen, Clock, Target, CheckCircle, Stethoscope, Brain, Calendar, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const PreparationEcos2026 = () => {
   return (
@@ -309,6 +310,7 @@ const PreparationEcos2026 = () => {
               { "@type": "Question", "name": "Les ECOS comptent-ils pour le classement ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, les ECOS représentent 30% de la note finale pour le classement national." }},
             ]
           })}} />
+          <SeeAlsoLinks currentPath="/preparation-ecos-2026" />
         </article>
         <AppFooter />
       </div>

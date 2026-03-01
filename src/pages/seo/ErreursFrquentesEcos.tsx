@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, AlertTriangle, CheckCircle, XCircle, Target, BookOpen, Calendar, Stethoscope } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const erreurs = [
   {
@@ -209,6 +210,7 @@ const ErreursFrquentesEcos = () => {
             </div>
           </section>
 
+          <SeeAlsoLinks currentPath="/erreurs-frequentes-ecos" />
         </article>
         <AppFooter />
       </div>
