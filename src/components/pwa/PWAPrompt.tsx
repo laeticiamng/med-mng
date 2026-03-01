@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, RefreshCw, Wifi, WifiOff, X, Smartphone } from 'lucide-react';
 import { usePWA } from '@/hooks/usePWA';
 
-export const PWAPrompt: React.FC = () => {
+export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
   const [isDismissed, setIsDismissed] = React.useState(false);
   const {
     isInstallable,
@@ -142,4 +142,5 @@ export const PWAPrompt: React.FC = () => {
   }
 
   return null;
-};
+});
+PWAPrompt.displayName = 'PWAPrompt';
