@@ -20,7 +20,7 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
-export const ThemeProvider = React.forwardRef<HTMLDivElement, ThemeProviderProps>(function ThemeProvider({
+export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "med-mng-ui-theme",
@@ -60,8 +60,7 @@ export const ThemeProvider = React.forwardRef<HTMLDivElement, ThemeProviderProps
       {children}
     </ThemeProviderContext.Provider>
   )
-});
-ThemeProvider.displayName = 'ThemeProvider'
+}
 
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext)
