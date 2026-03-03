@@ -2,6 +2,8 @@
  * 🛡️ Console Clean Smoke Test
  * Vérifie qu'aucun warning "forwardRef" n'apparaît lors du rendu de l'App.
  * Empêche la régression des fixes appliqués sur AppFooter, SEOHead, etc.
+ *
+ * Couvre les actions 6–7 du plan anti-régression forwardRef.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render } from "@testing-library/react";
@@ -27,8 +29,28 @@ vi.mock("@sentry/react", () => ({
 
 import App from "@/App";
 
+/**
+ * Patterns qui indiquent un warning forwardRef dans React.
+ * Si l'un d'eux apparaît dans console.warn OU console.error, le test échoue.
+ */
+const FORWARD_REF_PATTERNS = [
+  "Function components cannot be given refs",
+  "forwardRef",
+  "Check the render method of",
+  "did you mean to use React.forwardRef",
+];
+
+function containsForwardRefWarning(args: any[]): boolean {
+  return args.some(
+    (arg) =>
+      typeof arg === "string" &&
+      FORWARD_REF_PATTERNS.some((pattern) => arg.includes(pattern))
+  );
+}
+
 describe("Console Clean — forwardRef warnings", () => {
   let warnSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     // Polyfill missing performance methods in jsdom
@@ -40,7 +62,7 @@ describe("Console Clean — forwardRef warnings", () => {
     }
 
     warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -50,15 +72,17 @@ describe("Console Clean — forwardRef warnings", () => {
   it("should not emit any forwardRef warning when rendering App", () => {
     render(<App />);
 
-    const forwardRefWarnings = warnSpy.mock.calls.filter((args) =>
-      args.some(
-        (arg) =>
-          typeof arg === "string" &&
-          (arg.includes("Function components cannot be given refs") ||
-            arg.includes("forwardRef"))
-      )
-    );
+    const warnMatches = warnSpy.mock.calls.filter(containsForwardRefWarning);
+    const errorMatches = errorSpy.mock.calls.filter(containsForwardRefWarning);
 
-    expect(forwardRefWarnings).toHaveLength(0);
+    expect(
+      warnMatches,
+      `Found ${warnMatches.length} forwardRef warning(s) in console.warn`
+    ).toHaveLength(0);
+
+    expect(
+      errorMatches,
+      `Found ${errorMatches.length} forwardRef error(s) in console.error`
+    ).toHaveLength(0);
   });
 });
