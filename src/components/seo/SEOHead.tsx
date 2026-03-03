@@ -1,13 +1,11 @@
+import { forwardRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 /**
  * SEOHead - Composant réutilisable pour le SEO
  * 
- * Inclut automatiquement:
- * - Meta tags essentiels
- * - Open Graph pour réseaux sociaux
- * - Twitter Cards
- * - Structured data (Schema.org)
+ * Wrapped with forwardRef to prevent warnings when React Router
+ * or other wrappers pass refs to route components.
  */
 
 interface SEOHeadProps {
@@ -22,7 +20,7 @@ interface SEOHeadProps {
   noindex?: boolean;
 }
 
-export const SEOHead: React.FC<SEOHeadProps> = ({
+export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
   title,
   description,
   keywords,
@@ -32,7 +30,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   twitterCard = 'summary_large_image',
   structuredData,
   noindex = false,
-}) => {
+}, _ref) => {
   const siteUrl = 'https://med-mng.lovable.app';
   const fullTitle = `${title} - MED-MNG`;
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : undefined;
@@ -77,7 +75,9 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       )}
     </Helmet>
   );
-};
+});
+
+SEOHead.displayName = 'SEOHead';
 
 /**
  * Exemples d'utilisation:

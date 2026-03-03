@@ -7,9 +7,9 @@ import { AppleFinalCTA } from "@/components/home/AppleFinalCTA";
 import { StickyMobileCTA } from "@/components/home/StickyMobileCTA";
 import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
-const Index = () => {
+const Index = forwardRef<HTMLDivElement>((_, ref) => {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const Index = () => {
   };
 
   return (
-    <>
+    <div ref={ref}>
       <SEOHead
         title="MED MNG - Apprends la médecine en musique | EDN & ECOS"
         description="🎧 Révolutionne tes révisions. 367 items EDN et simulations ECOS transformés en chansons. Écoute, retiens, réussis. Gratuit pour commencer."
@@ -92,8 +92,10 @@ const Index = () => {
       
       {/* Sticky CTA mobile */}
       <StickyMobileCTA />
-    </>
+    </div>
   );
-};
+});
+
+Index.displayName = 'Index';
 
 export default Index;
