@@ -60,8 +60,8 @@ export const AppleHero = () => {
 
       {/* Main content */}
       <motion.div 
-        style={{ y, opacity, scale }}
-        className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+        style={{ y, opacity, scale, position: 'relative' }}
+        className="z-10 text-center px-4 max-w-5xl mx-auto"
       >
         {/* Badge */}
         <motion.div
