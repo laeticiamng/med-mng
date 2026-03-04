@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
+import { TranslatedText } from '@/components/global/TranslatedText';
 
 export const AppleHero = () => {
   const navigate = useNavigate();
@@ -33,28 +34,17 @@ export const AppleHero = () => {
       {/* Floating orbs */}
       <motion.div 
         className="absolute top-20 left-10 w-72 h-72 rounded-full bg-primary/20 blur-3xl"
-        animate={{ 
-          x: [0, 50, 0], 
-          y: [0, 30, 0],
-          scale: [1, 1.1, 1]
-        }}
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div 
         className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-accent/20 blur-3xl"
-        animate={{ 
-          x: [0, -40, 0], 
-          y: [0, -50, 0],
-          scale: [1, 1.2, 1]
-        }}
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div 
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-warning/10 blur-3xl"
-        animate={{ 
-          scale: [1, 1.3, 1],
-          rotate: [0, 180, 360]
-        }}
+        animate={{ scale: [1, 1.3, 1], rotate: [0, 180, 360] }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
       />
 
@@ -71,7 +61,7 @@ export const AppleHero = () => {
           className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-8"
         >
           <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium text-primary">Révolutionner l'apprentissage médical</span>
+          <span className="text-sm font-medium text-primary"><TranslatedText text="Révolutionner l'apprentissage médical" /></span>
         </motion.div>
 
         {/* Main headline */}
@@ -81,10 +71,10 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
         >
-          <span className="text-foreground">Apprends la médecine</span>
+          <span className="text-foreground"><TranslatedText text="Apprends la médecine" /></span>
           <br />
           <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
-            en musique.
+            <TranslatedText text="en musique." />
           </span>
         </motion.h1>
 
@@ -95,9 +85,9 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          Les 367 cours du programme médical.
+          <TranslatedText text="Les 367 cours du programme médical." />
           <br className="hidden sm:block" />
-          Transformés en <span className="text-foreground font-semibold">chansons que tu retiens</span>.
+          <TranslatedText text="Transformés en" /> <span className="text-foreground font-semibold"><TranslatedText text="chansons que tu retiens" /></span>.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -113,7 +103,7 @@ export const AppleHero = () => {
             className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
           >
             <Sparkles className="h-5 w-5 mr-2" />
-            Créer un compte gratuit
+            <TranslatedText text="Créer un compte gratuit" />
           </Button>
           <Button 
             variant="outline"
@@ -122,7 +112,7 @@ export const AppleHero = () => {
             className="h-14 px-8 text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105"
           >
             <Play className="h-5 w-5 mr-2" />
-            Voir les 367 cours
+            <TranslatedText text="Voir les 367 cours" />
           </Button>
         </motion.div>
 
@@ -145,7 +135,6 @@ export const AppleHero = () => {
               transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
               className="relative overflow-hidden flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-5 py-2.5"
             >
-              {/* Shine effect */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -skew-x-12"
                 initial={{ x: '-100%' }}
@@ -153,7 +142,7 @@ export const AppleHero = () => {
                 transition={{ duration: 3, delay: 2 + index * 0.3, repeat: Infinity, repeatDelay: 5 }}
               />
               <item.icon className="h-4 w-4 text-primary" />
-              <span className="text-base font-medium text-foreground">{item.label}</span>
+              <span className="text-base font-medium text-foreground"><TranslatedText text={item.label} /></span>
             </motion.div>
           ))}
         </motion.div>
@@ -171,7 +160,7 @@ export const AppleHero = () => {
           transition={{ duration: 2, repeat: Infinity }}
           className="flex flex-col items-center gap-2"
         >
-          <span className="text-base font-medium text-foreground/70">Découvrir</span>
+          <span className="text-base font-medium text-foreground/70"><TranslatedText text="Découvrir" /></span>
           <div className="w-10 h-10 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 flex items-center justify-center">
             <ArrowDown className="h-5 w-5 text-primary" />
           </div>
