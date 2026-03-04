@@ -109,6 +109,8 @@ export const ROUTE_PATHS = {
   karaokeDuel: '/duel',
   // 🎵 Playlist SRS automatique
   dailySRSPlaylist: '/srs-playlist',
+  // 🏥 Examen blanc national
+  nationalExam: '/examen-blanc-national',
   // 🎯 Specialty Paths
   specialtyPaths: '/parcours',
   specialtyPathDetail: '/parcours/:slug',
