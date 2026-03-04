@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { TranslatedText } from '@/components/TranslatedText';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
@@ -127,8 +128,8 @@ export const MainNavigation: React.FC = () => {
                 }`}
               >
                 <item.icon className="w-4 h-4 mr-1.5 xl:mr-2" />
-                <span className="hidden xl:inline">{item.label}</span>
-                <span className="xl:hidden">{item.shortLabel || item.label}</span>
+                <span className="hidden xl:inline"><TranslatedText text={item.label} /></span>
+                <span className="xl:hidden"><TranslatedText text={item.shortLabel || item.label} /></span>
               </Link>
             ))}
             
@@ -137,7 +138,7 @@ export const MainNavigation: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground">
                   <MoreHorizontal className="w-4 h-4 mr-1" />
-                  Plus
+                  <TranslatedText text="Plus" />
                   <ChevronDown className="w-3 h-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
@@ -148,7 +149,7 @@ export const MainNavigation: React.FC = () => {
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger className="font-medium">
                         <group.icon className="w-4 h-4 mr-2" />
-                        {group.label}
+                        <TranslatedText text={group.label} />
                       </DropdownMenuSubTrigger>
                       <DropdownMenuPortal>
                         <DropdownMenuSubContent className="w-52">
@@ -160,10 +161,10 @@ export const MainNavigation: React.FC = () => {
                             >
                               <div className="flex items-center w-full">
                                 <item.icon className="w-4 h-4 mr-2" />
-                                <span>{item.label}</span>
+                                <span><TranslatedText text={item.label} /></span>
                               </div>
                               {item.description && (
-                                <span className="text-xs text-muted-foreground ml-6">{item.description}</span>
+                                <span className="text-xs text-muted-foreground ml-6"><TranslatedText text={item.description} /></span>
                               )}
                             </DropdownMenuItem>
                           ))}
@@ -178,12 +179,12 @@ export const MainNavigation: React.FC = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel className="flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      Administration
+                      <TranslatedText text="Administration" />
                     </DropdownMenuLabel>
                     {ADMIN_NAV_ITEMS.slice(0, 3).map((item) => (
                       <DropdownMenuItem key={item.path} onClick={() => navigate(item.path)}>
                         <item.icon className="w-4 h-4 mr-2" />
-                        {item.label}
+                        <TranslatedText text={item.label} />
                       </DropdownMenuItem>
                     ))}
                   </>
@@ -235,42 +236,42 @@ export const MainNavigation: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+                  <DropdownMenuLabel><TranslatedText text="Mon compte" /></DropdownMenuLabel>
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngProfile)}>
                       <User className="w-4 h-4 mr-2" />
-                      Mon Profil
+                      <TranslatedText text="Mon Profil" />
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}>
                       <Music className="w-4 h-4 mr-2" />
-                      Ma Bibliothèque
+                      <TranslatedText text="Ma Bibliothèque" />
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngFavorites)}>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Mes Favoris
+                      <TranslatedText text="Mes Favoris" />
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
                       <BarChart3 className="w-4 h-4 mr-2" />
-                      Ma Progression
+                      <TranslatedText text="Ma Progression" />
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.achievements)}>
                       <Trophy className="w-4 h-4 mr-2" />
-                      Mes Succès
+                      <TranslatedText text="Mes Succès" />
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.settings)}>
                     <Settings className="w-4 h-4 mr-2" />
-                    Paramètres
+                    <TranslatedText text="Paramètres" />
                   </DropdownMenuItem>
                   
                   {isAdmin && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuLabel>Administration</DropdownMenuLabel>
+                      <DropdownMenuLabel><TranslatedText text="Administration" /></DropdownMenuLabel>
                       <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.adminPanel)}>
                         <Shield className="w-4 h-4 mr-2" />
-                        Panneau Admin
+                        <TranslatedText text="Panneau Admin" />
                       </DropdownMenuItem>
                     </>
                   )}
@@ -278,17 +279,17 @@ export const MainNavigation: React.FC = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />
-                    Déconnexion
+                    <TranslatedText text="Déconnexion" />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
                 <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.medMngLogin)} className="text-sm h-9 px-3 whitespace-nowrap">
-                  Connexion
+                  <TranslatedText text="Connexion" />
                 </Button>
                 <Button size="sm" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="text-sm h-9 px-4 whitespace-nowrap">
-                  S'inscrire
+                  <TranslatedText text="S'inscrire" />
                 </Button>
               </div>
             )}
@@ -317,7 +318,7 @@ export const MainNavigation: React.FC = () => {
               
               {/* Navigation principale */}
               <div className="px-2 pb-2">
-                <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide">Navigation</p>
+                <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide"><TranslatedText text="Navigation" /></p>
               </div>
               {MAIN_NAV_ITEMS.map((item) => (
                 <Link
@@ -331,7 +332,7 @@ export const MainNavigation: React.FC = () => {
                   }`}
                 >
                   <item.icon className="w-4 h-4 mr-3" />
-                  {item.label}
+                  <TranslatedText text={item.label} />
                 </Link>
               ))}
               
@@ -343,7 +344,7 @@ export const MainNavigation: React.FC = () => {
                     <div className="px-2 pb-2 border-t border-border/50 pt-3">
                       <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide flex items-center gap-2">
                         <IconComponent className="w-3 h-3" />
-                        {group.label.replace(/^[^\s]+\s/, '')}
+                        <TranslatedText text={group.label.replace(/^[^\s]+\s/, '')} />
                       </p>
                     </div>
                     {group.items.map((item) => {
@@ -361,10 +362,10 @@ export const MainNavigation: React.FC = () => {
                         >
                           <div className="flex items-center">
                             <ItemIcon className="w-4 h-4 mr-3" />
-                            {item.label}
+                            <TranslatedText text={item.label} />
                           </div>
                           {item.description && (
-                            <span className="text-xs text-muted-foreground/70">{item.description}</span>
+                            <span className="text-xs text-muted-foreground/70"><TranslatedText text={item.description} /></span>
                           )}
                         </Link>
                       );
@@ -385,7 +386,7 @@ export const MainNavigation: React.FC = () => {
                     }}
                     className="justify-start h-10"
                   >
-                    Connexion
+                    <TranslatedText text="Connexion" />
                   </Button>
                   <Button 
                     size="sm" 
@@ -395,7 +396,7 @@ export const MainNavigation: React.FC = () => {
                     }}
                     className="h-10"
                   >
-                    S'inscrire
+                    <TranslatedText text="S'inscrire" />
                   </Button>
                 </div>
               )}

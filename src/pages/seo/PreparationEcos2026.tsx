@@ -8,6 +8,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, BookOpen, Clock, Target, CheckCircle, Stethoscope, Brain, Calendar, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
+import { TranslatedText } from '@/components/TranslatedText';
 
 const PreparationEcos2026 = () => {
   return (
@@ -24,31 +25,30 @@ const PreparationEcos2026 = () => {
           
           {/* Hero */}
           <header className="mb-12">
-            <Badge variant="secondary" className="mb-4">Guide 2026</Badge>
+            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide 2026" /></Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              Comment préparer les ECOS 2026 : le guide complet pour réussir
+              <TranslatedText text="Comment préparer les ECOS 2026 : le guide complet pour réussir" />
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Les ECOS (Examens Cliniques Objectifs Structurés) sont l'épreuve décisive du 2e cycle des études médicales. 
-              Ce guide vous donne toutes les clés pour vous y préparer efficacement, avec un planning structuré et des outils interactifs.
+              <TranslatedText text="Les ECOS (Examens Cliniques Objectifs Structurés) sont l'épreuve décisive du 2e cycle des études médicales. Ce guide vous donne toutes les clés pour vous y préparer efficacement, avec un planning structuré et des outils interactifs." />
             </p>
             <div className="flex flex-wrap gap-3">
-              <Badge variant="outline" className="gap-1"><Clock className="h-3 w-3" /> 15 min de lecture</Badge>
-              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> Mis à jour février 2026</Badge>
+              <Badge variant="outline" className="gap-1"><Clock className="h-3 w-3" /> <TranslatedText text="15 min de lecture" /></Badge>
+              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour février 2026" /></Badge>
             </div>
           </header>
 
           {/* Table of contents */}
           <nav className="mb-12 p-6 bg-muted/50 rounded-xl border">
-            <h2 className="font-semibold text-foreground mb-4">📋 Sommaire</h2>
+            <h2 className="font-semibold text-foreground mb-4">📋 <TranslatedText text="Sommaire" /></h2>
             <ol className="space-y-2 text-sm">
-              <li><a href="#comprendre" className="text-primary hover:underline">1. Comprendre les ECOS : format, notation, enjeux</a></li>
-              <li><a href="#competences" className="text-primary hover:underline">2. Les 11 compétences évaluées</a></li>
-              <li><a href="#planning" className="text-primary hover:underline">3. Planning de révision sur 6 mois</a></li>
-              <li><a href="#strategies" className="text-primary hover:underline">4. Stratégies de préparation efficaces</a></li>
-              <li><a href="#erreurs" className="text-primary hover:underline">5. Les erreurs à éviter absolument</a></li>
-              <li><a href="#simulation" className="text-primary hover:underline">6. L'importance des simulations</a></li>
-              <li><a href="#outils" className="text-primary hover:underline">7. Outils et ressources recommandés</a></li>
+              <li><a href="#comprendre" className="text-primary hover:underline"><TranslatedText text="1. Comprendre les ECOS : format, notation, enjeux" /></a></li>
+              <li><a href="#competences" className="text-primary hover:underline"><TranslatedText text="2. Les 11 compétences évaluées" /></a></li>
+              <li><a href="#planning" className="text-primary hover:underline"><TranslatedText text="3. Planning de révision sur 6 mois" /></a></li>
+              <li><a href="#strategies" className="text-primary hover:underline"><TranslatedText text="4. Stratégies de préparation efficaces" /></a></li>
+              <li><a href="#erreurs" className="text-primary hover:underline"><TranslatedText text="5. Les erreurs à éviter absolument" /></a></li>
+              <li><a href="#simulation" className="text-primary hover:underline"><TranslatedText text="6. L'importance des simulations" /></a></li>
+              <li><a href="#outils" className="text-primary hover:underline"><TranslatedText text="7. Outils et ressources recommandés" /></a></li>
               <li><a href="#faq" className="text-primary hover:underline">8. FAQ</a></li>
             </ol>
           </nav>
@@ -57,32 +57,28 @@ const PreparationEcos2026 = () => {
           <section id="comprendre" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Stethoscope className="h-6 w-6 text-primary" />
-              1. Comprendre les ECOS : format, notation, enjeux
+              <TranslatedText text="1. Comprendre les ECOS : format, notation, enjeux" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              Les ECOS constituent une épreuve pratique où l'étudiant est évalué dans des situations cliniques simulées. 
-              Chaque station dure entre 7 et 15 minutes et simule une consultation, un geste technique, une annonce diagnostique 
-              ou une prise en charge d'urgence.
+              <TranslatedText text="Les ECOS constituent une épreuve pratique où l'étudiant est évalué dans des situations cliniques simulées. Chaque station dure entre 7 et 15 minutes et simule une consultation, un geste technique, une annonce diagnostique ou une prise en charge d'urgence." />
             </p>
             <p className="text-muted-foreground mb-4">
-              Depuis la réforme du 2e cycle, les ECOS représentent <strong>30% de la note finale</strong> pour le classement national. 
-              C'est une épreuve qui ne s'improvise pas : elle exige une préparation méthodique, régulière, et orientée compétences.
+              <TranslatedText text="Depuis la réforme du 2e cycle, les ECOS représentent 30% de la note finale pour le classement national. C'est une épreuve qui ne s'improvise pas : elle exige une préparation méthodique, régulière, et orientée compétences." />
             </p>
             <Card className="mb-4">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-3">Format type d'une session ECOS :</h3>
+                <h3 className="font-semibold mb-3"><TranslatedText text="Format type d'une session ECOS :" /></h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> 10 stations de 7 à 15 minutes</li>
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> Patient standardisé (acteur formé)</li>
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> Grille d'évaluation par compétence</li>
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> Notation sur check-list + impression globale</li>
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> Aucune pause entre les stations</li>
+                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="10 stations de 7 à 15 minutes" /></li>
+                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Patient standardisé (acteur formé)" /></li>
+                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Grille d'évaluation par compétence" /></li>
+                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Notation sur check-list + impression globale" /></li>
+                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Aucune pause entre les stations" /></li>
                 </ul>
               </CardContent>
             </Card>
             <p className="text-muted-foreground">
-              L'enjeu est double : maîtriser le contenu médical ET la communication. Un étudiant techniquement excellent 
-              mais qui ne structure pas son entretien ou ne rassure pas le patient perdra des points précieux.
+              <TranslatedText text="L'enjeu est double : maîtriser le contenu médical ET la communication. Un étudiant techniquement excellent mais qui ne structure pas son entretien ou ne rassure pas le patient perdra des points précieux." />
             </p>
           </section>
 
@@ -90,11 +86,10 @@ const PreparationEcos2026 = () => {
           <section id="competences" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Brain className="h-6 w-6 text-primary" />
-              2. Les 11 compétences évaluées aux ECOS
+              <TranslatedText text="2. Les 11 compétences évaluées aux ECOS" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              Les ECOS évaluent des compétences transversales, pas uniquement des connaissances. Voici les 11 compétences 
-              du référentiel de compétences médicales :
+              <TranslatedText text="Les ECOS évaluent des compétences transversales, pas uniquement des connaissances. Voici les 11 compétences du référentiel de compétences médicales :" />
             </p>
             <div className="grid sm:grid-cols-2 gap-3 mb-6">
               {[
@@ -112,14 +107,12 @@ const PreparationEcos2026 = () => {
               ].map((comp, i) => (
                 <div key={i} className="flex items-start gap-2 p-3 bg-muted/30 rounded-lg">
                   <Target className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{comp}</span>
+                  <span className="text-sm"><TranslatedText text={comp} /></span>
                 </div>
               ))}
             </div>
             <p className="text-muted-foreground">
-              Chaque station ECOS cible 2 à 4 compétences. Votre préparation doit couvrir toutes ces dimensions, 
-              pas seulement le savoir théorique. Sur MED-MNG, chaque cas clinique est noté par compétence pour vous permettre 
-              d'identifier précisément vos lacunes.
+              <TranslatedText text="Chaque station ECOS cible 2 à 4 compétences. Votre préparation doit couvrir toutes ces dimensions, pas seulement le savoir théorique. Sur MED-MNG, chaque cas clinique est noté par compétence pour vous permettre d'identifier précisément vos lacunes." />
             </p>
           </section>
 
@@ -127,10 +120,10 @@ const PreparationEcos2026 = () => {
           <section id="planning" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Calendar className="h-6 w-6 text-primary" />
-              3. Planning de révision sur 6 mois
+              <TranslatedText text="3. Planning de révision sur 6 mois" />
             </h2>
             <p className="text-muted-foreground mb-6">
-              Un planning structuré est la clé du succès. Voici notre recommandation basée sur les retours de centaines d'étudiants :
+              <TranslatedText text="Un planning structuré est la clé du succès. Voici notre recommandation basée sur les retours de centaines d'étudiants :" />
             </p>
             
             {[
@@ -141,12 +134,12 @@ const PreparationEcos2026 = () => {
             ].map((phase, i) => (
               <Card key={i} className="mb-4">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-foreground mb-3">{phase.period}</h3>
+                  <h3 className="font-semibold text-foreground mb-3"><TranslatedText text={phase.period} /></h3>
                   <ul className="space-y-2">
                     {phase.tasks.map((task, j) => (
                       <li key={j} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
-                        {task}
+                        <TranslatedText text={task} />
                       </li>
                     ))}
                   </ul>
@@ -159,28 +152,24 @@ const PreparationEcos2026 = () => {
           <section id="strategies" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Target className="h-6 w-6 text-primary" />
-              4. Stratégies de préparation efficaces
+              <TranslatedText text="4. Stratégies de préparation efficaces" />
             </h2>
             <div className="space-y-6 text-muted-foreground">
               <div>
-                <h3 className="font-semibold text-foreground mb-2">La méthode SOAP pour structurer chaque station</h3>
-                <p>Subjective (motif, anamnèse) → Objective (examen physique) → Assessment (diagnostic) → Plan (prise en charge). 
-                Cette structure vous permet de ne rien oublier et d'être systématique.</p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="La méthode SOAP pour structurer chaque station" /></h3>
+                <p><TranslatedText text="Subjective (motif, anamnèse) → Objective (examen physique) → Assessment (diagnostic) → Plan (prise en charge). Cette structure vous permet de ne rien oublier et d'être systématique." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">L'apprentissage par la musique (méthode MED-MNG)</h3>
-                <p>Les neurosciences montrent que la musique améliore la rétention mémorielle de 20 à 40%. MED-MNG transforme 
-                chaque item EDN en chanson médicale, permettant une révision active même pendant vos déplacements.</p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="L'apprentissage par la musique (méthode MED-MNG)" /></h3>
+                <p><TranslatedText text="Les neurosciences montrent que la musique améliore la rétention mémorielle de 20 à 40%. MED-MNG transforme chaque item EDN en chanson médicale, permettant une révision active même pendant vos déplacements." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">La répétition espacée (SRS)</h3>
-                <p>Revoyez chaque item à des intervalles croissants : J+1, J+3, J+7, J+14, J+30. Cette technique scientifiquement 
-                prouvée optimise la consolidation en mémoire à long terme.</p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="La répétition espacée (SRS)" /></h3>
+                <p><TranslatedText text="Revoyez chaque item à des intervalles croissants : J+1, J+3, J+7, J+14, J+30. Cette technique scientifiquement prouvée optimise la consolidation en mémoire à long terme." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">Le travail en binôme</h3>
-                <p>Simulez des stations ECOS avec un camarade. L'un joue le médecin, l'autre le patient. Alternez les rôles. 
-                C'est la méthode la plus efficace pour progresser en communication.</p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Le travail en binôme" /></h3>
+                <p><TranslatedText text="Simulez des stations ECOS avec un camarade. L'un joue le médecin, l'autre le patient. Alternez les rôles. C'est la méthode la plus efficace pour progresser en communication." /></p>
               </div>
             </div>
           </section>
@@ -188,7 +177,7 @@ const PreparationEcos2026 = () => {
           {/* Section 5 */}
           <section id="erreurs" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              5. Les erreurs à éviter absolument
+              <TranslatedText text="5. Les erreurs à éviter absolument" />
             </h2>
             <div className="space-y-3">
               {[
@@ -201,7 +190,7 @@ const PreparationEcos2026 = () => {
               ].map((err, i) => (
                 <div key={i} className="flex items-start gap-2 p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
                   <span className="text-destructive font-bold">✗</span>
-                  <span className="text-sm text-muted-foreground">{err}</span>
+                  <span className="text-sm text-muted-foreground"><TranslatedText text={err} /></span>
                 </div>
               ))}
             </div>
@@ -211,25 +200,24 @@ const PreparationEcos2026 = () => {
           <section id="simulation" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Trophy className="h-6 w-6 text-primary" />
-              6. L'importance des simulations
+              <TranslatedText text="6. L'importance des simulations" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              Les étudiants qui réalisent au moins 5 ECOS blancs complets avant l'épreuve ont un taux de réussite 
-              supérieur de 35% (source : étude CNCI 2024). La simulation est le meilleur prédicteur de performance.
+              <TranslatedText text="Les étudiants qui réalisent au moins 5 ECOS blancs complets avant l'épreuve ont un taux de réussite supérieur de 35% (source : étude CNCI 2024). La simulation est le meilleur prédicteur de performance." />
             </p>
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6">
-                <h3 className="font-semibold text-foreground mb-3">Simuler sur MED-MNG :</h3>
+                <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Simuler sur MED-MNG :" /></h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>✓ 10 stations chronométrées sans pause</li>
-                  <li>✓ Score détaillé par compétence ECOS</li>
-                  <li>✓ Percentile national simulé</li>
-                  <li>✓ Feedback structuré après chaque station</li>
-                  <li>✓ Historique pour suivre votre progression</li>
+                  <li>✓ <TranslatedText text="10 stations chronométrées sans pause" /></li>
+                  <li>✓ <TranslatedText text="Score détaillé par compétence ECOS" /></li>
+                  <li>✓ <TranslatedText text="Percentile national simulé" /></li>
+                  <li>✓ <TranslatedText text="Feedback structuré après chaque station" /></li>
+                  <li>✓ <TranslatedText text="Historique pour suivre votre progression" /></li>
                 </ul>
                 <Link to={ROUTE_PATHS.examMode}>
                   <Button className="mt-4 gap-2">
-                    Lancer une simulation ECOS <ArrowRight className="h-4 w-4" />
+                    <TranslatedText text="Lancer une simulation ECOS" /> <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </CardContent>
@@ -240,7 +228,7 @@ const PreparationEcos2026 = () => {
           <section id="outils" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary" />
-              7. Outils et ressources recommandés
+              <TranslatedText text="7. Outils et ressources recommandés" />
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
@@ -251,12 +239,12 @@ const PreparationEcos2026 = () => {
               ].map((tool, i) => (
                 <Card key={i}>
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-sm text-foreground">{tool.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{tool.desc}</p>
+                    <h3 className="font-semibold text-sm text-foreground"><TranslatedText text={tool.name} /></h3>
+                    <p className="text-xs text-muted-foreground mt-1"><TranslatedText text={tool.desc} /></p>
                     {tool.link && (
                       <Link to={tool.link}>
                         <Button variant="link" size="sm" className="px-0 mt-1 h-auto text-xs">
-                          Découvrir <ArrowRight className="h-3 w-3 ml-1" />
+                          <TranslatedText text="Découvrir" /> <ArrowRight className="h-3 w-3 ml-1" />
                         </Button>
                       </Link>
                     )}
@@ -268,7 +256,7 @@ const PreparationEcos2026 = () => {
 
           {/* FAQ */}
           <section id="faq" className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-4">8. Questions fréquentes</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4"><TranslatedText text="8. Questions fréquentes" /></h2>
             <Accordion type="single" collapsible>
               {[
                 { q: 'Combien de temps faut-il pour préparer les ECOS ?', a: 'Nous recommandons un minimum de 6 mois de préparation régulière, avec une intensification les 2 derniers mois.' },
@@ -278,8 +266,8 @@ const PreparationEcos2026 = () => {
                 { q: 'Comment gérer le stress le jour J ?', a: 'Techniques de respiration, visualisation positive, et surtout : être bien préparé. La confiance vient de la pratique répétée.' },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
-                  <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">{faq.a}</AccordionContent>
+                  <AccordionTrigger className="text-left"><TranslatedText text={faq.q} /></AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground"><TranslatedText text={faq.a} /></AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
@@ -287,16 +275,16 @@ const PreparationEcos2026 = () => {
 
           {/* CTA */}
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Prêt à préparer les ECOS 2026 ?</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à préparer les ECOS 2026 ?" /></h2>
             <p className="text-muted-foreground mb-6">
-              Rejoignez MED-MNG et accédez à des simulations ECOS complètes, des cas cliniques et de la musique médicale IA.
+              <TranslatedText text="Rejoignez MED-MNG et accédez à des simulations ECOS complètes, des cas cliniques et de la musique médicale IA." />
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2"><TranslatedText text="Essai gratuit 7 jours" /> <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to={ROUTE_PATHS.medMngPricing}>
-                <Button variant="outline" size="lg">Voir les tarifs</Button>
+                <Button variant="outline" size="lg"><TranslatedText text="Voir les tarifs" /></Button>
               </Link>
             </div>
           </div>
