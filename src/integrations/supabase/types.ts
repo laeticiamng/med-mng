@@ -23359,6 +23359,95 @@ export type Database = {
         }
         Relationships: []
       }
+      specialty_path_steps: {
+        Row: {
+          checkpoint_type: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_checkpoint: boolean | null
+          item_code: string
+          min_score_percent: number | null
+          path_id: string
+          step_order: number
+          title: string
+        }
+        Insert: {
+          checkpoint_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_checkpoint?: boolean | null
+          item_code: string
+          min_score_percent?: number | null
+          path_id: string
+          step_order: number
+          title: string
+        }
+        Update: {
+          checkpoint_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_checkpoint?: boolean | null
+          item_code?: string
+          min_score_percent?: number | null
+          path_id?: string
+          step_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialty_path_steps_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "specialty_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      specialty_paths: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          estimated_hours: number | null
+          icon: string | null
+          id: string
+          is_published: boolean | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          estimated_hours?: number | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          estimated_hours?: number | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       srs_card_data: {
         Row: {
           card_id: string
@@ -27711,6 +27800,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_path_progress: {
+        Row: {
+          certificate_id: string | null
+          completed_at: string | null
+          current_step_order: number | null
+          id: string
+          is_certified: boolean | null
+          path_id: string
+          started_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_id?: string | null
+          completed_at?: string | null
+          current_step_order?: number | null
+          id?: string
+          is_certified?: boolean | null
+          path_id: string
+          started_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_id?: string | null
+          completed_at?: string | null
+          current_step_order?: number | null
+          id?: string
+          is_certified?: boolean | null
+          path_id?: string
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_path_progress_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "specialty_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_personalization: {
         Row: {
           created_at: string | null
@@ -28760,6 +28893,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_step_progress: {
+        Row: {
+          attempts: number | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          score: number | null
+          status: string | null
+          step_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attempts?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          score?: number | null
+          status?: string | null
+          step_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attempts?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          score?: number | null
+          status?: string | null
+          step_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_step_progress_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "specialty_path_steps"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_study_stats: {
         Row: {
