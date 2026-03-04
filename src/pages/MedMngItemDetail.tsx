@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Heart, Loader2, CheckCircle, FolderPlus, ChevronLeft, ChevronRight, Headphones } from 'lucide-react';
+import { ContextualAITutor } from '@/components/ai/ContextualAITutor';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { Button } from '@/components/ui/button';
@@ -367,6 +368,17 @@ const MedMngItemDetailComponent = () => {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
+            )}
+
+            {/* Contextual AI Tutor */}
+            {user && (
+              <ContextualAITutor
+                item={item}
+                userId={user.id}
+                score={score}
+                revisionCount={revisionCount}
+                status={status}
+              />
             )}
           </div>
         )}
