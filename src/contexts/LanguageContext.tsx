@@ -1,7 +1,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { TRANSLATIONS_DICT } from '@/locales/translations-dictionary';
 
-export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
+export type Language = 'fr' | 'en' | 'de';
 export type SupportedLanguage = Language; // Alias pour compatibilité
 
 export interface LanguageInfo {
@@ -14,10 +15,7 @@ export interface LanguageInfo {
 export const LANGUAGES: LanguageInfo[] = [
   { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸' },
-  { code: 'it', name: 'Italiano', nativeName: 'Italiano', flag: '🇮🇹' },
-  { code: 'zh', name: '中文', nativeName: '中文', flag: '🇨🇳' },
-  { code: 'ja', name: '日本語', nativeName: '日本語', flag: '🇯🇵' },
+  { code: 'de', name: 'Deutsch', nativeName: 'Deutsch', flag: '🇩🇪' },
 ];
 
 // Alias pour compatibilité
@@ -61,6 +59,9 @@ export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProvide
         switch (currentLanguage) {
           case 'en':
             translationModule = await import('../locales/en/common.json');
+            break;
+          case 'de':
+            translationModule = await import('../locales/de/common.json');
             break;
           case 'fr':
           default:
@@ -122,28 +123,23 @@ export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProvide
     return value;
   };
 
-  // Fonction de traduction de texte libre (pour compatibilité avec les hooks existants)
+  // Fonction de traduction de texte libre via dictionnaire statique
   const translate = async (text: string, targetLanguage?: Language): Promise<string> => {
     const target = targetLanguage || currentLanguage;
     
-    // Si c'est déjà en français ou la langue cible, retourner tel quel
+    // Si c'est déjà en français, retourner tel quel
     if (target === 'fr') {
       return text;
     }
 
-    setIsTranslating(true);
-    
-    try {
-      // Pour l'instant, on retourne le texte tel quel
-      // Plus tard, on pourra intégrer une vraie API de traduction
-      console.log(`Traduction simulée de "${text}" vers ${target}`);
-      return text;
-    } catch (error) {
-      console.error('Erreur de traduction:', error);
-      return text;
-    } finally {
-      setIsTranslating(false);
+    // Lookup dans le dictionnaire statique
+    const entry = TRANSLATIONS_DICT[text];
+    if (entry && entry[target]) {
+      return entry[target];
     }
+
+    // Fallback: retourner le texte original (français)
+    return text;
   };
 
   return (
