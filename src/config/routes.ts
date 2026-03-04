@@ -107,6 +107,8 @@ export const ROUTE_PATHS = {
   demo: '/demo',
   // ⚔️ Duels
   karaokeDuel: '/duel',
+  // 🎵 Playlist SRS automatique
+  dailySRSPlaylist: '/srs-playlist',
   // 🎯 Specialty Paths
   specialtyPaths: '/parcours',
   specialtyPathDetail: '/parcours/:slug',

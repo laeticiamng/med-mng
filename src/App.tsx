@@ -136,6 +136,9 @@ const Demo = lazy(() => import("./pages/Demo"));
 // ⚔️ KARAOKE DUELS
 const KaraokeDuel = lazy(() => import("./pages/KaraokeDuel"));
 
+// 🎵 DAILY SRS PLAYLIST
+const DailySRSPlaylist = lazy(() => import("./pages/DailySRSPlaylist"));
+
 // 🎯 SPECIALTY PATHS
 const SpecialtyPaths = lazy(() => import("./pages/SpecialtyPaths"));
 const SpecialtyPathDetail = lazy(() => import("./pages/SpecialtyPathDetail"));
@@ -338,6 +341,9 @@ const App = () => {
 
                                     {/* Karaoke Duels */}
                                     <Route path={ROUTE_PATHS.karaokeDuel} element={<S><KaraokeDuel /></S>} />
+
+                                    {/* Daily SRS Playlist */}
+                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<S><DailySRSPlaylist /></S>} />
 
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
