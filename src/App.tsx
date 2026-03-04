@@ -8,6 +8,7 @@ import { PageLoader } from "@/components/common/PageLoader";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
 import { GlobalErrorBoundary } from '@/components/error/GlobalErrorBoundary';
 import { MainNavigation } from '@/components/layout/MainNavigation';
+import { LanguageSelector } from '@/components/global/LanguageSelector';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
@@ -210,6 +211,7 @@ const App = () => {
                               <GlobalJsonLd />
                               <div id="app-root" className="min-h-screen bg-background">
                                 <MainNavigation />
+                                <LanguageSelector />
                                 <main id="main-content" tabIndex={-1} className="pt-16">
                                   <Routes>
                                     {/* Platform */}

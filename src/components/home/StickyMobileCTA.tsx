@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
+import { TranslatedText } from '@/components/global/TranslatedText';
 
 export const StickyMobileCTA = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export const StickyMobileCTA = forwardRef<HTMLDivElement>((_, ref) => {
           className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-primary-hover shadow-lg shadow-primary/25"
         >
           <Sparkles className="h-4 w-4 mr-2" />
-          Essayer gratuitement
+          <TranslatedText text="Essayer gratuitement" />
         </Button>
       </div>
     </motion.div>
