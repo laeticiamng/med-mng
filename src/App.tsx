@@ -12,6 +12,7 @@ import { LanguageSelector } from '@/components/global/LanguageSelector';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { PersistentMiniPlayer } from "@/components/player/PersistentMiniPlayer";
 import { PWAPrompt } from "@/components/pwa/PWAPrompt";
 // ViewportProvider removed — using CSS media queries
 import { ComposedProviders } from '@/providers/ComposedProviders';
@@ -385,6 +386,7 @@ const App = () => {
                                 <EnhancedAITutor />
                                 <PWAPrompt />
                                 <OfflineIndicator />
+                                <PersistentMiniPlayer />
                               </div>
                               <Toaster />
                               <Sonner />
