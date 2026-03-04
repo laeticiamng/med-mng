@@ -105,6 +105,8 @@ export const ROUTE_PATHS = {
   executiveDashboard: '/executive-dashboard',
   // Démo publique
   demo: '/demo',
+  // ⚔️ Duels
+  karaokeDuel: '/duel',
   // 🎯 Specialty Paths
   specialtyPaths: '/parcours',
   specialtyPathDetail: '/parcours/:slug',

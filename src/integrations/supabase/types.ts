@@ -7476,6 +7476,101 @@ export type Database = {
         }
         Relationships: []
       }
+      duel_answers: {
+        Row: {
+          answer_time_ms: number | null
+          created_at: string
+          duel_id: string
+          id: string
+          is_correct: boolean
+          points_earned: number
+          round_id: string
+          selected_answer: number | null
+          user_id: string
+        }
+        Insert: {
+          answer_time_ms?: number | null
+          created_at?: string
+          duel_id: string
+          id?: string
+          is_correct?: boolean
+          points_earned?: number
+          round_id: string
+          selected_answer?: number | null
+          user_id: string
+        }
+        Update: {
+          answer_time_ms?: number | null
+          created_at?: string
+          duel_id?: string
+          id?: string
+          is_correct?: boolean
+          points_earned?: number
+          round_id?: string
+          selected_answer?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_answers_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "karaoke_duels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_answers_round_id_fkey"
+            columns: ["round_id"]
+            isOneToOne: false
+            referencedRelation: "duel_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_rounds: {
+        Row: {
+          correct_answer: number
+          created_at: string
+          duel_id: string
+          id: string
+          item_code: string | null
+          options: Json
+          question: string
+          round_number: number
+          time_limit_seconds: number
+        }
+        Insert: {
+          correct_answer: number
+          created_at?: string
+          duel_id: string
+          id?: string
+          item_code?: string | null
+          options?: Json
+          question: string
+          round_number: number
+          time_limit_seconds?: number
+        }
+        Update: {
+          correct_answer?: number
+          created_at?: string
+          duel_id?: string
+          id?: string
+          item_code?: string | null
+          options?: Json
+          question?: string
+          round_number?: number
+          time_limit_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_rounds_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "karaoke_duels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ecn_predictions: {
         Row: {
           confidence_interval: number | null
@@ -13530,6 +13625,60 @@ export type Database = {
           user_hash?: string | null
           user_id?: string
           valence?: number | null
+        }
+        Relationships: []
+      }
+      karaoke_duels: {
+        Row: {
+          created_at: string
+          current_round: number
+          finished_at: string | null
+          id: string
+          item_code: string | null
+          player1_id: string
+          player1_score: number
+          player2_id: string | null
+          player2_score: number
+          round_count: number
+          song_id: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          winner_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_round?: number
+          finished_at?: string | null
+          id?: string
+          item_code?: string | null
+          player1_id: string
+          player1_score?: number
+          player2_id?: string | null
+          player2_score?: number
+          round_count?: number
+          song_id?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_round?: number
+          finished_at?: string | null
+          id?: string
+          item_code?: string | null
+          player1_id?: string
+          player1_score?: number
+          player2_id?: string | null
+          player2_score?: number
+          round_count?: number
+          song_id?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          winner_id?: string | null
         }
         Relationships: []
       }

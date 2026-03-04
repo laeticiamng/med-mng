@@ -133,6 +133,9 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 // 🎯 DEMO PAGE
 const Demo = lazy(() => import("./pages/Demo"));
 
+// ⚔️ KARAOKE DUELS
+const KaraokeDuel = lazy(() => import("./pages/KaraokeDuel"));
+
 // 🎯 SPECIALTY PATHS
 const SpecialtyPaths = lazy(() => import("./pages/SpecialtyPaths"));
 const SpecialtyPathDetail = lazy(() => import("./pages/SpecialtyPathDetail"));
@@ -332,6 +335,9 @@ const App = () => {
                                     {/* Specialty Paths */}
                                     <Route path={ROUTE_PATHS.specialtyPaths} element={<S><SpecialtyPaths /></S>} />
                                     <Route path={ROUTE_PATHS.specialtyPathDetail} element={<S><SpecialtyPathDetail /></S>} />
+
+                                    {/* Karaoke Duels */}
+                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<S><KaraokeDuel /></S>} />
 
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
