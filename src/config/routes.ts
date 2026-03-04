@@ -127,6 +127,7 @@ export const ROUTE_PATHS = {
   seoRangAvsRangB: '/rang-a-vs-rang-b',
   seoTravaillerCasCliniques: '/travailler-cas-cliniques',
   seoExempleCasClinique: '/exemple-cas-clinique',
+  socialShare: '/partage',
   notFound: '*',
 } as const;
 
