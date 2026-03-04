@@ -142,6 +142,9 @@ const DailySRSPlaylist = lazy(() => import("./pages/DailySRSPlaylist"));
 // 🏥 NATIONAL EXAM SIMULATION
 const NationalExamSimulation = lazy(() => import("./pages/NationalExamSimulation"));
 
+// 🤝 SOCIAL SHARE HUB
+const SocialShareHub = lazy(() => import("./pages/SocialShareHub"));
+
 // 🎯 SPECIALTY PATHS
 const SpecialtyPaths = lazy(() => import("./pages/SpecialtyPaths"));
 const SpecialtyPathDetail = lazy(() => import("./pages/SpecialtyPathDetail"));
@@ -350,6 +353,9 @@ const App = () => {
 
                                     {/* National Exam Simulation */}
                                     <Route path={ROUTE_PATHS.nationalExam} element={<S><NationalExamSimulation /></S>} />
+
+                                    {/* Social Share Hub */}
+                                    <Route path={ROUTE_PATHS.socialShare} element={<ProtectedRoute><S><SocialShareHub /></S></ProtectedRoute>} />
 
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />

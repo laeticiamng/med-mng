@@ -21544,6 +21544,45 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_email: string | null
+          referred_id: string | null
+          referrer_id: string
+          status: string
+          xp_awarded_referred: number | null
+          xp_awarded_referrer: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_email?: string | null
+          referred_id?: string | null
+          referrer_id: string
+          status?: string
+          xp_awarded_referred?: number | null
+          xp_awarded_referrer?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_email?: string | null
+          referred_id?: string | null
+          referrer_id?: string
+          status?: string
+          xp_awarded_referred?: number | null
+          xp_awarded_referrer?: number | null
+        }
+        Relationships: []
+      }
       report_send_history: {
         Row: {
           error_message: string | null
@@ -23466,6 +23505,33 @@ export type Database = {
           soft_mode_enabled?: boolean | null
           topic?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      social_shares: {
+        Row: {
+          content_data: Json | null
+          created_at: string
+          id: string
+          platform: string
+          share_type: string
+          user_id: string
+        }
+        Insert: {
+          content_data?: Json | null
+          created_at?: string
+          id?: string
+          platform: string
+          share_type: string
+          user_id: string
+        }
+        Update: {
+          content_data?: Json | null
+          created_at?: string
+          id?: string
+          platform?: string
+          share_type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -28471,6 +28537,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_referral_codes: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          total_referrals: number | null
+          total_xp_earned: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          total_referrals?: number | null
+          total_xp_earned?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          total_referrals?: number | null
+          total_xp_earned?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_reminders: {
         Row: {
           created_at: string | null
@@ -31058,6 +31151,7 @@ export type Database = {
         Returns: string[]
       }
       generate_master_content: { Args: { p_item_id: string }; Returns: Json }
+      generate_referral_code: { Args: never; Returns: string }
       generate_security_audit_report: { Args: never; Returns: Json }
       generate_slug:
         | { Args: { input_text: string }; Returns: string }
