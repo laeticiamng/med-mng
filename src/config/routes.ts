@@ -105,6 +105,9 @@ export const ROUTE_PATHS = {
   executiveDashboard: '/executive-dashboard',
   // Démo publique
   demo: '/demo',
+  // 🎯 Specialty Paths
+  specialtyPaths: '/parcours',
+  specialtyPathDetail: '/parcours/:slug',
   // Raccourcis publics
   createShortcut: '/create',
   // 📈 SEO Pillar Pages

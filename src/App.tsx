@@ -133,6 +133,10 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 // 🎯 DEMO PAGE
 const Demo = lazy(() => import("./pages/Demo"));
 
+// 🎯 SPECIALTY PATHS
+const SpecialtyPaths = lazy(() => import("./pages/SpecialtyPaths"));
+const SpecialtyPathDetail = lazy(() => import("./pages/SpecialtyPathDetail"));
+
 // 🛒 STORE PAGES — désactivés (pas de boutique active)
 // const Store = lazy(() => import("./pages/Store"));
 // const ProductDetail = lazy(() => import("./pages/ProductDetail"));
@@ -324,6 +328,10 @@ const App = () => {
 
                                     {/* Demo (public) */}
                                     <Route path={ROUTE_PATHS.demo} element={<S><Demo /></S>} />
+
+                                    {/* Specialty Paths */}
+                                    <Route path={ROUTE_PATHS.specialtyPaths} element={<S><SpecialtyPaths /></S>} />
+                                    <Route path={ROUTE_PATHS.specialtyPathDetail} element={<S><SpecialtyPathDetail /></S>} />
 
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
