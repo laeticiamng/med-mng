@@ -86,8 +86,8 @@ export const AppleMusicPlayer = () => {
                     size="lg"
                     className="h-16 px-10 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30"
                   >
-                    <Play className="h-6 w-6 mr-2" />
-                    <TranslatedText text="Écouter un extrait" />
+                    <Music className="h-6 w-6 mr-2" />
+                    <TranslatedText text="S'inscrire pour écouter" />
                   </Button>
                 </motion.div>
               </Link>
