@@ -219,7 +219,7 @@ const App = () => {
     <GlobalErrorBoundary>
       <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <HelmetProvider>
               <AuthProvider>
               <ComposedProviders>
