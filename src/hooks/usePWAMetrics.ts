@@ -153,11 +153,13 @@ export const usePWAMetrics = () => {
       if (!navigator.onLine || !sessionIdRef.current) return;
       
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // ✅ Skip entirely if user is not authenticated — RLS requires auth for INSERT/UPDATE
+      if (!user) return;
 
-      // Mapper les données vers les colonnes correctes de la table pwa_metrics
       const metricPayload = {
         session_id: sessionIdRef.current,
-        user_id: user?.id || null,
+        user_id: user.id,
         device_type: getDeviceType(),
         browser: getBrowser(),
         is_installed: metrics.isInstalled,
@@ -175,22 +177,19 @@ export const usePWAMetrics = () => {
         install_date: data.install_date as string | undefined,
       };
 
-      // Use UPSERT (insert with ON CONFLICT DO UPDATE) to avoid duplicate key errors
       try {
         const { error } = await supabase.from('pwa_metrics').upsert(
           metricPayload as any,
           { onConflict: 'session_id', ignoreDuplicates: false }
         );
         if (error && !error.message.includes('duplicate')) {
-          console.debug('PWA metrics upsert error:', error.message);
+          if (import.meta.env.DEV) console.debug('PWA metrics upsert error:', error.message);
         }
-      } catch (err) {
-        // Silencieux pour ne pas bloquer l'app
-        console.debug('PWA metrics upsert failed:', err);
+      } catch {
+        // Silent
       }
-    } catch (error) {
-      // Silencieux pour ne pas perturber l'expérience utilisateur
-      console.debug('PWA metrics error:', error);
+    } catch {
+      // Silent
     }
   };
 
