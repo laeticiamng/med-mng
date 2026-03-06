@@ -88,7 +88,10 @@ export const AudioDemoPlayer = () => {
     };
   }, [currentTrack]);
 
+  const isFallback = !currentTrack?.audio_url;
+
   const togglePlay = async () => {
+    if (isFallback) return; // No audio for fallback tracks
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
 
