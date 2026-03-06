@@ -33,21 +33,26 @@ export const AudioDemoPlayer = () => {
           .not('audio_url', 'is', null)
           .limit(3);
 
-        if (error || !data?.length) {
-          setIsLoading(false);
-          return;
+        if (!error && data?.length) {
+          const demoTracks: DemoTrack[] = data.map((track, i) => ({
+            id: track.id,
+            title: `Extrait démo ${i + 1}`,
+            genre: track.genre || 'Médical',
+            audio_url: track.audio_url!,
+            duration: track.duration || 180,
+          }));
+          setTracks(demoTracks);
+          setCurrentTrack(demoTracks[0]);
+        } else {
+          // Fallback: static demo tracks when DB is empty
+          const fallbackTracks: DemoTrack[] = [
+            { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 45 },
+            { id: 'demo-2', title: 'Asthme — Item 188', genre: 'Pneumologie', audio_url: '', duration: 38 },
+            { id: 'demo-3', title: 'HTA — Item 224', genre: 'Cardiologie', audio_url: '', duration: 42 },
+          ];
+          setTracks(fallbackTracks);
+          setCurrentTrack(fallbackTracks[0]);
         }
-
-        const demoTracks: DemoTrack[] = data.map((track, i) => ({
-          id: track.id,
-          title: `Extrait démo ${i + 1}`,
-          genre: track.genre || 'Médical',
-          audio_url: track.audio_url!,
-          duration: track.duration || 180,
-        }));
-
-        setTracks(demoTracks);
-        setCurrentTrack(demoTracks[0]);
       } catch {
         // Silent fail — demo player is optional
       } finally {
