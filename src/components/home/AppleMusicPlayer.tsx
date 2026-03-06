@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { TranslatedText } from '@/components/global/TranslatedText';
+import { AudioDemoPlayer } from './AudioDemoPlayer';
 
 export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
@@ -112,6 +113,9 @@ export const AppleMusicPlayer = () => {
                 />
               ))}
             </div>
+
+            {/* Real audio demo player */}
+            <AudioDemoPlayer />
           </div>
         </motion.div>
 

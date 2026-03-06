@@ -22,7 +22,9 @@ const getRelease = (): string => {
 
 export function initSentry() {
   if (!SENTRY_DSN) {
-    console.debug('Sentry DSN not configured - error tracking disabled');
+    if (import.meta.env.DEV) {
+      console.debug('Sentry DSN not configured - error tracking disabled');
+    }
     return;
   }
 

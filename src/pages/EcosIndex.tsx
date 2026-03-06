@@ -243,7 +243,7 @@ const EcosIndex = () => {
                         {scenario.intitule_sd}
                       </h3>
                       <Badge variant="secondary" className="mt-2">
-                        SD {scenario.sd_id}
+                        Situation {scenario.sd_id}
                       </Badge>
                     </div>
                   </div>
