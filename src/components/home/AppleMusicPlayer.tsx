@@ -113,6 +113,9 @@ export const AppleMusicPlayer = () => {
                 />
               ))}
             </div>
+
+            {/* Real audio demo player */}
+            <AudioDemoPlayer />
           </div>
         </motion.div>
 
