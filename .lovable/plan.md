@@ -1,127 +1,75 @@
 
 
-# Audit Complet MED-MNG -- Mars 2026
+# AUDIT DEFINITIF PRE-PRODUCTION v3 — MED MNG
 
-## Etat actuel : 7.5/10 -- Socle robuste, potentiel révolutionnaire sous-exploité
+## 1. RESUME EXECUTIF
 
----
+**Verdict** : **OUI SOUS CONDITIONS**. La plateforme a progresse significativement depuis l'audit v1 (9/20) et v2 (14/20). Les accents de la page About sont corriges. Le "SD" ECOS est remplace par "Situation". Le footer affiche correctement "MED MNG" (pas de typo "MFD MNG"). Les temoignages mentionnent "Beta-testeuse" / "Acces anticipe". Cependant, **deux problemes critiques persistent** :
 
-## A. CE QUI EXISTE ET FONCTIONNE
+1. **Le AudioDemoPlayer est invisible** car `edn_suno_tracks` retourne un tableau vide (`[]`). La promesse "ecoute sans inscription" n'est pas tenue — le composant se cache silencieusement.
+2. **La page EDN (/edn-complete) montre un spinner** en mode dev (artefact Vite, fonctionne en prod).
 
-| Domaine | Elements | Status |
-|---------|----------|--------|
-| **Coeur pédagogique** | 367 items EDN, quiz, flashcards, SRS (SM-2), cas cliniques, mode examen | Solide |
-| **Audio/Musique** | Génération Suno V4/V5, KaraokePlayer, mini-player persistant global (Spotify-style), paroles synchronisées, vitesse ajustable (0.5x-2x), boucle | Bon |
-| **IA** | Chat GPT-4 (MedChat), RAG sur embeddings EDN, tuteur IA (composant ECNPrediction), génération de playlists personnalisées | Partiel |
-| **Parcours guidés** | Système par spécialité avec progression linéaire, checkpoints, certification (`/parcours`) -- 10 spécialités | Nouveau |
-| **Gamification** | XP, streaks, badges, leaderboard, daily challenges, achievements | Bon |
-| **Social** | CommunityHub (forum, commentaires, messages directs, partage) | UI existe |
-| **PWA/Offline** | OfflineModeManager, OfflineIndicator, push notifications (basiques), PWA Analytics | Squelette |
-| **Admin** | Dashboard, audit, extraction, monitoring, sécurité, migration | Complet |
-| **UX** | Design Apple-style, onboarding anti-anxiété, traduction FR/EN/DE, accessibilité, raccourcis clavier | Bon |
-| **Monétisation** | Stripe intégré, page pricing, billing, subscription | Basique |
+**Note globale : 15/20** — Publiable sous conditions mineures.
 
----
+**Top 5 risques** :
+1. AudioDemoPlayer invisible (0 tracks en DB) — promesse non demontree
+2. 3x RLS "always true" — a auditer/justifier
+3. Fonctions sans search_path — injection de schema theorique
+4. 130+ routes dont beaucoup non essentielles au MVP
+5. Extension dans schema public
 
-## B. CE QUI MANQUE POUR ETRE REVOLUTIONNAIRE
-
-### URGENCE 1 -- Manques critiques
-
-**1. Duels karaoké en temps réel** -- INEXISTANT
-- Aucun composant duel/battle/versus dans le code
-- C'est LE differenciateur viral absent : 2 étudiants s'affrontent sur un quiz musical live
-- Nécessite : Supabase Realtime channels, matchmaking, scoring en direct, partage social du résultat
-
-**2. Données pédagogiques incomplètes** -- BLOQUEUR
-- 97% des items (357/367) n'ont toujours pas d'objectifs/compétences OIC structurés
-- L'edge function `transform-edn-sections` existe mais n'est pas déployée/exécutée
-- Sans contenu structuré, les parcours guidés et le tuteur IA manquent de matière
-
-**3. Mode offline réel** -- FAUX SEMBLANT
-- `OfflineModeManager.tsx` (388 lignes) est une UI statique avec des données mock
-- Aucune implémentation réelle de Cache API ou IndexedDB pour le contenu
-- Le service worker (vite-plugin-pwa) ne cache que les assets statiques, pas les chansons ni les quiz
-
-**4. Tuteur IA contextuel par item** -- INCOMPLET
-- Seul `ECNPredictionCard.tsx` existe dans `ai-tutor/` -- ce n'est pas un tuteur contextuel
-- Le chat IA (MedChat) est générique, pas intégré dans la page d'un item spécifique
-- Manque : contexte de l'item en cours, historique des erreurs de l'étudiant, plan de remédiation personnalisé
-
-### URGENCE 2 -- Différenciateurs manquants
-
-**5. Playlists SRS intelligentes automatiques**
-- `PersonalizedPlaylistGenerator` existe mais c'est un formulaire manuel (choix mood/spécialité)
-- Manque : génération AUTOMATIQUE d'une "playlist du jour" basée sur l'algorithme SM-2 (items à réviser aujourd'hui)
-- Devrait se lancer au login : "Voici tes 8 chansons à réécouter aujourd'hui"
-
-**6. Notifications push SRS (Duolingo-style)**
-- `usePushNotifications` et `SRSNotificationSettings` existent mais sont des squelettes
-- Pas de logique serveur (edge function) pour déclencher "Tu n'as pas révisé aujourd'hui !"
-- Pas de scheduling côté backend
-
-**7. Partage social viral**
-- `SocialShare.tsx` existe mais basique
-- Manque : image de score générée (Open Graph), partage story Instagram, "J'ai battu mon ami sur IC-100"
-- Pas de système de parrainage
-
-**8. Simulation examen blanc national**
-- Mode examen existe mais pas de simulation complète : timer 3h, 120 questions, classement national simulé
-- Pas de conditions réelles (pas de retour arrière, coefficient par rang)
-
-### URGENCE 3 -- Polish & croissance
-
-**9. Visualiseur audio**
-- Aucune animation d'onde sonore pendant la lecture
-- Rendrait le player beaucoup plus "premium" et immersif
-
-**10. Fiches de synthèse PDF par item**
-- jsPDF est installé mais pas de génération de fiche résumé structurée (1 page, points clés, mnémoniques)
-- L'étudiant devrait pouvoir exporter une fiche après chaque écoute
-
-**11. Images/schémas médicaux**
-- Zéro contenu visuel médical (ECG, radio, schéma anatomique)
-- Un item de cardiologie sans visuel est incomplet
-
-**12. Validation médicale professionnelle**
-- Le système `ContentValidationBadge` existe mais aucun contenu n'est réellement validé par un médecin
-- Risque médico-légal sur du contenu IA non vérifié
+**Top 5 forces** :
+1. Landing page claire, proposition de valeur en 3 secondes
+2. ECOS fonctionnel avec 12 situations et jargon corrige
+3. Pages legales completes (CGU, Mentions, Confidentialite, CGV, Cookies, Contact)
+4. Cookie consent RGPD fonctionnel
+5. Footer correct, About avec accents, temoignages labellises
 
 ---
 
-## C. TOP 5 FEATURES REVOLUTIONNAIRES A IMPLEMENTER
+## 2. PROBLEMES A CORRIGER
 
-```text
-1. DUELS KARAOKE LIVE          → Viral, unique, aucun concurrent
-2. PLAYLIST SRS AUTO DU JOUR   → "Spotify de la médecine" réalisé
-3. TUTEUR IA CONTEXTUEL        → IA qui connaît ton item + tes erreurs
-4. SIMULATION EXAMEN NATIONAL  → Conditions réelles EDN avec classement
-5. PARTAGE SOCIAL GENERÉ       → Image de score + parrainage viral
-```
+### P0 — Bloquant
+1. **AudioDemoPlayer invisible** — Le composant `AudioDemoPlayer` fait `if (tracks.length === 0) return null`. La requete `edn_suno_tracks` avec `status=completed` retourne `[]`. Resultat : aucun player audio visible sur la landing. La section "Ecoute. Apprends." montre un bouton "Ecouter un extrait" qui redirige vers signup au lieu de jouer un son. **La promesse centrale du produit ("en musique") n'est pas demontrable.**
+   - **Correction** : Ajouter des tracks demo hardcodees en fallback quand la DB est vide, OU utiliser des fichiers audio statiques dans `/public/audio/`.
 
-## D. DETTE TECHNIQUE NOTABLE
+### P1 — Important
+2. **RLS "always true" x3** — Securite scan confirme 3 politiques RLS permissives. A verifier et restreindre si necessaire.
+3. **Functions sans search_path** — A corriger sur les fonctions SQL concernees.
 
-- **700+ tables Supabase** -- fragmentation massive, consolidation nécessaire
-- **11 niveaux de providers** dans App.tsx -- complexité excessive
-- **90+ pages** -- beaucoup sont des dashboards admin rarement utilisés
-- **Tests automatisés** -- quasi inexistants malgré Vitest configuré
-- **Console.log en production** -- certains restent (objectif : 0 en production)
+### P2 — Amelioration forte valeur
+4. **Navigation "Plus" expose trop de routes** — Le menu "Plus" devrait etre simplifie pour les visiteurs non connectes.
+5. **Bouton "Ecouter un extrait" dans AppleMusicPlayer redirige vers signup** — Incoherent avec la section "APERCU". Devrait jouer un son ou etre renomme "S'inscrire pour ecouter".
 
 ---
 
-## E. SCORE PAR DIMENSION
+## 3. PLAN D'IMPLEMENTATION
 
-| Dimension | Score | Commentaire |
-|-----------|-------|-------------|
-| Audio/Player | 8/10 | Mini-player persistant OK, manque visualiseur |
-| Contenu pédagogique | 3/10 | 97% sans objectifs structurés |
-| IA & Personnalisation | 5/10 | RAG existe, tuteur contextuel absent |
-| Social & Viral | 2/10 | UI existe, aucune feature temps réel |
-| Parcours guidés | 7/10 | Nouveau, fonctionnel, à peupler |
-| Gamification | 7/10 | Solide, manque duels |
-| Offline/PWA | 2/10 | Squelette UI sans implémentation |
-| Monétisation | 4/10 | Stripe basique, pas de freemium clair |
-| Performance/Qualité | 6/10 | Lazy loading OK, dette technique lourde |
-| **GLOBAL** | **4.9/10** | **Bon socle, exécution incomplète** |
+### Correction 1 : AudioDemoPlayer avec fallback
+Le composant actuel (`src/components/home/AudioDemoPlayer.tsx`) depend de tracks en DB. Puisque la DB est vide, ajouter un fallback avec des extraits demo statiques (fichiers MP3 courts dans `/public/audio/` ou URLs publiques hardcodees). Si la DB retourne des tracks, les utiliser ; sinon, afficher les demos statiques.
 
-La plateforme a toutes les briques posées mais la plupart sont des facades UI sans logique backend réelle. Le passage de 5/10 à 9/10 nécessite de transformer les squelettes en features fonctionnelles, en commençant par les duels live et la playlist SRS automatique.
+### Correction 2 : Bouton "Ecouter un extrait" coherent
+Dans `AppleMusicPlayer.tsx`, le bouton "Ecouter un extrait" (ligne ~88) est wrappe dans un `<Link to={ROUTE_PATHS.medMngSignup}>`. C'est trompeur — l'utilisateur attend un son, pas un formulaire d'inscription. Deux options :
+- Option A : Changer le label en "S'inscrire pour ecouter"
+- Option B : Faire jouer l'AudioDemoPlayer au clic (si tracks disponibles)
+
+**Recommandation** : Option A (renommer) + s'assurer que l'AudioDemoPlayer avec fallback est visible juste en dessous.
+
+### Correction 3 : RLS hardening
+Executer une migration SQL pour resserrer les 3 politiques "always true" identifiees par le scan securite.
+
+### Correction 4 : Functions search_path
+Executer une migration SQL pour ajouter `SET search_path = public` aux fonctions concernees.
+
+---
+
+## 4. IMPLEMENTATION SEQUENCEE
+
+**Tache 1** : Creer 3 fichiers audio demo statiques ou utiliser des URLs publiques libres de droits, et modifier `AudioDemoPlayer.tsx` pour afficher un fallback quand la DB est vide.
+
+**Tache 2** : Modifier le CTA "Ecouter un extrait" dans `AppleMusicPlayer.tsx` pour etre coherent (label + comportement).
+
+**Tache 3** : Identifier et corriger les 3 RLS "always true" via migration SQL.
+
+**Tache 4** : Identifier et corriger les fonctions sans `search_path` via migration SQL.
 
