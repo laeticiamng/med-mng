@@ -45,7 +45,7 @@ export const GenerateLyricsButton = () => {
       })
       
       if (result.errors && result.errors.length > 0) {
-        console.log('Erreurs détaillées:', result.errors)
+        if (import.meta.env.DEV) console.log('Erreurs détaillées:', result.errors)
       }
     } catch (error) {
       toast({

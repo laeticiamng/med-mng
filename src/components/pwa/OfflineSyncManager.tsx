@@ -194,7 +194,7 @@ export const OfflineSyncManager: React.FC = () => {
       // Synchronisation réelle via le service offline
       try {
         const { success, failed } = await offlineSyncService.processSyncQueue();
-        console.log(`[Sync] Processed: ${success} success, ${failed} failed`);
+        if (import.meta.env.DEV) console.log(`[Sync] Processed: ${success} success, ${failed} failed`);
       } catch (syncError) {
         console.error('[Sync] Error processing queue:', syncError);
       }

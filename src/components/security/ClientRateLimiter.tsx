@@ -172,7 +172,7 @@ export const ClientRateLimiter = () => {
       
       alert(`Rate limit atteint pour ${endpoint}! Réessayez dans ${retryAfter} secondes.`);
     } else {
-      console.log(`✅ Requête ${endpoint} autorisée`);
+      if (import.meta.env.DEV) console.log(`✅ Requête ${endpoint} autorisée`);
     }
   };
 

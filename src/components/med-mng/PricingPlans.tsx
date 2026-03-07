@@ -228,7 +228,10 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
             <div className="pt-6">
               <Button
                 onClick={() => {
-                  if (plan.id === 'free') return;
+                  if (plan.id === 'free') {
+                    window.location.href = ROUTE_PATHS.medMngSignup;
+                    return;
+                  }
                   if (onSelectPlan) {
                     onSelectPlan(plan.id);
                   } else {
@@ -238,7 +241,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
                 className="w-full"
                 variant={plan.popular ? 'default' : plan.id === 'premium' ? 'secondary' : 'outline'}
                 size="lg"
-                disabled={loading || processingPlan === plan.id || currentPlan === plan.id || plan.id === 'free'}
+                disabled={loading || processingPlan === plan.id || currentPlan === plan.id}
               >
                 {processingPlan === plan.id ? 'Redirection...' :
                  currentPlan === plan.id ? 'Plan actuel' :

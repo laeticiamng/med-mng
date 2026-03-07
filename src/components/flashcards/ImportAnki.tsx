@@ -77,7 +77,7 @@ export const ImportAnki = ({ deckId, onImportComplete }: ImportAnkiProps) => {
       const mediaFile = zip.file('media');
       if (mediaFile) {
         const mediaContent = await mediaFile.async('text');
-        console.log('Media mapping found:', mediaContent.substring(0, 200));
+        if (import.meta.env.DEV) console.log('Media mapping found:', mediaContent.substring(0, 200));
       }
       
       setProgress(30);

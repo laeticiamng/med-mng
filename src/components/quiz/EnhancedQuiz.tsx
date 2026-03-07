@@ -242,7 +242,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         created_at: new Date().toISOString()
       } as any);
 
-      console.log('Quiz session saved to quiz_results:', session.sessionId);
+      if (import.meta.env.DEV) console.log('Quiz session saved to quiz_results:', session.sessionId);
     } catch (error) {
       console.error('Error saving quiz session:', error);
     }
