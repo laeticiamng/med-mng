@@ -133,7 +133,8 @@ export const MainNavigation: React.FC = () => {
               </Link>
             ))}
             
-            {/* Menu "Plus" avec sous-catégories */}
+            {/* Menu "Plus" avec sous-catégories — visible uniquement si contenu disponible */}
+            {(user || isAdmin) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -143,7 +144,7 @@ export const MainNavigation: React.FC = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                {user && SECONDARY_NAV_GROUPS.map((group, index) => (
+                {SECONDARY_NAV_GROUPS.map((group, index) => (
                   <DropdownMenuGroup key={group.id}>
                     {index > 0 && <DropdownMenuSeparator />}
                     <DropdownMenuSub>
@@ -191,6 +192,7 @@ export const MainNavigation: React.FC = () => {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
           </div>
 
           {/* Actions utilisateur */}
