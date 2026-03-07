@@ -336,8 +336,8 @@ export const MainNavigation: React.FC = () => {
                 </Link>
               ))}
               
-              {/* Catégories secondaires */}
-              {SECONDARY_NAV_GROUPS.map((group) => {
+              {/* Catégories secondaires (auth-only) */}
+              {user && SECONDARY_NAV_GROUPS.map((group) => {
                 const IconComponent = group.icon;
                 return (
                   <div key={group.id} className="pt-3">
