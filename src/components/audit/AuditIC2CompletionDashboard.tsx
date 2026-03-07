@@ -24,7 +24,7 @@ export const AuditIC2CompletionDashboard = ({ onComplete }: AuditIC2CompletionDa
       
       if (finalReport.completeness === 100) {
         setCompleted(true);
-        console.log('🎉 IC-2 complété avec succès depuis le dashboard !');
+        if (import.meta.env.DEV) console.log('🎉 IC-2 complété avec succès depuis le dashboard !');
         // Rafraîchir l'audit parent
         if (onComplete) {
           setTimeout(onComplete, 1000);

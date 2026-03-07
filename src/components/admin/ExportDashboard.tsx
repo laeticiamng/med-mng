@@ -46,7 +46,7 @@ export const ExportDashboard = () => {
     setIsExporting(true);
     
     try {
-      console.log('Démarrage export admin avec:', {
+      if (import.meta.env.DEV) console.log('Démarrage export admin avec:', {
         format,
         tables: selectedTables,
         dateRange: dateRange.start && dateRange.end ? dateRange : undefined,
