@@ -143,7 +143,7 @@ export const MainNavigation: React.FC = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                {SECONDARY_NAV_GROUPS.map((group, index) => (
+                {user && SECONDARY_NAV_GROUPS.map((group, index) => (
                   <DropdownMenuGroup key={group.id}>
                     {index > 0 && <DropdownMenuSeparator />}
                     <DropdownMenuSub>
