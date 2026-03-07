@@ -1,4 +1,5 @@
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
+import { captureException, addBreadcrumb } from '@/utils/sentry';
 import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
