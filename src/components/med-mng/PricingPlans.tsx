@@ -169,17 +169,25 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
           }`}
         >
           {plan.popular && (
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-primary text-primary-foreground px-4">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+              <Badge className="bg-primary text-primary-foreground px-4 shadow-md">
                 Recommandé
               </Badge>
             </div>
           )}
 
-          {plan.trial && (
-            <div className="absolute -top-3 right-4">
-              <Badge variant="outline" className="bg-success/10 text-success border-success/30 px-3">
+          {plan.trial && !plan.popular && (
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+              <Badge variant="outline" className="bg-success/10 text-success border-success/30 px-3 shadow-md">
                 {plan.trial}
+              </Badge>
+            </div>
+          )}
+          
+          {plan.trial && plan.popular && (
+            <div className="absolute -top-4 right-4 z-10">
+              <Badge variant="outline" className="bg-success/10 text-success border-success/30 px-3 text-[10px] shadow-md">
+                essai gratuit
               </Badge>
             </div>
           )}

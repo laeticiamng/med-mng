@@ -198,10 +198,15 @@ export const AudioDemoPlayer = () => {
       {currentTrack && (
         <div className="flex items-center gap-4 bg-muted/30 rounded-2xl p-4 border border-border/30">
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={hasAudio ? { scale: 1.1 } : {}}
+            whileTap={hasAudio ? { scale: 0.9 } : {}}
             onClick={togglePlay}
-            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-primary/30"
+            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
+              hasAudio 
+                ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-primary/30 cursor-pointer' 
+                : 'bg-muted text-muted-foreground cursor-not-allowed'
+            }`}
+            title={hasAudio ? undefined : 'Inscrivez-vous pour écouter'}
           >
             {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
           </motion.button>
