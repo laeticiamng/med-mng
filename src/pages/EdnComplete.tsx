@@ -330,14 +330,18 @@ export default function EdnComplete() {
 
   if (loadingError && ednItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Alert variant="destructive" className="max-w-md mx-auto">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{loadingError}</AlertDescription>
-          </Alert>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md mx-auto px-4">
+          <div className="w-16 h-16 mx-auto bg-destructive/10 rounded-full flex items-center justify-center">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+          </div>
+          <h2 className="text-xl font-semibold text-foreground">Impossible de charger les cours</h2>
+          <p className="text-muted-foreground text-sm">
+            {loadingError.includes('timeout') || loadingError.includes('trop long') 
+              ? 'La connexion au serveur est lente. Vérifiez votre réseau et réessayez.'
+              : 'Une erreur est survenue lors du chargement des items EDN. Réessayez dans quelques secondes.'}
+          </p>
           <Button 
-            variant="outline" 
             onClick={refresh}
             className="mt-4"
           >
