@@ -19,7 +19,7 @@ export const AuditIC2CompletionDashboard = ({ onComplete }: AuditIC2CompletionDa
     setError(null);
     
     try {
-      console.log('🚀 Lancement de la complétion IC-2 depuis le dashboard...');
+      if (import.meta.env.DEV) console.log('🚀 Lancement de la complétion IC-2 depuis le dashboard...');
       const finalReport = await completeIC2Item();
       
       if (finalReport.completeness === 100) {
