@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { trackConversionEvent } from '@/lib/conversionTracking';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface PricingPlan {
   id: string;
