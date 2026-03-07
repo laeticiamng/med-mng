@@ -349,7 +349,7 @@ export function ExtractionFeedback({
           severity="high"
           onRetry={onRetry}
           onReport={(details) => {
-            console.log('Rapport d\'erreur extraction:', details);
+            if (import.meta.env.DEV) console.log('Rapport d\'erreur extraction:', details);
             toast.success('Rapport d\'erreur envoyé à l\'équipe technique');
           }}
         />

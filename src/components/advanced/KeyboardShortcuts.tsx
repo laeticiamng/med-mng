@@ -59,7 +59,7 @@ export const KeyboardShortcuts: React.FC = () => {
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         // Logique de recherche
-        console.log('Ouverture recherche rapide');
+        if (import.meta.env.DEV) console.log('Ouverture recherche rapide');
       }
 
       // ? pour afficher les raccourcis
