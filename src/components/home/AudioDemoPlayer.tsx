@@ -44,9 +44,10 @@ export const AudioDemoPlayer = () => {
           setTracks(demoTracks);
           setCurrentTrack(demoTracks[0]);
         } else {
-          // Fallback: static demo tracks when DB is empty
+          // Fallback: static demo tracks with preview audio
+          const DEMO_AUDIO_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co/storage/v1/object/public/audio-demos/demo-epilepsie-preview.mp3';
           const fallbackTracks: DemoTrack[] = [
-            { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 45 },
+            { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: DEMO_AUDIO_URL, duration: 30 },
             { id: 'demo-2', title: 'Asthme — Item 188', genre: 'Pneumologie', audio_url: '', duration: 38 },
             { id: 'demo-3', title: 'HTA — Item 224', genre: 'Cardiologie', audio_url: '', duration: 42 },
           ];
@@ -88,10 +89,11 @@ export const AudioDemoPlayer = () => {
     };
   }, [currentTrack]);
 
-  const isFallback = !currentTrack?.audio_url;
+  const hasAudio = !!currentTrack?.audio_url;
+  const isFallback = !tracks.some(t => t.audio_url);
 
   const togglePlay = async () => {
-    if (isFallback) return; // No audio for fallback tracks
+    if (!hasAudio) return; // No audio for this specific track
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
 
@@ -126,10 +128,10 @@ export const AudioDemoPlayer = () => {
 
   if (isLoading) return null;
 
-  // If we only have fallback tracks (no real audio), show a preview catalog instead
+  // If no tracks have audio at all, show preview catalog
   if (tracks.length === 0 || isFallback) {
     const previewItems = tracks.length > 0 ? tracks : [
-      { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 45 },
+      { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 30 },
       { id: 'demo-2', title: 'Asthme — Item 188', genre: 'Pneumologie', audio_url: '', duration: 38 },
       { id: 'demo-3', title: 'HTA — Item 224', genre: 'Cardiologie', audio_url: '', duration: 42 },
     ];
