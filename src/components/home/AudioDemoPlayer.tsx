@@ -124,13 +124,55 @@ export const AudioDemoPlayer = () => {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (isLoading || tracks.length === 0) return null;
+  if (isLoading) return null;
+
+  // If we only have fallback tracks (no real audio), show a preview catalog instead
+  if (tracks.length === 0 || isFallback) {
+    const previewItems = tracks.length > 0 ? tracks : [
+      { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 45 },
+      { id: 'demo-2', title: 'Asthme — Item 188', genre: 'Pneumologie', audio_url: '', duration: 38 },
+      { id: 'demo-3', title: 'HTA — Item 224', genre: 'Cardiologie', audio_url: '', duration: 42 },
+    ];
+
+    return (
+      <div className="mt-8 space-y-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Music className="h-4 w-4 text-primary" />
+          <span className="font-medium"><TranslatedText text="🎵 Aperçu du catalogue — 367 chansons médicales" /></span>
+        </div>
+
+        <div className="space-y-2">
+          {previewItems.map((track) => (
+            <div
+              key={track.id}
+              className="flex items-center gap-3 bg-muted/20 rounded-xl p-3 border border-border/20"
+            >
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                <Music className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{track.title}</p>
+                <p className="text-[11px] text-muted-foreground">{track.genre} · {formatTime(track.duration)}</p>
+              </div>
+              <span className="text-[10px] text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap">
+                <TranslatedText text="Inscription gratuite" />
+              </span>
+            </div>
+          ))}
+        </div>
+        
+        <p className="text-xs text-muted-foreground text-center">
+          <TranslatedText text="Créez un compte gratuit pour écouter toutes les chansons" />
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8 space-y-4">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Volume2 className="h-4 w-4 text-primary" />
-        <span className="font-medium"><TranslatedText text="🎧 Écoute un extrait — sans inscription" /></span>
+        <span className="font-medium"><TranslatedText text="🎧 Écoute un extrait" /></span>
       </div>
 
       {/* Track selector */}
@@ -154,14 +196,10 @@ export const AudioDemoPlayer = () => {
       {currentTrack && (
         <div className="flex items-center gap-4 bg-muted/30 rounded-2xl p-4 border border-border/30">
           <motion.button
-            whileHover={{ scale: isFallback ? 1 : 1.1 }}
-            whileTap={{ scale: isFallback ? 1 : 0.9 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={togglePlay}
-            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
-              isFallback
-                ? 'bg-muted text-muted-foreground cursor-default shadow-none'
-                : 'bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-primary/30'
-            }`}
+            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-primary/30"
           >
             {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
           </motion.button>
@@ -171,21 +209,15 @@ export const AudioDemoPlayer = () => {
               <p className="text-sm font-medium text-foreground truncate">
                 {currentTrack.title}
               </p>
-              {isFallback ? (
-                <span className="text-[10px] text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
-                  Bientôt disponible
-                </span>
-              ) : (
-                <button
-                  onClick={() => {
-                    setIsMuted(!isMuted);
-                    if (audioRef.current) audioRef.current.muted = !isMuted;
-                  }}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setIsMuted(!isMuted);
+                  if (audioRef.current) audioRef.current.muted = !isMuted;
+                }}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              </button>
             </div>
 
             <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
@@ -202,7 +234,7 @@ export const AudioDemoPlayer = () => {
             </div>
           </div>
 
-          {!isFallback && <audio ref={audioRef} src={currentTrack.audio_url} preload="none" />}
+          <audio ref={audioRef} src={currentTrack.audio_url} preload="none" />
         </div>
       )}
     </div>
