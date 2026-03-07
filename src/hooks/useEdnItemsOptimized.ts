@@ -1,4 +1,5 @@
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
+import { captureException, addBreadcrumb } from '@/utils/sentry';
 import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -59,17 +60,23 @@ export const useEdnItemsOptimized = () => {
   const [loading, setLoading] = useState(() => !loadFromCache(cacheBuster));
   const [error, setError] = useState<string | null>(null);
 
-  const fetchItems = useCallback(async (showLoading = true) => {
+  const fetchItems = useCallback(async (showLoading = true, retryCount = 0) => {
+    const MAX_RETRIES = 2;
+    const TIMEOUT_MS = retryCount === 0 ? 8000 : 12000; // Longer timeout on retry
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
       if (showLoading && items.length === 0) {
         setLoading(true);
       }
 
-      // ✅ Requête unique optimisée - JOIN avec edn_items_complete pour avoir specialite et mots_cles
-      // Note: edn_items_immersive contient specialite, mais on récupère aussi subtitle pour la recherche
+      addBreadcrumb({
+        category: 'edn',
+        message: `Fetching EDN items (attempt ${retryCount + 1})`,
+        level: 'info',
+      });
+
       const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&order=item_code`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
       const response = await fetch(url, {
@@ -103,7 +110,6 @@ export const useEdnItemsOptimized = () => {
         slug: item.slug,
         updated_at: item.updated_at,
         paroles_musicales: item.paroles_musicales || undefined,
-        // ✅ Utiliser directement les champs pré-calculés si disponibles
         competences_count_rang_a: item.competences_count_rang_a || 0,
         competences_count_rang_b: item.competences_count_rang_b || 0,
         specialite: item.specialite || undefined,
@@ -119,15 +125,34 @@ export const useEdnItemsOptimized = () => {
       clearTimeout(timeoutId);
       
       if (err instanceof Error && err.name === 'AbortError') {
-        // Timeout - utiliser le cache si disponible
+        // Timeout — retry if possible
+        if (retryCount < MAX_RETRIES) {
+          if (import.meta.env.DEV) console.log(`EDN fetch timeout, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
+          setTimeout(() => fetchItems(showLoading, retryCount + 1), 1000 * (retryCount + 1));
+          return;
+        }
+        // All retries exhausted
         const cached = loadFromCache(cacheBuster);
         if (cached && cached.length > 0) {
           setItems(cached);
           setLoading(false);
           return;
         }
-        setError('Chargement trop long. Réessayez.');
+        captureException(new Error('EDN fetch timeout after all retries'), {
+          tags: { component: 'useEdnItemsOptimized', type: 'timeout' },
+          extra: { retryCount, cacheBuster }
+        });
+        setError('Chargement trop long. Vérifiez votre connexion et réessayez.');
       } else {
+        // Non-timeout error — retry once
+        if (retryCount < MAX_RETRIES) {
+          setTimeout(() => fetchItems(showLoading, retryCount + 1), 1000 * (retryCount + 1));
+          return;
+        }
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+          tags: { component: 'useEdnItemsOptimized', type: 'fetch_error' },
+          extra: { retryCount, cacheBuster }
+        });
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
       }
       setLoading(false);
