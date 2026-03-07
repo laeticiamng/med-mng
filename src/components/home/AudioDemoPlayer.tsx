@@ -128,10 +128,10 @@ export const AudioDemoPlayer = () => {
 
   if (isLoading) return null;
 
-  // If we only have fallback tracks (no real audio), show a preview catalog instead
+  // If no tracks have audio at all, show preview catalog
   if (tracks.length === 0 || isFallback) {
     const previewItems = tracks.length > 0 ? tracks : [
-      { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 45 },
+      { id: 'demo-1', title: 'Épilepsie — Item 105', genre: 'Neurologie', audio_url: '', duration: 30 },
       { id: 'demo-2', title: 'Asthme — Item 188', genre: 'Pneumologie', audio_url: '', duration: 38 },
       { id: 'demo-3', title: 'HTA — Item 224', genre: 'Cardiologie', audio_url: '', duration: 42 },
     ];
