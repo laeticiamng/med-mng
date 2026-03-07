@@ -93,7 +93,7 @@ export const AudioDemoPlayer = () => {
   const isFallback = !tracks.some(t => t.audio_url);
 
   const togglePlay = async () => {
-    if (isFallback) return; // No audio for fallback tracks
+    if (!hasAudio) return; // No audio for this specific track
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
 
