@@ -187,7 +187,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
-        console.log('Quiz session completed (not logged in):', session.sessionId);
+        if (import.meta.env.DEV) console.log('Quiz session completed (not logged in):', session.sessionId);
         return;
       }
 
@@ -242,7 +242,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         created_at: new Date().toISOString()
       } as any);
 
-      console.log('Quiz session saved to quiz_results:', session.sessionId);
+      if (import.meta.env.DEV) console.log('Quiz session saved to quiz_results:', session.sessionId);
     } catch (error) {
       console.error('Error saving quiz session:', error);
     }

@@ -95,7 +95,7 @@ export const CreativeStudio = () => {
 
     const result = await generateContent(request);
     if (result) {
-      console.log('Contenu généré:', result);
+      if (import.meta.env.DEV) console.log('Contenu généré:', result);
       // Track activity
       logActivity({ 
         activity_type: 'music_generation', 

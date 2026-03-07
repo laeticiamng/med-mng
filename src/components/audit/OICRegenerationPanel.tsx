@@ -38,7 +38,7 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       setProgress(70);
 
-      console.log('✅ Régénération OIC terminée:', data);
+      if (import.meta.env.DEV) console.log('✅ Régénération OIC terminée:', data);
 
       const { error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
         body: {}

@@ -50,7 +50,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
         });
       } catch (error) {
         // User cancelled or error occurred
-        console.log('Share cancelled');
+        if (import.meta.env.DEV) console.log('Share cancelled');
       }
     } else {
       // Fallback - show share options

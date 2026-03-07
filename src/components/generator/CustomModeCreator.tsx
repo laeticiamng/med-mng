@@ -86,7 +86,7 @@ export const CustomModeCreator = () => {
 
     try {
       // Ici on sauvegarderait le mode personnalisé
-      console.log('Mode personnalisé créé:', customMode);
+      if (import.meta.env.DEV) console.log('Mode personnalisé créé:', customMode);
       
       toast({
         title: "Mode créé !",

@@ -71,7 +71,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
                 <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Bibliothèque</Link>
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
                 <Link to={ROUTE_PATHS.faq} className="block text-muted-foreground hover:text-primary text-xs transition-colors">FAQ</Link>
-                <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">A propos</Link>
+                <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">À propos</Link>
                 <Link to={ROUTE_PATHS.b2b} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Universités & CHU</Link>
               </div>
             </div>
@@ -117,7 +117,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
               <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
-                <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">A propos</Link>
+                <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">À propos</Link>
                 <Link to={ROUTE_PATHS.b2b} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Universités & CHU</Link>
                 <Link to={ROUTE_PATHS.medMngSignup} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Créer un compte</Link>
                 <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Installer l'app</Link>

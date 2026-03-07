@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (TEST_MODE_ENABLED) {
       // Log unique pour éviter le spam console
       if (!sessionStorage.getItem('test-mode-logged')) {
-        console.log('🧪 Mode test actif - Authentification simulée');
+        if (import.meta.env.DEV) console.log('🧪 Mode test actif - Authentification simulée');
         sessionStorage.setItem('test-mode-logged', 'true');
       }
       setUser(TEST_USER as unknown as User);

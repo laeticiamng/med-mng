@@ -79,7 +79,7 @@ export const AccessibilityCenter: React.FC = () => {
       headingStructure: 'pass',
       focusManagement: 'pass'
     };
-    console.log('🔍 Test d\'accessibilité terminé:', results);
+    if (import.meta.env.DEV) console.log('🔍 Test d\'accessibilité terminé:', results);
     return results;
   }, []);
 

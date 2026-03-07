@@ -135,7 +135,7 @@ export const SubscriptionTestPanel: React.FC = () => {
           .rpc('increment_music_usage', { user_uuid: loginData.user.id });
 
         if (error) {
-          console.log(`Génération ${i + 1} bloquée pour ${account.plan} - Quota atteint`);
+          if (import.meta.env.DEV) console.log(`Génération ${i + 1} bloquée pour ${account.plan} - Quota atteint`);
           break;
         }
       }
