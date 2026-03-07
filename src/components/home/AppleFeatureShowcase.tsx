@@ -29,8 +29,8 @@ const features = [
   },
   {
     id: 'memory', icon: Brain,
-    title: 'Mémoire x3', subtitle: 'Prouvé par la science',
-    description: "La musique active l'hippocampe et l'amygdale simultanément. Rétention 3x supérieure à la lecture passive. C'est neuroscientifique.",
+    title: 'Mémoire renforcée', subtitle: 'Appuyé par les neurosciences',
+    description: "La musique active l'hippocampe et l'amygdale simultanément. Des études montrent une rétention significativement supérieure à la lecture passive (Wallace, 1994 ; Rainey & Larsen, 2002).",
     gradient: 'from-warning to-warning/60', bgGradient: 'from-warning/20 via-warning/5 to-transparent',
   },
 ];

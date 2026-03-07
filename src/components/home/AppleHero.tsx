@@ -125,7 +125,7 @@ export const AppleHero = () => {
         >
           {[
             { icon: Music, label: "Paroles = Cours" },
-            { icon: Brain, label: "Mémoire x3" },
+            { icon: Brain, label: "Rétention renforcée" },
             { icon: Zap, label: "Sans effort" }
           ].map((item, index) => (
             <motion.div

@@ -91,7 +91,7 @@ export const AppleTestimonials = () => {
             { value: '0€', label: 'Pour commencer' },
             { value: '367', label: 'Items EDN couverts' },
             { value: '100%', label: 'Programme R2C' },
-            { value: 'x3', label: 'Rétention mémorielle' },
+            { value: '↑↑↑', label: 'Rétention mémorielle' },
           ].map((stat, index) => (
             <motion.div key={stat.label} initial={{ opacity: 0, scale: 0.8 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: 0.5, delay: 1 + index * 0.1 }} className="text-center">
               <p className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">{stat.value}</p>
