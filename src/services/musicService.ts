@@ -288,7 +288,7 @@ class MusicService {
         .eq('song_id', songId)
 
       if (error) throw error
-      console.log('✅ Song removed from playlist')
+      if (import.meta.env.DEV) console.log('✅ Song removed from playlist')
     } catch (error) {
       console.error('❌ Error removing song from playlist:', error)
       throw error
