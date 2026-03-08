@@ -45,7 +45,7 @@ export const useEnhancedAudioPlayer = () => {
 
   // Préchargement audio intelligent
   const preloadAudio = useCallback((audioUrl: string) => {
-    console.log('🎵 Préchargement de l\'audio:', audioUrl);
+    if (import.meta.env.DEV) console.log('🎵 Préchargement de l\'audio:', audioUrl);
     
     if (preloadRef.current) {
       preloadRef.current.pause();
