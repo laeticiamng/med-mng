@@ -117,7 +117,7 @@ export const useRealtimeGeneration = ({
           if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttemptsRef.current++;
             reconnectTimeoutRef.current = setTimeout(() => {
-              console.log(`🔄 Tentative de reconnexion ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS}`);
+              if (import.meta.env.DEV) console.log(`🔄 Tentative de reconnexion ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS}`);
               connect();
             }, RECONNECT_DELAY * reconnectAttemptsRef.current);
           }
