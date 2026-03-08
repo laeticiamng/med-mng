@@ -209,7 +209,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
       setIsPlaying(false);
       setCurrentTime(0);
       setCurrentTrack(null);
-      console.log('⏹️ Audio arrêté');
+      if (import.meta.env.DEV) console.log('⏹️ Audio arrêté');
     }
   };
 
