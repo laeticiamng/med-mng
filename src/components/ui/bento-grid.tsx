@@ -58,7 +58,7 @@ export const BentoCard: React.FC<BentoCardProps> = ({
         rowSpan === 2 && "lg:row-span-2",
         className
       )}
-      {...props}
+    >
     >
       {/* Subtle shine sweep on hover */}
       <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
