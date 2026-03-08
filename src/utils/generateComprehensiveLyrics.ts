@@ -29,7 +29,7 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
       .eq('rang', rang)
       .order('objectif_id');
 
-    console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
+    if (import.meta.env.DEV) console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
 
     if (error) {
       console.error('Erreur récupération compétences:', error);
