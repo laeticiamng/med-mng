@@ -13,7 +13,7 @@ interface GenerationResult {
  * Respecte le cahier des charges: structure complète, style Nekfeu, contenu médical dense
  */
 export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
-  console.log('🚀 Génération avancée des paroles pour tous les items EDN...');
+  if (import.meta.env.DEV) console.log('🚀 Génération avancée des paroles pour tous les items EDN...');
   
   const result: GenerationResult = {
     processed: 0,
