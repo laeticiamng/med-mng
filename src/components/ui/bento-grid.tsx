@@ -27,7 +27,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   );
 };
 
-interface BentoCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface BentoCardProps {
   /** Span 2 columns on large screens */
   colSpan?: 1 | 2;
   /** Span 2 rows */
