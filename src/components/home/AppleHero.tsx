@@ -12,6 +12,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
 import { TranslatedText } from '@/components/global/TranslatedText';
+import { ShineBorder } from '@/components/ui/shine-border';
 
 export const AppleHero = () => {
   const navigate = useNavigate();
@@ -53,18 +54,24 @@ export const AppleHero = () => {
         style={{ y, opacity, scale, position: 'relative' }}
         className="z-10 text-center px-4 max-w-5xl mx-auto"
       >
-        {/* Badge */}
+        {/* Badge with shine border */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-8"
+          className="inline-block mb-8"
         >
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium text-primary"><TranslatedText text="Révolutionner l'apprentissage médical" /></span>
+          <ShineBorder borderRadius={50} borderWidth={1} duration={6}>
+            <div className="flex items-center gap-2 px-5 py-2.5">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                <TranslatedText text="Révolutionner l'apprentissage médical" />
+              </span>
+            </div>
+          </ShineBorder>
         </motion.div>
 
-        {/* Main headline */}
+        {/* Main headline with animated gradient */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -73,7 +80,7 @@ export const AppleHero = () => {
         >
           <span className="text-foreground"><TranslatedText text="Apprends la médecine" /></span>
           <br />
-          <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
             <TranslatedText text="en musique." />
           </span>
         </motion.h1>
@@ -100,7 +107,7 @@ export const AppleHero = () => {
           <Button 
             size="lg"
             onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
-            className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
+            className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105 glow-pulse"
           >
             <Sparkles className="h-5 w-5 mr-2" />
             <TranslatedText text="Créer un compte gratuit" />
@@ -116,7 +123,7 @@ export const AppleHero = () => {
           </Button>
         </motion.div>
 
-        {/* Feature pills */}
+        {/* Feature pills with shine effect */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -133,8 +140,9 @@ export const AppleHero = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
-              className="relative overflow-hidden flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-5 py-2.5"
+              className="relative overflow-hidden flex items-center gap-2 bg-card/60 backdrop-blur-sm border border-border/50 rounded-full px-5 py-2.5"
             >
+              {/* Shine sweep */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -skew-x-12"
                 initial={{ x: '-100%' }}
