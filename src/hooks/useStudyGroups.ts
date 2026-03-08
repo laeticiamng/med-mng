@@ -56,7 +56,7 @@ export function useStudyGroups() {
 
         if (error) {
           // Table doesn't exist, return mock data
-          console.log('study_groups table not found, using mock data');
+          if (import.meta.env.DEV) console.log('study_groups table not found, using mock data');
           return getMockGroups();
         }
 
