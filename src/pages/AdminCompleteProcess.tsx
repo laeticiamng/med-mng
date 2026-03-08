@@ -37,7 +37,7 @@ const AdminCompleteProcess = () => {
     try {
       // Phase 1: Extraction EDN - SÉCURISÉE
       setCurrentPhase('extraction');
-      console.log('🚀 Début extraction des 367 items EDN...');
+      if (import.meta.env.DEV) console.log('🚀 Début extraction des 367 items EDN...');
       
       // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
       const credentials = await getCredentials();
