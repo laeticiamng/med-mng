@@ -1199,3 +1199,34 @@ a:not([class]):hover {
 .card-spacious {
   padding: var(--card-padding-lg);
 }
+
+/* ==========================================
+   21st.dev Trending Effects
+   ========================================== */
+
+/* Shine Border rotation */
+@keyframes shine-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animated gradient text shimmer */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.text-gradient-animated {
+  background-size: 200% auto;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+/* Glow pulse for premium elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.2); }
+  50% { box-shadow: 0 0 30px -5px hsl(var(--primary) / 0.4); }
+}
+
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
