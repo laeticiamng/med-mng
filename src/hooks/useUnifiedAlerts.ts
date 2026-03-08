@@ -68,7 +68,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
 
   // Subscribe to realtime updates
   useEffect(() => {
-    console.log('[useUnifiedAlerts] Setting up realtime subscription');
+    if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Setting up realtime subscription');
     
     const channel = supabase
       .channel('unified-alerts-broadcast')
