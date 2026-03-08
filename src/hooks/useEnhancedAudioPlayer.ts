@@ -57,7 +57,7 @@ export const useEnhancedAudioPlayer = () => {
     preloadAudio.src = audioUrl;
     
     preloadAudio.addEventListener('canplaythrough', () => {
-      console.log('✅ Audio préchargé et prêt');
+      if (import.meta.env.DEV) console.log('✅ Audio préchargé et prêt');
       setState(prev => ({ ...prev, readyToPlay: true }));
     });
 
