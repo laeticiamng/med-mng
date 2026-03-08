@@ -80,7 +80,7 @@ const OicDataQualityManager = () => {
     setError(null);
     
     try {
-      console.log('🛠️ Starting OIC data quality fixes...');
+      if (import.meta.env.DEV) console.log('🛠️ Starting OIC data quality fixes...');
       
       // DÉSACTIVÉ: fix-oic-data-quality a été supprimée
       const data = null;
