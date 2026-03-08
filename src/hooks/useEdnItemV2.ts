@@ -58,7 +58,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         }
 
         const payload = await response.json();
-        console.log('🧾 useEdnItemV2 - Cache headers:', pickCacheDiagnostics(response.headers));
+        if (import.meta.env.DEV) console.log('🧾 useEdnItemV2 - Cache headers:', pickCacheDiagnostics(response.headers));
 
         const data = Array.isArray(payload) ? payload[0] : payload;
 
