@@ -133,6 +133,9 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 // 🎯 DEMO PAGE
 const Demo = lazy(() => import("./pages/Demo"));
 
+// ⚡ QUICK REVISION
+const QuickRevision = lazy(() => import("./pages/QuickRevision"));
+
 // ⚔️ KARAOKE DUELS
 const KaraokeDuel = lazy(() => import("./pages/KaraokeDuel"));
 
@@ -340,6 +343,9 @@ const App = () => {
 
                                     {/* Demo (public) */}
                                     <Route path={ROUTE_PATHS.demo} element={<S><Demo /></S>} />
+
+                                    {/* Quick Revision (public) */}
+                                    <Route path={ROUTE_PATHS.quickRevision} element={<S><QuickRevision /></S>} />
 
                                     {/* Specialty Paths */}
                                     <Route path={ROUTE_PATHS.specialtyPaths} element={<S><SpecialtyPaths /></S>} />
