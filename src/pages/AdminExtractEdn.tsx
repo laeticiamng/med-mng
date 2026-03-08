@@ -38,7 +38,7 @@ const AdminExtractEdn = () => {
         return;
       }
 
-      console.log('✅ Extraction terminée:', data);
+      if (import.meta.env.DEV) console.log('✅ Extraction terminée:', data);
       setStats(data.stats);
       setProgress(100);
       toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
