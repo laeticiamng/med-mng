@@ -65,7 +65,7 @@ class MusicService {
     error?: string
   }> {
     try {
-      console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
+      if (import.meta.env.DEV) console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
       
       const { data, error } = await supabase.functions.invoke('music-generation', {
         body: request,
