@@ -26,7 +26,7 @@ const AdminExtractEcos = () => {
       // Obtenir les credentials de manière sécurisée (affiche le formulaire si nécessaire)
       const credentials = await getCredentials();
       
-      console.log('✅ Credentials obtenus, démarrage de l\'extraction...');
+      if (import.meta.env.DEV) console.log('✅ Credentials obtenus, démarrage de l\'extraction...');
       
       // Maintenant on peut démarrer l'extraction
       setIsExtracting(true);
