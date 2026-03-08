@@ -116,7 +116,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
     const handleCanPlay = () => {
       const canPlayTime = performance.now() - startTime;
-      console.log(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
+      if (import.meta.env.DEV) console.log(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
       updateMetric(track.url, { canPlayTime });
       
       // OPTIMISATION 2: Démarrage immédiat dès que possible
