@@ -164,7 +164,7 @@ class MusicService {
         .eq('song_id', songId)
 
       if (error) throw error
-      console.log('✅ Song removed from library')
+      if (import.meta.env.DEV) console.log('✅ Song removed from library')
     } catch (error) {
       console.error('❌ Error removing from library:', error)
       throw error
