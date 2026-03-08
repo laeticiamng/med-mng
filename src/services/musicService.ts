@@ -558,7 +558,7 @@ class MusicService {
         await this.addSongToPlaylist(newPlaylist.id, song.song_id)
       }
 
-      console.log('Playlist duplicated successfully')
+      if (import.meta.env.DEV) console.log('Playlist duplicated successfully')
       return newPlaylist
     } catch (error) {
       console.error('Error duplicating playlist:', error)
