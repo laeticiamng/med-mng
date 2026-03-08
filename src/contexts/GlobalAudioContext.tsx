@@ -100,7 +100,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     };
 
     const handleEnded = () => {
-      console.log('🔚 Lecture terminée');
+      if (import.meta.env.DEV) console.log('🔚 Lecture terminée');
       setIsPlaying(false);
       setCurrentTime(0);
     };
