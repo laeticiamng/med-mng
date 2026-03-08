@@ -352,7 +352,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.specialtyPathDetail} element={<S><SpecialtyPathDetail /></S>} />
 
                                     {/* Karaoke Duels */}
-                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<S><KaraokeDuel /></S>} />
+                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<ProtectedRoute><S><KaraokeDuel /></S></ProtectedRoute>} />
 
                                     {/* Daily SRS Playlist */}
                                     <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<S><DailySRSPlaylist /></S>} />
