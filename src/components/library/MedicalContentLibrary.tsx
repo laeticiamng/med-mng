@@ -320,7 +320,7 @@ export const MedicalContentLibrary = () => {
                   {/* Duration */}
                   <span className="absolute bottom-3 right-3 text-xs text-white/80 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {track.duration}
+                    {track.durationLabel}
                   </span>
                 </div>
 
