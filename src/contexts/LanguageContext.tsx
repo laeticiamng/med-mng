@@ -16,6 +16,7 @@ export const LANGUAGES: LanguageInfo[] = [
   { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { code: 'de', name: 'Deutsch', nativeName: 'Deutsch', flag: '🇩🇪' },
+  { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸' },
 ];
 
 // Alias pour compatibilité
