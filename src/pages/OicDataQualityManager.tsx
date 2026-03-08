@@ -65,7 +65,7 @@ const OicDataQualityManager = () => {
       if (error) throw error;
 
       setAnalysisResult(data);
-      console.log('✅ Analysis completed:', data);
+      if (import.meta.env.DEV) console.log('✅ Analysis completed:', data);
       
     } catch (err: any) {
       console.error('❌ Analysis failed:', err);
