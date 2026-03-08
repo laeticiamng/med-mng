@@ -101,7 +101,7 @@ export const useMusicPolling = () => {
         return { found: false };
       }
 
-      console.log('[useMusicPolling] Données BDD:', {
+      if (import.meta.env.DEV) console.log('[useMusicPolling] Données BDD:', {
         status: data.generation_status,
         hasAudioUrl: !!data.audio_url,
         audioUrl: data.audio_url?.substring(0, 50)
