@@ -355,7 +355,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.karaokeDuel} element={<ProtectedRoute><S><KaraokeDuel /></S></ProtectedRoute>} />
 
                                     {/* Daily SRS Playlist */}
-                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<S><DailySRSPlaylist /></S>} />
+                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<ProtectedRoute><S><DailySRSPlaylist /></S></ProtectedRoute>} />
 
                                     {/* National Exam Simulation */}
                                     <Route path={ROUTE_PATHS.nationalExam} element={<S><NationalExamSimulation /></S>} />
