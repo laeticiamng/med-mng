@@ -186,7 +186,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
-      console.log('⏸️ Audio mis en pause');
+      if (import.meta.env.DEV) console.log('⏸️ Audio mis en pause');
     }
   };
 
