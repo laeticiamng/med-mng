@@ -90,7 +90,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     // Configuration des événements AVANT de définir la source
     const handleLoadedMetadata = () => {
       const metadataTime = performance.now() - startTime;
-      console.log(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
+      if (import.meta.env.DEV) console.log(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
       updateMetric(track.url, { metadataLoadTime: metadataTime });
       setDuration(audio.duration || 348);
     };
