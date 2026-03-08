@@ -80,7 +80,7 @@ const AdminExtractEcos = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${data?.length || 0} situations ECOS déjà en base`);
+      if (import.meta.env.DEV) console.log(`📊 ${data?.length || 0} situations ECOS déjà en base`);
       toast.info(`${data?.length || 0} situations ECOS trouvées en base`);
 
       return data;

@@ -112,7 +112,7 @@ const AdminCompleteProcess = () => {
     setError(null);
 
     try {
-      console.log('🔄 Début de la ré-importation complète EDN...');
+      if (import.meta.env.DEV) console.log('🔄 Début de la ré-importation complète EDN...');
       toast.info('Ré-importation en cours...', {
         description: 'Mise à jour de tous les contenus avec données spécifiques'
       });

@@ -89,7 +89,7 @@ const OicDataQualityManager = () => {
       if (error) throw error;
 
       setFixResult(data);
-      console.log('✅ Fixes completed:', data);
+      if (import.meta.env.DEV) console.log('✅ Fixes completed:', data);
       
       // Relancer l'analyse pour voir les améliorations
       setTimeout(() => {

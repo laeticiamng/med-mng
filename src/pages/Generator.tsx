@@ -247,7 +247,7 @@ const Generator = () => {
       
       // ✅ Log des paramètres avancés si présents
       if (advancedParams && Object.keys(advancedParams).length > 0) {
-        console.log('[Generator] Paramètres avancés Suno:', advancedParams);
+        if (import.meta.env.DEV) console.log('[Generator] Paramètres avancés Suno:', advancedParams);
       }
       
       const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');

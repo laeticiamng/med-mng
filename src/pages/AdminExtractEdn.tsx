@@ -61,7 +61,7 @@ const AdminExtractEdn = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
+      if (import.meta.env.DEV) console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
       toast.info(`${data?.length || 0} items EDN trouvés en base`);
 
       return data;
