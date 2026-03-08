@@ -256,7 +256,7 @@ export const useMusicGenerationOrchestrator = () => {
 
   // Annuler une génération spécifique
   const cancelGeneration = useCallback((taskId: string) => {
-    console.log(`[Orchestrator] Annulation génération: ${taskId}`);
+    if (import.meta.env.DEV) console.log(`[Orchestrator] Annulation génération: ${taskId}`);
     stopPolling(taskId);
     removeActiveTask(taskId);
     abortRetry();
