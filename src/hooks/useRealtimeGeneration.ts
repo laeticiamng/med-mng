@@ -66,7 +66,7 @@ export const useRealtimeGeneration = ({
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          console.log('🎵 Nouveau track reçu:', payload.new);
+          if (import.meta.env.DEV) console.log('🎵 Nouveau track reçu:', payload.new);
           onNewTrack?.(payload.new);
         }
       )
@@ -79,7 +79,7 @@ export const useRealtimeGeneration = ({
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          console.log('📝 Track mis à jour:', payload.new);
+          if (import.meta.env.DEV) console.log('📝 Track mis à jour:', payload.new);
           onTrackUpdated?.(payload.new);
           
           // Notifier si génération terminée
@@ -103,7 +103,7 @@ export const useRealtimeGeneration = ({
         }
       )
       .subscribe((status) => {
-        console.log(`📡 Realtime status (${channelName}):`, status);
+        if (import.meta.env.DEV) console.log(`📡 Realtime status (${channelName}):`, status);
         
         if (status === 'SUBSCRIBED') {
           setIsConnected(true);
@@ -117,7 +117,7 @@ export const useRealtimeGeneration = ({
           if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttemptsRef.current++;
             reconnectTimeoutRef.current = setTimeout(() => {
-              console.log(`🔄 Tentative de reconnexion ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS}`);
+              if (import.meta.env.DEV) console.log(`🔄 Tentative de reconnexion ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS}`);
               connect();
             }, RECONNECT_DELAY * reconnectAttemptsRef.current);
           }
@@ -148,7 +148,7 @@ export const useRealtimeGeneration = ({
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !isConnected && enabled && userId) {
-        console.log('👁️ App redevient visible, reconnexion...');
+        if (import.meta.env.DEV) console.log('👁️ App redevient visible, reconnexion...');
         reconnect();
       }
     };
@@ -161,7 +161,7 @@ export const useRealtimeGeneration = ({
   useEffect(() => {
     const handleOnline = () => {
       if (!isConnected && enabled && userId) {
-        console.log('🌐 Retour en ligne, reconnexion...');
+        if (import.meta.env.DEV) console.log('🌐 Retour en ligne, reconnexion...');
         reconnect();
       }
     };

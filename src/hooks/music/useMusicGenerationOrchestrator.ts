@@ -146,7 +146,7 @@ export const useMusicGenerationOrchestrator = () => {
         instrumental: false
       };
 
-      console.log(`[Orchestrator] Démarrage génération Rang ${rang}`, { itemCode, model, style: selectedStyle });
+      if (import.meta.env.DEV) console.log(`[Orchestrator] Démarrage génération Rang ${rang}`, { itemCode, model, style: selectedStyle });
 
       // Démarrer la génération avec retry automatique
       const initialData = await executeWithRetry(async () => {
@@ -256,7 +256,7 @@ export const useMusicGenerationOrchestrator = () => {
 
   // Annuler une génération spécifique
   const cancelGeneration = useCallback((taskId: string) => {
-    console.log(`[Orchestrator] Annulation génération: ${taskId}`);
+    if (import.meta.env.DEV) console.log(`[Orchestrator] Annulation génération: ${taskId}`);
     stopPolling(taskId);
     removeActiveTask(taskId);
     abortRetry();
@@ -264,7 +264,7 @@ export const useMusicGenerationOrchestrator = () => {
 
   // Annuler toutes les générations
   const cancelAllGenerations = useCallback(() => {
-    console.log(`[Orchestrator] Annulation de toutes les générations`);
+    if (import.meta.env.DEV) console.log(`[Orchestrator] Annulation de toutes les générations`);
     stopAllPolling();
     activeTasksRef.current.clear();
     saveActiveTasksToStorage(activeTasksRef.current);

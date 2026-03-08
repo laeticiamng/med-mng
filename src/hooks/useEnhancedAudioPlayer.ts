@@ -45,7 +45,7 @@ export const useEnhancedAudioPlayer = () => {
 
   // Préchargement audio intelligent
   const preloadAudio = useCallback((audioUrl: string) => {
-    console.log('🎵 Préchargement de l\'audio:', audioUrl);
+    if (import.meta.env.DEV) console.log('🎵 Préchargement de l\'audio:', audioUrl);
     
     if (preloadRef.current) {
       preloadRef.current.pause();
@@ -57,7 +57,7 @@ export const useEnhancedAudioPlayer = () => {
     preloadAudio.src = audioUrl;
     
     preloadAudio.addEventListener('canplaythrough', () => {
-      console.log('✅ Audio préchargé et prêt');
+      if (import.meta.env.DEV) console.log('✅ Audio préchargé et prêt');
       setState(prev => ({ ...prev, readyToPlay: true }));
     });
 
@@ -70,7 +70,7 @@ export const useEnhancedAudioPlayer = () => {
 
   // Logging des métriques détaillées
   const logAudioMetrics = useCallback((eventType: string, data: any) => {
-    console.log(`🎵 METRIC [${eventType}]:`, {
+    if (import.meta.env.DEV) console.log(`🎵 METRIC [${eventType}]:`, {
       timestamp: Date.now(),
       track: state.currentTrack,
       ...data

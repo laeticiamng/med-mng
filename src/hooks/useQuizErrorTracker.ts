@@ -193,7 +193,7 @@ export const useQuizErrorTracker = () => {
           };
         });
         setAllSessions(sessions);
-        console.log('📚 SESSIONS CHARGÉES:', sessions.length);
+        if (import.meta.env.DEV) console.log('📚 SESSIONS CHARGÉES:', sessions.length);
       }
     } catch (error) {
       console.error('❌ Erreur chargement sessions:', error);

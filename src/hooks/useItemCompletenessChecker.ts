@@ -44,7 +44,7 @@ export const useItemCompletenessChecker = () => {
   const checkItemCompleteness = useCallback(async (itemId: string): Promise<CompletenessResult | null> => {
     try {
       setIsChecking(true);
-      console.log(`🔍 Vérification complétude item: ${itemId}`);
+      if (import.meta.env.DEV) console.log(`🔍 Vérification complétude item: ${itemId}`);
 
       const { data, error } = await supabase.functions.invoke('items-completeness-check', {
         body: JSON.stringify({ itemId })
@@ -60,7 +60,7 @@ export const useItemCompletenessChecker = () => {
       setItemResults(prev => new Map(prev.set(itemId, result)));
 
       // Log détaillé
-      console.log(`📊 Complétude ${result.itemCode}: ${result.completenessScore}%`, {
+      if (import.meta.env.DEV) console.log(`📊 Complétude ${result.itemCode}: ${result.completenessScore}%`, {
         status: result.status,
         missingFields: result.missingFields,
         partialFields: result.partialFields
@@ -85,7 +85,7 @@ export const useItemCompletenessChecker = () => {
   const checkAllItemsCompleteness = useCallback(async (): Promise<CompletenessReport | null> => {
     try {
       setIsChecking(true);
-      console.log('🔍 Vérification complétude de tous les items...');
+      if (import.meta.env.DEV) console.log('🔍 Vérification complétude de tous les items...');
 
       const { data, error } = await supabase.functions.invoke('items-completeness-check');
 
@@ -104,17 +104,18 @@ export const useItemCompletenessChecker = () => {
       setItemResults(newItemResults);
 
       // Log du rapport complet
-      console.group('📊 RAPPORT COMPLÉTUDE GLOBAL');
-      console.log(`📈 Items complets: ${report.summary.completeItems}/${report.summary.totalItems} (${((report.summary.completeItems/report.summary.totalItems)*100).toFixed(1)}%)`);
-      console.log(`⚠️ Items incomplets: ${report.summary.incompleteItems}`);
-      console.log(`🚨 Items critiques: ${report.summary.criticalItems}`);
-      console.log(`📊 Score moyen: ${report.summary.averageCompleteness}%`);
-      
-      if (report.recommendations.length > 0) {
-        console.log('💡 Recommandations:');
-        report.recommendations.forEach(rec => console.log(`  • ${rec}`));
+      if (import.meta.env.DEV) {
+        console.group('📊 RAPPORT COMPLÉTUDE GLOBAL');
+        console.log(`📈 Items complets: ${report.summary.completeItems}/${report.summary.totalItems} (${((report.summary.completeItems/report.summary.totalItems)*100).toFixed(1)}%)`);
+        console.log(`⚠️ Items incomplets: ${report.summary.incompleteItems}`);
+        console.log(`🚨 Items critiques: ${report.summary.criticalItems}`);
+        console.log(`📊 Score moyen: ${report.summary.averageCompleteness}%`);
+        if (report.recommendations.length > 0) {
+          console.log('💡 Recommandations:');
+          report.recommendations.forEach(rec => console.log(`  • ${rec}`));
+        }
+        console.groupEnd();
       }
-      console.groupEnd();
 
       // Toast de synthèse
       if (report.summary.criticalItems > 0) {

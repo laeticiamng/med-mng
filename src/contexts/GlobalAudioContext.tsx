@@ -58,7 +58,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
   const play = (track: AudioTrack) => {
     const startTime = performance.now();
-    console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
+    if (import.meta.env.DEV) console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
     
     // Démarrer le tracking des métriques
     // Vérifier si l'URL est valide
@@ -90,7 +90,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     // Configuration des événements AVANT de définir la source
     const handleLoadedMetadata = () => {
       const metadataTime = performance.now() - startTime;
-      console.log(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
+      if (import.meta.env.DEV) console.log(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
       updateMetric(track.url, { metadataLoadTime: metadataTime });
       setDuration(audio.duration || 348);
     };
@@ -100,7 +100,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     };
 
     const handleEnded = () => {
-      console.log('🔚 Lecture terminée');
+      if (import.meta.env.DEV) console.log('🔚 Lecture terminée');
       setIsPlaying(false);
       setCurrentTime(0);
     };
@@ -116,7 +116,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
     const handleCanPlay = () => {
       const canPlayTime = performance.now() - startTime;
-      console.log(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
+      if (import.meta.env.DEV) console.log(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
       updateMetric(track.url, { canPlayTime });
       
       // OPTIMISATION 2: Démarrage immédiat dès que possible
@@ -126,7 +126,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
       if (playPromise !== undefined) {
         playPromise.then(() => {
           const playTime = performance.now() - startTime;
-          console.log(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
+          if (import.meta.env.DEV) console.log(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
           updateMetric(track.url, { 
             playStartTime: playTime,
             totalLoadTime: playTime
@@ -152,7 +152,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
     const handleLoadStart = () => {
       const loadStartTime = performance.now() - startTime;
-      console.log(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
+      if (import.meta.env.DEV) console.log(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
     };
     
     // OPTIMISATION 3: Buffer pour réduire les interruptions
@@ -164,7 +164,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
         const bufferHealth = calculateBufferHealth(audio.buffered, duration, audio.currentTime);
         
         updateMetric(track.url, { bufferHealthScore: bufferHealth });
-        console.log(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
+        if (import.meta.env.DEV) console.log(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
       }
     };
 
@@ -186,7 +186,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
-      console.log('⏸️ Audio mis en pause');
+      if (import.meta.env.DEV) console.log('⏸️ Audio mis en pause');
     }
   };
 
@@ -194,7 +194,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     if (audioRef.current) {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
-        console.log('▶️ Audio repris');
+        if (import.meta.env.DEV) console.log('▶️ Audio repris');
       }).catch((error) => {
         console.error('❌ Erreur reprise audio globale:', error);
         setIsPlaying(false);
@@ -209,7 +209,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
       setIsPlaying(false);
       setCurrentTime(0);
       setCurrentTrack(null);
-      console.log('⏹️ Audio arrêté');
+      if (import.meta.env.DEV) console.log('⏹️ Audio arrêté');
     }
   };
 
@@ -217,7 +217,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
-      console.log('⏭️ Recherche à:', time, 'secondes');
+      if (import.meta.env.DEV) console.log('⏭️ Recherche à:', time, 'secondes');
     }
   };
 
@@ -226,25 +226,25 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     localStorage.setItem('audio-volume', newVolume.toString()); // Persist volume
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
-      console.log('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');
+      if (import.meta.env.DEV) console.log('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');
     }
   };
 
   const minimize = () => {
     setIsMinimized(true);
-    console.log('🔽 Lecteur minimisé');
+    if (import.meta.env.DEV) console.log('🔽 Lecteur minimisé');
   };
 
   const maximize = () => {
     setIsMinimized(false);
-    console.log('🔼 Lecteur maximisé');
+    if (import.meta.env.DEV) console.log('🔼 Lecteur maximisé');
   };
 
   useEffect(() => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        console.log('🧹 Nettoyage audio context');
+        if (import.meta.env.DEV) console.log('🧹 Nettoyage audio context');
       }
     };
   }, []);

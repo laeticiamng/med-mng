@@ -19,12 +19,12 @@ export const useComprehensiveAudit = (): UseComprehensiveAuditResult => {
     setError(null);
     
     try {
-      console.log('🔍 Lancement de l\'audit complet de la plateforme...');
+      if (import.meta.env.DEV) console.log('🔍 Lancement de l\'audit complet de la plateforme...');
       const auditReport = await ComprehensivePlatformAuditor.runComprehensiveAudit();
       setReport(auditReport);
-      console.log('✅ Audit terminé avec succès');
-      console.log(`📊 Score: ${auditReport.totalScore}/${auditReport.maxScore}`);
-      console.log(`⚠️ ${auditReport.issues.length} problèmes détectés`);
+      if (import.meta.env.DEV) console.log('✅ Audit terminé avec succès');
+      if (import.meta.env.DEV) console.log(`📊 Score: ${auditReport.totalScore}/${auditReport.maxScore}`);
+      if (import.meta.env.DEV) console.log(`⚠️ ${auditReport.issues.length} problèmes détectés`);
     } catch (err) {
       console.error('❌ Erreur lors de l\'audit:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue lors de l\'audit');
@@ -64,7 +64,7 @@ export const useComprehensiveAudit = (): UseComprehensiveAuditResult => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
+    if (import.meta.env.DEV) console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
   };
 
   return {

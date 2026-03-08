@@ -21,10 +21,10 @@ export const useAuditItems = (): UseAuditItemsResult => {
     setError(null);
     
     try {
-      console.log('🔍 Lancement de l\'audit des items EDN...');
+      if (import.meta.env.DEV) console.log('🔍 Lancement de l\'audit des items EDN...');
       const auditReport = await EDNItemsAuditor.auditAllItems();
       setReport(auditReport);
-      console.log('✅ Audit terminé avec succès');
+      if (import.meta.env.DEV) console.log('✅ Audit terminé avec succès');
     } catch (err) {
       console.error('❌ Erreur lors de l\'audit:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue lors de l\'audit');
@@ -64,7 +64,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
+    if (import.meta.env.DEV) console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
   };
 
   return {
