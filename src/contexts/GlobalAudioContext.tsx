@@ -164,7 +164,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
         const bufferHealth = calculateBufferHealth(audio.buffered, duration, audio.currentTime);
         
         updateMetric(track.url, { bufferHealthScore: bufferHealth });
-        console.log(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
+        if (import.meta.env.DEV) console.log(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
       }
     };
 
