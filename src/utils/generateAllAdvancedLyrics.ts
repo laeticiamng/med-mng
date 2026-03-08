@@ -81,7 +81,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           }
           
           result.successful++;
-          console.log(`✅ ${item.item_code} - Paroles générées et sauvées`);
+          if (import.meta.env.DEV) console.log(`✅ ${item.item_code} - Paroles générées et sauvées`);
           
         } catch (error) {
           result.failed++;
