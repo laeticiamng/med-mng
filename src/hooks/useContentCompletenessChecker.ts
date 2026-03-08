@@ -197,7 +197,7 @@ export const useContentCompletenessChecker = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${oicData.length} compétences OIC à analyser`);
+      if (import.meta.env.DEV) console.log(`📊 ${oicData.length} compétences OIC à analyser`);
 
       const results: AnalysisResults = {
         total: oicData.length,
