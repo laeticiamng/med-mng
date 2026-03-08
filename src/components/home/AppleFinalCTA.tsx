@@ -26,7 +26,7 @@ export const AppleFinalCTA = () => {
         <motion.h2 initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8">
           <span className="text-foreground"><TranslatedText text="Prêt à" /></span>
           <br />
-          <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
             <TranslatedText text="tout retenir ?" />
           </span>
         </motion.h2>
