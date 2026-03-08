@@ -58,7 +58,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
   const play = (track: AudioTrack) => {
     const startTime = performance.now();
-    console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
+    if (import.meta.env.DEV) console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
     
     // Démarrer le tracking des métriques
     // Vérifier si l'URL est valide
