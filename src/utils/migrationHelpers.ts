@@ -147,7 +147,7 @@ export class MigrationHelpers {
 
       if (error) throw error;
       
-      console.log('✅ Item v2 sauvegardé:', itemV2.item_metadata.code);
+      if (import.meta.env.DEV) console.log('✅ Item v2 sauvegardé:', itemV2.item_metadata.code);
       return true;
     } catch (error) {
       console.error('❌ Erreur sauvegarde v2:', error);

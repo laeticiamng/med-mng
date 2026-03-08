@@ -164,11 +164,11 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
  * Prévisualise les paroles pour un item sans les sauvegarder
  */
 export async function previewLyricsForItem(itemCode: string, rang: 'A' | 'B' | 'AB' = 'AB'): Promise<string[]> {
-  console.log(`👁️ Prévisualisation paroles ${itemCode} Rang ${rang}`);
+  if (import.meta.env.DEV) console.log(`👁️ Prévisualisation paroles ${itemCode} Rang ${rang}`);
   
   try {
     const lyrics = await generateAdvancedLyrics(itemCode, rang);
-    console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
+    if (import.meta.env.DEV) console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
     return lyrics;
   } catch (error) {
     console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);
