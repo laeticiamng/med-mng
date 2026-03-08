@@ -28,7 +28,7 @@ export const useSongGeneration = () => {
 
     setIsGenerating(true);
     try {
-      console.log('🎵 Lancement génération musique via Supabase Functions...');
+      if (import.meta.env.DEV) console.log('🎵 Lancement génération musique via Supabase Functions...');
       
       // Utiliser le routeur unifié ai-audio
       const response = await audioApi.generateMusic({
