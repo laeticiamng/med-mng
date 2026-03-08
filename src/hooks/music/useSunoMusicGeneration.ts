@@ -94,7 +94,7 @@ export const useSunoMusicGeneration = () => {
         
         // ✅ Mettre à jour le progress AVANT les appels réseau
         setPollingProgress(Math.min(Math.round(estimatedProgress), 95));
-        console.log('[useSunoMusicGeneration] Progress update:', { 
+        if (import.meta.env.DEV) console.log('[useSunoMusicGeneration] Progress update:', { 
           attempts, 
           realElapsedMs, 
           estimatedProgress: Math.round(estimatedProgress) 
