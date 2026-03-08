@@ -103,7 +103,7 @@ export const useRealtimeGeneration = ({
         }
       )
       .subscribe((status) => {
-        console.log(`📡 Realtime status (${channelName}):`, status);
+        if (import.meta.env.DEV) console.log(`📡 Realtime status (${channelName}):`, status);
         
         if (status === 'SUBSCRIBED') {
           setIsConnected(true);
