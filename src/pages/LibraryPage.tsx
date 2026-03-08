@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Music, Library, Heart, Clock, Flame, Trophy, Star } from 'lucide-react';
+import { Music, Library, Heart, Clock, Flame, Trophy, Star, BookOpen } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MusicLibrary } from '@/components/library/MusicLibrary';
+import { MedicalContentLibrary } from '@/components/library/MedicalContentLibrary';
 import { FavoritesTab } from '@/components/library/FavoritesTab';
 import { RecentTab } from '@/components/library/RecentTab';
 import { PlaylistsTab } from '@/components/library/PlaylistsTab';
@@ -14,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
 export default function LibraryPage() {
-  const [activeTab, setActiveTab] = useState('library');
+  const [activeTab, setActiveTab] = useState('content');
   const { stats } = useGamification();
   const [user, setUser] = useState<any>(null);
 
@@ -57,24 +58,32 @@ export default function LibraryPage() {
           )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="content" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Catalogue</span>
+              </TabsTrigger>
               <TabsTrigger value="library" className="flex items-center gap-2">
                 <Library className="h-4 w-4" />
-                Bibliothèque
+                <span className="hidden sm:inline">Ma biblio</span>
               </TabsTrigger>
               <TabsTrigger value="favorites" className="flex items-center gap-2">
                 <Heart className="h-4 w-4" />
-                Favoris
+                <span className="hidden sm:inline">Favoris</span>
               </TabsTrigger>
               <TabsTrigger value="recent" className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Récents
+                <span className="hidden sm:inline">Récents</span>
               </TabsTrigger>
               <TabsTrigger value="playlists" className="flex items-center gap-2">
                 <Music className="h-4 w-4" />
-                Playlists
+                <span className="hidden sm:inline">Playlists</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="content">
+              <MedicalContentLibrary />
+            </TabsContent>
 
             <TabsContent value="library">
               <MusicLibrary />

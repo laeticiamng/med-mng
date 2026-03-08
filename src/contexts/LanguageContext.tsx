@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { TRANSLATIONS_DICT } from '@/locales/translations-dictionary';
 
-export type Language = 'fr' | 'en' | 'de';
+export type Language = 'fr' | 'en' | 'de' | 'es';
 export type SupportedLanguage = Language; // Alias pour compatibilité
 
 export interface LanguageInfo {
@@ -16,6 +16,7 @@ export const LANGUAGES: LanguageInfo[] = [
   { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { code: 'de', name: 'Deutsch', nativeName: 'Deutsch', flag: '🇩🇪' },
+  { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸' },
 ];
 
 // Alias pour compatibilité
@@ -62,6 +63,9 @@ export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProvide
             break;
           case 'de':
             translationModule = await import('../locales/de/common.json');
+            break;
+          case 'es':
+            translationModule = await import('../locales/es/common.json');
             break;
           case 'fr':
           default:

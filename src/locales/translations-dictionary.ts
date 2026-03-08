@@ -1,13 +1,13 @@
 // Static translation dictionary for TranslatedText component
-// Maps French source strings → { en, de } translations
+// Maps French source strings → { en, de, es } translations
 // Used by translate() in LanguageContext for instant, no-API translations
 
 export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
   // ===== Navigation / Common =====
-  "Accueil": { en: "Home", de: "Startseite" },
-  "Retour": { en: "Back", de: "Zurück" },
-  "Retour aux items EDN": { en: "Back to EDN items", de: "Zurück zu EDN-Elementen" },
-  "Connexion": { en: "Login", de: "Anmelden" },
+  "Accueil": { en: "Home", de: "Startseite", es: "Inicio" },
+  "Retour": { en: "Back", de: "Zurück", es: "Volver" },
+  "Retour aux items EDN": { en: "Back to EDN items", de: "Zurück zu EDN-Elementen", es: "Volver a ítems EDN" },
+  "Connexion": { en: "Login", de: "Anmelden", es: "Iniciar sesión" },
   "Connexion requise": { en: "Login required", de: "Anmeldung erforderlich" },
   "Déconnexion": { en: "Logout", de: "Abmelden" },
   "Admin": { en: "Admin", de: "Admin" },
