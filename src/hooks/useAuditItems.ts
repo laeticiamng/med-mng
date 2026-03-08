@@ -24,7 +24,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
       if (import.meta.env.DEV) console.log('🔍 Lancement de l\'audit des items EDN...');
       const auditReport = await EDNItemsAuditor.auditAllItems();
       setReport(auditReport);
-      console.log('✅ Audit terminé avec succès');
+      if (import.meta.env.DEV) console.log('✅ Audit terminé avec succès');
     } catch (err) {
       console.error('❌ Erreur lors de l\'audit:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue lors de l\'audit');
