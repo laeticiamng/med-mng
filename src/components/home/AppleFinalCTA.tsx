@@ -38,7 +38,7 @@ export const AppleFinalCTA = () => {
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-16 px-10 text-xl font-bold rounded-2xl bg-gradient-to-r from-primary via-primary-hover to-accent hover:opacity-90 shadow-xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-2xl">
+          <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-16 px-10 text-xl font-bold rounded-2xl bg-gradient-to-r from-primary via-primary-hover to-accent hover:opacity-90 shadow-xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-2xl glow-pulse">
             <Play className="h-6 w-6 mr-3" />
             <TranslatedText text="Créer mon compte gratuit" />
             <ArrowRight className="h-6 w-6 ml-3" />
