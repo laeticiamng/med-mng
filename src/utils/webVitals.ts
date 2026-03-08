@@ -64,7 +64,7 @@ class WebVitalsMonitor {
     onTTFB(handleMetric);
 
     this.isInitialized = true;
-    console.log('🔍 Web Vitals monitoring initialized');
+    if (import.meta.env.DEV) console.log('🔍 Web Vitals monitoring initialized');
   }
 
   // Ajouter un callback pour être notifié des nouvelles métriques
