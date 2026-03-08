@@ -152,7 +152,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
     const handleLoadStart = () => {
       const loadStartTime = performance.now() - startTime;
-      console.log(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
+      if (import.meta.env.DEV) console.log(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
     };
     
     // OPTIMISATION 3: Buffer pour réduire les interruptions
