@@ -73,7 +73,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
     const channel = supabase
       .channel('unified-alerts-broadcast')
       .on('broadcast', { event: 'alerts-updated' }, (payload) => {
-        console.log('[useUnifiedAlerts] Realtime update received:', payload);
+        if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Realtime update received:', payload);
         
         if (payload.payload?.alerts) {
           setRealtimeAlerts(payload.payload.alerts);
