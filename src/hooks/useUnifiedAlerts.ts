@@ -49,7 +49,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
   const { data, isLoading, error, refetch } = useQuery<UnifiedAlertsResponse>({
     queryKey: ['unified-alerts', mode],
     queryFn: async () => {
-      console.log(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
+      if (import.meta.env.DEV) console.log(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
       
       const { data, error } = await supabase.functions.invoke('unified-alerts', {
         body: { mode },
