@@ -149,7 +149,7 @@ export function useStudyGroups() {
         .eq('user_id', user.id);
 
       if (error) {
-        console.log('Leave group failed, table may not exist');
+        if (import.meta.env.DEV) console.log('Leave group failed, table may not exist');
       }
 
       return { action: 'left', groupId };

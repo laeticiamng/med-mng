@@ -79,7 +79,7 @@ export const useRealtimeGeneration = ({
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          console.log('📝 Track mis à jour:', payload.new);
+          if (import.meta.env.DEV) console.log('📝 Track mis à jour:', payload.new);
           onTrackUpdated?.(payload.new);
           
           // Notifier si génération terminée

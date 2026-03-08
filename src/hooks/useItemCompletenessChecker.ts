@@ -104,17 +104,18 @@ export const useItemCompletenessChecker = () => {
       setItemResults(newItemResults);
 
       // Log du rapport complet
-      console.group('📊 RAPPORT COMPLÉTUDE GLOBAL');
-      console.log(`📈 Items complets: ${report.summary.completeItems}/${report.summary.totalItems} (${((report.summary.completeItems/report.summary.totalItems)*100).toFixed(1)}%)`);
-      console.log(`⚠️ Items incomplets: ${report.summary.incompleteItems}`);
-      console.log(`🚨 Items critiques: ${report.summary.criticalItems}`);
-      console.log(`📊 Score moyen: ${report.summary.averageCompleteness}%`);
-      
-      if (report.recommendations.length > 0) {
-        console.log('💡 Recommandations:');
-        report.recommendations.forEach(rec => console.log(`  • ${rec}`));
+      if (import.meta.env.DEV) {
+        console.group('📊 RAPPORT COMPLÉTUDE GLOBAL');
+        console.log(`📈 Items complets: ${report.summary.completeItems}/${report.summary.totalItems} (${((report.summary.completeItems/report.summary.totalItems)*100).toFixed(1)}%)`);
+        console.log(`⚠️ Items incomplets: ${report.summary.incompleteItems}`);
+        console.log(`🚨 Items critiques: ${report.summary.criticalItems}`);
+        console.log(`📊 Score moyen: ${report.summary.averageCompleteness}%`);
+        if (report.recommendations.length > 0) {
+          console.log('💡 Recommandations:');
+          report.recommendations.forEach(rec => console.log(`  • ${rec}`));
+        }
+        console.groupEnd();
       }
-      console.groupEnd();
 
       // Toast de synthèse
       if (report.summary.criticalItems > 0) {
