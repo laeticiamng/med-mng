@@ -188,7 +188,7 @@ export const useContentCompletenessChecker = () => {
   };
 
   const analyzeAllCompetences = async (): Promise<AnalysisResults> => {
-    console.log('🔍 Début de l\'analyse de complétude des compétences OIC...');
+    if (import.meta.env.DEV) console.log('🔍 Début de l\'analyse de complétude des compétences OIC...');
     
     try {
       const { data: oicData, error } = await supabase
