@@ -45,7 +45,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const fetchData = useCallback(async (forceRefresh = false) => {
     // Skip if no itemCode
     if (!itemCode || itemCode.trim() === '') {
-      console.log('[useOicCompetences] No itemCode provided, skipping fetch');
+      if (import.meta.env.DEV) console.log('[useOicCompetences] No itemCode provided, skipping fetch');
       setCompetences([]);
       setLoading(false);
       setError(null);
