@@ -41,7 +41,7 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
       return generateFallbackLyrics(itemCode, rang);
     }
 
-    console.log(`✅ ${competences.length} compétences trouvées pour ${itemCode} Rang ${rang}`);
+    if (import.meta.env.DEV) console.log(`✅ ${competences.length} compétences trouvées pour ${itemCode} Rang ${rang}`);
 
     // 2. Générer des paroles musicales BASÉES sur le contenu réel
     const lyricsSection = generateMusicalLyricsFromContent(itemCode, competences, rang);
