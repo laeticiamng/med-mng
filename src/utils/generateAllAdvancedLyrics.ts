@@ -100,7 +100,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       }
     }
     
-    console.log('🎉 Génération terminée:', result);
+    if (import.meta.env.DEV) console.log('🎉 Génération terminée:', result);
     return result;
     
   } catch (error) {
