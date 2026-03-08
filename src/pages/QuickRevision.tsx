@@ -1,16 +1,15 @@
 import { QuickRevisionMode } from '@/components/revision/QuickRevisionMode';
-import { AutoSEO } from '@/components/seo/AutoSEO';
+import { Helmet } from 'react-helmet-async';
 import { Zap } from 'lucide-react';
 
 export default function QuickRevision() {
   return (
     <>
-      <AutoSEO
-        title="Révision rapide — MED-MNG"
-        description="Révisez un item EDN en 2 minutes : écoutez la chanson, répondez au quiz, progressez."
-        keywords="révision rapide, EDN, QCM, médecine"
-        canonical="/revision-rapide"
-      />
+      <Helmet>
+        <title>Révision rapide — MED-MNG</title>
+        <meta name="description" content="Révisez un item EDN en 2 minutes : écoutez la chanson, répondez au quiz, progressez." />
+        <link rel="canonical" href="/revision-rapide" />
+      </Helmet>
       <div className="container max-w-4xl mx-auto py-8 px-4">
         <div className="text-center mb-8 space-y-2">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">

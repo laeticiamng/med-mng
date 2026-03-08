@@ -128,6 +128,7 @@ export const ROUTE_PATHS = {
   seoTravaillerCasCliniques: '/travailler-cas-cliniques',
   seoExempleCasClinique: '/exemple-cas-clinique',
   socialShare: '/partage',
+  quickRevision: '/revision-rapide',
   notFound: '*',
 } as const;
 
