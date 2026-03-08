@@ -1,0 +1,127 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "generator": "Generador",
+    "chat": "Chat IA",
+    "admin": "Admin",
+    "pricing": "Precios",
+    "login": "Iniciar sesión",
+    "back": "Volver"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Añadir",
+    "close": "Cerrar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "select": "Seleccionar",
+    "none": "Ninguno",
+    "all": "Todo",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "generator": {
+    "title": "Generador Musical",
+    "subtitle": "Transforma tus cursos en música",
+    "remainingGenerations": "{{count}}/{{max}} generaciones gratuitas restantes",
+    "configTitle": "Configuración de generación",
+    "configSubtitle": "Selecciona el tipo de contenido, el ítem y el estilo musical",
+    "contentType": "Tipo de contenido",
+    "ednDescription": "Para EDN: selecciona entre 367 ítems disponibles con competencias OIC completas",
+    "ecosDescription": "Para ECOS: 3 situaciones clínicas disponibles",
+    "selectItem": "Selecciona un ítem EDN",
+    "selectSituation": "Selecciona una situación ECOS",
+    "rangTitle": "Rango",
+    "rangDescription": "Selecciona rango A (fundamental), B (avanzado) o A+B (completo) para EDN",
+    "rangA": "Rango A",
+    "rangB": "Rango B",
+    "rangAB": "Rango A+B",
+    "rangADescription": "Competencias fundamentales",
+    "rangBDescription": "Competencias avanzadas",
+    "rangABDescription": "Competencias completas",
+    "styleTitle": "Estilo musical",
+    "styleDescription": "Elige un estilo musical",
+    "generate": "Generar música",
+    "generating": "Generando...",
+    "lyricsFound": "Letras encontradas para {{title}}",
+    "lyricsCount": "{{count}} versiones de letras disponibles (Rango A y B)",
+    "preview": "Vista previa",
+    "noLyrics": "No hay letras disponibles para este ítem",
+    "generationSuccess": "¡Generación musical exitosa con las letras del ítem!",
+    "generationError": "Error durante la generación musical",
+    "addToLibrary": "Añadir a la biblioteca",
+    "addedToLibrary": "¡Canción añadida a tu biblioteca!",
+    "freeGenerationsRemaining": "{{count}}/3 generaciones gratuitas restantes"
+  },
+  "home": {
+    "title": "MED MNG",
+    "subtitle": "El aprendizaje médico reinventado con inteligencia artificial",
+    "platformLabel": "Plataforma Premium",
+    "quickAccess": "Acceso Rápido a Herramientas",
+    "quickAccessSubtitle": "Elige tu método de aprendizaje y comienza de inmediato",
+    "ednTitle": "Ítems EDN Completos (IC-1 a IC-367)",
+    "ednDescription": "Ítems de Conocimiento completos para el aprendizaje médico estructurado - 367 ítems con competencias OIC integradas",
+    "ednFeatures": {
+      "items": "367 ítems completos (IC-1 a IC-367)",
+      "competences": "4.872 competencias OIC integradas",
+      "content": "Tablas Rango A y B, 50 preguntas por ítem"
+    },
+    "generatorTitle": "Generador Musical IA",
+    "generatorDescription": "Generación rápida de música educativa personalizada con inteligencia artificial",
+    "generatorFeatures": {
+      "selection": "Selección rápida de ítems",
+      "styles": "Estilos musicales variados",
+      "generation": "Generación IA instantánea"
+    },
+    "ecosTitle": "Simulaciones ECOS",
+    "ecosDescription": "Exámenes Clínicos Objetivos Estructurados para la práctica clínica - 3 situaciones disponibles",
+    "ecosFeatures": {
+      "scenarios": "3 escenarios clínicos completos",
+      "evaluation": "Evaluación por competencias",
+      "feedback": "Retroalimentación detallada"
+    },
+    "chatTitle": "Asistente IA",
+    "chatDescription": "Asistente inteligente conectado a tus cursos médicos",
+    "chatFeatures": {
+      "realtime": "Chat en tiempo real",
+      "knowledge": "Base de conocimientos médicos",
+      "instant": "Respuestas instantáneas"
+    },
+    "whyChoose": "¿Por qué elegir MED MNG?",
+    "whyChooseSubtitle": "Una plataforma completa para el aprendizaje médico moderno",
+    "features": {
+      "ai": {
+        "title": "IA Avanzada",
+        "description": "Generación musical inteligente para un aprendizaje óptimo"
+      },
+      "targeted": {
+        "title": "Orientado EDN",
+        "description": "Contenido adaptado a los referentes médicos oficiales IC-1 a IC-367"
+      },
+      "quality": {
+        "title": "Calidad",
+        "description": "Método pedagógico innovador y probado"
+      },
+      "effective": {
+        "title": "Eficaz",
+        "description": "Mejora medible del rendimiento de aprendizaje"
+      }
+    },
+    "cta": {
+      "discover": "Descubrir MED-MNG",
+      "generate": "Generar Ahora",
+      "access": "Acceder a los Ítems",
+      "start": "Comenzar ECOS",
+      "startChat": "Iniciar Chat"
+    }
+  }
+}

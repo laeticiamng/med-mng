@@ -64,6 +64,9 @@ export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProvide
           case 'de':
             translationModule = await import('../locales/de/common.json');
             break;
+          case 'es':
+            translationModule = await import('../locales/es/common.json');
+            break;
           case 'fr':
           default:
             translationModule = await import('../locales/fr/common.json');
