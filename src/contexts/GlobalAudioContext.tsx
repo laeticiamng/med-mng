@@ -217,7 +217,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
-      console.log('⏭️ Recherche à:', time, 'secondes');
+      if (import.meta.env.DEV) console.log('⏭️ Recherche à:', time, 'secondes');
     }
   };
 
