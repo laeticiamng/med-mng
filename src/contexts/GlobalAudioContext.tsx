@@ -226,7 +226,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     localStorage.setItem('audio-volume', newVolume.toString()); // Persist volume
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
-      console.log('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');
+      if (import.meta.env.DEV) console.log('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');
     }
   };
 
