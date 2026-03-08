@@ -133,6 +133,9 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 // 🎯 DEMO PAGE
 const Demo = lazy(() => import("./pages/Demo"));
 
+// ⚡ QUICK REVISION
+const QuickRevision = lazy(() => import("./pages/QuickRevision"));
+
 // ⚔️ KARAOKE DUELS
 const KaraokeDuel = lazy(() => import("./pages/KaraokeDuel"));
 
