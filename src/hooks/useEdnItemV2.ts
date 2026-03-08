@@ -78,7 +78,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         let valErrors: string[] = [];
 
         if (isV2) {
-          console.log('✅ Item v2 détecté, validation en cours...');
+          if (import.meta.env.DEV) console.log('✅ Item v2 détecté, validation en cours...');
           
           try {
             // Approche alternative : on parse directement et on catch les erreurs de validation
