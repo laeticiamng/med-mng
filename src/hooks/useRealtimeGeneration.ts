@@ -148,7 +148,7 @@ export const useRealtimeGeneration = ({
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !isConnected && enabled && userId) {
-        console.log('👁️ App redevient visible, reconnexion...');
+        if (import.meta.env.DEV) console.log('👁️ App redevient visible, reconnexion...');
         reconnect();
       }
     };
