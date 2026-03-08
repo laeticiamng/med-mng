@@ -34,7 +34,7 @@ export async function generateAdvancedLyrics(
   itemCode: string, 
   rang: 'A' | 'B' | 'AB'
 ): Promise<string[]> {
-  console.log(`🎵 Génération avancée ${itemCode} Rang ${rang}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération avancée ${itemCode} Rang ${rang}`);
   
   try {
     // 1. Récupérer les données complètes de l'item
