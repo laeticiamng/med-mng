@@ -44,7 +44,7 @@ export const useItemCompletenessChecker = () => {
   const checkItemCompleteness = useCallback(async (itemId: string): Promise<CompletenessResult | null> => {
     try {
       setIsChecking(true);
-      console.log(`🔍 Vérification complétude item: ${itemId}`);
+      if (import.meta.env.DEV) console.log(`🔍 Vérification complétude item: ${itemId}`);
 
       const { data, error } = await supabase.functions.invoke('items-completeness-check', {
         body: JSON.stringify({ itemId })
