@@ -114,7 +114,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
  * Génère des paroles pour un item spécifique
  */
 export async function generateLyricsForItem(itemCode: string): Promise<boolean> {
-  console.log(`🎵 Génération paroles pour ${itemCode}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération paroles pour ${itemCode}`);
   
   try {
     // Récupérer l'item
