@@ -37,7 +37,7 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     }
 
     if (!competences || competences.length === 0) {
-      console.log('Aucune compétence OIC trouvée, génération fallback');
+      if (import.meta.env.DEV) console.log('Aucune compétence OIC trouvée, génération fallback');
       return generateFallbackLyrics(itemCode, rang);
     }
 
