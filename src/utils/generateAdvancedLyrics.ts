@@ -52,7 +52,7 @@ export async function generateAdvancedLyrics(
     // 5. Vérifier la limite de caractères (5000 max)
     const finalSong = optimizeSongLength(fullSong);
     
-    console.log(`✅ Chanson générée: ${finalSong.join(' ').length} caractères`);
+    if (import.meta.env.DEV) console.log(`✅ Chanson générée: ${finalSong.join(' ').length} caractères`);
     return finalSong;
     
   } catch (error) {
