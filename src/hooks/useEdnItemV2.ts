@@ -35,7 +35,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
       }
       
       try {
-        console.log('🔍 useEdnItemV2 - Chargement item:', slug);
+        if (import.meta.env.DEV) console.log('🔍 useEdnItemV2 - Chargement item:', slug);
         
         // 1. Récupération depuis Supabase REST avec cache busting
         const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`;
