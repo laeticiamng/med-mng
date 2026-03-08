@@ -383,7 +383,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.executiveDashboard} element={<AdminRoute><S><ExecutiveDashboard /></S></AdminRoute>} />
 
                                     {/* Misc pages (admin) */}
-                                    <Route path={ROUTE_PATHS.library} element={<S><LibraryPage /></S>} />
+                                    <Route path={ROUTE_PATHS.library} element={<ProtectedRoute><S><LibraryPage /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.accessibilityDashboard} element={<AdminRoute><S><AccessibilityDashboard /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.effectivenessDashboard} element={<AdminRoute><S><EffectivenessDashboard /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.rlsDocumentation} element={<AdminRoute><S><RLSDocumentation /></S></AdminRoute>} />
