@@ -269,9 +269,9 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.smartStudyPlanner} element={<ProtectedRoute><S><SmartStudyPlanner /></S></ProtectedRoute>} />
 
                                     {/* Gamification */}
-                                    <Route path={ROUTE_PATHS.leaderboard} element={<S><Leaderboard /></S>} />
-                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<S><DailyChallenges /></S>} />
-                                    <Route path={ROUTE_PATHS.myGoals} element={<S><MyGoals /></S>} />
+                                    <Route path={ROUTE_PATHS.leaderboard} element={<ProtectedRoute><S><Leaderboard /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<ProtectedRoute><S><DailyChallenges /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.myGoals} element={<ProtectedRoute><S><MyGoals /></S></ProtectedRoute>} />
 
                                     {/* ECOS */}
                                     <Route path={ROUTE_PATHS.ecosIndex} element={<S><EcosIndex /></S>} />
