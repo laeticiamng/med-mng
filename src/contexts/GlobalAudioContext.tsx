@@ -232,7 +232,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
   const minimize = () => {
     setIsMinimized(true);
-    console.log('🔽 Lecteur minimisé');
+    if (import.meta.env.DEV) console.log('🔽 Lecteur minimisé');
   };
 
   const maximize = () => {
