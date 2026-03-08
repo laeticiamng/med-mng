@@ -272,7 +272,7 @@ class MusicService {
         })
 
       if (error) throw error
-      console.log('✅ Song added to playlist')
+      if (import.meta.env.DEV) console.log('✅ Song added to playlist')
     } catch (error) {
       console.error('❌ Error adding song to playlist:', error)
       throw error
