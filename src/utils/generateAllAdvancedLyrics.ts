@@ -151,7 +151,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
       throw new Error(`Erreur sauvegarde: ${updateError.message}`);
     }
     
-    console.log(`✅ ${itemCode} - Paroles générées avec succès`);
+    if (import.meta.env.DEV) console.log(`✅ ${itemCode} - Paroles générées avec succès`);
     return true;
     
   } catch (error) {
