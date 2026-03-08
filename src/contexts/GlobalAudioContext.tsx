@@ -126,7 +126,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
       if (playPromise !== undefined) {
         playPromise.then(() => {
           const playTime = performance.now() - startTime;
-          console.log(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
+          if (import.meta.env.DEV) console.log(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
           updateMetric(track.url, { 
             playStartTime: playTime,
             totalLoadTime: playTime
