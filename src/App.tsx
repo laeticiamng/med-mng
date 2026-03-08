@@ -388,8 +388,8 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.effectivenessDashboard} element={<AdminRoute><S><EffectivenessDashboard /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.rlsDocumentation} element={<AdminRoute><S><RLSDocumentation /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.securityMonitoring} element={<AdminRoute><S><SecurityMonitoring /></S></AdminRoute>} />
-                                    <Route path={ROUTE_PATHS.statistics} element={<S><Statistics /></S>} />
-                                    <Route path={ROUTE_PATHS.studyPlanner} element={<S><StudyPlanner /></S>} />
+                                    <Route path={ROUTE_PATHS.statistics} element={<ProtectedRoute><S><Statistics /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.studyPlanner} element={<ProtectedRoute><S><StudyPlanner /></S></ProtectedRoute>} />
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />
