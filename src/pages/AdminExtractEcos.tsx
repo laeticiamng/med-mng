@@ -49,7 +49,7 @@ const AdminExtractEcos = () => {
         return;
       }
 
-      console.log('✅ Extraction ECOS terminée:', data);
+      if (import.meta.env.DEV) console.log('✅ Extraction ECOS terminée:', data);
       setStats(data.stats);
       setProgress(100);
       toast.success(`Extraction ECOS terminée! ${data.stats?.totalProcessed || 0} situations traitées`);
