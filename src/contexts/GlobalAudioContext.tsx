@@ -194,7 +194,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     if (audioRef.current) {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
-        console.log('▶️ Audio repris');
+        if (import.meta.env.DEV) console.log('▶️ Audio repris');
       }).catch((error) => {
         console.error('❌ Erreur reprise audio globale:', error);
         setIsPlaying(false);
