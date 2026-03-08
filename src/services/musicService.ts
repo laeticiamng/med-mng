@@ -310,7 +310,7 @@ class MusicService {
         .eq('id', playlistId)
 
       if (error) throw error
-      console.log('✅ Playlist deleted')
+      if (import.meta.env.DEV) console.log('✅ Playlist deleted')
     } catch (error) {
       console.error('❌ Error deleting playlist:', error)
       throw error
