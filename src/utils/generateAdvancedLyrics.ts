@@ -34,7 +34,7 @@ export async function generateAdvancedLyrics(
   itemCode: string, 
   rang: 'A' | 'B' | 'AB'
 ): Promise<string[]> {
-  console.log(`🎵 Génération avancée ${itemCode} Rang ${rang}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération avancée ${itemCode} Rang ${rang}`);
   
   try {
     // 1. Récupérer les données complètes de l'item
@@ -52,7 +52,7 @@ export async function generateAdvancedLyrics(
     // 5. Vérifier la limite de caractères (5000 max)
     const finalSong = optimizeSongLength(fullSong);
     
-    console.log(`✅ Chanson générée: ${finalSong.join(' ').length} caractères`);
+    if (import.meta.env.DEV) console.log(`✅ Chanson générée: ${finalSong.join(' ').length} caractères`);
     return finalSong;
     
   } catch (error) {
@@ -90,7 +90,7 @@ async function fetchCompetences(itemCode: string, rang: 'A' | 'B' | 'AB'): Promi
   const { data, error } = await query.order('ordre');
 
   if (error || !data) {
-    console.log(`Aucune compétence OIC pour ${itemCode}`);
+    if (import.meta.env.DEV) console.log(`Aucune compétence OIC pour ${itemCode}`);
     return [];
   }
 

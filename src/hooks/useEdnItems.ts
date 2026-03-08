@@ -120,7 +120,7 @@ export const useEdnItems = () => {
 
   // Initial fetch
   useEffect(() => {
-    console.log('🚀 useEdnItems - Initial mount');
+    if (import.meta.env.DEV) console.log('🚀 useEdnItems - Initial mount');
     mountedRef.current = true;
     const unsubscribe = subscribeEdnCacheBuster((value) => {
       setCacheBuster(value);
@@ -128,7 +128,7 @@ export const useEdnItems = () => {
     fetchPage(0, false);
     
     return () => {
-      console.log('🔚 useEdnItems - Unmounting');
+      if (import.meta.env.DEV) console.log('🔚 useEdnItems - Unmounting');
       mountedRef.current = false;
       unsubscribe();
     };

@@ -249,7 +249,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.homepage} element={<Navigate to={ROUTE_PATHS.home} replace />} />
 
                                     {/* Content */}
-                                    <Route path={ROUTE_PATHS.generator} element={<S><Generator /></S>} />
+                                    <Route path={ROUTE_PATHS.generator} element={<ProtectedRoute><S><Generator /></S></ProtectedRoute>} />
 
                                     {/* EDN */}
                                     <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
@@ -261,17 +261,17 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
 
                                     {/* Learning */}
-                                    <Route path={ROUTE_PATHS.srsReview} element={<S><SRSReview /></S>} />
-                                    <Route path={ROUTE_PATHS.examMode} element={<S><ExamMode /></S>} />
-                                    <Route path={ROUTE_PATHS.clinicalCases} element={<S><ClinicalCases /></S>} />
-                                    <Route path={ROUTE_PATHS.flashcards} element={<S><Flashcards /></S>} />
-                                    <Route path={ROUTE_PATHS.progressDashboard} element={<S><ProgressDashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<S><SmartStudyPlanner /></S>} />
+                                    <Route path={ROUTE_PATHS.srsReview} element={<ProtectedRoute><S><SRSReview /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.examMode} element={<ProtectedRoute><S><ExamMode /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.clinicalCases} element={<ProtectedRoute><S><ClinicalCases /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.flashcards} element={<ProtectedRoute><S><Flashcards /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.progressDashboard} element={<ProtectedRoute><S><ProgressDashboard /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<ProtectedRoute><S><SmartStudyPlanner /></S></ProtectedRoute>} />
 
                                     {/* Gamification */}
-                                    <Route path={ROUTE_PATHS.leaderboard} element={<S><Leaderboard /></S>} />
-                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<S><DailyChallenges /></S>} />
-                                    <Route path={ROUTE_PATHS.myGoals} element={<S><MyGoals /></S>} />
+                                    <Route path={ROUTE_PATHS.leaderboard} element={<ProtectedRoute><S><Leaderboard /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<ProtectedRoute><S><DailyChallenges /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.myGoals} element={<ProtectedRoute><S><MyGoals /></S></ProtectedRoute>} />
 
                                     {/* ECOS */}
                                     <Route path={ROUTE_PATHS.ecosIndex} element={<S><EcosIndex /></S>} />
@@ -352,13 +352,13 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.specialtyPathDetail} element={<S><SpecialtyPathDetail /></S>} />
 
                                     {/* Karaoke Duels */}
-                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<S><KaraokeDuel /></S>} />
+                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<ProtectedRoute><S><KaraokeDuel /></S></ProtectedRoute>} />
 
                                     {/* Daily SRS Playlist */}
-                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<S><DailySRSPlaylist /></S>} />
+                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<ProtectedRoute><S><DailySRSPlaylist /></S></ProtectedRoute>} />
 
                                     {/* National Exam Simulation */}
-                                    <Route path={ROUTE_PATHS.nationalExam} element={<S><NationalExamSimulation /></S>} />
+                                    <Route path={ROUTE_PATHS.nationalExam} element={<ProtectedRoute><S><NationalExamSimulation /></S></ProtectedRoute>} />
 
                                     {/* Social Share Hub */}
                                     <Route path={ROUTE_PATHS.socialShare} element={<ProtectedRoute><S><SocialShareHub /></S></ProtectedRoute>} />
@@ -367,7 +367,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
 
                                     {/* Chat & Audit */}
-                                    <Route path={ROUTE_PATHS.chat} element={<S><MedChat /></S>} />
+                                    <Route path={ROUTE_PATHS.chat} element={<ProtectedRoute><S><MedChat /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.ednAudit} element={<AdminRoute><S><EdnAuditDashboard /></S></AdminRoute>} />
 
                                     {/* Admin */}
@@ -383,13 +383,13 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.executiveDashboard} element={<AdminRoute><S><ExecutiveDashboard /></S></AdminRoute>} />
 
                                     {/* Misc pages (admin) */}
-                                    <Route path={ROUTE_PATHS.library} element={<S><LibraryPage /></S>} />
+                                    <Route path={ROUTE_PATHS.library} element={<ProtectedRoute><S><LibraryPage /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.accessibilityDashboard} element={<AdminRoute><S><AccessibilityDashboard /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.effectivenessDashboard} element={<AdminRoute><S><EffectivenessDashboard /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.rlsDocumentation} element={<AdminRoute><S><RLSDocumentation /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.securityMonitoring} element={<AdminRoute><S><SecurityMonitoring /></S></AdminRoute>} />
-                                    <Route path={ROUTE_PATHS.statistics} element={<S><Statistics /></S>} />
-                                    <Route path={ROUTE_PATHS.studyPlanner} element={<S><StudyPlanner /></S>} />
+                                    <Route path={ROUTE_PATHS.statistics} element={<ProtectedRoute><S><Statistics /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.studyPlanner} element={<ProtectedRoute><S><StudyPlanner /></S></ProtectedRoute>} />
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />

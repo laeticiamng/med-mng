@@ -70,7 +70,7 @@ export class EDNItemParser {
    * Parse un item v2 vers le format attendu par l'UI
    */
   static parseItemV2(itemV2: ItemEDNV2, itemId: string): ParsedEDNItem {
-    console.log('🔄 EDNItemParser - Parsing item v2:', itemV2.item_metadata.code);
+    if (import.meta.env.DEV) console.log('🔄 EDNItemParser - Parsing item v2:', itemV2.item_metadata.code);
     
     return {
       id: itemId,
@@ -181,10 +181,10 @@ export class EDNItemParser {
    */
   static parseAnyItem(item: any, itemId: string): ParsedEDNItem {
     if (this.isItemV2(item)) {
-      console.log('📋 Item v2 détecté, utilisation du parser unifié');
+      if (import.meta.env.DEV) console.log('📋 Item v2 détecté, utilisation du parser unifié');
       return this.parseItemV2(item, itemId);
     } else {
-      console.log('📋 Item v1 détecté, utilisation du parser legacy');
+      if (import.meta.env.DEV) console.log('📋 Item v1 détecté, utilisation du parser legacy');
       return this.parseLegacyItem(item, itemId);
     }
   }

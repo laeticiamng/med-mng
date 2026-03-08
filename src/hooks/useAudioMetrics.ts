@@ -29,7 +29,7 @@ export const useAudioMetrics = () => {
     };
     
     metricsRef.current.set(trackUrl, metrics);
-    console.log(`📊 [METRICS] Démarrage tracking pour: ${trackUrl}`);
+    if (import.meta.env.DEV) console.log(`📊 [METRICS] Démarrage tracking pour: ${trackUrl}`);
     return metrics;
   }, []);
 
@@ -67,30 +67,31 @@ export const useAudioMetrics = () => {
     const metrics = metricsRef.current.get(trackUrl);
     if (!metrics) return;
 
-    console.group(`📊 [METRICS FINAL] ${trackUrl}`);
-    console.log(`🔄 Temps total de chargement: ${metrics.totalLoadTime?.toFixed(0) || 'N/A'}ms`);
-    console.log(`📊 Métadonnées: ${metrics.metadataLoadTime?.toFixed(0) || 'N/A'}ms`);
-    console.log(`▶️ Prêt à jouer: ${metrics.canPlayTime?.toFixed(0) || 'N/A'}ms`);
-    console.log(`🎵 Démarrage lecture: ${metrics.playStartTime?.toFixed(0) || 'N/A'}ms`);
-    console.log(`📶 Score buffer santé: ${metrics.bufferHealthScore.toFixed(1)}%`);
-    
-    if (metrics.errors.length > 0) {
-      console.warn(`❌ Erreurs rencontrées: ${metrics.errors.length}`);
-      metrics.errors.forEach(error => console.warn(`  - ${error}`));
-    }
-    
-    // Analyse de performance
-    if (metrics.totalLoadTime) {
-      if (metrics.totalLoadTime < 1000) {
-        console.log('✅ Performance excellente (<1s)');
-      } else if (metrics.totalLoadTime < 3000) {
-        console.log('⚠️ Performance acceptable (1-3s)');
-      } else {
-        console.error('🚨 Performance dégradée (>3s)');
+    if (import.meta.env.DEV) {
+      console.group(`📊 [METRICS FINAL] ${trackUrl}`);
+      console.log(`🔄 Temps total de chargement: ${metrics.totalLoadTime?.toFixed(0) || 'N/A'}ms`);
+      console.log(`📊 Métadonnées: ${metrics.metadataLoadTime?.toFixed(0) || 'N/A'}ms`);
+      console.log(`▶️ Prêt à jouer: ${metrics.canPlayTime?.toFixed(0) || 'N/A'}ms`);
+      console.log(`🎵 Démarrage lecture: ${metrics.playStartTime?.toFixed(0) || 'N/A'}ms`);
+      console.log(`📶 Score buffer santé: ${metrics.bufferHealthScore.toFixed(1)}%`);
+      
+      if (metrics.errors.length > 0) {
+        console.warn(`❌ Erreurs rencontrées: ${metrics.errors.length}`);
+        metrics.errors.forEach(error => console.warn(`  - ${error}`));
       }
+      
+      if (metrics.totalLoadTime) {
+        if (metrics.totalLoadTime < 1000) {
+          console.log('✅ Performance excellente (<1s)');
+        } else if (metrics.totalLoadTime < 3000) {
+          console.log('⚠️ Performance acceptable (1-3s)');
+        } else {
+          console.error('🚨 Performance dégradée (>3s)');
+        }
+      }
+      
+      console.groupEnd();
     }
-    
-    console.groupEnd();
     
     // Nettoyer après rapport
     metricsRef.current.delete(trackUrl);

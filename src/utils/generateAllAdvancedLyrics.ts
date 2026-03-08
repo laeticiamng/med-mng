@@ -13,7 +13,7 @@ interface GenerationResult {
  * Respecte le cahier des charges: structure complète, style Nekfeu, contenu médical dense
  */
 export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
-  console.log('🚀 Génération avancée des paroles pour tous les items EDN...');
+  if (import.meta.env.DEV) console.log('🚀 Génération avancée des paroles pour tous les items EDN...');
   
   const result: GenerationResult = {
     processed: 0,
@@ -37,7 +37,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       throw new Error('Aucun item EDN trouvé');
     }
     
-    console.log(`📋 ${items.length} items EDN à traiter`);
+    if (import.meta.env.DEV) console.log(`📋 ${items.length} items EDN à traiter`);
     
     // 2. Traitement par batch pour éviter la surcharge
     const batchSize = 10;
@@ -50,7 +50,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     // 3. Traiter chaque batch
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       const batch = batches[batchIndex];
-      console.log(`🔄 Traitement batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
+      if (import.meta.env.DEV) console.log(`🔄 Traitement batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
       
       // Traiter les items du batch en parallèle
       const batchPromises = batch.map(async (item) => {
@@ -81,7 +81,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           }
           
           result.successful++;
-          console.log(`✅ ${item.item_code} - Paroles générées et sauvées`);
+          if (import.meta.env.DEV) console.log(`✅ ${item.item_code} - Paroles générées et sauvées`);
           
         } catch (error) {
           result.failed++;
@@ -100,7 +100,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       }
     }
     
-    console.log('🎉 Génération terminée:', result);
+    if (import.meta.env.DEV) console.log('🎉 Génération terminée:', result);
     return result;
     
   } catch (error) {
@@ -114,7 +114,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
  * Génère des paroles pour un item spécifique
  */
 export async function generateLyricsForItem(itemCode: string): Promise<boolean> {
-  console.log(`🎵 Génération paroles pour ${itemCode}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération paroles pour ${itemCode}`);
   
   try {
     // Récupérer l'item
@@ -151,7 +151,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
       throw new Error(`Erreur sauvegarde: ${updateError.message}`);
     }
     
-    console.log(`✅ ${itemCode} - Paroles générées avec succès`);
+    if (import.meta.env.DEV) console.log(`✅ ${itemCode} - Paroles générées avec succès`);
     return true;
     
   } catch (error) {
@@ -164,11 +164,11 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
  * Prévisualise les paroles pour un item sans les sauvegarder
  */
 export async function previewLyricsForItem(itemCode: string, rang: 'A' | 'B' | 'AB' = 'AB'): Promise<string[]> {
-  console.log(`👁️ Prévisualisation paroles ${itemCode} Rang ${rang}`);
+  if (import.meta.env.DEV) console.log(`👁️ Prévisualisation paroles ${itemCode} Rang ${rang}`);
   
   try {
     const lyrics = await generateAdvancedLyrics(itemCode, rang);
-    console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
+    if (import.meta.env.DEV) console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
     return lyrics;
   } catch (error) {
     console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);

@@ -12,7 +12,7 @@ export class MigrationHelpers {
    * Convertit un item legacy vers le format v2
    */
   static convertLegacyToV2(legacyItem: any): ItemEDNV2 {
-    console.log('🔄 Migration v1→v2 pour:', legacyItem.item_code);
+    if (import.meta.env.DEV) console.log('🔄 Migration v1→v2 pour:', legacyItem.item_code);
     
     const baseItem = createEmptyItemEDN(
       legacyItem.item_code || 'IC-?',
@@ -147,7 +147,7 @@ export class MigrationHelpers {
 
       if (error) throw error;
       
-      console.log('✅ Item v2 sauvegardé:', itemV2.item_metadata.code);
+      if (import.meta.env.DEV) console.log('✅ Item v2 sauvegardé:', itemV2.item_metadata.code);
       return true;
     } catch (error) {
       console.error('❌ Erreur sauvegarde v2:', error);

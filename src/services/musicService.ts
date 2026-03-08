@@ -65,7 +65,7 @@ class MusicService {
     error?: string
   }> {
     try {
-      console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
+      if (import.meta.env.DEV) console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
       
       const { data, error } = await supabase.functions.invoke('music-generation', {
         body: request,
@@ -75,7 +75,7 @@ class MusicService {
       if (error) throw error
 
       if (data.success) {
-        console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
+        if (import.meta.env.DEV) console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
         // Événement analytics
         this.trackGeneration(request, data.duration_seconds, true)
       } else {
@@ -149,7 +149,7 @@ class MusicService {
         })
 
       if (error) throw error
-      console.log('✅ Song added to library')
+      if (import.meta.env.DEV) console.log('✅ Song added to library')
     } catch (error) {
       console.error('❌ Error adding to library:', error)
       throw error
@@ -164,7 +164,7 @@ class MusicService {
         .eq('song_id', songId)
 
       if (error) throw error
-      console.log('✅ Song removed from library')
+      if (import.meta.env.DEV) console.log('✅ Song removed from library')
     } catch (error) {
       console.error('❌ Error removing from library:', error)
       throw error
@@ -243,7 +243,7 @@ class MusicService {
         songs: []
       }
 
-      console.log('✅ Playlist created:', name)
+      if (import.meta.env.DEV) console.log('✅ Playlist created:', name)
       return newPlaylist
     } catch (error) {
       console.error('❌ Error creating playlist:', error)
@@ -272,7 +272,7 @@ class MusicService {
         })
 
       if (error) throw error
-      console.log('✅ Song added to playlist')
+      if (import.meta.env.DEV) console.log('✅ Song added to playlist')
     } catch (error) {
       console.error('❌ Error adding song to playlist:', error)
       throw error
@@ -288,7 +288,7 @@ class MusicService {
         .eq('song_id', songId)
 
       if (error) throw error
-      console.log('✅ Song removed from playlist')
+      if (import.meta.env.DEV) console.log('✅ Song removed from playlist')
     } catch (error) {
       console.error('❌ Error removing song from playlist:', error)
       throw error
@@ -310,7 +310,7 @@ class MusicService {
         .eq('id', playlistId)
 
       if (error) throw error
-      console.log('✅ Playlist deleted')
+      if (import.meta.env.DEV) console.log('✅ Playlist deleted')
     } catch (error) {
       console.error('❌ Error deleting playlist:', error)
       throw error
@@ -359,7 +359,7 @@ class MusicService {
           .eq('song_id', songId)
 
         if (error) throw error
-        console.log('✅ Removed from favorites')
+        if (import.meta.env.DEV) console.log('✅ Removed from favorites')
         return false
       } else {
         // Ajouter aux favoris
@@ -375,7 +375,7 @@ class MusicService {
           })
 
         if (error) throw error
-        console.log('✅ Added to favorites')
+        if (import.meta.env.DEV) console.log('✅ Added to favorites')
         return true
       }
     } catch (error) {
@@ -410,7 +410,7 @@ class MusicService {
       timestamp: new Date().toISOString()
     }
     
-    console.log('📊 Music generation event:', event)
+    if (import.meta.env.DEV) console.log('📊 Music generation event:', event)
     
     // Stocker dans Supabase pour analytics persistants
     try {
@@ -558,7 +558,7 @@ class MusicService {
         await this.addSongToPlaylist(newPlaylist.id, song.song_id)
       }
 
-      console.log('Playlist duplicated successfully')
+      if (import.meta.env.DEV) console.log('Playlist duplicated successfully')
       return newPlaylist
     } catch (error) {
       console.error('Error duplicating playlist:', error)
@@ -641,7 +641,7 @@ class MusicService {
     if (typeof window !== 'undefined') {
       (window as any).__musicAnalyticsQueue = [];
     }
-    console.log('Music analytics cleared')
+    if (import.meta.env.DEV) console.log('Music analytics cleared')
   }
 }
 

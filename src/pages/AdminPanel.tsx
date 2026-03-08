@@ -26,7 +26,7 @@ export const AdminPanel: React.FC = () => {
     // Log admin panel access (AdminRoute a déjà vérifié les droits)
     if (user) {
       logActivity({ activity_type: 'study', metadata: { action: 'admin_panel_access' } });
-      console.log('🔐 Accès panel admin autorisé pour:', user.email);
+      if (import.meta.env.DEV) console.log('🔐 Accès panel admin autorisé pour:', user.email);
     }
   }, [user, logActivity]);
 

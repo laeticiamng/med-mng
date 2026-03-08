@@ -35,7 +35,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
       }
       
       try {
-        console.log('🔍 useEdnItemV2 - Chargement item:', slug);
+        if (import.meta.env.DEV) console.log('🔍 useEdnItemV2 - Chargement item:', slug);
         
         // 1. Récupération depuis Supabase REST avec cache busting
         const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`;
@@ -58,7 +58,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         }
 
         const payload = await response.json();
-        console.log('🧾 useEdnItemV2 - Cache headers:', pickCacheDiagnostics(response.headers));
+        if (import.meta.env.DEV) console.log('🧾 useEdnItemV2 - Cache headers:', pickCacheDiagnostics(response.headers));
 
         const data = Array.isArray(payload) ? payload[0] : payload;
 
@@ -67,7 +67,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
           return;
         }
 
-        console.log('📦 Données brutes récupérées:', data);
+        if (import.meta.env.DEV) console.log('📦 Données brutes récupérées:', data);
         setRawItem(data);
 
         // 2. Détection du format et validation si v2
@@ -78,7 +78,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         let valErrors: string[] = [];
 
         if (isV2) {
-          console.log('✅ Item v2 détecté, validation en cours...');
+          if (import.meta.env.DEV) console.log('✅ Item v2 détecté, validation en cours...');
           
           try {
             // Approche alternative : on parse directement et on catch les erreurs de validation
@@ -88,7 +88,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
             const itemId = (data as any).id ?? (data as any).slug ?? slug;
             
             if ('success' in validation && validation.success === true && 'data' in validation) {
-              console.log('✅ Item v2 valide');
+              if (import.meta.env.DEV) console.log('✅ Item v2 valide');
               // On utilise directement les données validées
               const validatedData = validation.data;
               parsedItem = EDNItemParser.parseItemV2(validatedData, itemId);

@@ -23,7 +23,7 @@ export const usePWA = () => {
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(registration) {
-      console.log('SW Registered:', registration);
+      if (import.meta.env.DEV) console.log('SW Registered:', registration);
       // Check for updates every hour
       if (registration) {
         setInterval(() => {
@@ -32,7 +32,7 @@ export const usePWA = () => {
       }
     },
     onRegisterError(error) {
-      console.log('SW registration error', error);
+      if (import.meta.env.DEV) console.log('SW registration error', error);
     },
   });
 

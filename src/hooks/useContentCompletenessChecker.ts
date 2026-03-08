@@ -188,7 +188,7 @@ export const useContentCompletenessChecker = () => {
   };
 
   const analyzeAllCompetences = async (): Promise<AnalysisResults> => {
-    console.log('🔍 Début de l\'analyse de complétude des compétences OIC...');
+    if (import.meta.env.DEV) console.log('🔍 Début de l\'analyse de complétude des compétences OIC...');
     
     try {
       const { data: oicData, error } = await supabase
@@ -197,7 +197,7 @@ export const useContentCompletenessChecker = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${oicData.length} compétences OIC à analyser`);
+      if (import.meta.env.DEV) console.log(`📊 ${oicData.length} compétences OIC à analyser`);
 
       const results: AnalysisResults = {
         total: oicData.length,
@@ -235,7 +235,7 @@ export const useContentCompletenessChecker = () => {
 
       results.statistics.averageCompleteness = Math.round(totalCompleteness / oicData.length);
 
-      console.log('✅ Analyse terminée');
+      if (import.meta.env.DEV) console.log('✅ Analyse terminée');
       return results;
 
     } catch (error) {
@@ -251,7 +251,7 @@ export const useContentCompletenessChecker = () => {
     try {
       const analysisResults = await analyzeAllCompetences();
       setResults(analysisResults);
-      console.log('🎉 Analyse de complétude terminée avec succès');
+      if (import.meta.env.DEV) console.log('🎉 Analyse de complétude terminée avec succès');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);

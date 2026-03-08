@@ -162,7 +162,7 @@ export const useSubscription = () => {
           plan_name: subscription?.plan_name || 'Standard'
         };
         
-        console.log('📊 Quota synchronized:', adaptedQuota);
+        if (import.meta.env.DEV) console.log('📊 Quota synchronized:', adaptedQuota);
         
         if (isValidMusicQuota(adaptedQuota)) {
           setMusicQuota(adaptedQuota);

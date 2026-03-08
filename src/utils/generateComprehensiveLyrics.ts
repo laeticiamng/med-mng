@@ -15,7 +15,7 @@ interface LyricsSection {
 }
 
 export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 'B'): Promise<string[]> {
-  console.log(`🎵 Génération paroles complètes pour ${itemCode} Rang ${rang}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération paroles complètes pour ${itemCode} Rang ${rang}`);
   
   try {
     // Normaliser le code item (IC-8 -> 008, IC-12 -> 012, etc.)
@@ -29,7 +29,7 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
       .eq('rang', rang)
       .order('objectif_id');
 
-    console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
+    if (import.meta.env.DEV) console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
 
     if (error) {
       console.error('Erreur récupération compétences:', error);
@@ -37,11 +37,11 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     }
 
     if (!competences || competences.length === 0) {
-      console.log('Aucune compétence OIC trouvée, génération fallback');
+      if (import.meta.env.DEV) console.log('Aucune compétence OIC trouvée, génération fallback');
       return generateFallbackLyrics(itemCode, rang);
     }
 
-    console.log(`✅ ${competences.length} compétences trouvées pour ${itemCode} Rang ${rang}`);
+    if (import.meta.env.DEV) console.log(`✅ ${competences.length} compétences trouvées pour ${itemCode} Rang ${rang}`);
 
     // 2. Générer des paroles musicales BASÉES sur le contenu réel
     const lyricsSection = generateMusicalLyricsFromContent(itemCode, competences, rang);
@@ -221,7 +221,7 @@ function generateFallbackLyrics(itemCode: string, rang: 'A' | 'B'): string[] {
 
 // Fonction pour générer des paroles mix A+B
 export async function generateMixedLyrics(itemCode: string): Promise<string[]> {
-  console.log(`🎵 Génération paroles mixtes pour ${itemCode}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération paroles mixtes pour ${itemCode}`);
   
   const lyricsA = await generateComprehensiveLyrics(itemCode, 'A');
   const lyricsB = await generateComprehensiveLyrics(itemCode, 'B');

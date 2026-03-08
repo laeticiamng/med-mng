@@ -56,7 +56,7 @@ const OicDataQualityManager = () => {
     setError(null);
     
     try {
-      console.log('🔍 Starting OIC data quality analysis...');
+      if (import.meta.env.DEV) console.log('🔍 Starting OIC data quality analysis...');
       
       // DÉSACTIVÉ: fix-oic-data-quality a été supprimée
       const data = null;
@@ -65,7 +65,7 @@ const OicDataQualityManager = () => {
       if (error) throw error;
 
       setAnalysisResult(data);
-      console.log('✅ Analysis completed:', data);
+      if (import.meta.env.DEV) console.log('✅ Analysis completed:', data);
       
     } catch (err: any) {
       console.error('❌ Analysis failed:', err);
@@ -80,7 +80,7 @@ const OicDataQualityManager = () => {
     setError(null);
     
     try {
-      console.log('🛠️ Starting OIC data quality fixes...');
+      if (import.meta.env.DEV) console.log('🛠️ Starting OIC data quality fixes...');
       
       // DÉSACTIVÉ: fix-oic-data-quality a été supprimée
       const data = null;
@@ -89,7 +89,7 @@ const OicDataQualityManager = () => {
       if (error) throw error;
 
       setFixResult(data);
-      console.log('✅ Fixes completed:', data);
+      if (import.meta.env.DEV) console.log('✅ Fixes completed:', data);
       
       // Relancer l'analyse pour voir les améliorations
       setTimeout(() => {

@@ -37,7 +37,7 @@ const AdminCompleteProcess = () => {
     try {
       // Phase 1: Extraction EDN - SÉCURISÉE
       setCurrentPhase('extraction');
-      console.log('🚀 Début extraction des 367 items EDN...');
+      if (import.meta.env.DEV) console.log('🚀 Début extraction des 367 items EDN...');
       
       // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
       const credentials = await getCredentials();
@@ -64,7 +64,7 @@ const AdminCompleteProcess = () => {
         const phaseName = auditNames[i];
         
         setCurrentPhase(phaseName);
-        console.log(`🔍 Audit ${auditType}...`);
+        if (import.meta.env.DEV) console.log(`🔍 Audit ${auditType}...`);
         
         const { data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
           body: {
@@ -112,7 +112,7 @@ const AdminCompleteProcess = () => {
     setError(null);
 
     try {
-      console.log('🔄 Début de la ré-importation complète EDN...');
+      if (import.meta.env.DEV) console.log('🔄 Début de la ré-importation complète EDN...');
       toast.info('Ré-importation en cours...', {
         description: 'Mise à jour de tous les contenus avec données spécifiques'
       });

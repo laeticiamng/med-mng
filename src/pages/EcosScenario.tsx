@@ -356,7 +356,7 @@ const EcosScenario = () => {
               scenarioId={scenarioData.id}
               scenarioTitle={scenarioData.title}
               onComplete={(score, total, items) => {
-                console.log('Evaluation complete:', { score, total, items });
+                if (import.meta.env.DEV) console.log('Evaluation complete:', { score, total, items });
               }}
             />
           )}

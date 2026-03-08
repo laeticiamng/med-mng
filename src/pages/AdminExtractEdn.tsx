@@ -20,7 +20,7 @@ const AdminExtractEdn = () => {
     setProgress(0);
     
     try {
-      console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
+      if (import.meta.env.DEV) console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
       
       // ✅ SÉCURISÉ: Les credentials sont gérés côté serveur dans l'edge function
       // Aucun credential n'est envoyé depuis le frontend
@@ -38,7 +38,7 @@ const AdminExtractEdn = () => {
         return;
       }
 
-      console.log('✅ Extraction terminée:', data);
+      if (import.meta.env.DEV) console.log('✅ Extraction terminée:', data);
       setStats(data.stats);
       setProgress(100);
       toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
@@ -61,7 +61,7 @@ const AdminExtractEdn = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
+      if (import.meta.env.DEV) console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
       toast.info(`${data?.length || 0} items EDN trouvés en base`);
 
       return data;

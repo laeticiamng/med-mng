@@ -49,7 +49,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
   const { data, isLoading, error, refetch } = useQuery<UnifiedAlertsResponse>({
     queryKey: ['unified-alerts', mode],
     queryFn: async () => {
-      console.log(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
+      if (import.meta.env.DEV) console.log(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
       
       const { data, error } = await supabase.functions.invoke('unified-alerts', {
         body: { mode },
@@ -60,7 +60,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
         throw error;
       }
 
-      console.log('[useUnifiedAlerts] Response:', data);
+      if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Response:', data);
       return data;
     },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
@@ -68,12 +68,12 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
 
   // Subscribe to realtime updates
   useEffect(() => {
-    console.log('[useUnifiedAlerts] Setting up realtime subscription');
+    if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Setting up realtime subscription');
     
     const channel = supabase
       .channel('unified-alerts-broadcast')
       .on('broadcast', { event: 'alerts-updated' }, (payload) => {
-        console.log('[useUnifiedAlerts] Realtime update received:', payload);
+        if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Realtime update received:', payload);
         
         if (payload.payload?.alerts) {
           setRealtimeAlerts(payload.payload.alerts);
@@ -93,7 +93,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
       .subscribe();
 
     return () => {
-      console.log('[useUnifiedAlerts] Cleaning up realtime subscription');
+      if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [queryClient]);

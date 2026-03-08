@@ -64,7 +64,7 @@ class WebVitalsMonitor {
     onTTFB(handleMetric);
 
     this.isInitialized = true;
-    console.log('🔍 Web Vitals monitoring initialized');
+    if (import.meta.env.DEV) console.log('🔍 Web Vitals monitoring initialized');
   }
 
   // Ajouter un callback pour être notifié des nouvelles métriques
@@ -107,6 +107,7 @@ class WebVitalsMonitor {
 
   // Logger les métriques dans la console
   private logMetric(metric: WebVitalsData) {
+    if (!import.meta.env.DEV) return;
     const emoji = metric.rating === 'good' ? '🟢' : metric.rating === 'needs-improvement' ? '🟡' : '🔴';
     console.log(`${emoji} ${metric.name}: ${metric.value}ms (${metric.rating})`);
   }

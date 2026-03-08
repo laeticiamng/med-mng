@@ -45,7 +45,7 @@ const AuditComplete = () => {
   }, []);
 
   const handleExportReport = () => {
-    console.log('Export du rapport complet d\'audit');
+    if (import.meta.env.DEV) console.log('Export du rapport complet d\'audit');
     // Logique d'export à implémenter
   };
 

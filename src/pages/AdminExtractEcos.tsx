@@ -21,12 +21,12 @@ const AdminExtractEcos = () => {
 
   const startExtraction = async (action: 'start' | 'resume' = 'start') => {
     try {
-      console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
+      if (import.meta.env.DEV) console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
       
       // Obtenir les credentials de manière sécurisée (affiche le formulaire si nécessaire)
       const credentials = await getCredentials();
       
-      console.log('✅ Credentials obtenus, démarrage de l\'extraction...');
+      if (import.meta.env.DEV) console.log('✅ Credentials obtenus, démarrage de l\'extraction...');
       
       // Maintenant on peut démarrer l'extraction
       setIsExtracting(true);
@@ -49,7 +49,7 @@ const AdminExtractEcos = () => {
         return;
       }
 
-      console.log('✅ Extraction ECOS terminée:', data);
+      if (import.meta.env.DEV) console.log('✅ Extraction ECOS terminée:', data);
       setStats(data.stats);
       setProgress(100);
       toast.success(`Extraction ECOS terminée! ${data.stats?.totalProcessed || 0} situations traitées`);
@@ -80,7 +80,7 @@ const AdminExtractEcos = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${data?.length || 0} situations ECOS déjà en base`);
+      if (import.meta.env.DEV) console.log(`📊 ${data?.length || 0} situations ECOS déjà en base`);
       toast.info(`${data?.length || 0} situations ECOS trouvées en base`);
 
       return data;
