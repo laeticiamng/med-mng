@@ -60,7 +60,7 @@ export const useSongGeneration = () => {
         throw new Error('Aucune donnée reçue du service de génération');
       }
 
-      console.log('✅ Génération réussie:', data);
+      if (import.meta.env.DEV) console.log('✅ Génération réussie:', data);
 
       // Créer la chanson en base
       const song = await medMngApi.createSong(title, data.metadata?.audioUrl || 'temp-audio-url', {

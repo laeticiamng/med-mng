@@ -128,7 +128,7 @@ export const useEdnItems = () => {
     fetchPage(0, false);
     
     return () => {
-      console.log('🔚 useEdnItems - Unmounting');
+      if (import.meta.env.DEV) console.log('🔚 useEdnItems - Unmounting');
       mountedRef.current = false;
       unsubscribe();
     };

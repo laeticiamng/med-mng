@@ -32,7 +32,7 @@ export const usePWA = () => {
       }
     },
     onRegisterError(error) {
-      console.log('SW registration error', error);
+      if (import.meta.env.DEV) console.log('SW registration error', error);
     },
   });
 

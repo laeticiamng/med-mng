@@ -221,7 +221,7 @@ function generateFallbackLyrics(itemCode: string, rang: 'A' | 'B'): string[] {
 
 // Fonction pour générer des paroles mix A+B
 export async function generateMixedLyrics(itemCode: string): Promise<string[]> {
-  console.log(`🎵 Génération paroles mixtes pour ${itemCode}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération paroles mixtes pour ${itemCode}`);
   
   const lyricsA = await generateComprehensiveLyrics(itemCode, 'A');
   const lyricsB = await generateComprehensiveLyrics(itemCode, 'B');

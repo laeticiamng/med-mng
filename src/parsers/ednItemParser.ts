@@ -181,10 +181,10 @@ export class EDNItemParser {
    */
   static parseAnyItem(item: any, itemId: string): ParsedEDNItem {
     if (this.isItemV2(item)) {
-      console.log('📋 Item v2 détecté, utilisation du parser unifié');
+      if (import.meta.env.DEV) console.log('📋 Item v2 détecté, utilisation du parser unifié');
       return this.parseItemV2(item, itemId);
     } else {
-      console.log('📋 Item v1 détecté, utilisation du parser legacy');
+      if (import.meta.env.DEV) console.log('📋 Item v1 détecté, utilisation du parser legacy');
       return this.parseLegacyItem(item, itemId);
     }
   }

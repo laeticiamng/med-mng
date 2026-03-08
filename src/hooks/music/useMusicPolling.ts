@@ -148,7 +148,7 @@ export const useMusicPolling = () => {
     // ✅ Vérifier si un polling existe déjà pour ce taskId
     const existingState = pollingStateRef.current.get(taskId);
     if (existingState && !existingState.stopped) {
-      console.log(`[useMusicPolling] Polling déjà actif pour ${taskId}`);
+      if (import.meta.env.DEV) console.log(`[useMusicPolling] Polling déjà actif pour ${taskId}`);
       return taskId;
     }
 
