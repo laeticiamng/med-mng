@@ -410,7 +410,7 @@ class MusicService {
       timestamp: new Date().toISOString()
     }
     
-    console.log('📊 Music generation event:', event)
+    if (import.meta.env.DEV) console.log('📊 Music generation event:', event)
     
     // Stocker dans Supabase pour analytics persistants
     try {
