@@ -66,7 +66,7 @@ export const useRealtimeGeneration = ({
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          console.log('🎵 Nouveau track reçu:', payload.new);
+          if (import.meta.env.DEV) console.log('🎵 Nouveau track reçu:', payload.new);
           onNewTrack?.(payload.new);
         }
       )
