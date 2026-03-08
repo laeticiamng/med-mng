@@ -37,7 +37,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       throw new Error('Aucun item EDN trouvé');
     }
     
-    console.log(`📋 ${items.length} items EDN à traiter`);
+    if (import.meta.env.DEV) console.log(`📋 ${items.length} items EDN à traiter`);
     
     // 2. Traitement par batch pour éviter la surcharge
     const batchSize = 10;
