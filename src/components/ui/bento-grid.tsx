@@ -2,17 +2,14 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-interface BentoGridProps extends React.HTMLAttributes<HTMLDivElement> {
+interface BentoGridProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-/**
- * BentoGrid — asymmetric grid layout inspired by 21st.dev trending pattern.
- */
 export const BentoGrid: React.FC<BentoGridProps> = ({
   className,
   children,
-  ...props
 }) => {
   return (
     <div
@@ -20,7 +17,6 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
         "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6",
         className
       )}
-      {...props}
     >
       {children}
     </div>
@@ -28,11 +24,8 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
 };
 
 interface BentoCardProps {
-  /** Span 2 columns on large screens */
   colSpan?: 1 | 2;
-  /** Span 2 rows */
   rowSpan?: 1 | 2;
-  /** Index for stagger animation */
   index?: number;
   children: React.ReactNode;
   className?: string;
@@ -59,8 +52,6 @@ export const BentoCard: React.FC<BentoCardProps> = ({
         className
       )}
     >
-    >
-      {/* Subtle shine sweep on hover */}
       <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.04] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
       </div>
