@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { TRANSLATIONS_DICT } from '@/locales/translations-dictionary';
 
-export type Language = 'fr' | 'en' | 'de';
+export type Language = 'fr' | 'en' | 'de' | 'es';
 export type SupportedLanguage = Language; // Alias pour compatibilité
 
 export interface LanguageInfo {
