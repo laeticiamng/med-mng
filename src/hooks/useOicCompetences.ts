@@ -52,7 +52,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       return;
     }
     
-    console.log(`[useOicCompetences] Fetching for itemCode: ${itemCode}, rang: ${rang}`);
+    if (import.meta.env.DEV) console.log(`[useOicCompetences] Fetching for itemCode: ${itemCode}, rang: ${rang}`);
 
     // Normalize itemCode - extract numeric part and pad to 3 digits
     const normalizedCode = itemCode.trim().toUpperCase();

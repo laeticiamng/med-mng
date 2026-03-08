@@ -50,7 +50,7 @@ export const useItemsCompleteness = () => {
   const runAutomatedAudit = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log('🔍 Starting automated completeness audit...');
+      if (import.meta.env.DEV) console.log('🔍 Starting automated completeness audit...');
       
       const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',

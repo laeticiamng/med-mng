@@ -161,7 +161,7 @@ export const useRealtimeGeneration = ({
   useEffect(() => {
     const handleOnline = () => {
       if (!isConnected && enabled && userId) {
-        console.log('🌐 Retour en ligne, reconnexion...');
+        if (import.meta.env.DEV) console.log('🌐 Retour en ligne, reconnexion...');
         reconnect();
       }
     };

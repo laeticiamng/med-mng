@@ -126,7 +126,7 @@ export function useSystemAlerts() {
       oscillator.start();
       oscillator.stop(audioContext.currentTime + 0.3);
     } catch (err) {
-      console.log('Sound notification not available');
+      if (import.meta.env.DEV) console.log('Sound notification not available');
     }
   }, []);
 
