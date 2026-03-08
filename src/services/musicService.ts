@@ -375,7 +375,7 @@ class MusicService {
           })
 
         if (error) throw error
-        console.log('✅ Added to favorites')
+        if (import.meta.env.DEV) console.log('✅ Added to favorites')
         return true
       }
     } catch (error) {
