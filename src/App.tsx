@@ -249,7 +249,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.homepage} element={<Navigate to={ROUTE_PATHS.home} replace />} />
 
                                     {/* Content */}
-                                    <Route path={ROUTE_PATHS.generator} element={<S><Generator /></S>} />
+                                    <Route path={ROUTE_PATHS.generator} element={<ProtectedRoute><S><Generator /></S></ProtectedRoute>} />
 
                                     {/* EDN */}
                                     <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
