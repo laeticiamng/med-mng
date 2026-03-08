@@ -15,7 +15,7 @@ interface LyricsSection {
 }
 
 export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 'B'): Promise<string[]> {
-  console.log(`🎵 Génération paroles complètes pour ${itemCode} Rang ${rang}`);
+  if (import.meta.env.DEV) console.log(`🎵 Génération paroles complètes pour ${itemCode} Rang ${rang}`);
   
   try {
     // Normaliser le code item (IC-8 -> 008, IC-12 -> 012, etc.)
