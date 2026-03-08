@@ -50,7 +50,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     // 3. Traiter chaque batch
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       const batch = batches[batchIndex];
-      console.log(`🔄 Traitement batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
+      if (import.meta.env.DEV) console.log(`🔄 Traitement batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
       
       // Traiter les items du batch en parallèle
       const batchPromises = batch.map(async (item) => {
