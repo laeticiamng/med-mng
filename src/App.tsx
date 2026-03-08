@@ -358,7 +358,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<ProtectedRoute><S><DailySRSPlaylist /></S></ProtectedRoute>} />
 
                                     {/* National Exam Simulation */}
-                                    <Route path={ROUTE_PATHS.nationalExam} element={<S><NationalExamSimulation /></S>} />
+                                    <Route path={ROUTE_PATHS.nationalExam} element={<ProtectedRoute><S><NationalExamSimulation /></S></ProtectedRoute>} />
 
                                     {/* Social Share Hub */}
                                     <Route path={ROUTE_PATHS.socialShare} element={<ProtectedRoute><S><SocialShareHub /></S></ProtectedRoute>} />
