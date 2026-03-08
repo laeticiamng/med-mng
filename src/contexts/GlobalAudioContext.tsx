@@ -237,7 +237,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
 
   const maximize = () => {
     setIsMinimized(false);
-    console.log('🔼 Lecteur maximisé');
+    if (import.meta.env.DEV) console.log('🔼 Lecteur maximisé');
   };
 
   useEffect(() => {
