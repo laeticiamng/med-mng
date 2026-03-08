@@ -641,7 +641,7 @@ class MusicService {
     if (typeof window !== 'undefined') {
       (window as any).__musicAnalyticsQueue = [];
     }
-    console.log('Music analytics cleared')
+    if (import.meta.env.DEV) console.log('Music analytics cleared')
   }
 }
 
