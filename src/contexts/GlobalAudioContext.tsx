@@ -244,7 +244,7 @@ export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioP
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        console.log('🧹 Nettoyage audio context');
+        if (import.meta.env.DEV) console.log('🧹 Nettoyage audio context');
       }
     };
   }, []);

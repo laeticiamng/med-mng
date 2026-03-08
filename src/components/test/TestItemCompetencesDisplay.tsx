@@ -26,7 +26,7 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
         console.error('Erreur:', error);
       } else {
         setItem(data);
-        console.log('✅ Item chargé:', {
+        if (import.meta.env.DEV) console.log('✅ Item chargé:', {
           item_code: data.item_code,
           title: data.title,
           sections_rang_a: (data.tableau_rang_a as any)?.sections?.length || 0,

@@ -264,7 +264,7 @@ export const useMusicGenerationOrchestrator = () => {
 
   // Annuler toutes les générations
   const cancelAllGenerations = useCallback(() => {
-    console.log(`[Orchestrator] Annulation de toutes les générations`);
+    if (import.meta.env.DEV) console.log(`[Orchestrator] Annulation de toutes les générations`);
     stopAllPolling();
     activeTasksRef.current.clear();
     saveActiveTasksToStorage(activeTasksRef.current);
