@@ -20,7 +20,7 @@ const AdminExtractEdn = () => {
     setProgress(0);
     
     try {
-      console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
+      if (import.meta.env.DEV) console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
       
       // ✅ SÉCURISÉ: Les credentials sont gérés côté serveur dans l'edge function
       // Aucun credential n'est envoyé depuis le frontend
