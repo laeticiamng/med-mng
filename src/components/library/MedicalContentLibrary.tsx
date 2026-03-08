@@ -129,7 +129,7 @@ export const MedicalContentLibrary = () => {
       year: getYearFromCode(t.item_code),
       language: 'fr', // default — extend when multi-lang content exists
       retention: Math.floor(60 + Math.random() * 35), // mock retention %
-      duration: `${Math.floor(2 + Math.random() * 3)}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+      durationLabel: `${Math.floor(2 + Math.random() * 3)}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
     })),
   [tracks]);
 
