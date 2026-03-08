@@ -93,7 +93,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
       .subscribe();
 
     return () => {
-      console.log('[useUnifiedAlerts] Cleaning up realtime subscription');
+      if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [queryClient]);

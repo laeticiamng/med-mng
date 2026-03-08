@@ -88,7 +88,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
             const itemId = (data as any).id ?? (data as any).slug ?? slug;
             
             if ('success' in validation && validation.success === true && 'data' in validation) {
-              console.log('✅ Item v2 valide');
+              if (import.meta.env.DEV) console.log('✅ Item v2 valide');
               // On utilise directement les données validées
               const validatedData = validation.data;
               parsedItem = EDNItemParser.parseItemV2(validatedData, itemId);

@@ -75,7 +75,7 @@ class MusicService {
       if (error) throw error
 
       if (data.success) {
-        console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
+        if (import.meta.env.DEV) console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
         // Événement analytics
         this.trackGeneration(request, data.duration_seconds, true)
       } else {
