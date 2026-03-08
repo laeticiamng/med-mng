@@ -367,7 +367,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
 
                                     {/* Chat & Audit */}
-                                    <Route path={ROUTE_PATHS.chat} element={<S><MedChat /></S>} />
+                                    <Route path={ROUTE_PATHS.chat} element={<ProtectedRoute><S><MedChat /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.ednAudit} element={<AdminRoute><S><EdnAuditDashboard /></S></AdminRoute>} />
 
                                     {/* Admin */}
