@@ -60,7 +60,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
         throw error;
       }
 
-      console.log('[useUnifiedAlerts] Response:', data);
+      if (import.meta.env.DEV) console.log('[useUnifiedAlerts] Response:', data);
       return data;
     },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
