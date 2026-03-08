@@ -29,7 +29,7 @@ export const useAudioMetrics = () => {
     };
     
     metricsRef.current.set(trackUrl, metrics);
-    console.log(`📊 [METRICS] Démarrage tracking pour: ${trackUrl}`);
+    if (import.meta.env.DEV) console.log(`📊 [METRICS] Démarrage tracking pour: ${trackUrl}`);
     return metrics;
   }, []);
 
