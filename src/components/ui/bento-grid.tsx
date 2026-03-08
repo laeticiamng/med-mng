@@ -35,6 +35,7 @@ interface BentoCardProps {
   /** Index for stagger animation */
   index?: number;
   children: React.ReactNode;
+  className?: string;
 }
 
 export const BentoCard: React.FC<BentoCardProps> = ({
@@ -43,7 +44,6 @@ export const BentoCard: React.FC<BentoCardProps> = ({
   index = 0,
   className,
   children,
-  ...props
 }) => {
   return (
     <motion.div
