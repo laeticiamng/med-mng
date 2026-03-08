@@ -67,7 +67,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
           return;
         }
 
-        console.log('📦 Données brutes récupérées:', data);
+        if (import.meta.env.DEV) console.log('📦 Données brutes récupérées:', data);
         setRawItem(data);
 
         // 2. Détection du format et validation si v2
