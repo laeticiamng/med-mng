@@ -198,7 +198,7 @@ export const useAIExam = () => {
           }
         }
       } catch (e) {
-        console.log('Could not adapt difficulty:', e);
+        if (import.meta.env.DEV) console.log('Could not adapt difficulty:', e);
       }
 
       // Generate AI questions

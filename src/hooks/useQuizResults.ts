@@ -55,7 +55,7 @@ export const useQuizResults = () => {
 
       if (error) throw error;
       
-      console.log('✅ Résultat quiz sauvegardé');
+      if (import.meta.env.DEV) console.log('✅ Résultat quiz sauvegardé');
       return true;
     } catch (error) {
       console.error('❌ Erreur sauvegarde quiz:', error);

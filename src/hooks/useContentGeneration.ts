@@ -87,7 +87,7 @@ export const useContentGeneration = () => {
         setProgress(prev => Math.min(prev + 10, 90));
       }, 500);
 
-      console.log(`🎯 Génération ${request.type}:`, payload);
+      if (import.meta.env.DEV) console.log(`🎯 Génération ${request.type}:`, payload);
 
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: payload

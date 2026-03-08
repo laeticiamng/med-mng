@@ -64,7 +64,7 @@ export const useComprehensiveAudit = (): UseComprehensiveAuditResult => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
+    if (import.meta.env.DEV) console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
   };
 
   return {

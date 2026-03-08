@@ -70,7 +70,7 @@ export const useEnhancedAudioPlayer = () => {
 
   // Logging des métriques détaillées
   const logAudioMetrics = useCallback((eventType: string, data: any) => {
-    console.log(`🎵 METRIC [${eventType}]:`, {
+    if (import.meta.env.DEV) console.log(`🎵 METRIC [${eventType}]:`, {
       timestamp: Date.now(),
       track: state.currentTrack,
       ...data
