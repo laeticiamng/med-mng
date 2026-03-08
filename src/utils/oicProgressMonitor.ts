@@ -21,7 +21,7 @@ export async function checkOICProgress() {
   
   const healthScore = ((10 - problems) / 10) * 100;
   
-  console.log(`🔍 Échantillon OIC - Score: ${healthScore}% (${10-problems}/10 propres)`);
+  if (import.meta.env.DEV) console.log(`🔍 Échantillon OIC - Score: ${healthScore}% (${10-problems}/10 propres)`);
   
   return {
     healthScore,
