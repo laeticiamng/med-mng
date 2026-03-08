@@ -64,7 +64,7 @@ const AdminCompleteProcess = () => {
         const phaseName = auditNames[i];
         
         setCurrentPhase(phaseName);
-        console.log(`🔍 Audit ${auditType}...`);
+        if (import.meta.env.DEV) console.log(`🔍 Audit ${auditType}...`);
         
         const { data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
           body: {
