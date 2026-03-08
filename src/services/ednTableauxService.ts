@@ -108,7 +108,7 @@ class EdnTableauxService {
       }
 
       const result = await response.json()
-      console.log('📊 Completeness audit results:', result.summary)
+      if (import.meta.env.DEV) console.log('📊 Completeness audit results:', result.summary)
       
       return result
     } catch (error) {

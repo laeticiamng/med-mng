@@ -135,7 +135,7 @@ class PedagogicalContentService {
           .eq('id', existing.id);
       }
 
-      console.log('Progress updated:', { itemId, contentType, progress });
+      if (import.meta.env.DEV) console.log('Progress updated:', { itemId, contentType, progress });
     } catch (error) {
       console.error('Error updating content progress:', error);
     }

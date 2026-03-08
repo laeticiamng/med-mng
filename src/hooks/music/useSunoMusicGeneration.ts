@@ -110,7 +110,7 @@ export const useSunoMusicGeneration = () => {
             .limit(1)
             .maybeSingle();
 
-          console.log('[useSunoMusicGeneration] Polling BDD:', {
+          if (import.meta.env.DEV) console.log('[useSunoMusicGeneration] Polling BDD:', {
             attempt: attempts,
             taskId,
             status: dbTrack?.generation_status,

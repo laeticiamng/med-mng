@@ -90,7 +90,7 @@ async function fetchCompetences(itemCode: string, rang: 'A' | 'B' | 'AB'): Promi
   const { data, error } = await query.order('ordre');
 
   if (error || !data) {
-    console.log(`Aucune compétence OIC pour ${itemCode}`);
+    if (import.meta.env.DEV) console.log(`Aucune compétence OIC pour ${itemCode}`);
     return [];
   }
 

@@ -251,7 +251,7 @@ export const useContentCompletenessChecker = () => {
     try {
       const analysisResults = await analyzeAllCompetences();
       setResults(analysisResults);
-      console.log('🎉 Analyse de complétude terminée avec succès');
+      if (import.meta.env.DEV) console.log('🎉 Analyse de complétude terminée avec succès');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
