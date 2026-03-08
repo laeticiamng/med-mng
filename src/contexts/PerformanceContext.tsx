@@ -210,7 +210,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       });
     }
     
-    console.log(`📊 Performance Metric - ${name}: ${value}`);
+    if (import.meta.env.DEV) console.log(`📊 Performance Metric - ${name}: ${value}`);
   };
 
   const getPerformanceScore = (): number => {
