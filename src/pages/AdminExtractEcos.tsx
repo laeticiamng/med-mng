@@ -21,7 +21,7 @@ const AdminExtractEcos = () => {
 
   const startExtraction = async (action: 'start' | 'resume' = 'start') => {
     try {
-      console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
+      if (import.meta.env.DEV) console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
       
       // Obtenir les credentials de manière sécurisée (affiche le formulaire si nécessaire)
       const credentials = await getCredentials();
