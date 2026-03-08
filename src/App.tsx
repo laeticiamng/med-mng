@@ -261,12 +261,12 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
 
                                     {/* Learning */}
-                                    <Route path={ROUTE_PATHS.srsReview} element={<S><SRSReview /></S>} />
-                                    <Route path={ROUTE_PATHS.examMode} element={<S><ExamMode /></S>} />
-                                    <Route path={ROUTE_PATHS.clinicalCases} element={<S><ClinicalCases /></S>} />
-                                    <Route path={ROUTE_PATHS.flashcards} element={<S><Flashcards /></S>} />
-                                    <Route path={ROUTE_PATHS.progressDashboard} element={<S><ProgressDashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<S><SmartStudyPlanner /></S>} />
+                                    <Route path={ROUTE_PATHS.srsReview} element={<ProtectedRoute><S><SRSReview /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.examMode} element={<ProtectedRoute><S><ExamMode /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.clinicalCases} element={<ProtectedRoute><S><ClinicalCases /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.flashcards} element={<ProtectedRoute><S><Flashcards /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.progressDashboard} element={<ProtectedRoute><S><ProgressDashboard /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<ProtectedRoute><S><SmartStudyPlanner /></S></ProtectedRoute>} />
 
                                     {/* Gamification */}
                                     <Route path={ROUTE_PATHS.leaderboard} element={<S><Leaderboard /></S>} />
