@@ -235,7 +235,7 @@ export const useContentCompletenessChecker = () => {
 
       results.statistics.averageCompleteness = Math.round(totalCompleteness / oicData.length);
 
-      console.log('✅ Analyse terminée');
+      if (import.meta.env.DEV) console.log('✅ Analyse terminée');
       return results;
 
     } catch (error) {
