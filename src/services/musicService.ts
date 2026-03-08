@@ -359,7 +359,7 @@ class MusicService {
           .eq('song_id', songId)
 
         if (error) throw error
-        console.log('✅ Removed from favorites')
+        if (import.meta.env.DEV) console.log('✅ Removed from favorites')
         return false
       } else {
         // Ajouter aux favoris
