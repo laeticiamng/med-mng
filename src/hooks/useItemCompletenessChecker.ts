@@ -60,7 +60,7 @@ export const useItemCompletenessChecker = () => {
       setItemResults(prev => new Map(prev.set(itemId, result)));
 
       // Log détaillé
-      console.log(`📊 Complétude ${result.itemCode}: ${result.completenessScore}%`, {
+      if (import.meta.env.DEV) console.log(`📊 Complétude ${result.itemCode}: ${result.completenessScore}%`, {
         status: result.status,
         missingFields: result.missingFields,
         partialFields: result.partialFields
