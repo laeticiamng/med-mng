@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Music, Library, Heart, Clock, Flame, Trophy, Star, BookOpen } from 'lucide-react';
+import { Music, Library, Heart, Clock, Flame, Trophy, Star, BookOpen, Wand2, Brain, GraduationCap } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MusicLibrary } from '@/components/library/MusicLibrary';
 import { MedicalContentLibrary } from '@/components/library/MedicalContentLibrary';
+import { CreatorStudio } from '@/components/library/CreatorStudio';
+import { MemoryAnalytics } from '@/components/library/MemoryAnalytics';
+import { DPCCertification } from '@/components/library/DPCCertification';
 import { FavoritesTab } from '@/components/library/FavoritesTab';
 import { RecentTab } from '@/components/library/RecentTab';
 import { PlaylistsTab } from '@/components/library/PlaylistsTab';
@@ -58,31 +61,57 @@ export default function LibraryPage() {
           )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="content" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Catalogue</span>
-              </TabsTrigger>
-              <TabsTrigger value="library" className="flex items-center gap-2">
-                <Library className="h-4 w-4" />
-                <span className="hidden sm:inline">Ma biblio</span>
-              </TabsTrigger>
-              <TabsTrigger value="favorites" className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                <span className="hidden sm:inline">Favoris</span>
-              </TabsTrigger>
-              <TabsTrigger value="recent" className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                <span className="hidden sm:inline">Récents</span>
-              </TabsTrigger>
-              <TabsTrigger value="playlists" className="flex items-center gap-2">
-                <Music className="h-4 w-4" />
-                <span className="hidden sm:inline">Playlists</span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto -mx-2 px-2">
+              <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-8 gap-1">
+                <TabsTrigger value="content" className="flex items-center gap-1.5 text-xs">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Catalogue</span>
+                </TabsTrigger>
+                <TabsTrigger value="creator" className="flex items-center gap-1.5 text-xs">
+                  <Wand2 className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Studio</span>
+                </TabsTrigger>
+                <TabsTrigger value="memory" className="flex items-center gap-1.5 text-xs">
+                  <Brain className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Mémoire</span>
+                </TabsTrigger>
+                <TabsTrigger value="dpc" className="flex items-center gap-1.5 text-xs">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">DPC</span>
+                </TabsTrigger>
+                <TabsTrigger value="library" className="flex items-center gap-1.5 text-xs">
+                  <Library className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Biblio</span>
+                </TabsTrigger>
+                <TabsTrigger value="favorites" className="flex items-center gap-1.5 text-xs">
+                  <Heart className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Favoris</span>
+                </TabsTrigger>
+                <TabsTrigger value="recent" className="flex items-center gap-1.5 text-xs">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Récents</span>
+                </TabsTrigger>
+                <TabsTrigger value="playlists" className="flex items-center gap-1.5 text-xs">
+                  <Music className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Playlists</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="content">
               <MedicalContentLibrary />
+            </TabsContent>
+
+            <TabsContent value="creator">
+              <CreatorStudio />
+            </TabsContent>
+
+            <TabsContent value="memory">
+              <MemoryAnalytics />
+            </TabsContent>
+
+            <TabsContent value="dpc">
+              <DPCCertification />
             </TabsContent>
 
             <TabsContent value="library">
