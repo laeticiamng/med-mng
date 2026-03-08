@@ -70,7 +70,7 @@ export class EDNItemParser {
    * Parse un item v2 vers le format attendu par l'UI
    */
   static parseItemV2(itemV2: ItemEDNV2, itemId: string): ParsedEDNItem {
-    console.log('🔄 EDNItemParser - Parsing item v2:', itemV2.item_metadata.code);
+    if (import.meta.env.DEV) console.log('🔄 EDNItemParser - Parsing item v2:', itemV2.item_metadata.code);
     
     return {
       id: itemId,
