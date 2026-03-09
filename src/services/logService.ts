@@ -453,7 +453,7 @@ export async function deleteOldLogs(daysToKeep: number = 30): Promise<number> {
       .select('id');
 
     if (deleteError) {
-      console.error('Failed to delete old logs:', deleteError);
+      if (import.meta.env.DEV) console.error('Failed to delete old logs:', deleteError);
       return 0;
     }
 
