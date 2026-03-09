@@ -246,7 +246,7 @@ class MusicService {
       if (import.meta.env.DEV) console.log('✅ Playlist created:', name)
       return newPlaylist
     } catch (error) {
-      console.error('❌ Error creating playlist:', error)
+      if (import.meta.env.DEV) console.error('❌ Error creating playlist:', error)
       throw error
     }
   }
