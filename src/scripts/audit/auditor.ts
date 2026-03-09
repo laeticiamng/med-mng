@@ -20,7 +20,7 @@ export class EDNItemsAuditor {
       }
 
       if (!items || items.length === 0) {
-        console.warn('⚠️ Aucun item trouvé dans la base');
+        if (import.meta.env.DEV) console.warn('⚠️ Aucun item trouvé dans la base');
         return this.createEmptyReport();
       }
 
