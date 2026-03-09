@@ -121,6 +121,9 @@ export const CreatorStudio = () => {
         <p className="text-muted-foreground">
           Transformez vos cours en chansons médicales avec l'IA
         </p>
+        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
+          🚧 Aperçu — Génération IA bientôt disponible
+        </Badge>
       </div>
 
       {/* Step indicator */}

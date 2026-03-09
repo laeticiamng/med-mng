@@ -128,6 +128,9 @@ export const DPCCertification = () => {
         <p className="text-muted-foreground">
           Suivi de votre Développement Professionnel Continu
         </p>
+        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
+          🚧 Fonctionnalité en cours de développement
+        </Badge>
       </div>
 
       {/* Summary */}

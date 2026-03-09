@@ -14,6 +14,7 @@ const features = [
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
     iconBg: 'bg-primary/15 text-primary',
+    comingSoon: false,
   },
   {
     icon: Wand2,
@@ -23,6 +24,7 @@ const features = [
     colSpan: 1,
     gradient: 'from-accent/20 via-accent/5 to-transparent',
     iconBg: 'bg-accent/15 text-accent',
+    comingSoon: true,
   },
   {
     icon: Brain,
@@ -32,6 +34,7 @@ const features = [
     colSpan: 1,
     gradient: 'from-warning/20 via-warning/5 to-transparent',
     iconBg: 'bg-warning/15 text-warning',
+    comingSoon: true,
   },
   {
     icon: GraduationCap,
@@ -41,15 +44,17 @@ const features = [
     colSpan: 1,
     gradient: 'from-success/20 via-success/5 to-transparent',
     iconBg: 'bg-success/15 text-success',
+    comingSoon: true,
   },
   {
     icon: Globe,
     titleFr: 'Multilingue',
-    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English, 🇩🇪 Deutsch, 🇪🇸 Español.',
-    tab: null, // triggers language selector
+    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English et 🇩🇪 Deutsch.',
+    tab: null,
     colSpan: 1,
     gradient: 'from-secondary/30 via-secondary/10 to-transparent',
     iconBg: 'bg-secondary/50 text-secondary-foreground',
+    comingSoon: false,
   },
 ];
 
@@ -119,9 +124,16 @@ export const ApplePlatformFeatures = () => {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    <TranslatedText text={feat.titleFr} />
-                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-semibold text-foreground">
+                      <TranslatedText text={feat.titleFr} />
+                    </h3>
+                    {feat.comingSoon && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-warning/15 text-warning border border-warning/30">
+                        <TranslatedText text="Bientôt" />
+                      </span>
+                    )}
+                  </div>
 
                   {/* Description */}
                   <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
@@ -141,15 +153,16 @@ export const ApplePlatformFeatures = () => {
                     </Button>
                   ) : (
                     <div className="flex gap-2 self-start">
-                      {(['fr', 'en', 'de', 'es'] as const).map((lang) => (
+                      {(['fr', 'en', 'de'] as const).map((lang) => (
                         <Button
                           key={lang}
                           variant="outline"
                           size="sm"
                           className="text-xs px-3 hover:bg-primary/10 border-border/50"
                           onClick={() => setCurrentLanguage(lang as any)}
+                          aria-label={lang === 'fr' ? 'Français' : lang === 'en' ? 'English' : 'Deutsch'}
                         >
-                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : lang === 'de' ? '🇩🇪' : '🇪🇸'}
+                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : '🇩🇪'}
                         </Button>
                       ))}
                     </div>

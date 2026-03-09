@@ -128,8 +128,8 @@ export const MedicalContentLibrary = () => {
       difficulty: getDifficultyFromType(t.type),
       year: getYearFromCode(t.item_code),
       language: 'fr', // default — extend when multi-lang content exists
-      retention: Math.floor(60 + Math.random() * 35), // mock retention %
-      durationLabel: `${Math.floor(2 + Math.random() * 3)}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+      retention: null, // Real retention requires user_item_progress data
+      durationLabel: t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, '0')}` : '—',
     })),
   [tracks]);
 
@@ -353,15 +353,19 @@ export const MedicalContentLibrary = () => {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                       <span>Rétention mémoire</span>
-                      <span className="font-medium text-foreground">{track.retention}%</span>
+                      <span className="font-medium text-foreground">{track.retention != null ? `${track.retention}%` : '—'}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          track.retention >= 80 ? 'bg-green-500' : track.retention >= 50 ? 'bg-warning' : 'bg-destructive'
-                        }`}
-                        style={{ width: `${track.retention}%` }}
-                      />
+                      {track.retention != null ? (
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            track.retention >= 80 ? 'bg-green-500' : track.retention >= 50 ? 'bg-warning' : 'bg-destructive'
+                          }`}
+                          style={{ width: `${track.retention}%` }}
+                        />
+                      ) : (
+                        <div className="h-full rounded-full bg-muted-foreground/20 w-full" />
+                      )}
                     </div>
                   </div>
                 </div>

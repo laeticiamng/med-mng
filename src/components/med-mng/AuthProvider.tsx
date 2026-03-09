@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error?.code === 'refresh_token_not_found' || 
         error?.message?.includes('Refresh Token Not Found') ||
         error?.message?.includes('Invalid Refresh Token')) {
-      console.warn('🔄 Token de rafraîchissement invalide, nettoyage de la session...');
+      if (import.meta.env.DEV) console.warn('🔄 Token de rafraîchissement invalide, nettoyage de la session...');
       // Nettoyer la session locale sans appeler signOut (qui pourrait échouer)
       supabase.auth.signOut({ scope: 'local' }).catch(() => {
         // Ignorer les erreurs de déconnexion locale
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Gérer les erreurs de token
         if (event === 'TOKEN_REFRESHED' && !session) {
-          console.warn('⚠️ Échec du rafraîchissement du token');
+          if (import.meta.env.DEV) console.warn('⚠️ Échec du rafraîchissement du token');
           setUser(null);
           setLoading(false);
           return;
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               try {
                 await sendWelcomeEmail(session.user.email!, name);
               } catch (e) {
-                console.warn('Échec envoi email de bienvenue:', e);
+                if (import.meta.env.DEV) console.warn('Échec envoi email de bienvenue:', e);
               }
             }, 2000);
           }
@@ -179,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.warn('Erreur lors de la déconnexion:', error);
+      if (import.meta.env.DEV) console.warn('Erreur lors de la déconnexion:', error);
       // Forcer la déconnexion locale même si l'appel API échoue
       setUser(null);
     }
