@@ -47,13 +47,7 @@ const DIFFICULTY_LEVELS = [
   { id: 'expert', label: 'Expert', stars: 3 },
 ];
 
-const CONTENT_LANGUAGES = [
-  { id: 'all', label: 'Toutes', flag: '🌍' },
-  { id: 'fr', label: 'Français', flag: '🇫🇷' },
-  { id: 'en', label: 'English', flag: '🇬🇧' },
-  { id: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { id: 'es', label: 'Español', flag: '🇪🇸' },
-];
+// Language filter removed — all content is currently in French only
 
 // Derive specialty from item_code ranges (mock logic — adapt to real mapping)
 function getSpecialtyFromCode(code?: string): string {
