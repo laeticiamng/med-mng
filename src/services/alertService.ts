@@ -454,7 +454,7 @@ export async function resolveAlert(
 
     return true;
   } catch (err) {
-    console.error('Error resolving alert:', err);
+    if (import.meta.env.DEV) console.error('Error resolving alert:', err);
     return false;
   }
 }
