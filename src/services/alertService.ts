@@ -302,7 +302,7 @@ async function persistAlert(alert: Alert): Promise<boolean> {
     }
     return true;
   } catch (err) {
-    console.error('Error persisting alert:', err);
+    if (import.meta.env.DEV) console.error('Error persisting alert:', err);
     return false;
   }
 }
