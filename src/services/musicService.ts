@@ -166,7 +166,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Song removed from library')
     } catch (error) {
-      console.error('❌ Error removing from library:', error)
+      if (import.meta.env.DEV) console.error('❌ Error removing from library:', error)
       throw error
     }
   }
