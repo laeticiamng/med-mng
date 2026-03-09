@@ -199,33 +199,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithFacebook = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: `${window.location.origin}/med-mng/music-library`,
-        },
-      });
-      return { error };
-    } catch (error) {
-      return { error };
-    }
-  };
-
-  const signInWithApple = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/med-mng/music-library`,
-        },
-      });
-      return { error };
-    } catch (error) {
-      return { error };
-    }
-  };
 
   // Nouvelle fonction: réinitialisation du mot de passe
   const resetPassword = async (email: string) => {
