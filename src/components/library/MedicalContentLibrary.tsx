@@ -134,7 +134,7 @@ export const MedicalContentLibrary = () => {
       if (difficulty !== 'all' && t.difficulty !== difficulty) return false;
       return true;
     }),
-  [enrichedTracks, search, specialty, year, difficulty, contentLang]);
+  [enrichedTracks, search, specialty, year, difficulty]);
 
   const activeFiltersCount = [specialty, year, difficulty, contentLang].filter(f => f !== 'all').length + (search ? 1 : 0);
 
