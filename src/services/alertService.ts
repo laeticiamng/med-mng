@@ -629,7 +629,7 @@ export async function addAlertNote(alertId: string, note: string): Promise<boole
 
     return true;
   } catch (err) {
-    console.error('Error adding note:', err);
+    if (import.meta.env.DEV) console.error('Error adding note:', err);
     return false;
   }
 }
