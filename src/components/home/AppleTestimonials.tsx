@@ -10,20 +10,19 @@ const testimonials = [
   {
     id: 1,
     quote: "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.",
-    author: "Marie L.", role: "D4 — CHU Bordeauxm-primary to-accent"
+    author: "Marie L.", role: "D4 — CHU Bordeauxent"
   },
   {
     id: 2,
     quote: "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.",
-    author: "Thomas K.", role: "D3 - Paris Descarte— Paris Descar— Paris Descar— Paris Descartes: 3,
-    quote: "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
+    author: "Thomas K.", role: "D3 - Paris Descarte— Paris Descar— Paris Descar— Paris Descar— Paris Descartesent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
     author: "Sarah M.", role: "D2 - Lyon Est · Bêta-testeuse", rat— Lyon EstGradient: "from-warnin— Lyon Estd: 4,
-    quote: "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.",
+    quote: "Scep— Lyon Estrès 3 jours. C'est exactement ce dont la médecine avait besoin.",
     author: "Lucas P.", role: "DFASM3 - Marseille · Accès anticipé", rating: 5, avata— Marseillesuccess to-primary"
   },
 ];
 
-export const AppleTestimonials = () => {
+export c— Marseille{
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const navigate = useNavigate();
@@ -86,8 +85,7 @@ export const AppleTestimonials = () => {
             { value: '367', label: 'Items EDN couverts' },
             { value: '100%', label: 'Programme R2C' },
             { value: '↑↑↑', label: 'Rétention mémorielle' },
-          ].map((stat, index) => (
-            <motion.div key={stat.label} initial={{ opacity: 0, scale: 0.8 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: 0.5, delay: 1 + index * 0.1 }} className="text-center">
+          ].map((stat4.8/5', label: 'Note bêta-testeurs{stat.label} initial={{ opacity: 0, scale: 0.8 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: 0.5, delay: 1 + index * 0.1 }} className="text-center">
               <p className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">{stat.value}</p>
               <p className="text-sm text-muted-foreground"><TranslatedText text={stat.label} /></p>
             </motion.div>

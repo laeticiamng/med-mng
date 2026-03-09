@@ -255,12 +255,11 @@ export const AccessibilityCenter: React.FC = () => {
     return <Button 
         onClick={() => setIsOpen(true)} 
         variant="outline" 
-        size="sm" 
+        size="icon" 
         aria-label="Ouvrir le centre d'accessibilité" 
-        className="fixed top-20 right-4 z-50 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm bg-background/95 border-border"
+        className="fixed bottom-20 right-4 z-40 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm bg-background/80 border-border/50 h-9 w-9 rounded-full opacity-60 hover:opacity-100"
       >
-        <Eye className="w-4 h-4 mr-2" />
-        Accessibilité
+        <Eye className="w-4 h-4" />
       </Button>;
   }
   return <>
