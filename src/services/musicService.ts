@@ -176,7 +176,7 @@ class MusicService {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        console.warn('⚠️ User not authenticated for playlists')
+        if (import.meta.env.DEV) console.warn('⚠️ User not authenticated for playlists')
         return []
       }
 
