@@ -104,7 +104,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     return result;
     
   } catch (error) {
-    console.error('❌ Erreur générale:', error);
+    if (import.meta.env.DEV) console.error('❌ Erreur générale:', error);
     result.errors.push(`Erreur générale: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     return result;
   }
