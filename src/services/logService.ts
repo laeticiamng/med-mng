@@ -145,7 +145,7 @@ async function flushBuffer(): Promise<void> {
       logBuffer = [...logsToFlush, ...logBuffer].slice(0, BUFFER_SIZE * 2);
     }
   } catch (err) {
-    console.error('Error flushing log buffer:', err);
+    if (import.meta.env.DEV) console.error('Error flushing log buffer:', err);
   }
 }
 
