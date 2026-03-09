@@ -468,7 +468,7 @@ export const OfflineMode: React.FC = () => {
       }
 
     } catch (error) {
-      console.error('Erreur synchronisation:', error);
+      if (import.meta.env.DEV) console.error('Erreur synchronisation:', error);
       setSyncStatus(prev => ({
         ...prev,
         syncing: false,
