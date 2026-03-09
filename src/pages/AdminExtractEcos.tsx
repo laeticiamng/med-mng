@@ -42,7 +42,7 @@ const AdminExtractEcos = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur extraction ECOS:', error);
+        if (import.meta.env.DEV) console.error('❌ Erreur extraction ECOS:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction ECOS');
         setIsExtracting(false);
