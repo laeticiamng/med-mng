@@ -219,7 +219,7 @@ export async function log(
         created_at: entry.timestamp
       });
     } catch (err) {
-      console.error('Failed to log immediately:', err);
+      if (import.meta.env.DEV) console.error('Failed to log immediately:', err);
     }
   } else {
     // Ajouter au buffer
