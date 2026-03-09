@@ -3,6 +3,8 @@ import type { IC1CompletenessReport } from '../types/ic1Types';
 
 export class IC1ReportDisplayer {
   static displayReport(report: IC1CompletenessReport): void {
+    if (!import.meta.env.DEV) return;
+    
     console.log('\n📋 RAPPORT DE COMPLÉTUDE IC-1');
     console.log('================================');
     

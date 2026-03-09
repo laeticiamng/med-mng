@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Erreur lors de la récupération de session:', error);
+        if (import.meta.env.DEV) console.error('Erreur lors de la récupération de session:', error);
         handleAuthError(error);
         setLoading(false);
       });

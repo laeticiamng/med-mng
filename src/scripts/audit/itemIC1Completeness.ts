@@ -10,7 +10,7 @@ import { IC1ReportDisplayer } from './utils/ic1ReportDisplayer';
 export class IC1CompletenessAuditor {
   
   static async auditIC1Completeness(): Promise<IC1CompletenessReport> {
-    console.log('🔍 Audit de complétude IC-1 - Relation médecin-malade...');
+    if (import.meta.env.DEV) console.log('🔍 Audit de complétude IC-1 - Relation médecin-malade...');
     
     try {
       // Récupération de l'item IC-1
@@ -24,7 +24,7 @@ export class IC1CompletenessAuditor {
         return this.createErrorReport();
       }
 
-      console.log('📦 Item IC-1 trouvé:', ic1Item.item_code || ic1Item.slug);
+      if (import.meta.env.DEV) console.log('📦 Item IC-1 trouvé:', ic1Item.item_code || ic1Item.slug);
 
       const report = this.initializeReport();
 

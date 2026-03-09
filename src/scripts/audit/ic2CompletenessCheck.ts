@@ -5,11 +5,12 @@ import { analyzeContentForConcepts } from './analyzers/ic2ContentAnalyzer';
 import { generateRecommendations, calculateCompleteness } from './generators/ic2ReportGenerator';
 import { IC2Report } from './types/ic2Types';
 
+const log = (...args: any[]) => { if (import.meta.env.DEV) console.log(...args); };
+
 export async function checkIC2Completeness(): Promise<IC2Report> {
-  console.log('🔍 Vérification de la complétude IC-2...');
+  log('🔍 Vérification de la complétude IC-2...');
   
   try {
-    // Récupération de l'item IC-2
     const { data: item, error } = await supabase
       .from('edn_items_immersive')
       .select('*')
@@ -17,7 +18,7 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
       .maybeSingle();
 
     if (error || !item) {
-      console.log('❌ Item IC-2 non trouvé');
+      log('❌ Item IC-2 non trouvé');
       return {
         exists: false,
         rangA: {
@@ -37,15 +38,11 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
       };
     }
 
-    console.log(`✅ Item IC-2 trouvé: ${item.item_code} - ${item.title}`);
+    log(`✅ Item IC-2 trouvé: ${item.item_code} - ${item.title}`);
 
-    // Analyse du contenu pour Rang A
     const rangAAnalysis = analyzeContentForConcepts(item, EXPECTED_IC2_RANG_A);
-
-    // Analyse du contenu pour Rang B  
     const rangBAnalysis = analyzeContentForConcepts(item, EXPECTED_IC2_RANG_B);
 
-    // Calcul de la complétude
     const totalExpected = EXPECTED_IC2_RANG_A.length + EXPECTED_IC2_RANG_B.length;
     const completeness = calculateCompleteness(
       rangAAnalysis.found.length,
@@ -74,7 +71,6 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
       recommendations: []
     };
 
-    // Génération des recommandations
     report.recommendations = generateRecommendations(report);
 
     return report;

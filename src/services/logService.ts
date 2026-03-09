@@ -90,16 +90,16 @@ function formatConsoleMessage(entry: LogEntry): string {
   return `${prefix} ${entry.message}`;
 }
 
-// Logging vers la console
+// Logging vers la console (DEV only pour debug/info, toujours pour warn/error)
 function logToConsole(entry: LogEntry): void {
   const message = formatConsoleMessage(entry);
 
   switch (entry.level) {
     case 'debug':
-      console.debug(message, entry.metadata || '');
+      if (import.meta.env.DEV) console.debug(message, entry.metadata || '');
       break;
     case 'info':
-      console.info(message, entry.metadata || '');
+      if (import.meta.env.DEV) console.info(message, entry.metadata || '');
       break;
     case 'warn':
       console.warn(message, entry.metadata || '');

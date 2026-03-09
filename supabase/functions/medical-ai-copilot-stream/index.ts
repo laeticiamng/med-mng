@@ -1,16 +1,12 @@
 /**
  * 🏥 Medical AI Copilot STREAMING - Token-by-Token
  * 
- * RÉVOLUTIONNAIRE: Streaming temps réel pour une UX exceptionnelle
+ * Streaming temps réel pour une UX exceptionnelle
  * Les tokens s'affichent au fur et à mesure de la génération
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+import { getCorsHeaders } from '../_shared/cors.ts';
 
 interface StreamRequest {
   query: string;
@@ -19,6 +15,8 @@ interface StreamRequest {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -41,9 +39,9 @@ serve(async (req) => {
       );
     }
 
-    console.log(`🏥 Medical Copilot Stream - Mode: ${mode}`);
+    console.log(`[MEDICAL-AI-STREAM] Mode: ${mode}`);
 
-    // Build system prompt based on mode - normalize 'quick' to 'quick-answer'
+    // Build system prompt based on mode
     const normalizedMode = mode === 'quick' ? 'quick-answer' : mode;
     let systemPrompt = 'Tu es un assistant médical expert pour étudiants en médecine français.';
     let model = 'sonar';
@@ -90,7 +88,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Perplexity error:', response.status, errorText);
+      console.error('[MEDICAL-AI-STREAM] Perplexity error:', response.status, errorText);
       return new Response(
         JSON.stringify({ error: 'AI service error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -108,7 +106,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('❌ Stream error:', error);
+    console.error('[MEDICAL-AI-STREAM] Error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
