@@ -10,7 +10,7 @@ import { IC1ReportDisplayer } from './utils/ic1ReportDisplayer';
 export class IC1CompletenessAuditor {
   
   static async auditIC1Completeness(): Promise<IC1CompletenessReport> {
-    console.log('🔍 Audit de complétude IC-1 - Relation médecin-malade...');
+    if (import.meta.env.DEV) console.log('🔍 Audit de complétude IC-1 - Relation médecin-malade...');
     
     try {
       // Récupération de l'item IC-1
