@@ -396,7 +396,7 @@ export async function acknowledgeAlert(
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to acknowledge alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to acknowledge alert:', error);
       return false;
     }
 
