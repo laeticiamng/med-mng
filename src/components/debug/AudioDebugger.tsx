@@ -35,7 +35,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
   };
 
   const testAudioPlayback = async () => {
-    console.log('🧪 Test de lecture audio démarré');
+    if (import.meta.env.DEV) console.log('🧪 Test de lecture audio démarré');
     const results: any = {
       canCreateAudio: false,
       canLoadUrl: false,
