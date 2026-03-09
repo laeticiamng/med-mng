@@ -93,7 +93,7 @@ export const useMusicPolling = () => {
         .maybeSingle();
 
       if (error) {
-        console.warn('[useMusicPolling] Erreur BDD:', error);
+        if (import.meta.env.DEV) console.warn('[useMusicPolling] Erreur BDD:', error);
         return { found: false };
       }
 
