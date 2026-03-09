@@ -59,7 +59,7 @@ export const useGenerationNotifications = ({
         });
         playSound();
       } catch (err) {
-        console.warn('Erreur notification push:', err);
+        if (import.meta.env.DEV) console.warn('Erreur notification push:', err);
         // Fallback sur toast
         toast.success(title, { description: body });
       }

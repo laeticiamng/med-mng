@@ -17,7 +17,7 @@ export class IC1MedicalContentChecker {
     const medicalChecks = Object.values(report.medicalContentCheck);
     const medicalScore = medicalChecks.filter(Boolean).length / medicalChecks.length;
     
-    console.log(`🏥 Score médical: ${Math.round(medicalScore * 100)}%`);
+    if (import.meta.env.DEV) console.log(`🏥 Score médical: ${Math.round(medicalScore * 100)}%`);
 
     if (medicalScore < 0.75) {
       report.isCompliant = false;

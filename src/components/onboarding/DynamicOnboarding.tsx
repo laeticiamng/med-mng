@@ -64,7 +64,7 @@ export const DynamicOnboarding: React.FC = () => {
         // Edge function not available, use static fallback (this is expected)
       }
     } catch (error) {
-      console.warn('Failed to load dynamic onboarding, using static fallback:', error);
+      if (import.meta.env.DEV) console.warn('Failed to load dynamic onboarding, using static fallback:', error);
       loadStaticOnboarding();
     } finally {
       setIsLoading(false);

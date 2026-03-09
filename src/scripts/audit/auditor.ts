@@ -54,7 +54,7 @@ export class EDNItemsAuditor {
       return report;
 
     } catch (error) {
-      console.error('❌ Erreur lors de l\'audit:', error);
+      if (import.meta.env.DEV) console.error('❌ Erreur lors de l\'audit:', error);
       throw error;
     }
   }

@@ -671,7 +671,7 @@ export const InternationalizationProvider = React.forwardRef<HTMLDivElement, Int
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        console.warn(`Translation key not found: ${key} for language: ${language}`);
+        if (import.meta.env.DEV) console.warn(`Translation key not found: ${key} for language: ${language}`);
         return key; // Retourne la clé si la traduction n'existe pas
       }
     }

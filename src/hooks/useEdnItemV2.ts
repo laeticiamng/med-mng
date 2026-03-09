@@ -116,7 +116,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         setError(null);
         
       } catch (catchError) {
-        console.error('❌ Erreur générale:', catchError);
+        if (import.meta.env.DEV) console.error('❌ Erreur générale:', catchError);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

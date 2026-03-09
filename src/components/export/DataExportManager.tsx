@@ -182,7 +182,7 @@ export const DataExportManager: React.FC = () => {
               moduleData[tableName] = data || [];
             }
           } catch (err) {
-            console.warn(`Table ${tableName} non accessible:`, err);
+            if (import.meta.env.DEV) console.warn(`Table ${tableName} non accessible:`, err);
             moduleData[tableName] = [];
           }
         }

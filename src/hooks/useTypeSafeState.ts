@@ -339,7 +339,7 @@ export function useTypeSafeLocalStorage<T>(
         window.localStorage.removeItem(key);
       }
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      if (import.meta.env.DEV) console.warn(`Error removing localStorage key "${key}":`, error);
     }
   }, [key, defaultValue]);
 

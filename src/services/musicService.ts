@@ -620,7 +620,7 @@ class MusicService {
       const playlists = await this.getUserPlaylists()
       return playlists.filter(p => p.songs.some(s => s.song_id === songId))
     } catch (error) {
-      console.error('Error getting playlists containing song:', error)
+      if (import.meta.env.DEV) console.error('Error getting playlists containing song:', error)
       return []
     }
   }

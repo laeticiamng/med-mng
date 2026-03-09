@@ -122,7 +122,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
         }
 
       } catch (error) {
-        console.warn('Performance measurement not supported:', error);
+        if (import.meta.env.DEV) console.warn('Performance measurement not supported:', error);
       }
     };
 
