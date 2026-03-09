@@ -163,7 +163,7 @@ export const useAudioCache = () => {
       if (deleted) refreshStats();
       return deleted;
     } catch (error) {
-      console.error('Error removing from cache:', error);
+      if (import.meta.env.DEV) console.error('Error removing from cache:', error);
       return false;
     }
   }, [isSupported, refreshStats]);
