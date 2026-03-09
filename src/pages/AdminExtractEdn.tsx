@@ -66,7 +66,7 @@ const AdminExtractEdn = () => {
 
       return data;
     } catch (error: any) {
-      console.error('Erreur vérification données:', error);
+      if (import.meta.env.DEV) console.error('Erreur vérification données:', error);
       toast.error('Erreur lors de la vérification des données');
     }
   };

@@ -327,7 +327,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
           description: "Parlez maintenant, je vous écoute.",
         });
       } catch (error) {
-        console.error('Failed to start speech recognition:', error);
+        if (import.meta.env.DEV) console.error('Failed to start speech recognition:', error);
         toast({
           title: "Erreur micro",
           description: "Impossible de démarrer la reconnaissance vocale.",

@@ -129,7 +129,7 @@ const AdminCompleteProcess = () => {
       });
 
     } catch (error: any) {
-      console.error('Erreur ré-importation:', error);
+      if (import.meta.env.DEV) console.error('Erreur ré-importation:', error);
       setError(error.message);
       toast.error('Erreur lors de la ré-importation');
     } finally {

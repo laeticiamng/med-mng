@@ -198,7 +198,7 @@ export default function MigrationDashboardPage() {
 
       setRecentActivity(logs || []);
     } catch (err) {
-      console.error('Error loading migration stats:', err);
+      if (import.meta.env.DEV) console.error('Error loading migration stats:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les statistiques de migration',

@@ -85,7 +85,7 @@ const AdminExtractEcos = () => {
 
       return data;
     } catch (error: any) {
-      console.error('Erreur vérification données ECOS:', error);
+      if (import.meta.env.DEV) console.error('Erreur vérification données ECOS:', error);
       toast.error('Erreur lors de la vérification des données ECOS');
     }
   };
