@@ -2,6 +2,8 @@
 import { IC2Report } from '../types/ic2Types';
 
 export function logIC2Report(report: IC2Report): void {
+  if (!import.meta.env.DEV) return;
+  
   console.log('\n📊 RAPPORT DE COMPLÉTUDE IC-2');
   console.log('==================================');
   console.log(`📦 Item: ${report.itemCode} - ${report.title}`);

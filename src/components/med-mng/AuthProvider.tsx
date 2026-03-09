@@ -11,8 +11,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<{ error: any }>;
-  signInWithFacebook: () => Promise<{ error: any }>;
-  signInWithApple: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
 }
@@ -201,33 +199,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithFacebook = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: `${window.location.origin}/med-mng/music-library`,
-        },
-      });
-      return { error };
-    } catch (error) {
-      return { error };
-    }
-  };
-
-  const signInWithApple = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/med-mng/music-library`,
-        },
-      });
-      return { error };
-    } catch (error) {
-      return { error };
-    }
-  };
 
   // Nouvelle fonction: réinitialisation du mot de passe
   const resetPassword = async (email: string) => {
@@ -260,8 +231,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signOut,
     signInWithGoogle,
-    signInWithFacebook,
-    signInWithApple,
     resetPassword,
     updatePassword,
   };
