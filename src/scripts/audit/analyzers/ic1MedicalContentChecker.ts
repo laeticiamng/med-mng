@@ -3,7 +3,7 @@ import type { IC1CompletenessReport } from '../types/ic1Types';
 
 export class IC1MedicalContentChecker {
   static checkMedicalContent(item: any, report: IC1CompletenessReport): void {
-    console.log('🏥 Vérification du contenu médical IC-1...');
+    if (import.meta.env.DEV) console.log('🏥 Vérification du contenu médical IC-1...');
     
     const fullContent = this.extractAllContent(item).toLowerCase();
     
