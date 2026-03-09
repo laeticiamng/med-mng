@@ -52,7 +52,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         });
 
         if (!response.ok) {
-          console.error('❌ Erreur Supabase REST:', response.status, response.statusText);
+          if (import.meta.env.DEV) console.error('❌ Erreur Supabase REST:', response.status, response.statusText);
           setError('Item non trouvé');
           return;
         }
