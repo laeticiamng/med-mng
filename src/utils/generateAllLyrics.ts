@@ -62,7 +62,7 @@ export async function getLyricsGenerationStatus(): Promise<{
       pendingGeneration: withoutLyrics
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération du statut:', error)
+    if (import.meta.env.DEV) console.error('Erreur lors de la récupération du statut:', error)
     return { total: 0, withLyrics: 0, withoutLyrics: 0, pendingGeneration: 0 }
   }
 }
