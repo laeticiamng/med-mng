@@ -318,10 +318,10 @@ export default function Flashcards() {
               <FlipCard
                 isFlipped={showAnswer}
                 onFlip={(flipped) => setShowAnswer(flipped)}
-                className="min-h-[350px] w-full cursor-pointer"
+                className="min-h-[250px] sm:min-h-[300px] md:min-h-[350px] w-full cursor-pointer"
                 front={
-                  <Card className="min-h-[350px] flex flex-col bg-gradient-to-br from-warning/5 to-primary/5 border-warning/20">
-                    <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
+                  <Card className="min-h-[250px] sm:min-h-[300px] md:min-h-[350px] flex flex-col bg-gradient-to-br from-warning/5 to-primary/5 border-warning/20">
+                    <CardContent className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
                       <Badge variant="secondary" className="mb-4">Question</Badge>
                       <p className="text-xl text-center font-medium">{currentCard.front}</p>
                       <Button 
@@ -336,8 +336,8 @@ export default function Flashcards() {
                   </Card>
                 }
                 back={
-                  <Card className="min-h-[350px] flex flex-col bg-gradient-to-br from-success/5 to-accent/5 border-success/20">
-                    <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
+                  <Card className="min-h-[250px] sm:min-h-[300px] md:min-h-[350px] flex flex-col bg-gradient-to-br from-success/5 to-accent/5 border-success/20">
+                    <CardContent className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
                       <Badge variant="secondary" className="mb-2 bg-success/10 text-success">Réponse</Badge>
                       <p className="text-xl text-center font-bold mb-8">{currentCard.back}</p>
                       

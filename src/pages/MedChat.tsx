@@ -518,7 +518,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="h-[calc(100vh-180px)] flex flex-col shadow-xl border-0 bg-background/80 backdrop-blur-sm">
+          <Card className="h-[calc(100dvh-200px)] sm:h-[calc(100vh-180px)] min-h-[400px] flex flex-col shadow-xl border-0 bg-background/80 backdrop-blur-sm">
             <CardHeader className="flex-shrink-0 border-b bg-gradient-to-r from-primary/10 to-accent/10">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

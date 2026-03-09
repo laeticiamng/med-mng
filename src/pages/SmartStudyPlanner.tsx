@@ -166,19 +166,19 @@ export default function SmartStudyPlanner() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl relative z-10">
         {/* Header with gamification stats */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Retour
+        <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="shrink-0 h-9 w-9 sm:h-auto sm:w-auto p-0 sm:px-3">
+            <ChevronLeft className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Retour</span>
           </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-warning to-primary bg-clip-text text-transparent">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-warning to-primary bg-clip-text text-transparent">
               Planning Intelligent
             </h1>
-            <p className="text-muted-foreground">Optimisez vos révisions avec l'IA</p>
+            <p className="text-muted-foreground text-sm sm:text-base truncate">Optimisez vos révisions avec l'IA</p>
           </div>
           {gamificationStats && (
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 sm:gap-3">
               <Badge variant="outline" className="gap-1 py-1">
                 <Flame className="h-3 w-3 text-warning" />
                 {gamificationStats.currentStreak || 0}j

@@ -79,7 +79,7 @@ export const AppleTestimonials = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             <TranslatedText text="Ce qu'ils en" />{" "}
             <span className="text-primary">
               <TranslatedText text="disent" />
@@ -100,7 +100,7 @@ export const AppleTestimonials = () => {
               transition={{ duration: 0.8, delay: index * 0.15 }}
               className="group"
             >
-              <div className="relative h-full bg-card/60 backdrop-blur-xl border border-border/30 rounded-3xl p-8 transition-all duration-500 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5">
+              <div className="relative h-full bg-card/60 backdrop-blur-xl border border-border/30 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 transition-all duration-500 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5">
                 <Quote className="absolute top-6 right-6 h-10 w-10 text-primary/10 group-hover:text-primary/20 transition-colors" />
                 <div className="flex gap-1 mb-6">
                   {[...Array(testimonial.rating)].map((_, i) => (
@@ -138,7 +138,7 @@ export const AppleTestimonials = () => {
           <Button
             size="lg"
             onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
-            className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
+            className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105 w-full sm:w-auto"
           >
             <Sparkles className="h-5 w-5 mr-2" />
             <TranslatedText text="Cr\u00e9er mon compte gratuit" />
