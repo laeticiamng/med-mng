@@ -28,7 +28,7 @@ export interface ComprehensiveAuditResult {
 export class ComprehensiveSystemAuditor {
   
   static async runFullAudit(): Promise<ComprehensiveAuditResult> {
-    console.log('🔍 Démarrage de l\'audit complet du système...');
+    if (import.meta.env.DEV) console.log('🔍 Démarrage de l\'audit complet du système...');
     
     const result: ComprehensiveAuditResult = {
       timestamp: new Date().toISOString(),

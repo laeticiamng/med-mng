@@ -24,7 +24,7 @@ export class IC1CompletenessAuditor {
         return this.createErrorReport();
       }
 
-      console.log('📦 Item IC-1 trouvé:', ic1Item.item_code || ic1Item.slug);
+      if (import.meta.env.DEV) console.log('📦 Item IC-1 trouvé:', ic1Item.item_code || ic1Item.slug);
 
       const report = this.initializeReport();
 
