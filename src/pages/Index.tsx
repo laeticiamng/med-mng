@@ -60,7 +60,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         sessionStorage.setItem('med-mng-onboarding-seen', 'true');
       }
     } catch (err) {
-      console.error('Error saving onboarding:', err);
+      if (import.meta.env.DEV) console.error('Error saving onboarding:', err);
       sessionStorage.setItem('med-mng-onboarding-seen', 'true');
     }
   };

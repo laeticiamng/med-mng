@@ -121,7 +121,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       setLoading(false);
     } catch (err) {
       if (currentFetch !== fetchCountRef.current) return;
-      console.warn(`[useOicCompetences] Exception:`, err);
+      if (import.meta.env.DEV) console.warn(`[useOicCompetences] Exception:`, err);
       setError(String(err));
       setCompetences([]);
       setLoading(false);

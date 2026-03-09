@@ -241,7 +241,7 @@ export const useMusicGenerationOrchestrator = () => {
       
     } catch (error) {
       const errorMessage = (error as Error).message || "Impossible de générer la musique. Veuillez réessayer.";
-      console.error(`[Orchestrator] Erreur génération:`, error);
+      if (import.meta.env.DEV) console.error(`[Orchestrator] Erreur génération:`, error);
       
       toast({
         title: "Erreur de génération",

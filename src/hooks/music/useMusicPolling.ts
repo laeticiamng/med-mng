@@ -318,7 +318,7 @@ export const useMusicPolling = () => {
         
       } catch (pollError) {
         currentState.consecutiveErrors++;
-        console.error(`[useMusicPolling] Erreur critique:`, pollError);
+        if (import.meta.env.DEV) console.error(`[useMusicPolling] Erreur critique:`, pollError);
         
         if (currentState.consecutiveErrors >= maxConsecutiveErrors) {
           stopPolling(taskId);
