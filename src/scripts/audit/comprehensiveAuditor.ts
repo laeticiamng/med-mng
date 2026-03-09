@@ -1,5 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// DEV-only logging — all audit logs are suppressed in production
+const log = (...args: any[]) => { if (import.meta.env.DEV) console.log(...args); };
+
 export interface ComprehensiveAuditResult {
   timestamp: string;
   systemHealth: {
