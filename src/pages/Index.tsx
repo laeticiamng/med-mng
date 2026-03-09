@@ -54,7 +54,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         }, { onConflict: 'user_id' });
         
         if (error) {
-          console.warn('Failed to save onboarding status:', error.message);
+          if (import.meta.env.DEV) console.warn('Failed to save onboarding status:', error.message);
         }
       } else {
         sessionStorage.setItem('med-mng-onboarding-seen', 'true');
