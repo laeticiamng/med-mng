@@ -430,7 +430,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
       averageResponseTime: durationCount > 0 ? Math.round(totalDuration / durationCount) : 0
     };
   } catch (err) {
-    console.error('Error getting log stats:', err);
+    if (import.meta.env.DEV) console.error('Error getting log stats:', err);
     return null;
   }
 }
