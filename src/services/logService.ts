@@ -102,7 +102,7 @@ function logToConsole(entry: LogEntry): void {
       if (import.meta.env.DEV) console.info(message, entry.metadata || '');
       break;
     case 'warn':
-      console.warn(message, entry.metadata || '');
+      if (import.meta.env.DEV) console.warn(message, entry.metadata || '');
       break;
     case 'error':
     case 'critical':
