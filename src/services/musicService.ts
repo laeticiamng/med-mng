@@ -585,7 +585,7 @@ class MusicService {
 
       return JSON.stringify(exportData, null, 2)
     } catch (error) {
-      console.error('Error exporting playlist:', error)
+      if (import.meta.env.DEV) console.error('Error exporting playlist:', error)
       return null
     }
   }
