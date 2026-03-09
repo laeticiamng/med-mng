@@ -91,7 +91,7 @@ export const useOfflineQueue = () => {
       
       setQueue(prev => prev.filter(p => p.id !== id));
     } catch (error) {
-      console.error('Erreur suppression queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression queue:', error);
     }
   }, []);
 
