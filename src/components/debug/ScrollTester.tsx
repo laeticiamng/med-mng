@@ -35,7 +35,7 @@ export const ScrollTester: React.FC<{ enabled?: boolean }> = ({ enabled = false 
       zIndex: getComputedStyle(el).zIndex
     }));
 
-    console.log('📏 Scroll Test Results:', results);
+    if (import.meta.env.DEV) console.log('📏 Scroll Test Results:', results);
     
     // Force scroll test
     window.scrollTo({ top: 100, behavior: 'smooth' });
