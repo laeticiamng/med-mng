@@ -10,7 +10,7 @@ const testimonials = [
   {
     id: 1,
     quote: "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.",
-    author: "Marie L.", role: "D4 - CHU Bordeaux · Bêta-testeuse", rating: 5, avatar: "ML", avatarGradient: "from-primary to-accent"
+    author: "Marie L.", role: "D4 — CHU Bordeaux", rating: 5, avatar: "ML", avatarGradient: "from-primary to-accent"
   },
   {
     id: 2,
