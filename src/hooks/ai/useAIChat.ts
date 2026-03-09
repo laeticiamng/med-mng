@@ -63,7 +63,7 @@ const saveSessionsToStorage = (sessions: ChatSession[]) => {
     const sessionsToSave = sessions.slice(0, MAX_STORED_SESSIONS);
     localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(sessionsToSave));
   } catch (error) {
-    console.error('Error saving chat sessions to storage:', error);
+    if (import.meta.env.DEV) console.error('Error saving chat sessions to storage:', error);
     // If quota exceeded, try removing oldest sessions
     if (error instanceof DOMException && error.name === 'QuotaExceededError') {
       try {
