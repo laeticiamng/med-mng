@@ -195,7 +195,7 @@ class MusicService {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('❌ Error fetching playlists:', error)
+        if (import.meta.env.DEV) console.error('❌ Error fetching playlists:', error)
         return []
       }
 
