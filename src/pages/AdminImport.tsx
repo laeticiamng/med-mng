@@ -82,7 +82,7 @@ export default function AdminImport() {
       if (error) throw error;
       setImportBatches(data || []);
     } catch (error) {
-      console.error('Error fetching import batches:', error);
+      if (import.meta.env.DEV) console.error('Error fetching import batches:', error);
     }
   };
 
