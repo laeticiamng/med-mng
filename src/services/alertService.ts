@@ -623,7 +623,7 @@ export async function addAlertNote(alertId: string, note: string): Promise<boole
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to add note:', error);
+      if (import.meta.env.DEV) console.error('Failed to add note:', error);
       return false;
     }
 
