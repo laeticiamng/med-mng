@@ -9,7 +9,7 @@ import { useMusicLibrary } from '@/hooks/useMusicLibrary';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-  Brain, Filter, Globe, GraduationCap, Heart, Music, Pause, Play,
+  Brain, Filter, GraduationCap, Heart, Music, Pause, Play,
   Search, Star, Stethoscope, Pill, Activity, Eye, Bone, Baby,
   Siren, Shield, Microscope, X, Clock
 } from 'lucide-react';
