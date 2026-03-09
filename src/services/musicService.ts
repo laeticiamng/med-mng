@@ -337,7 +337,7 @@ class MusicService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('❌ Error fetching favorites:', error)
+      if (import.meta.env.DEV) console.error('❌ Error fetching favorites:', error)
       throw error
     }
   }
