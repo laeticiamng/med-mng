@@ -523,7 +523,7 @@ export async function getAlerts(filter?: {
       notificationsSent: row.notifications_sent || []
     }));
   } catch (err) {
-    console.error('Error getting alerts:', err);
+    if (import.meta.env.DEV) console.error('Error getting alerts:', err);
     return alertHistory;
   }
 }
