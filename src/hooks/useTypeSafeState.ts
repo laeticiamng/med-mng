@@ -328,7 +328,7 @@ export function useTypeSafeLocalStorage<T>(
         window.localStorage.setItem(key, serialize(valueToStore));
       }
     } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
+      if (import.meta.env.DEV) console.warn(`Error setting localStorage key "${key}":`, error);
     }
   }, [key, serialize, storedValue]);
 
