@@ -79,7 +79,7 @@ class MusicService {
         // Événement analytics
         this.trackGeneration(request, data.duration_seconds, true)
       } else {
-        console.error('❌ Song generation failed:', data.error)
+        if (import.meta.env.DEV) console.error('❌ Song generation failed:', data.error)
         this.trackGeneration(request, 0, false, data.error)
       }
 
