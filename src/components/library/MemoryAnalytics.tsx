@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Brain, Bell, BellRing, Calendar, TrendingDown, TrendingUp,
-  Clock, CheckCircle2, AlertTriangle, BarChart3
+  Clock, CheckCircle2, AlertTriangle, BarChart3, Loader2
 } from 'lucide-react';
 
 interface TopicMemory {
@@ -18,59 +19,33 @@ interface TopicMemory {
   learnedAt: Date;
   lastReviewedAt: Date;
   reviewCount: number;
-  retentionNow: number; // 0-100
+  retentionNow: number;
   nextReviewAt: Date;
   status: 'strong' | 'fading' | 'critical';
 }
 
-// Mock data — in production this comes from user_item_progress + review_sessions
-function generateMockTopics(): TopicMemory[] {
-  const topics = [
-    { topic: 'Insuffisance cardiaque', specialty: 'Cardiologie' },
-    { topic: 'AVC ischémique', specialty: 'Neurologie' },
-    { topic: 'Pharmacocinétique', specialty: 'Pharmacologie' },
-    { topic: 'Appendicite aiguë', specialty: 'Chirurgie' },
-    { topic: 'Asthme de l\'enfant', specialty: 'Pédiatrie' },
-    { topic: 'Choc septique', specialty: 'Urgences' },
-    { topic: 'Lupus érythémateux', specialty: 'Immunologie' },
-    { topic: 'Pneumopathie', specialty: 'Pneumologie' },
-    { topic: 'Infarctus du myocarde', specialty: 'Cardiologie' },
-    { topic: 'Épilepsie', specialty: 'Neurologie' },
-    { topic: 'Antibiotiques', specialty: 'Pharmacologie' },
-    { topic: 'Fractures du col fémoral', specialty: 'Chirurgie' },
-  ];
+// Map item_code prefixes to specialties
+function getSpecialtyFromItemCode(itemCode: string): string {
+  const prefix = itemCode.split('-')[0]?.toUpperCase() || '';
+  const map: Record<string, string> = {
+    'CARD': 'Cardiologie', 'NEURO': 'Neurologie', 'PHARMA': 'Pharmacologie',
+    'CHIR': 'Chirurgie', 'PED': 'Pédiatrie', 'URG': 'Urgences',
+    'IMMUNO': 'Immunologie', 'PNEUMO': 'Pneumologie', 'GASTRO': 'Gastro-entérologie',
+    'NEPHRO': 'Néphrologie', 'HEMATO': 'Hématologie', 'ENDOC': 'Endocrinologie',
+    'DERMATO': 'Dermatologie', 'ORL': 'ORL', 'OPHTA': 'Ophtalmologie',
+  };
+  for (const [key, value] of Object.entries(map)) {
+    if (prefix.startsWith(key)) return value;
+  }
+  return 'Médecine générale';
+}
 
-  const now = new Date();
-  return topics.map((t, i) => {
-    const daysAgo = Math.floor(3 + Math.random() * 25);
-    const learnedAt = new Date(now.getTime() - daysAgo * 86400000);
-    const reviewCount = Math.floor(Math.random() * 5);
-    const lastReviewDaysAgo = Math.floor(Math.random() * daysAgo);
-    const lastReviewedAt = new Date(now.getTime() - lastReviewDaysAgo * 86400000);
-
-    // Ebbinghaus: retention ≈ e^(-t/S) where S = strength
-    const daysSinceReview = lastReviewDaysAgo;
-    const strength = 3 + reviewCount * 2.5;
-    const retention = Math.round(100 * Math.exp(-daysSinceReview / strength));
-    const clampedRetention = Math.max(5, Math.min(99, retention));
-
-    const nextReviewDays = Math.max(1, Math.round(strength * 0.7));
-    const nextReviewAt = new Date(lastReviewedAt.getTime() + nextReviewDays * 86400000);
-
-    const status: TopicMemory['status'] =
-      clampedRetention >= 70 ? 'strong' : clampedRetention >= 40 ? 'fading' : 'critical';
-
-    return {
-      id: `topic-${i}`,
-      ...t,
-      learnedAt,
-      lastReviewedAt,
-      reviewCount,
-      retentionNow: clampedRetention,
-      nextReviewAt,
-      status,
-    };
-  });
+// Calculate Ebbinghaus retention from SRS data
+function calculateRetention(easeFactor: number, intervalDays: number, daysSinceReview: number): number {
+  const strength = intervalDays * (easeFactor / 2.5);
+  const effectiveStrength = Math.max(1, strength);
+  const retention = 100 * Math.exp(-daysSinceReview / effectiveStrength);
+  return Math.max(5, Math.min(99, Math.round(retention)));
 }
 
 // SVG Ebbinghaus curve
@@ -79,7 +54,6 @@ const ForgettingCurve = ({ retention, daysAgo, reviewCount }: { retention: numbe
   const height = 80;
   const padding = 4;
 
-  // Generate curve points
   const points = useMemo(() => {
     const pts: string[] = [];
     const strength = 3 + reviewCount * 2.5;
@@ -91,7 +65,6 @@ const ForgettingCurve = ({ retention, daysAgo, reviewCount }: { retention: numbe
     return pts.join(' ');
   }, [daysAgo, reviewCount]);
 
-  // Current position
   const currentX = padding + (daysAgo / (daysAgo + 5)) * (width - padding * 2);
   const currentY = padding + (1 - retention / 100) * (height - padding * 2);
 
@@ -103,29 +76,16 @@ const ForgettingCurve = ({ retention, daysAgo, reviewCount }: { retention: numbe
           <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      {/* Fill area */}
       <polygon
         points={`${padding},${padding} ${points} ${width - padding},${height - padding} ${padding},${height - padding}`}
         fill={`url(#grad-${retention})`}
       />
-      {/* Curve line */}
-      <polyline
-        points={points}
-        fill="none"
-        stroke="hsl(var(--primary))"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      {/* Current position dot */}
+      <polyline points={points} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" />
       <circle
-        cx={currentX}
-        cy={currentY}
-        r="4"
+        cx={currentX} cy={currentY} r="4"
         fill={retention >= 70 ? 'hsl(142, 76%, 36%)' : retention >= 40 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))'}
-        stroke="white"
-        strokeWidth="2"
+        stroke="white" strokeWidth="2"
       />
-      {/* Axes labels */}
       <text x={padding} y={height - 2} fontSize="8" fill="hsl(var(--muted-foreground))" opacity="0.6">J0</text>
       <text x={width - 20} y={height - 2} fontSize="8" fill="hsl(var(--muted-foreground))" opacity="0.6">J{daysAgo + 5}</text>
     </svg>
@@ -134,10 +94,63 @@ const ForgettingCurve = ({ retention, daysAgo, reviewCount }: { retention: numbe
 
 export const MemoryAnalytics = () => {
   const navigate = useNavigate();
-  const [topics] = useState<TopicMemory[]>(() => generateMockTopics());
+  const [topics, setTopics] = useState<TopicMemory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterSpecialty, setFilterSpecialty] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [remindersEnabled, setRemindersEnabled] = useState(true);
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      setLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        const { data: progressData, error } = await supabase
+          .from('user_item_progress')
+          .select('id, item_code, ease_factor, interval_days, repetitions, total_reviews, last_review_date, next_review_date, created_at')
+          .eq('user_id', user.id)
+          .order('next_review_date', { ascending: true });
+
+        if (error) throw error;
+
+        const now = new Date();
+        const mapped: TopicMemory[] = (progressData || []).map((item) => {
+          const learnedAt = new Date(item.created_at);
+          const lastReviewedAt = item.last_review_date ? new Date(item.last_review_date) : learnedAt;
+          const nextReviewAt = new Date(item.next_review_date);
+          const daysSinceReview = Math.max(0, Math.round((now.getTime() - lastReviewedAt.getTime()) / 86400000));
+          const retention = calculateRetention(item.ease_factor, item.interval_days, daysSinceReview);
+          const status: TopicMemory['status'] =
+            retention >= 70 ? 'strong' : retention >= 40 ? 'fading' : 'critical';
+
+          return {
+            id: item.id,
+            topic: item.item_code.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            specialty: getSpecialtyFromItemCode(item.item_code),
+            learnedAt,
+            lastReviewedAt,
+            reviewCount: item.total_reviews,
+            retentionNow: retention,
+            nextReviewAt,
+            status,
+          };
+        });
+
+        setTopics(mapped);
+      } catch {
+        // Silently handle — empty state will show
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgress();
+  }, []);
 
   const specialties = useMemo(() =>
     ['all', ...new Set(topics.map(t => t.specialty))],
@@ -150,7 +163,9 @@ export const MemoryAnalytics = () => {
       .sort((a, b) => a.retentionNow - b.retentionNow),
   [topics, filterSpecialty, filterStatus]);
 
-  const avgRetention = Math.round(topics.reduce((sum, t) => sum + t.retentionNow, 0) / topics.length);
+  const avgRetention = topics.length > 0
+    ? Math.round(topics.reduce((sum, t) => sum + t.retentionNow, 0) / topics.length)
+    : 0;
   const criticalCount = topics.filter(t => t.status === 'critical').length;
   const dueToday = topics.filter(t => t.nextReviewAt <= new Date()).length;
 
@@ -171,6 +186,14 @@ export const MemoryAnalytics = () => {
     return `dans ${diff}j`;
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -182,9 +205,6 @@ export const MemoryAnalytics = () => {
         <p className="text-muted-foreground">
           Courbe d'oubli d'Ebbinghaus & rappels de révision optimaux
         </p>
-        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
-          📊 Données de démonstration — Connexion à vos données réelles bientôt
-        </Badge>
       </div>
 
       {/* Summary cards */}
@@ -200,7 +220,7 @@ export const MemoryAnalytics = () => {
           <CardContent className="p-4 text-center">
             <Brain className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
             <p className="text-2xl font-bold">{topics.length}</p>
-            <p className="text-xs text-muted-foreground">Sujets appris</p>
+            <p className="text-xs text-muted-foreground">Items appris</p>
           </CardContent>
         </Card>
         <Card className={criticalCount > 0 ? 'border-destructive/30' : ''}>
@@ -219,104 +239,120 @@ export const MemoryAnalytics = () => {
         </Card>
       </div>
 
+      {/* Empty state */}
+      {topics.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center space-y-4">
+            <Brain className="h-12 w-12 mx-auto text-muted-foreground/40" />
+            <div>
+              <h3 className="font-semibold text-lg">Aucun item révisé pour l'instant</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Commencez à réviser des items pour voir votre courbe de mémorisation ici.
+              </p>
+            </div>
+            <Button onClick={() => navigate(ROUTE_PATHS.srsReview)} className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Commencer une révision
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Filters + reminder toggle */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex gap-3">
-          <Select value={filterSpecialty} onValueChange={setFilterSpecialty}>
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="Spécialité" /></SelectTrigger>
-            <SelectContent>
-              {specialties.map(s => <SelectItem key={s} value={s}>{s === 'all' ? 'Toutes spécialités' : s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px]"><SelectValue placeholder="Statut" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous</SelectItem>
-              <SelectItem value="strong">Solide</SelectItem>
-              <SelectItem value="fading">S'efface</SelectItem>
-              <SelectItem value="critical">Critique</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2">
-          <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
-          <label className="text-sm flex items-center gap-1.5">
-            {remindersEnabled ? <BellRing className="h-4 w-4 text-primary" /> : <Bell className="h-4 w-4 text-muted-foreground" />}
-            Rappels de révision
-          </label>
-        </div>
-      </div>
+      {topics.length > 0 && (
+        <>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex gap-3">
+              <Select value={filterSpecialty} onValueChange={setFilterSpecialty}>
+                <SelectTrigger className="w-[160px]"><SelectValue placeholder="Spécialité" /></SelectTrigger>
+                <SelectContent>
+                  {specialties.map(s => <SelectItem key={s} value={s}>{s === 'all' ? 'Toutes spécialités' : s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-[140px]"><SelectValue placeholder="Statut" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="strong">Solide</SelectItem>
+                  <SelectItem value="fading">S'efface</SelectItem>
+                  <SelectItem value="critical">Critique</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
+              <label className="text-sm flex items-center gap-1.5">
+                {remindersEnabled ? <BellRing className="h-4 w-4 text-primary" /> : <Bell className="h-4 w-4 text-muted-foreground" />}
+                Rappels de révision
+              </label>
+            </div>
+          </div>
 
-      {/* Topic cards */}
-      <div className="space-y-3">
-        {filtered.map(topic => {
-          const statusConfig = getStatusConfig(topic.status);
-          const StatusIcon = statusConfig.icon;
-          const daysAgo = Math.round((Date.now() - topic.learnedAt.getTime()) / 86400000);
-          const isPastDue = topic.nextReviewAt <= new Date();
+          {/* Topic cards */}
+          <div className="space-y-3">
+            {filtered.map(topic => {
+              const statusConfig = getStatusConfig(topic.status);
+              const StatusIcon = statusConfig.icon;
+              const daysAgo = Math.round((Date.now() - topic.learnedAt.getTime()) / 86400000);
+              const isPastDue = topic.nextReviewAt <= new Date();
 
-          return (
-            <Card key={topic.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                  {/* Topic info */}
-                  <div className="flex items-center gap-3 lg:w-1/4">
-                    <div className={`p-2 rounded-lg ${statusConfig.bg}`}>
-                      <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-sm">{topic.topic}</h3>
-                      <Badge variant="outline" className="text-[10px] mt-0.5">{topic.specialty}</Badge>
-                    </div>
-                  </div>
-
-                  {/* Forgetting curve */}
-                  <div className="lg:flex-1">
-                    <ForgettingCurve
-                      retention={topic.retentionNow}
-                      daysAgo={daysAgo}
-                      reviewCount={topic.reviewCount}
-                    />
-                  </div>
-
-                  {/* Stats */}
-                  <div className="flex items-center gap-4 lg:w-1/3">
-                    <div className="text-center">
-                      <p className={`text-lg font-bold ${
-                        topic.retentionNow >= 70 ? 'text-green-500' :
-                        topic.retentionNow >= 40 ? 'text-warning' : 'text-destructive'
-                      }`}>{topic.retentionNow}%</p>
-                      <p className="text-[10px] text-muted-foreground">Rétention</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-medium">{topic.reviewCount}×</p>
-                      <p className="text-[10px] text-muted-foreground">Révisions</p>
-                    </div>
-                    <div className="text-center flex-1">
-                      <div className="flex items-center gap-1 justify-center">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <p className={`text-xs font-medium ${isPastDue ? 'text-destructive' : 'text-muted-foreground'}`}>
-                          {formatRelativeDate(topic.nextReviewAt)}
-                        </p>
+              return (
+                <Card key={topic.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                      <div className="flex items-center gap-3 lg:w-1/4">
+                        <div className={`p-2 rounded-lg ${statusConfig.bg}`}>
+                          <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-sm">{topic.topic}</h3>
+                          <Badge variant="outline" className="text-[10px] mt-0.5">{topic.specialty}</Badge>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">Prochaine révision</p>
+
+                      <div className="lg:flex-1">
+                        <ForgettingCurve retention={topic.retentionNow} daysAgo={daysAgo} reviewCount={topic.reviewCount} />
+                      </div>
+
+                      <div className="flex items-center gap-4 lg:w-1/3">
+                        <div className="text-center">
+                          <p className={`text-lg font-bold ${
+                            topic.retentionNow >= 70 ? 'text-green-500' :
+                            topic.retentionNow >= 40 ? 'text-warning' : 'text-destructive'
+                          }`}>{topic.retentionNow}%</p>
+                          <p className="text-[10px] text-muted-foreground">Rétention</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">{topic.reviewCount}×</p>
+                          <p className="text-[10px] text-muted-foreground">Révisions</p>
+                        </div>
+                        <div className="text-center flex-1">
+                          <div className="flex items-center gap-1 justify-center">
+                            <Calendar className="h-3 w-3 text-muted-foreground" />
+                            <p className={`text-xs font-medium ${isPastDue ? 'text-destructive' : 'text-muted-foreground'}`}>
+                              {formatRelativeDate(topic.nextReviewAt)}
+                            </p>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">Prochaine révision</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant={isPastDue ? 'default' : 'outline'}
+                          className="gap-1"
+                          onClick={() => navigate(ROUTE_PATHS.srsReview)}
+                        >
+                          <TrendingUp className="h-3 w-3" />
+                          Réviser
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant={isPastDue ? 'default' : 'outline'}
-                      className="gap-1"
-                      onClick={() => navigate(ROUTE_PATHS.srsReview)}
-                    >
-                      <TrendingUp className="h-3 w-3" />
-                      Réviser
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 };
