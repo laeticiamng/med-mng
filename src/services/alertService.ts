@@ -496,7 +496,7 @@ export async function getAlerts(filter?: {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Failed to get alerts:', error);
+      if (import.meta.env.DEV) console.error('Failed to get alerts:', error);
       return alertHistory;
     }
 
