@@ -140,7 +140,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
       };
       
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        if (import.meta.env.DEV) console.error('Speech recognition error:', event.error);
         setIsListening(false);
         toast({
           title: "Erreur micro",
