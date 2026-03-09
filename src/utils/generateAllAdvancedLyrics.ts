@@ -155,7 +155,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     return true;
     
   } catch (error) {
-    console.error(`❌ Erreur ${itemCode}:`, error);
+    if (import.meta.env.DEV) console.error(`❌ Erreur ${itemCode}:`, error);
     return false;
   }
 }
