@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               metadata: { event: 'signed_in' }
             });
           } catch (e) {
-            console.warn('Could not log sign in activity:', e);
+            if (import.meta.env.DEV) console.warn('Could not log sign in activity:', e);
           }
 
           // Upsert profile with name immediately
