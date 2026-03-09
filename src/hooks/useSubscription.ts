@@ -140,7 +140,7 @@ export const useSubscription = () => {
 
       if (quotaError) {
         // Log mais ne pas bloquer - utiliser quota par défaut basé sur le plan
-        console.warn('Quota check failed, using plan defaults:', quotaError);
+        if (import.meta.env.DEV) console.warn('Quota check failed, using plan defaults:', quotaError);
         
         // Créer un quota par défaut basé sur l'abonnement
         const defaultQuota: MusicQuota = {
