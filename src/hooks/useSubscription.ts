@@ -193,7 +193,7 @@ export const useSubscription = () => {
         details: error
       };
       setError(errorObj);
-      console.error('Error in fetchSubscription:', error);
+      if (import.meta.env.DEV) console.error('Error in fetchSubscription:', error);
       toast.error('Erreur inattendue lors de la récupération des données');
     } finally {
       setLoading(false);
