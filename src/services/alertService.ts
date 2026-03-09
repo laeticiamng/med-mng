@@ -436,7 +436,7 @@ export async function resolveAlert(
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to resolve alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to resolve alert:', error);
       return false;
     }
 
