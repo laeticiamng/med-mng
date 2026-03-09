@@ -77,7 +77,7 @@ export const useOfflineQueue = () => {
         return [...prev, item];
       });
     } catch (error) {
-      console.error('Erreur sauvegarde queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur sauvegarde queue:', error);
     }
   }, []);
 
