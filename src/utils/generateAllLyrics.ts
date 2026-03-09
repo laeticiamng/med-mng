@@ -72,6 +72,6 @@ export async function batchGenerateLyrics(
   _batchSize: number = 5,
   _onProgress?: (progress: { completed: number; total: number; current: string }) => void
 ): Promise<LyricsGenerationResult> {
-  console.warn('⚠️ batchGenerateLyrics est désactivé : update-edn-unique-content a été supprimée.')
+  if (import.meta.env.DEV) console.warn('⚠️ batchGenerateLyrics est désactivé : update-edn-unique-content a été supprimée.')
   return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }

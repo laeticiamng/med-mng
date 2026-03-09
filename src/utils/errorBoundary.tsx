@@ -294,7 +294,7 @@ export const useErrorHandler = () => {
       });
     }
 
-    console.error('🚨 useErrorHandler caught error:', appError);
+    if (import.meta.env.DEV) console.error('🚨 useErrorHandler caught error:', appError);
   }, []);
 
   return { handleError };

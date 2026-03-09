@@ -171,7 +171,7 @@ export async function previewLyricsForItem(itemCode: string, rang: 'A' | 'B' | '
     if (import.meta.env.DEV) console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
     return lyrics;
   } catch (error) {
-    console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);
+    if (import.meta.env.DEV) console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);
     return [`Erreur: Impossible de générer la prévisualisation pour ${itemCode}`];
   }
 }

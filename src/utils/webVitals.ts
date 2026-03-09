@@ -154,7 +154,7 @@ class WebVitalsMonitor {
       try {
         callback(metric);
       } catch (error) {
-        console.error('Error in Web Vitals callback:', error);
+        if (import.meta.env.DEV) console.error('Error in Web Vitals callback:', error);
       }
     });
   }

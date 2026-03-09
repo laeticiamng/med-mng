@@ -32,7 +32,7 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     if (import.meta.env.DEV) console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
 
     if (error) {
-      console.error('Erreur récupération compétences:', error);
+      if (import.meta.env.DEV) console.error('Erreur récupération compétences:', error);
       return generateFallbackLyrics(itemCode, rang);
     }
 

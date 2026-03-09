@@ -56,7 +56,7 @@ export async function generateAdvancedLyrics(
     return finalSong;
     
   } catch (error) {
-    console.error('❌ Erreur génération avancée:', error);
+    if (import.meta.env.DEV) console.error('❌ Erreur génération avancée:', error);
     return generateFallbackAdvancedSong(itemCode, rang);
   }
 }

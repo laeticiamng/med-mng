@@ -5,6 +5,6 @@
  */
 
 export async function launchOICFixes() {
-  console.warn('⚠️ launchOICFixes est désactivé : fix-oic-data-quality a été supprimée.');
+  if (import.meta.env.DEV) console.warn('⚠️ launchOICFixes est désactivé : fix-oic-data-quality a été supprimée.');
   return null;
 }
