@@ -277,7 +277,7 @@ async function sendToSlack(incident: Incident, severity: AlertSeverity): Promise
     });
     return true;
   } catch (err) {
-    console.error('Slack alert failed:', err);
+    if (import.meta.env.DEV) console.error('Slack alert failed:', err);
     return false;
   }
 }
