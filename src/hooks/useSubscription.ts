@@ -212,7 +212,7 @@ export const useSubscription = () => {
         .rpc('increment_music_usage', { user_uuid: user.id });
 
       if (error) {
-        console.error('Error incrementing music usage:', error);
+        if (import.meta.env.DEV) console.error('Error incrementing music usage:', error);
         toast.error('Erreur lors de la mise à jour du quota');
         return false;
       }
