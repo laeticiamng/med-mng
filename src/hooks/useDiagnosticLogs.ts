@@ -73,7 +73,7 @@ export function useDiagnosticLogs() {
       await supabase.from('ai_monitoring_errors').insert(entries as any);
     } catch (error) {
       // Don't log errors about logging - could cause infinite loop
-      console.debug('Failed to persist diagnostic logs:', error);
+      if (import.meta.env.DEV) console.debug('Failed to persist diagnostic logs:', error);
     }
   };
 
