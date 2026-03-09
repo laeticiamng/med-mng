@@ -51,7 +51,7 @@ const loadSessionsFromStorage = (): ChatSession[] => {
       }))
     }));
   } catch (error) {
-    console.error('Error loading chat sessions from storage:', error);
+    if (import.meta.env.DEV) console.error('Error loading chat sessions from storage:', error);
     return [];
   }
 };
