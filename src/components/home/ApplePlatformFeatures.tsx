@@ -20,13 +20,13 @@ const features = [
   },
   {
     icon: Wand2,
-    titleFr: 'Studio Créateur',
-    descFr: 'Uploadez un PDF ou PPTX → l\'IA génère un résumé musical structuré. Éditez les paroles et publiez.',
+    titleFr: 'Studio Créateur IA',
+    descFr: 'Uploadez un PDF ou PPTX → l\'IA génère des paroles médicales structurées. Éditez et publiez.',
     tab: 'creator',
     colSpan: 1,
     gradient: 'from-accent/20 via-accent/5 to-transparent',
     iconBg: 'bg-accent/15 text-accent',
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     icon: Brain,
@@ -36,7 +36,7 @@ const features = [
     colSpan: 1,
     gradient: 'from-warning/20 via-warning/5 to-transparent',
     iconBg: 'bg-warning/15 text-warning',
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     icon: GraduationCap,
@@ -46,7 +46,7 @@ const features = [
     colSpan: 1,
     gradient: 'from-success/20 via-success/5 to-transparent',
     iconBg: 'bg-success/15 text-success',
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     icon: Globe,

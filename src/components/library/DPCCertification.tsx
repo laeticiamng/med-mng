@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
 import {
   Award, CheckCircle2, Clock, Download, FileText,
   GraduationCap, Lock, Star, Trophy, Shield
@@ -21,68 +22,67 @@ interface DPCModule {
   objectives: string[];
 }
 
-function generateMockModules(): DPCModule[] {
-  return [
-    {
-      id: 'dpc-1',
-      title: 'Prise en charge de l\'insuffisance cardiaque',
-      specialty: 'Cardiologie',
-      hours: 8,
-      completedHours: 8,
-      status: 'certified',
-      completedAt: new Date('2026-02-15'),
-      certificationId: 'DPC-2026-CARD-00142',
-      objectives: ['Diagnostic IC', 'Traitement pharmacologique', 'Suivi du patient'],
-    },
-    {
-      id: 'dpc-2',
-      title: 'Antibiothérapie raisonnée',
-      specialty: 'Pharmacologie',
-      hours: 6,
-      completedHours: 6,
-      status: 'completed',
-      completedAt: new Date('2026-02-28'),
-      objectives: ['Spectre antibiotique', 'Résistances bactériennes', 'Protocoles de désescalade'],
-    },
-    {
-      id: 'dpc-3',
-      title: 'Urgences neurologiques',
-      specialty: 'Neurologie',
-      hours: 10,
-      completedHours: 7,
-      status: 'in_progress',
-      objectives: ['AVC ischémique', 'Crises comitiales', 'Coma et troubles de conscience'],
-    },
-    {
-      id: 'dpc-4',
-      title: 'Chirurgie ambulatoire : bonnes pratiques',
-      specialty: 'Chirurgie',
-      hours: 5,
-      completedHours: 0,
-      status: 'locked',
-      objectives: ['Critères d\'éligibilité', 'Gestion de la douleur', 'Suivi post-opératoire'],
-    },
-    {
-      id: 'dpc-5',
-      title: 'Vaccination et immunologie pratique',
-      specialty: 'Immunologie',
-      hours: 4,
-      completedHours: 4,
-      status: 'completed',
-      completedAt: new Date('2026-01-20'),
-      objectives: ['Calendrier vaccinal', 'Immunodéficiences', 'Réactions allergiques'],
-    },
-    {
-      id: 'dpc-6',
-      title: 'Pédiatrie : pathologies courantes en ville',
-      specialty: 'Pédiatrie',
-      hours: 7,
-      completedHours: 3,
-      status: 'in_progress',
-      objectives: ['Bronchiolite', 'Gastro-entérite', 'Otites et angines'],
-    },
-  ];
-}
+// Static modules — will be replaced by Supabase table when DPC backend is ready
+const DPC_MODULES: DPCModule[] = [
+  {
+    id: 'dpc-1',
+    title: 'Prise en charge de l\'insuffisance cardiaque',
+    specialty: 'Cardiologie',
+    hours: 8,
+    completedHours: 8,
+    status: 'certified',
+    completedAt: new Date('2026-02-15'),
+    certificationId: 'DPC-2026-CARD-00142',
+    objectives: ['Diagnostic IC', 'Traitement pharmacologique', 'Suivi du patient'],
+  },
+  {
+    id: 'dpc-2',
+    title: 'Antibiothérapie raisonnée',
+    specialty: 'Pharmacologie',
+    hours: 6,
+    completedHours: 6,
+    status: 'completed',
+    completedAt: new Date('2026-02-28'),
+    objectives: ['Spectre antibiotique', 'Résistances bactériennes', 'Protocoles de désescalade'],
+  },
+  {
+    id: 'dpc-3',
+    title: 'Urgences neurologiques',
+    specialty: 'Neurologie',
+    hours: 10,
+    completedHours: 7,
+    status: 'in_progress',
+    objectives: ['AVC ischémique', 'Crises comitiales', 'Coma et troubles de conscience'],
+  },
+  {
+    id: 'dpc-4',
+    title: 'Chirurgie ambulatoire : bonnes pratiques',
+    specialty: 'Chirurgie',
+    hours: 5,
+    completedHours: 0,
+    status: 'locked',
+    objectives: ['Critères d\'éligibilité', 'Gestion de la douleur', 'Suivi post-opératoire'],
+  },
+  {
+    id: 'dpc-5',
+    title: 'Vaccination et immunologie pratique',
+    specialty: 'Immunologie',
+    hours: 4,
+    completedHours: 4,
+    status: 'completed',
+    completedAt: new Date('2026-01-20'),
+    objectives: ['Calendrier vaccinal', 'Immunodéficiences', 'Réactions allergiques'],
+  },
+  {
+    id: 'dpc-6',
+    title: 'Pédiatrie : pathologies courantes en ville',
+    specialty: 'Pédiatrie',
+    hours: 7,
+    completedHours: 3,
+    status: 'in_progress',
+    objectives: ['Bronchiolite', 'Gastro-entérite', 'Otites et angines'],
+  },
+];
 
 const getStatusConfig = (status: DPCModule['status']) => {
   switch (status) {
@@ -93,9 +93,72 @@ const getStatusConfig = (status: DPCModule['status']) => {
   }
 };
 
+function generatePDF(module: DPCModule) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Header
+  doc.setFillColor(30, 58, 138);
+  doc.rect(0, 0, pageWidth, 50, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.text('ATTESTATION DPC', pageWidth / 2, 25, { align: 'center' });
+  doc.setFontSize(11);
+  doc.text('Développement Professionnel Continu', pageWidth / 2, 35, { align: 'center' });
+
+  // Body
+  doc.setTextColor(30, 30, 30);
+  doc.setFontSize(12);
+  let y = 70;
+
+  doc.text('Certifie que le participant a suivi avec succès :', 20, y);
+  y += 15;
+
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text(module.title, pageWidth / 2, y, { align: 'center', maxWidth: pageWidth - 40 });
+  y += 20;
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  const details = [
+    `Spécialité : ${module.specialty}`,
+    `Durée : ${module.hours} heures`,
+    `Date de certification : ${module.completedAt?.toLocaleDateString('fr-FR') || '—'}`,
+    `Identifiant : ${module.certificationId || 'N/A'}`,
+  ];
+
+  details.forEach(line => {
+    doc.text(line, 20, y);
+    y += 10;
+  });
+
+  y += 10;
+  doc.text('Objectifs pédagogiques validés :', 20, y);
+  y += 8;
+  module.objectives.forEach((obj, i) => {
+    doc.text(`  ${i + 1}. ${obj}`, 25, y);
+    y += 8;
+  });
+
+  // Footer
+  y += 20;
+  doc.setFontSize(10);
+  doc.setTextColor(120, 120, 120);
+  doc.text('Ce document est généré par la plateforme Med&Mng.', pageWidth / 2, y, { align: 'center' });
+  doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, y + 8, { align: 'center' });
+
+  // Decorative border
+  doc.setDrawColor(30, 58, 138);
+  doc.setLineWidth(2);
+  doc.rect(10, 55, pageWidth - 20, y - 35);
+
+  doc.save(`attestation-dpc-${module.id}.pdf`);
+}
+
 export const DPCCertification = () => {
   const { toast } = useToast();
-  const [modules] = useState<DPCModule[]>(() => generateMockModules());
+  const [modules] = useState<DPCModule[]>(DPC_MODULES);
 
   const totalHours = modules.reduce((sum, m) => sum + m.hours, 0);
   const completedHours = modules.reduce((sum, m) => sum + m.completedHours, 0);
@@ -103,18 +166,37 @@ export const DPCCertification = () => {
   const completedCount = modules.filter(m => m.status === 'completed' || m.status === 'certified').length;
 
   const downloadCertificate = (module: DPCModule) => {
-    // In production, this would generate a real PDF via jsPDF
-    toast({
-      title: '📄 Certificat téléchargé',
-      description: `Attestation DPC « ${module.title} » — ${module.certificationId || 'N/A'}`,
-    });
+    try {
+      generatePDF(module);
+      toast({
+        title: '📄 Certificat téléchargé',
+        description: `Attestation DPC « ${module.title} » — ${module.certificationId || 'N/A'}`,
+      });
+    } catch {
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de générer le PDF. Réessayez.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const generateCertificate = (module: DPCModule) => {
-    toast({
-      title: '🏅 Certificat généré !',
-      description: `Votre attestation DPC pour « ${module.title} » est prête.`,
-    });
+    try {
+      const certId = `DPC-${new Date().getFullYear()}-${module.specialty.substring(0, 4).toUpperCase()}-${String(Math.floor(Math.random() * 99999)).padStart(5, '0')}`;
+      const updatedModule = { ...module, certificationId: certId, completedAt: new Date(), status: 'certified' as const };
+      generatePDF(updatedModule);
+      toast({
+        title: '🏅 Certificat généré !',
+        description: `Votre attestation DPC pour « ${module.title} » a été téléchargée.`,
+      });
+    } catch {
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de générer le certificat.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -128,9 +210,6 @@ export const DPCCertification = () => {
         <p className="text-muted-foreground">
           Suivi de votre Développement Professionnel Continu
         </p>
-        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
-          🚧 Fonctionnalité en cours de développement
-        </Badge>
       </div>
 
       {/* Summary */}
@@ -187,7 +266,6 @@ export const DPCCertification = () => {
             <Card key={module.id} className={`transition-shadow hover:shadow-md ${module.status === 'locked' ? 'opacity-60' : ''}`}>
               <CardContent className="p-5">
                 <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                  {/* Module info */}
                   <div className="flex-1 space-y-3">
                     <div className="flex items-start gap-3">
                       <div className={`p-2 rounded-lg ${statusConfig.bg} shrink-0`}>
@@ -203,16 +281,12 @@ export const DPCCertification = () => {
                       </div>
                     </div>
 
-                    {/* Objectives */}
                     <div className="flex flex-wrap gap-1.5 ml-11">
                       {module.objectives.map((obj, i) => (
-                        <Badge key={i} variant="secondary" className="text-[10px] font-normal">
-                          {obj}
-                        </Badge>
+                        <Badge key={i} variant="secondary" className="text-[10px] font-normal">{obj}</Badge>
                       ))}
                     </div>
 
-                    {/* Progress bar */}
                     {module.status !== 'locked' && (
                       <div className="ml-11">
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -224,7 +298,6 @@ export const DPCCertification = () => {
                     )}
                   </div>
 
-                  {/* Actions */}
                   <div className="flex flex-col gap-2 lg:w-48 shrink-0">
                     {module.status === 'certified' && (
                       <>

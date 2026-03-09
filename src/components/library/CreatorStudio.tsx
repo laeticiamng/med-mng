@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Upload, FileText, Music, Play, Pause, Wand2, Send, Edit3,
   CheckCircle2, Loader2, Volume2, RotateCcw, Sparkles
@@ -45,6 +46,7 @@ export const CreatorStudio = () => {
   const [dragOver, setDragOver] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const [song, setSong] = useState<GeneratedSong>({
     title: '',
@@ -72,42 +74,91 @@ export const CreatorStudio = () => {
   };
 
   const startGeneration = async () => {
-    if (!file) return;
+    if (!file || isGenerating) return;
     setStep('generating');
     setGenerationProgress(0);
+    setIsGenerating(true);
 
-    // Simulate AI generation with progress
-    const steps = [
-      { progress: 15, delay: 800 },
-      { progress: 35, delay: 1200 },
-      { progress: 55, delay: 1000 },
-      { progress: 75, delay: 1500 },
-      { progress: 90, delay: 800 },
-      { progress: 100, delay: 600 },
-    ];
+    // Progress simulation for UX while real AI works
+    const progressInterval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 85) return prev;
+        return prev + Math.random() * 8;
+      });
+    }, 500);
 
-    for (const s of steps) {
-      await new Promise(r => setTimeout(r, s.delay));
-      setGenerationProgress(s.progress);
+    try {
+      const fileName = file.name.replace(/\.(pdf|pptx)$/i, '');
+      const styleLabel = MUSIC_STYLES.find(s => s.id === song.style)?.label || song.style;
+
+      const { data, error } = await supabase.functions.invoke('generate-medical-lyrics', {
+        body: {
+          fileName,
+          specialty: song.specialty,
+          style: styleLabel,
+          tempo: song.tempo,
+        },
+      });
+
+      clearInterval(progressInterval);
+
+      if (error) {
+        throw new Error(error.message || 'Erreur lors de la génération');
+      }
+
+      setGenerationProgress(100);
+
+      setSong(prev => ({
+        ...prev,
+        title: data.title || `${fileName} — Chanson Médicale`,
+        lyrics: data.lyrics || '',
+      }));
+
+      await new Promise(r => setTimeout(r, 400)); // Brief pause for UX
+      setStep('review');
+      toast({ title: '✨ Génération terminée !', description: 'Vos paroles médicales IA sont prêtes à être éditées.' });
+    } catch (err: any) {
+      clearInterval(progressInterval);
+      setStep('upload');
+      toast({
+        title: 'Erreur de génération',
+        description: err?.message || 'Impossible de générer les paroles. Réessayez.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGenerating(false);
     }
-
-    // Mock generated result
-    setSong({
-      title: `${file.name.replace(/\.(pdf|pptx)$/i, '')} — Le Rythme du Savoir`,
-      lyrics: `🎵 Couplet 1 :\nLes valves cardiaques battent en cadence,\nSystole, diastole, une parfaite danse.\nLe ventricule gauche propulse le sang,\nDans l'aorte il coule, puissant et constant.\n\n🎶 Refrain :\nLe cœur, le cœur, machine de vie,\nQuatre cavités en harmonie.\nOreillettes en haut, ventricules en bas,\nChaque battement compte, ne l'oublie pas !\n\n🎵 Couplet 2 :\nLa conduction part du nœud sinusal,\nTraverse le faisceau auriculo-ventral.\nLes fibres de Purkinje propagent l'influx,\nL'ECG dessine le rythme qui afflue.\n\n🎶 Pont :\nInsuffisance, sténose, souffle au stétho,\nChaque signe clinique a son tempo.\nRetiens les critères, retiens les scores,\nEn musique, tu retiendras encore !`,
-      specialty: 'Cardiologie',
-      style: 'pop',
-      tempo: 120,
-      key: 'C Major',
-    });
-
-    setStep('review');
-    toast({ title: '✨ Génération terminée !', description: 'Vos paroles médicales sont prêtes à être éditées.' });
   };
 
-  const handlePublish = () => {
-    setStep('published');
-    toast({ title: '🎉 Publié !', description: 'Votre chanson est maintenant disponible dans la bibliothèque.' });
+  const handlePublish = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: 'Connexion requise', description: 'Connectez-vous pour publier.', variant: 'destructive' });
+        return;
+      }
+
+      // Save to med_mng_songs
+      const { error } = await supabase.from('med_mng_songs').insert({
+        title: song.title,
+        lyrics: { text: song.lyrics, specialty: song.specialty, style: song.style, tempo: song.tempo, key: song.key },
+        meta: { source: 'creator_studio', generated_by: 'lovable_ai' },
+        suno_audio_id: `cs-${Date.now()}`, // placeholder until audio is generated
+        user_id: user.id,
+        created_by: user.id,
+      });
+
+      if (error) throw error;
+
+      setStep('published');
+      toast({ title: '🎉 Publié !', description: 'Votre chanson est maintenant disponible dans la bibliothèque.' });
+    } catch (err: any) {
+      toast({
+        title: 'Erreur de publication',
+        description: err?.message || 'Impossible de publier. Réessayez.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -121,8 +172,8 @@ export const CreatorStudio = () => {
         <p className="text-muted-foreground">
           Transformez vos cours en chansons médicales avec l'IA
         </p>
-        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
-          🚧 Aperçu — Génération IA bientôt disponible
+        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs">
+          ✨ Propulsé par Lovable AI
         </Badge>
       </div>
 
@@ -214,9 +265,9 @@ export const CreatorStudio = () => {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={startGeneration} className="w-full gap-2" size="lg">
+                <Button onClick={startGeneration} className="w-full gap-2" size="lg" disabled={isGenerating}>
                   <Wand2 className="h-5 w-5" />
-                  Générer le résumé musical
+                  Générer avec l'IA
                 </Button>
               </CardContent>
             </Card>
@@ -242,7 +293,7 @@ export const CreatorStudio = () => {
               </p>
             </div>
             <Progress value={generationProgress} className="max-w-md mx-auto" />
-            <p className="text-xs text-muted-foreground">{generationProgress}%</p>
+            <p className="text-xs text-muted-foreground">{Math.round(generationProgress)}%</p>
           </CardContent>
         </Card>
       )}
@@ -303,37 +354,22 @@ export const CreatorStudio = () => {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <Volume2 className="h-4 w-4" />
-                  Aperçu en temps réel
+                  Aperçu
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Mini waveform mock */}
                 <div className="bg-muted/50 rounded-lg p-6 flex items-center justify-center gap-4">
                   <Button
                     size="lg"
                     variant="outline"
                     className="rounded-full h-14 w-14"
                     onClick={() => setIsPlaying(!isPlaying)}
+                    disabled
                   >
                     {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-0.5" />}
                   </Button>
-                  <div className="flex-1">
-                    <div className="flex items-end gap-[2px] h-8">
-                      {Array.from({ length: 40 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`flex-1 rounded-full transition-all duration-150 ${isPlaying ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-                          style={{
-                            height: `${20 + Math.sin(i * 0.5) * 60 + Math.random() * 20}%`,
-                            animationDelay: `${i * 50}ms`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>0:00</span>
-                      <span>3:24</span>
-                    </div>
+                  <div className="flex-1 text-center text-sm text-muted-foreground">
+                    <p>Aperçu audio disponible après publication</p>
                   </div>
                 </div>
 
