@@ -283,7 +283,7 @@ export async function logOperation(
 // Récupération des logs avec filtres
 export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
   if (!client) {
-    console.warn('Supabase not configured for log retrieval');
+    if (import.meta.env.DEV) console.warn('Supabase not configured for log retrieval');
     return [];
   }
 
