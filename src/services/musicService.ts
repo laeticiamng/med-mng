@@ -515,7 +515,7 @@ class MusicService {
         byRang
       }
     } catch (error) {
-      console.error('Error getting library stats:', error)
+      if (import.meta.env.DEV) console.error('Error getting library stats:', error)
       return {
         totalSongs: 0,
         totalPlaylists: 0,
