@@ -129,7 +129,7 @@ class MusicService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('❌ Error fetching user library:', error)
+      if (import.meta.env.DEV) console.error('❌ Error fetching user library:', error)
       throw error
     }
   }
