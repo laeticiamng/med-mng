@@ -412,7 +412,7 @@ export async function acknowledgeAlert(
 
     return true;
   } catch (err) {
-    console.error('Error acknowledging alert:', err);
+    if (import.meta.env.DEV) console.error('Error acknowledging alert:', err);
     return false;
   }
 }
