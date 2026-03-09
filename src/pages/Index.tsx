@@ -26,7 +26,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
             .maybeSingle();
           
           if (error) {
-            console.warn('Onboarding check failed:', error.message);
+            if (import.meta.env.DEV) console.warn('Onboarding check failed:', error.message);
           }
           
           if (!data?.onboarding_completed) {
@@ -35,7 +35,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         }
         // Anonymous visitors: NO modal — let them see the hero first
       } catch (err) {
-        console.error('Error checking user:', err);
+        if (import.meta.env.DEV) console.error('Error checking user:', err);
       }
     };
     checkUser();
@@ -54,13 +54,13 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         }, { onConflict: 'user_id' });
         
         if (error) {
-          console.warn('Failed to save onboarding status:', error.message);
+          if (import.meta.env.DEV) console.warn('Failed to save onboarding status:', error.message);
         }
       } else {
         sessionStorage.setItem('med-mng-onboarding-seen', 'true');
       }
     } catch (err) {
-      console.error('Error saving onboarding:', err);
+      if (import.meta.env.DEV) console.error('Error saving onboarding:', err);
       sessionStorage.setItem('med-mng-onboarding-seen', 'true');
     }
   };

@@ -3,7 +3,7 @@ import type { IC1CompletenessReport } from '../types/ic1Types';
 
 export class IC1RecommendationsGenerator {
   static generateRecommendations(report: IC1CompletenessReport): void {
-    console.log('💡 Génération des recommandations...');
+    if (import.meta.env.DEV) console.log('💡 Génération des recommandations...');
     
     if (!report.medicalContentCheck.hasRelationMedecinMalade) {
       report.recommendations.push('Ajouter du contenu sur la relation médecin-malade');

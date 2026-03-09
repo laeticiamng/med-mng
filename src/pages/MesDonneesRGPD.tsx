@@ -70,7 +70,7 @@ const MesDonneesRGPD = () => {
       });
 
     } catch (error: any) {
-      console.error('Erreur export:', error);
+      if (import.meta.env.DEV) console.error('Erreur export:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible d'exporter les données",
@@ -125,7 +125,7 @@ const MesDonneesRGPD = () => {
       window.location.href = '/';
 
     } catch (error: any) {
-      console.error('Erreur suppression:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de supprimer le compte",
@@ -162,7 +162,7 @@ const MesDonneesRGPD = () => {
       setDataStatus(data);
 
     } catch (error: any) {
-      console.error('Erreur statut:', error);
+      if (import.meta.env.DEV) console.error('Erreur statut:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de vérifier le statut",

@@ -39,7 +39,7 @@ interface ExtractionStats {
 
 export class EdnObjectifsExtractor {
   async startExtraction(): Promise<ExtractionResponse> {
-    console.warn('⚠️ EdnObjectifsExtractor désactivé : extract-edn-objectifs supprimée.');
+    if (import.meta.env.DEV) console.warn('⚠️ EdnObjectifsExtractor désactivé : extract-edn-objectifs supprimée.');
     throw new Error('Extraction désactivée : fonction supprimée');
   }
 
@@ -56,7 +56,7 @@ export class EdnObjectifsExtractor {
   }
 
   startStatusPolling(_callback: (status: ExtractionStatus) => void, _interval?: number) {
-    console.warn('⚠️ Polling désactivé : extract-edn-objectifs supprimée.');
+    if (import.meta.env.DEV) console.warn('⚠️ Polling désactivé : extract-edn-objectifs supprimée.');
   }
 
   stopStatusPolling() {
@@ -75,6 +75,6 @@ export class EdnObjectifsExtractor {
 export const ednExtractor = new EdnObjectifsExtractor();
 
 export async function launchEdnObjectifsExtraction() {
-  console.warn('⚠️ launchEdnObjectifsExtraction désactivé.');
+  if (import.meta.env.DEV) console.warn('⚠️ launchEdnObjectifsExtraction désactivé.');
   throw new Error('Extraction désactivée : fonction supprimée');
 }

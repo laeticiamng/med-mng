@@ -5,10 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
  * Utilise des variables d'environnement ou des prompts utilisateur
  */
 async function launchEdnExtraction() {
-  console.log('🚀 Lancement de l\'extraction automatique des 367 items EDN...');
+  if (import.meta.env.DEV) console.log('🚀 Lancement de l\'extraction automatique des 367 items EDN...');
   
   try {
-    // CAS credentials must be provided by the user via secure form
     const username = prompt('Username CAS:');
     const password = prompt('Password CAS:');
     
@@ -27,26 +26,27 @@ async function launchEdnExtraction() {
     });
 
     if (error) {
-      console.error('❌ Erreur lors du lancement de l\'extraction:', error);
+      if (import.meta.env.DEV) console.error('❌ Erreur lors du lancement de l\'extraction:', error);
       throw error;
     }
 
-    console.log('✅ Extraction lancée avec succès!');
-    console.log('📊 Résultats:', data);
+    if (import.meta.env.DEV) {
+      console.log('✅ Extraction lancée avec succès!');
+      console.log('📊 Résultats:', data);
+    }
 
     return data;
     
   } catch (error) {
-    console.error('❌ Échec du lancement de l\'extraction:', error);
+    if (import.meta.env.DEV) console.error('❌ Échec du lancement de l\'extraction:', error);
     throw error;
   }
 }
 
-// Lancer l'extraction immédiatement
 launchEdnExtraction()
   .then(result => {
-    console.log('🎉 Extraction terminée avec succès:', result);
+    if (import.meta.env.DEV) console.log('🎉 Extraction terminée avec succès:', result);
   })
   .catch(error => {
-    console.error('💥 Erreur critique:', error);
+    if (import.meta.env.DEV) console.error('💥 Erreur critique:', error);
   });

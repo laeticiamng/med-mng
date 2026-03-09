@@ -41,7 +41,7 @@ export const useAudioMetrics = () => {
       
       // Log critique si dépassement
       if (updated.totalLoadTime && updated.totalLoadTime > 3000) {
-        console.warn(`⚠️ [METRICS] Temps de chargement critique: ${updated.totalLoadTime.toFixed(0)}ms pour ${trackUrl}`);
+        if (import.meta.env.DEV) console.warn(`⚠️ [METRICS] Temps de chargement critique: ${updated.totalLoadTime.toFixed(0)}ms pour ${trackUrl}`);
       }
     }
   }, []);

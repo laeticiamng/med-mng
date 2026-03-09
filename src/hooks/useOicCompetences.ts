@@ -94,7 +94,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       if (currentFetch !== fetchCountRef.current) return;
 
       if (fetchError) {
-        console.warn(`[useOicCompetences] Error: ${fetchError.message}`);
+        if (import.meta.env.DEV) console.warn(`[useOicCompetences] Error: ${fetchError.message}`);
         setError(fetchError.message);
         setCompetences([]);
         setLoading(false);
@@ -121,7 +121,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       setLoading(false);
     } catch (err) {
       if (currentFetch !== fetchCountRef.current) return;
-      console.warn(`[useOicCompetences] Exception:`, err);
+      if (import.meta.env.DEV) console.warn(`[useOicCompetences] Exception:`, err);
       setError(String(err));
       setCompetences([]);
       setLoading(false);

@@ -93,7 +93,7 @@ export const useMusicPolling = () => {
         .maybeSingle();
 
       if (error) {
-        console.warn('[useMusicPolling] Erreur BDD:', error);
+        if (import.meta.env.DEV) console.warn('[useMusicPolling] Erreur BDD:', error);
         return { found: false };
       }
 
@@ -130,7 +130,7 @@ export const useMusicPolling = () => {
       // Statut "generating" - pas encore terminé
       return { found: false };
     } catch (err) {
-      console.warn('[useMusicPolling] Exception BDD:', err);
+      if (import.meta.env.DEV) console.warn('[useMusicPolling] Exception BDD:', err);
       return { found: false };
     }
   };
@@ -254,7 +254,7 @@ export const useMusicPolling = () => {
 
         if (pollError) {
           currentState.consecutiveErrors++;
-          console.warn(`[useMusicPolling] Erreur polling (${currentState.consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
+          if (import.meta.env.DEV) console.warn(`[useMusicPolling] Erreur polling (${currentState.consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
           
           // ✅ Circuit breaker
           if (currentState.consecutiveErrors >= maxConsecutiveErrors) {
@@ -318,7 +318,7 @@ export const useMusicPolling = () => {
         
       } catch (pollError) {
         currentState.consecutiveErrors++;
-        console.error(`[useMusicPolling] Erreur critique:`, pollError);
+        if (import.meta.env.DEV) console.error(`[useMusicPolling] Erreur critique:`, pollError);
         
         if (currentState.consecutiveErrors >= maxConsecutiveErrors) {
           stopPolling(taskId);

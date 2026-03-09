@@ -67,12 +67,11 @@ export const useTranslation = (originalText: string) => {
           // Nettoyer la requête active
           activeRequests.delete(cacheKey);
         } catch (error) {
-          console.error('Translation error:', error);
+          if (import.meta.env.DEV) console.error('Translation error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Erreur de traduction';
           
-          // Si c'est une erreur 429, on utilise le texte original sans afficher d'erreur
           if (errorMessage.includes('429')) {
-            console.warn('Rate limit atteint, utilisation du texte original');
+            if (import.meta.env.DEV) console.warn('Rate limit atteint, utilisation du texte original');
             setTranslatedText(originalText);
             setError(null);
           } else {
@@ -145,11 +144,11 @@ export const useTranslateArray = (originalArray: string[]) => {
         
         setTranslatedArray(translations);
       } catch (error) {
-        console.error('Array translation error:', error);
+        if (import.meta.env.DEV) console.error('Array translation error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Erreur de traduction';
         
         if (errorMessage.includes('429')) {
-          console.warn('Rate limit atteint, utilisation du tableau original');
+          if (import.meta.env.DEV) console.warn('Rate limit atteint, utilisation du tableau original');
           setTranslatedArray(originalArray);
           setError(null);
         } else {

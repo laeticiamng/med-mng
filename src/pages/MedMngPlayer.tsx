@@ -74,7 +74,7 @@ const MedMngPlayerComponent = () => {
       };
 
       const handleError = (e: any) => {
-        console.error('Audio error:', e);
+        if (import.meta.env.DEV) console.error('Audio error:', e);
         toast.error('Erreur lors du chargement audio');
         setIsLoading(false);
       };
@@ -116,7 +116,7 @@ const MedMngPlayerComponent = () => {
         setIsPlaying(true);
       }
     } catch (error) {
-      console.error('Play error:', error);
+      if (import.meta.env.DEV) console.error('Play error:', error);
       toast.error('Erreur lors de la lecture');
     } finally {
       setIsLoading(false);

@@ -111,7 +111,7 @@ export function AITutor({ itemContext }: AITutorProps) {
     try {
       await streamChat([...messages, userMessage]);
     } catch (error) {
-      console.error('AI Tutor error:', error);
+      if (import.meta.env.DEV) console.error('AI Tutor error:', error);
     } finally {
       setIsLoading(false);
     }

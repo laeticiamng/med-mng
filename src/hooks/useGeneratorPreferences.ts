@@ -27,7 +27,7 @@ export const useGeneratorPreferences = () => {
         }
       }
     } catch (err) {
-      console.warn('Erreur chargement préférences:', err);
+      if (import.meta.env.DEV) console.warn('Erreur chargement préférences:', err);
     }
   }, []);
 
@@ -41,7 +41,7 @@ export const useGeneratorPreferences = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       setPreferences(data);
     } catch (err) {
-      console.warn('Erreur sauvegarde préférences:', err);
+      if (import.meta.env.DEV) console.warn('Erreur sauvegarde préférences:', err);
     }
   }, []);
 
@@ -51,7 +51,7 @@ export const useGeneratorPreferences = () => {
       localStorage.removeItem(STORAGE_KEY);
       setPreferences(null);
     } catch (err) {
-      console.warn('Erreur suppression préférences:', err);
+      if (import.meta.env.DEV) console.warn('Erreur suppression préférences:', err);
     }
   }, []);
 

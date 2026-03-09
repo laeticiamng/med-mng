@@ -294,7 +294,7 @@ const Generator = () => {
       }
 
     } catch (error) {
-      console.error('Erreur génération:', error);
+      if (import.meta.env.DEV) console.error('Erreur génération:', error);
       setGenerationStartTime(null);
       toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
@@ -330,7 +330,7 @@ const Generator = () => {
       if (error) throw error;
       toast.success('✨ Chanson ajoutée à votre bibliothèque !');
     } catch (err) {
-      console.error('Erreur sauvegarde bibliothèque:', err);
+      if (import.meta.env.DEV) console.error('Erreur sauvegarde bibliothèque:', err);
       toast.error('Erreur lors de la sauvegarde');
     }
   }, [generatedSong, user, canSaveMusic]);

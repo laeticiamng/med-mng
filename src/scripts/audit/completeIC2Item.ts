@@ -181,24 +181,23 @@ const COMPLETE_IC2_COMIC = {
 };
 
 export async function completeIC2Item() {
-  console.log('🔧 Vérification et complétion complète de l\'item IC-2 (7 Rang A + 2 Rang B)...');
+  if (import.meta.env.DEV) console.log('🔧 Vérification et complétion complète de l\'item IC-2 (7 Rang A + 2 Rang B)...');
   
   try {
-    // D'abord, vérifier l'état actuel
     const auditReport = await runAndDisplayIC2Audit();
     
     if (auditReport.completeness === 100) {
-      console.log('✅ Item IC-2 déjà complet à 100%');
+      if (import.meta.env.DEV) console.log('✅ Item IC-2 déjà complet à 100%');
       return auditReport;
     }
     
-    console.log('🔧 Mise à jour COMPLÈTE du contenu IC-2 selon E-LiSA (7 Rang A + 2 Rang B)...');
+    if (import.meta.env.DEV) console.log('🔧 Mise à jour COMPLÈTE du contenu IC-2 selon E-LiSA (7 Rang A + 2 Rang B)...');
     
     // Mise à jour complète de l'item IC-2 avec TOUS les éléments
     const { error } = await supabase
       .from('edn_items_immersive')
       .upsert({
-        id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', // ID fixe pour IC-2
+        id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         slug: 'valeurs-professionnelles-medecin',
         item_code: 'IC-2',
         title: 'Les valeurs professionnelles du médecin et des autres professions de santé',
@@ -282,34 +281,35 @@ export async function completeIC2Item() {
       });
 
     if (error) {
-      console.error('❌ Erreur lors de la mise à jour:', error);
+      if (import.meta.env.DEV) console.error('❌ Erreur lors de la mise à jour:', error);
       throw error;
     }
 
-    console.log('✅ Item IC-2 mis à jour avec TOUS les éléments (tableaux 7A+2B, BD, paroles, quiz)');
+    if (import.meta.env.DEV) console.log('✅ Item IC-2 mis à jour avec TOUS les éléments (tableaux 7A+2B, BD, paroles, quiz)');
     
-    // Vérification finale
     const finalAudit = await runAndDisplayIC2Audit();
     
-    console.log('\n🎯 VÉRIFICATION FINALE COMPLÈTE:');
-    console.log(`📊 Complétude finale: ${finalAudit.completeness}%`);
-    console.log(`📋 Rang A: ${finalAudit.rangA.found}/${finalAudit.rangA.expected} connaissances`);
-    console.log(`🎯 Rang B: ${finalAudit.rangB.found}/${finalAudit.rangB.expected} connaissances`);
-    
-    if (finalAudit.completeness === 100) {
-      console.log('🎉 Item IC-2 maintenant COMPLET à 100% avec TOUS les éléments selon E-LiSA !');
-      console.log('✅ Tableaux: 7 Rang A + 2 Rang B');
-      console.log('🎵 Paroles: Complètes avec refrains');
-      console.log('🎯 Quiz: 5 questions détaillées');
-      console.log('🎨 Bande dessinée: Structure complète avec 4 planches');
-    } else {
-      console.log('⚠️ Des éléments peuvent encore manquer...');
+    if (import.meta.env.DEV) {
+      console.log('\n🎯 VÉRIFICATION FINALE COMPLÈTE:');
+      console.log(`📊 Complétude finale: ${finalAudit.completeness}%`);
+      console.log(`📋 Rang A: ${finalAudit.rangA.found}/${finalAudit.rangA.expected} connaissances`);
+      console.log(`🎯 Rang B: ${finalAudit.rangB.found}/${finalAudit.rangB.expected} connaissances`);
+      
+      if (finalAudit.completeness === 100) {
+        console.log('🎉 Item IC-2 maintenant COMPLET à 100% avec TOUS les éléments selon E-LiSA !');
+        console.log('✅ Tableaux: 7 Rang A + 2 Rang B');
+        console.log('🎵 Paroles: Complètes avec refrains');
+        console.log('🎯 Quiz: 5 questions détaillées');
+        console.log('🎨 Bande dessinée: Structure complète avec 4 planches');
+      } else {
+        console.log('⚠️ Des éléments peuvent encore manquer...');
+      }
     }
     
     return finalAudit;
     
   } catch (error) {
-    console.error('❌ Erreur lors de la complétion complète IC-2:', error);
+    if (import.meta.env.DEV) console.error('❌ Erreur lors de la complétion complète IC-2:', error);
     throw error;
   }
 }
