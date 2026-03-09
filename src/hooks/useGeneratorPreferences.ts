@@ -27,7 +27,7 @@ export const useGeneratorPreferences = () => {
         }
       }
     } catch (err) {
-      console.warn('Erreur chargement préférences:', err);
+      if (import.meta.env.DEV) console.warn('Erreur chargement préférences:', err);
     }
   }, []);
 
