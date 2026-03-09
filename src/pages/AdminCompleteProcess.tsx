@@ -98,7 +98,7 @@ const AdminCompleteProcess = () => {
       toast.success('Processus complet terminé avec succès!');
       
     } catch (error: any) {
-      console.error('Erreur processus complet:', error);
+      if (import.meta.env.DEV) console.error('Erreur processus complet:', error);
       setError(error.message);
       toast.error('Erreur lors du processus complet');
     } finally {
