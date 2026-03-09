@@ -120,7 +120,7 @@ export const MedicalContentLibrary = () => {
       specialty: getSpecialtyFromCode(t.item_code),
       difficulty: getDifficultyFromType(t.type),
       year: getYearFromCode(t.item_code),
-      language: 'fr', // default — extend when multi-lang content exists
+      language: 'fr',
       retention: null, // Real retention requires user_item_progress data
       durationLabel: t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, '0')}` : '—',
     })),
