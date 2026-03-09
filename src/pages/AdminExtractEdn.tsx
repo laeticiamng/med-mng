@@ -32,7 +32,7 @@ const AdminExtractEdn = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur extraction:', error);
+        if (import.meta.env.DEV) console.error('❌ Erreur extraction:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction');
         return;
