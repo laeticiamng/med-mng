@@ -58,7 +58,7 @@ export const EdnAuditDashboard: React.FC = () => {
       .order('completeness_score', { ascending: true });
 
     if (error) {
-      console.error('Error loading audit results:', error);
+      if (import.meta.env.DEV) console.error('Error loading audit results:', error);
       return;
     }
 
