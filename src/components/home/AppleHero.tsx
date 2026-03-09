@@ -65,7 +65,7 @@ export const AppleHero = () => {
             <div className="flex items-center gap-2 px-5 py-2.5">
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-foreground">
-                <TranslatedText text="Révolutionner l'apprentissage médical" />
+                🎓 <TranslatedText text="Pour les étudiants en médecine" />
               </span>
             </div>
           </ShineBorder>
