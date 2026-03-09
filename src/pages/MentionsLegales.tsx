@@ -51,7 +51,8 @@ const MentionsLegales = () => {
               <p>Le site medmng.com est édité par la société :</p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-2">
                 <p><strong className="text-foreground">EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
-                <p>Immatriculée au Registre du Commerce et des Sociétés (RCS) d'Amiens sous le numéro <strong className="text-foreground">944 505 445</strong></p>
+                <p>Siège social : <strong className="text-foreground">Appartement 1, 5 rue Caudron, 80000 Amiens, France</strong></p>
+                <p>Immatriculée au Registre du Commerce et des Sociétés (RCS) d'Amiens sous le numéro <strong className="text-foreground">944 505 445</strong> (inscrit le 21/05/2025)</p>
                 <p>N° SIRET : <strong className="text-foreground">944 505 445 00011</strong></p>
                 <p>TVA intracommunautaire : <strong className="text-foreground">FR89944505445</strong></p>
                 <div className="flex items-center space-x-1 pt-2">
