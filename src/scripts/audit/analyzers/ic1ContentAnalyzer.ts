@@ -1,26 +1,22 @@
-
 import { EXPECTED_IC1_COMPETENCES } from '../constants/ic1Constants';
 import type { IC1CompletenessReport } from '../types/ic1Types';
 
 export class IC1ContentAnalyzer {
   static async analyzeContent(item: any, report: IC1CompletenessReport): Promise<void> {
-    console.log('🔍 Analyse du contenu IC-1...', { item_code: item.item_code || item.slug });
+    if (import.meta.env.DEV) console.log('🔍 Analyse du contenu IC-1...', { item_code: item.item_code || item.slug });
 
-    // Analyse Rang A
     const rangAAnalysis = this.analyzeRangA(item);
     report.contentAnalysis.rangA = rangAAnalysis;
 
-    // Analyse Rang B  
     const rangBAnalysis = this.analyzeRangB(item);
     report.contentAnalysis.rangB = rangBAnalysis;
 
-    // Vérifier la complétude globale
     if (!rangAAnalysis.hasContent) {
       report.isCompliant = false;
       report.missingElements.push('Rang A manquant ou vide');
     }
 
-    console.log('📊 Analyse terminée:', {
+    if (import.meta.env.DEV) console.log('📊 Analyse terminée:', {
       rangA: `${rangAAnalysis.competencesCount} compétences`,
       rangB: `${rangBAnalysis.competencesCount} compétences`
     });
@@ -33,7 +29,6 @@ export class IC1ContentAnalyzer {
       missingCompetences: [...EXPECTED_IC1_COMPETENCES.rangA]
     };
 
-    // Format v2
     if (item.content?.rang_a?.competences) {
       analysis.hasContent = true;
       analysis.competencesCount = item.content.rang_a.competences.length;
@@ -47,7 +42,6 @@ export class IC1ContentAnalyzer {
         presentCompetences
       );
     }
-    // Format v1/legacy
     else if (item.tableau_rang_a?.lignes) {
       analysis.hasContent = true;
       analysis.competencesCount = item.tableau_rang_a.lignes.length;
@@ -61,11 +55,9 @@ export class IC1ContentAnalyzer {
         presentConcepts
       );
     }
-    // Données dans des formats alternatifs
     else if (this.hasAlternativeRangAContent(item)) {
       analysis.hasContent = true;
       analysis.competencesCount = this.countAlternativeRangAContent(item);
-      // Pour les formats alternatifs, on assume une couverture partielle
       analysis.missingCompetences = EXPECTED_IC1_COMPETENCES.rangA.slice(0, 2);
     }
 
@@ -79,7 +71,6 @@ export class IC1ContentAnalyzer {
       missingCompetences: [...EXPECTED_IC1_COMPETENCES.rangB]
     };
 
-    // Format v2
     if (item.content?.rang_b?.competences) {
       analysis.hasContent = true;
       analysis.competencesCount = item.content.rang_b.competences.length;
@@ -93,7 +84,6 @@ export class IC1ContentAnalyzer {
         presentCompetences
       );
     }
-    // Format v1/legacy
     else if (item.tableau_rang_b?.lignes) {
       analysis.hasContent = true;
       analysis.competencesCount = item.tableau_rang_b.lignes.length;
@@ -107,11 +97,10 @@ export class IC1ContentAnalyzer {
         presentConcepts
       );
     }
-    // IC-1 peut avoir tout son contenu en Rang A selon certaines sources
     else {
-      analysis.hasContent = true; // Accepté pour IC-1
+      analysis.hasContent = true;
       analysis.competencesCount = 0;
-      analysis.missingCompetences = []; // Pas obligatoire pour IC-1
+      analysis.missingCompetences = [];
     }
 
     return analysis;
@@ -142,6 +131,6 @@ export class IC1ContentAnalyzer {
     if (item.paroles_musicales?.length) count += Math.min(item.paroles_musicales.length, 10);
     if (item.scene_immersive) count += 3;
     if (item.pitch_intro) count += 2;
-    return Math.min(count, 15); // Maximum attendu pour IC-1
+    return Math.min(count, 15);
   }
 }
