@@ -104,7 +104,7 @@ class MusicService {
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching generation stats:', error)
+      if (import.meta.env.DEV) console.error('❌ Error fetching generation stats:', error)
       throw error
     }
   }
