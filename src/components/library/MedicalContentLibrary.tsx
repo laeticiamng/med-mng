@@ -278,9 +278,7 @@ export const MedicalContentLibrary = () => {
                   </Badge>
 
                   {/* Language flag */}
-                  <span className="absolute top-3 right-3 text-lg drop-shadow-md">
-                    {CONTENT_LANGUAGES.find(l => l.id === track.language)?.flag || '🇫🇷'}
-                  </span>
+                  <span className="absolute top-3 right-3 text-lg drop-shadow-md">🇫🇷</span>
 
                   {/* Play overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
