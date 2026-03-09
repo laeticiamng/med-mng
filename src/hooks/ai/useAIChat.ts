@@ -261,7 +261,7 @@ INSTRUCTIONS CONTEXTUELLES :
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
-      console.error('Erreur envoi message IA:', err);
+      if (import.meta.env.DEV) console.error('Erreur envoi message IA:', err);
       throw err;
     } finally {
       setIsLoading(false);

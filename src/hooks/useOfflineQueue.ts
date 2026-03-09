@@ -192,7 +192,7 @@ export const useOfflineQueue = () => {
       setQueue([]);
       toast.info('File d\'attente vidée');
     } catch (error) {
-      console.error('Erreur clear queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur clear queue:', error);
     }
   }, []);
 

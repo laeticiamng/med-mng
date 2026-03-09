@@ -103,7 +103,7 @@ export function useWeeklyChallenges() {
       const challengesWithProgress = await Promise.all(progressPromises);
       setChallenges(challengesWithProgress);
     } catch (error) {
-      console.error('Error loading challenges:', error);
+      if (import.meta.env.DEV) console.error('Error loading challenges:', error);
       // Fallback to default challenges
       setChallenges(getDefaultChallenges());
     } finally {

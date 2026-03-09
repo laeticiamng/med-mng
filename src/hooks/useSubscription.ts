@@ -519,7 +519,7 @@ export const useSubscription = () => {
       }
       return null;
     } catch (error) {
-      console.error('Error opening customer portal:', error);
+      if (import.meta.env.DEV) console.error('Error opening customer portal:', error);
       toast.error('Une erreur est survenue');
       return null;
     }

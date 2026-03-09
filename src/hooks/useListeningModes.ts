@@ -224,7 +224,7 @@ export const useListeningModes = () => {
       setTimeRemaining(0);
       setIsSessionActive(false);
     } catch (error) {
-      console.error('Erreur fin de session:', error);
+      if (import.meta.env.DEV) console.error('Erreur fin de session:', error);
     }
   }, [activeMode, sessionStartTime, toast]);
 

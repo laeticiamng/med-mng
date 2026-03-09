@@ -249,7 +249,7 @@ export const usePlayer = () => {
         await audioRef.current.play();
         setState(prev => ({ ...prev, isPlaying: true }));
       } catch (error) {
-        console.error('Erreur replay:', error);
+        if (import.meta.env.DEV) console.error('Erreur replay:', error);
       }
     }
   };

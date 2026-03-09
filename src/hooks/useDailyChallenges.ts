@@ -104,7 +104,7 @@ export function useDailyChallenges() {
       });
     },
     onError: (error) => {
-      console.error('Error claiming reward:', error);
+      if (import.meta.env.DEV) console.error('Error claiming reward:', error);
       toast.error('Erreur lors de la réclamation');
     },
   });

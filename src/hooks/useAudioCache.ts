@@ -249,7 +249,7 @@ export const useAudioCache = () => {
       });
       return true;
     } catch (error) {
-      console.error('Error clearing cache:', error);
+      if (import.meta.env.DEV) console.error('Error clearing cache:', error);
       return false;
     }
   }, [isSupported]);
