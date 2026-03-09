@@ -230,7 +230,7 @@ export const useAudioCache = () => {
       if (deletedCount > 0) refreshStats();
       return deletedCount;
     } catch (error) {
-      console.error('Error cleaning up expired:', error);
+      if (import.meta.env.DEV) console.error('Error cleaning up expired:', error);
       return 0;
     }
   }, [isSupported, refreshStats]);
