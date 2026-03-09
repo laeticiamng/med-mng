@@ -96,7 +96,7 @@ export default function AdminImport() {
       if (error) throw error;
       setGoogleIntegrations(data || []);
     } catch (error) {
-      console.error('Error fetching Google integrations:', error);
+      if (import.meta.env.DEV) console.error('Error fetching Google integrations:', error);
     }
   };
 
