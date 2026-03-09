@@ -331,7 +331,7 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
     const { data, error: queryError } = await query;
 
     if (queryError) {
-      console.error('Failed to retrieve logs:', queryError);
+      if (import.meta.env.DEV) console.error('Failed to retrieve logs:', queryError);
       return [];
     }
 
