@@ -501,7 +501,7 @@ export const OfflineMode: React.FC = () => {
       toast.success('Stockage hors ligne vidé');
       loadAvailableContent();
     } catch (error) {
-      console.error('Erreur vidage:', error);
+      if (import.meta.env.DEV) console.error('Erreur vidage:', error);
       toast.error('Erreur lors du vidage');
     }
   };
