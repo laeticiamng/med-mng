@@ -377,7 +377,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
     const { data, error: queryError } = await query;
 
     if (queryError || !data) {
-      console.error('Failed to get log stats:', queryError);
+      if (import.meta.env.DEV) console.error('Failed to get log stats:', queryError);
       return null;
     }
 
