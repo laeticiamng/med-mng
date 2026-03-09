@@ -294,7 +294,7 @@ const Generator = () => {
       }
 
     } catch (error) {
-      console.error('Erreur génération:', error);
+      if (import.meta.env.DEV) console.error('Erreur génération:', error);
       setGenerationStartTime(null);
       toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
