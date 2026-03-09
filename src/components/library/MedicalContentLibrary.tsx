@@ -228,18 +228,6 @@ export const MedicalContentLibrary = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                  <Globe className="h-3 w-3 inline mr-1" />
-                  Langue du contenu
-                </label>
-                <Select value={contentLang} onValueChange={setContentLang}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {CONTENT_LANGUAGES.map(l => <SelectItem key={l.id} value={l.id}>{l.flag} {l.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
             {activeFiltersCount > 0 && (
               <Button
