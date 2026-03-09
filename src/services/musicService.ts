@@ -561,7 +561,7 @@ class MusicService {
       if (import.meta.env.DEV) console.log('Playlist duplicated successfully')
       return newPlaylist
     } catch (error) {
-      console.error('Error duplicating playlist:', error)
+      if (import.meta.env.DEV) console.error('Error duplicating playlist:', error)
       return null
     }
   }
