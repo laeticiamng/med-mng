@@ -238,7 +238,7 @@ export const useSubscription = () => {
 
       return data;
     } catch (error) {
-      console.error('Error in incrementMusicUsage:', error);
+      if (import.meta.env.DEV) console.error('Error in incrementMusicUsage:', error);
       toast.error('Erreur lors de l\'incrément du quota');
       return false;
     }

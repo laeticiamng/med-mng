@@ -131,7 +131,7 @@ export const useAdvancedAccessibility = () => {
       try {
         setSettings(JSON.parse(saved));
       } catch (e) {
-        console.warn('Failed to load advanced accessibility settings');
+        if (import.meta.env.DEV) console.warn('Failed to load advanced accessibility settings');
       }
     }
   }, []);

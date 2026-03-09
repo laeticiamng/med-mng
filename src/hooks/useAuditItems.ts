@@ -35,7 +35,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
 
   const exportReport = (format: 'json' | 'markdown') => {
     if (!report) {
-      console.warn('Aucun rapport à exporter');
+      if (import.meta.env.DEV) console.warn('Aucun rapport à exporter');
       return;
     }
 

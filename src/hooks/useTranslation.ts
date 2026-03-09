@@ -144,11 +144,11 @@ export const useTranslateArray = (originalArray: string[]) => {
         
         setTranslatedArray(translations);
       } catch (error) {
-        console.error('Array translation error:', error);
+        if (import.meta.env.DEV) console.error('Array translation error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Erreur de traduction';
         
         if (errorMessage.includes('429')) {
-          console.warn('Rate limit atteint, utilisation du tableau original');
+          if (import.meta.env.DEV) console.warn('Rate limit atteint, utilisation du tableau original');
           setTranslatedArray(originalArray);
           setError(null);
         } else {
