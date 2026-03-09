@@ -274,7 +274,7 @@ export const OfflineMode: React.FC = () => {
 
       setAvailableContent(available);
     } catch (error) {
-      console.error('Erreur chargement contenu disponible:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement contenu disponible:', error);
     }
   }, [isOnline, offlineData]);
 
