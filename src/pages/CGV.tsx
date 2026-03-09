@@ -63,8 +63,8 @@ const CGV = () => {
                 <p className="text-sm"><strong>Le vendeur :</strong> EmotionsCare SASU</p>
                 <ul className="text-sm space-y-1 mt-2">
                   <li>Capital social : 100 euros</li>
-                  <li>Siege social : 5 rue Caudron, 80000 Amiens, France</li>
-                  <li>RCS Amiens : 944 505 445</li>
+                  <li>Siège social : Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
+                  <li>RCS Amiens : 944 505 445 (inscrit le 21/05/2025)</li>
                   <li>SIRET : 944 505 445 00011</li>
                   <li>TVA intracommunautaire : FR89944505445</li>
                   <li>Email : contact@emotionscare.com</li>
