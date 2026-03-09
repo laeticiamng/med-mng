@@ -117,7 +117,7 @@ export const EdnAuditDashboard: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Error starting audit:', error);
+      if (import.meta.env.DEV) console.error('Error starting audit:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de lancer l'audit",
