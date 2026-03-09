@@ -196,7 +196,7 @@ export const OfflineSyncManager: React.FC = () => {
         const { success, failed } = await offlineSyncService.processSyncQueue();
         if (import.meta.env.DEV) console.log(`[Sync] Processed: ${success} success, ${failed} failed`);
       } catch (syncError) {
-        console.error('[Sync] Error processing queue:', syncError);
+        if (import.meta.env.DEV) console.error('[Sync] Error processing queue:', syncError);
       }
 
       // Mettre à jour le statut terminé
