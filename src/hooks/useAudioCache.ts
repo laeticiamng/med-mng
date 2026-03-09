@@ -30,7 +30,7 @@ export const useAudioCache = () => {
           refreshStats();
         }
       } catch (error) {
-        console.warn('Cache API not supported:', error);
+        if (import.meta.env.DEV) console.warn('Cache API not supported:', error);
         setIsSupported(false);
       }
     };
