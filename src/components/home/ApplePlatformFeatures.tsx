@@ -14,6 +14,7 @@ const features = [
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
     iconBg: 'bg-primary/15 text-primary',
+    comingSoon: false,
   },
   {
     icon: Wand2,
@@ -23,6 +24,7 @@ const features = [
     colSpan: 1,
     gradient: 'from-accent/20 via-accent/5 to-transparent',
     iconBg: 'bg-accent/15 text-accent',
+    comingSoon: true,
   },
   {
     icon: Brain,
@@ -32,6 +34,7 @@ const features = [
     colSpan: 1,
     gradient: 'from-warning/20 via-warning/5 to-transparent',
     iconBg: 'bg-warning/15 text-warning',
+    comingSoon: true,
   },
   {
     icon: GraduationCap,
@@ -41,15 +44,17 @@ const features = [
     colSpan: 1,
     gradient: 'from-success/20 via-success/5 to-transparent',
     iconBg: 'bg-success/15 text-success',
+    comingSoon: true,
   },
   {
     icon: Globe,
     titleFr: 'Multilingue',
-    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English, 🇩🇪 Deutsch, 🇪🇸 Español.',
-    tab: null, // triggers language selector
+    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English et 🇩🇪 Deutsch.',
+    tab: null,
     colSpan: 1,
     gradient: 'from-secondary/30 via-secondary/10 to-transparent',
     iconBg: 'bg-secondary/50 text-secondary-foreground',
+    comingSoon: false,
   },
 ];
 
