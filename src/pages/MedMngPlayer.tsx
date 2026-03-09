@@ -116,7 +116,7 @@ const MedMngPlayerComponent = () => {
         setIsPlaying(true);
       }
     } catch (error) {
-      console.error('Play error:', error);
+      if (import.meta.env.DEV) console.error('Play error:', error);
       toast.error('Erreur lors de la lecture');
     } finally {
       setIsLoading(false);

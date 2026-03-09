@@ -227,7 +227,7 @@ export default function AdminImport() {
       fetchImportBatches();
 
     } catch (error) {
-      console.error('Import error:', error);
+      if (import.meta.env.DEV) console.error('Import error:', error);
       toast({
         title: "Erreur d'import",
         description: error.message || "Une erreur est survenue lors de l'import",

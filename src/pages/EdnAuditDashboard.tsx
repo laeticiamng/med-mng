@@ -238,7 +238,7 @@ export const EdnAuditDashboard: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Error completing all items:', error);
+      if (import.meta.env.DEV) console.error('Error completing all items:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de compléter tous les items",

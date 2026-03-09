@@ -233,7 +233,7 @@ const MedMngLibraryComponent = () => {
       
       toast.success(`${exportData.length} chansons exportées (${extension.toUpperCase()})`);
     } catch (err) {
-      console.error('Erreur export:', err);
+      if (import.meta.env.DEV) console.error('Erreur export:', err);
       toast.error('Erreur lors de l\'export');
     }
   }, [sortedSongs]);

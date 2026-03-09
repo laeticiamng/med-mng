@@ -122,7 +122,7 @@ const MedMngItemDetailComponent = () => {
           : 'Cet item a été retiré de vos favoris.',
       });
     } catch (error) {
-      console.error('Failed to toggle favorite', error);
+      if (import.meta.env.DEV) console.error('Failed to toggle favorite', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour les favoris.',

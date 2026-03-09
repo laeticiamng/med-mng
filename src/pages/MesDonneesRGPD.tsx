@@ -162,7 +162,7 @@ const MesDonneesRGPD = () => {
       setDataStatus(data);
 
     } catch (error: any) {
-      console.error('Erreur statut:', error);
+      if (import.meta.env.DEV) console.error('Erreur statut:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de vérifier le statut",
