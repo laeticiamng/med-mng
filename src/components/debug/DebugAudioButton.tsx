@@ -50,7 +50,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
       }
 
       // Test 2: Créer un élément audio
-      console.log('🔍 Test 2: Création élément audio...');
+      if (import.meta.env.DEV) console.log('🔍 Test 2: Création élément audio...');
       const audio = new Audio();
       
       const testPromise = new Promise((resolve, reject) => {
