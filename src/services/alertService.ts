@@ -260,7 +260,7 @@ async function sendToDiscord(incident: Incident, severity: AlertSeverity): Promi
     });
     return true;
   } catch (err) {
-    console.error('Discord alert failed:', err);
+    if (import.meta.env.DEV) console.error('Discord alert failed:', err);
     return false;
   }
 }
