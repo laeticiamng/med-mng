@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error?.code === 'refresh_token_not_found' || 
         error?.message?.includes('Refresh Token Not Found') ||
         error?.message?.includes('Invalid Refresh Token')) {
-      console.warn('🔄 Token de rafraîchissement invalide, nettoyage de la session...');
+      if (import.meta.env.DEV) console.warn('🔄 Token de rafraîchissement invalide, nettoyage de la session...');
       // Nettoyer la session locale sans appeler signOut (qui pourrait échouer)
       supabase.auth.signOut({ scope: 'local' }).catch(() => {
         // Ignorer les erreurs de déconnexion locale
