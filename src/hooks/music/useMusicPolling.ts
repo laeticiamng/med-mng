@@ -130,7 +130,7 @@ export const useMusicPolling = () => {
       // Statut "generating" - pas encore terminé
       return { found: false };
     } catch (err) {
-      console.warn('[useMusicPolling] Exception BDD:', err);
+      if (import.meta.env.DEV) console.warn('[useMusicPolling] Exception BDD:', err);
       return { found: false };
     }
   };
