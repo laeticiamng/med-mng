@@ -51,7 +51,7 @@ export const useGeneratorPreferences = () => {
       localStorage.removeItem(STORAGE_KEY);
       setPreferences(null);
     } catch (err) {
-      console.warn('Erreur suppression préférences:', err);
+      if (import.meta.env.DEV) console.warn('Erreur suppression préférences:', err);
     }
   }, []);
 

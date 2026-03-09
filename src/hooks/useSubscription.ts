@@ -203,7 +203,7 @@ export const useSubscription = () => {
 
   const incrementMusicUsage = useCallback(async (): Promise<boolean> => {
     if (!user) {
-      console.warn('Tentative d\'incrément de quota sans utilisateur connecté');
+      if (import.meta.env.DEV) console.warn('Tentative d\'incrément de quota sans utilisateur connecté');
       return false;
     }
 
