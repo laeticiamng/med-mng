@@ -314,7 +314,7 @@ export function useTypeSafeLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? deserialize(item) : defaultValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      if (import.meta.env.DEV) console.warn(`Error reading localStorage key "${key}":`, error);
       return defaultValue;
     }
   });
