@@ -177,7 +177,7 @@ export const AIChat = () => {
         };
       }
     } catch (error) {
-      console.error('Erreur appel IA:', error);
+      if (import.meta.env.DEV) console.error('Erreur appel IA:', error);
     }
 
     // Fallback: réponse locale intelligente basée sur les mots-clés

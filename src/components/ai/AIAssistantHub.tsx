@@ -270,7 +270,7 @@ Comment puis-je vous assister aujourd'hui ?`,
 
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      console.error('Erreur AI:', error);
+      if (import.meta.env.DEV) console.error('Erreur AI:', error);
       // Fallback to local response generation
       const aiResponse = generateAIResponse(userQuery, currentContext);
       setMessages(prev => [...prev, aiResponse]);

@@ -340,7 +340,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
         setConversations(updated);
       }
     } catch (error) {
-      console.error('AI Tutor error:', error);
+      if (import.meta.env.DEV) console.error('AI Tutor error:', error);
     } finally {
       setIsLoading(false);
     }

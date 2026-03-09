@@ -78,7 +78,7 @@ export const MedMngSubscribe = () => {
       }
 
     } catch (error) {
-      console.error('Erreur abonnement:', error);
+      if (import.meta.env.DEV) console.error('Erreur abonnement:', error);
       toast.error('Erreur lors de la souscription. Réessayez.');
     } finally {
       setIsProcessing(false);

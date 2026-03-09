@@ -165,7 +165,7 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
       setMessages(prev => [...prev, assistantMessage]);
 
     } catch (error) {
-      console.error('Erreur Chat IA:', error);
+      if (import.meta.env.DEV) console.error('Erreur Chat IA:', error);
       
       toast({
         title: "Erreur de communication",
