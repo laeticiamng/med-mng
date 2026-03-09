@@ -100,7 +100,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
               parsedItem = EDNItemParser.parseAnyItem(data, itemId);
             }
           } catch (err) {
-            console.error('❌ Erreur de validation:', err);
+            if (import.meta.env.DEV) console.error('❌ Erreur de validation:', err);
             // En cas d'erreur, on parse comme v1
             const itemId = (data as any).id ?? (data as any).slug ?? slug;
             parsedItem = EDNItemParser.parseAnyItem(data, itemId);
