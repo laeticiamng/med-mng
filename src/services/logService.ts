@@ -359,7 +359,7 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
 // Statistiques des logs
 export async function getLogStats(startDate?: string, endDate?: string): Promise<LogStats | null> {
   if (!client) {
-    console.warn('Supabase not configured for log stats');
+    if (import.meta.env.DEV) console.warn('Supabase not configured for log stats');
     return null;
   }
 
