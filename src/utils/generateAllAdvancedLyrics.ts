@@ -87,7 +87,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           result.failed++;
           const errorMsg = `❌ ${item.item_code}: ${error instanceof Error ? error.message : 'Erreur inconnue'}`;
           result.errors.push(errorMsg);
-          console.error(errorMsg);
+          if (import.meta.env.DEV) console.error(errorMsg);
         }
       });
       
