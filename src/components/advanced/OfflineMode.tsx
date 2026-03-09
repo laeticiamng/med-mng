@@ -219,7 +219,7 @@ export const OfflineMode: React.FC = () => {
       }));
 
     } catch (error) {
-      console.error('Erreur chargement IndexedDB:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement IndexedDB:', error);
       toast.error('Erreur de chargement du stockage hors ligne');
     } finally {
       setLoading(false);
