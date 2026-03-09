@@ -30,7 +30,7 @@ export const useAudioCache = () => {
           refreshStats();
         }
       } catch (error) {
-        console.warn('Cache API not supported:', error);
+        if (import.meta.env.DEV) console.warn('Cache API not supported:', error);
         setIsSupported(false);
       }
     };
@@ -69,7 +69,7 @@ export const useAudioCache = () => {
         newestEntry: newest
       });
     } catch (error) {
-      console.error('Error refreshing cache stats:', error);
+      if (import.meta.env.DEV) console.error('Error refreshing cache stats:', error);
     }
   }, [isSupported]);
 
@@ -95,7 +95,7 @@ export const useAudioCache = () => {
       const blob = await response.blob();
       return URL.createObjectURL(blob);
     } catch (error) {
-      console.error('Error getting cached audio:', error);
+      if (import.meta.env.DEV) console.error('Error getting cached audio:', error);
       return null;
     }
   }, [isSupported]);
@@ -148,7 +148,7 @@ export const useAudioCache = () => {
       refreshStats();
       return true;
     } catch (error) {
-      console.error('Error caching audio:', error);
+      if (import.meta.env.DEV) console.error('Error caching audio:', error);
       return false;
     }
   }, [isSupported, cacheStats.totalSize, getCachedAudio, refreshStats]);
@@ -163,7 +163,7 @@ export const useAudioCache = () => {
       if (deleted) refreshStats();
       return deleted;
     } catch (error) {
-      console.error('Error removing from cache:', error);
+      if (import.meta.env.DEV) console.error('Error removing from cache:', error);
       return false;
     }
   }, [isSupported, refreshStats]);
@@ -202,7 +202,7 @@ export const useAudioCache = () => {
 
       refreshStats();
     } catch (error) {
-      console.error('Error cleaning up cache:', error);
+      if (import.meta.env.DEV) console.error('Error cleaning up cache:', error);
     }
   }, [isSupported, refreshStats]);
 
@@ -230,7 +230,7 @@ export const useAudioCache = () => {
       if (deletedCount > 0) refreshStats();
       return deletedCount;
     } catch (error) {
-      console.error('Error cleaning up expired:', error);
+      if (import.meta.env.DEV) console.error('Error cleaning up expired:', error);
       return 0;
     }
   }, [isSupported, refreshStats]);
@@ -249,7 +249,7 @@ export const useAudioCache = () => {
       });
       return true;
     } catch (error) {
-      console.error('Error clearing cache:', error);
+      if (import.meta.env.DEV) console.error('Error clearing cache:', error);
       return false;
     }
   }, [isSupported]);

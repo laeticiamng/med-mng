@@ -177,7 +177,7 @@ const ExecutiveDashboard: React.FC = () => {
       setModuleUsage(moduleData);
 
     } catch (error) {
-      console.error('Error loading executive dashboard:', error);
+      if (import.meta.env.DEV) console.error('Error loading executive dashboard:', error);
     } finally {
       setIsLoading(false);
     }

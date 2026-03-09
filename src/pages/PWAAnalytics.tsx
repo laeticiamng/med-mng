@@ -117,7 +117,7 @@ const PWAAnalytics: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      if (import.meta.env.DEV) console.error('Error loading analytics:', error);
       toast.error('Erreur lors du chargement des analytics');
     } finally {
       setIsLoading(false);

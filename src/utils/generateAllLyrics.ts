@@ -25,12 +25,12 @@ export interface LyricsGenerationOptions {
  * TODO: Migrer vers le routeur consolidé ai-content si nécessaire.
  */
 export async function generateAllLyrics(_options?: LyricsGenerationOptions): Promise<LyricsGenerationResult> {
-  console.warn('⚠️ generateAllLyrics est désactivé : update-edn-unique-content a été supprimée.')
+  if (import.meta.env.DEV) console.warn('⚠️ generateAllLyrics est désactivé : update-edn-unique-content a été supprimée.')
   return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }
 
 export async function generateLyricsForItem(_itemCode: string, _options?: Omit<LyricsGenerationOptions, 'itemCodes'>): Promise<LyricsGenerationResult> {
-  console.warn('⚠️ generateLyricsForItem est désactivé : update-edn-unique-content a été supprimée.')
+  if (import.meta.env.DEV) console.warn('⚠️ generateLyricsForItem est désactivé : update-edn-unique-content a été supprimée.')
   return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }
 
@@ -62,7 +62,7 @@ export async function getLyricsGenerationStatus(): Promise<{
       pendingGeneration: withoutLyrics
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération du statut:', error)
+    if (import.meta.env.DEV) console.error('Erreur lors de la récupération du statut:', error)
     return { total: 0, withLyrics: 0, withoutLyrics: 0, pendingGeneration: 0 }
   }
 }
@@ -72,6 +72,6 @@ export async function batchGenerateLyrics(
   _batchSize: number = 5,
   _onProgress?: (progress: { completed: number; total: number; current: string }) => void
 ): Promise<LyricsGenerationResult> {
-  console.warn('⚠️ batchGenerateLyrics est désactivé : update-edn-unique-content a été supprimée.')
+  if (import.meta.env.DEV) console.warn('⚠️ batchGenerateLyrics est désactivé : update-edn-unique-content a été supprimée.')
   return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }

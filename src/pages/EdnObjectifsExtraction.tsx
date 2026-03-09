@@ -107,7 +107,7 @@ const EdnObjectifsExtractionPage: React.FC = () => {
 
       setObjectifs(objectifItems);
     } catch (err) {
-      console.error('Error loading objectifs stats:', err);
+      if (import.meta.env.DEV) console.error('Error loading objectifs stats:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les statistiques des objectifs',

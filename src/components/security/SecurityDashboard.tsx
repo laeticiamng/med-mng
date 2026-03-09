@@ -52,7 +52,7 @@ export const SecurityDashboard = () => {
       
       toast.success('Rapport PDF généré avec succès');
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      if (import.meta.env.DEV) console.error('Error generating PDF:', error);
       toast.error('Erreur lors de la génération du PDF');
     }
   };

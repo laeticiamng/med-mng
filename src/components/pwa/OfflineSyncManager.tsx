@@ -145,7 +145,7 @@ export const OfflineSyncManager: React.FC = () => {
       setSyncItems(syncItemsList);
       setLastFullSync(new Date().toISOString());
     } catch (error) {
-      console.error('Erreur chargement sync data:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement sync data:', error);
       setSyncItems([]);
     }
   };
@@ -196,7 +196,7 @@ export const OfflineSyncManager: React.FC = () => {
         const { success, failed } = await offlineSyncService.processSyncQueue();
         if (import.meta.env.DEV) console.log(`[Sync] Processed: ${success} success, ${failed} failed`);
       } catch (syncError) {
-        console.error('[Sync] Error processing queue:', syncError);
+        if (import.meta.env.DEV) console.error('[Sync] Error processing queue:', syncError);
       }
 
       // Mettre à jour le statut terminé
@@ -257,7 +257,7 @@ export const OfflineSyncManager: React.FC = () => {
         description: `"${item.name}" est maintenant disponible hors ligne.`
       });
     } catch (error) {
-      console.error('Erreur sync offline:', error);
+      if (import.meta.env.DEV) console.error('Erreur sync offline:', error);
       setSyncItems(prev => prev.map(si =>
         si.id === itemId ? { ...si, status: 'error' as const } : si
       ));

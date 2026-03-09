@@ -32,7 +32,7 @@ const AdminExtractEdn = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur extraction:', error);
+        if (import.meta.env.DEV) console.error('❌ Erreur extraction:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction');
         return;
@@ -44,7 +44,7 @@ const AdminExtractEdn = () => {
       toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
 
     } catch (error: any) {
-      console.error('💥 Erreur critique:', error);
+      if (import.meta.env.DEV) console.error('💥 Erreur critique:', error);
       setError(error.message);
       toast.error('Erreur critique lors de l\'extraction');
     } finally {
@@ -66,7 +66,7 @@ const AdminExtractEdn = () => {
 
       return data;
     } catch (error: any) {
-      console.error('Erreur vérification données:', error);
+      if (import.meta.env.DEV) console.error('Erreur vérification données:', error);
       toast.error('Erreur lors de la vérification des données');
     }
   };

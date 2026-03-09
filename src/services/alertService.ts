@@ -260,7 +260,7 @@ async function sendToDiscord(incident: Incident, severity: AlertSeverity): Promi
     });
     return true;
   } catch (err) {
-    console.error('Discord alert failed:', err);
+    if (import.meta.env.DEV) console.error('Discord alert failed:', err);
     return false;
   }
 }
@@ -277,7 +277,7 @@ async function sendToSlack(incident: Incident, severity: AlertSeverity): Promise
     });
     return true;
   } catch (err) {
-    console.error('Slack alert failed:', err);
+    if (import.meta.env.DEV) console.error('Slack alert failed:', err);
     return false;
   }
 }
@@ -297,12 +297,12 @@ async function persistAlert(alert: Alert): Promise<boolean> {
     });
 
     if (error) {
-      console.error('Failed to persist alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to persist alert:', error);
       return false;
     }
     return true;
   } catch (err) {
-    console.error('Error persisting alert:', err);
+    if (import.meta.env.DEV) console.error('Error persisting alert:', err);
     return false;
   }
 }
@@ -396,7 +396,7 @@ export async function acknowledgeAlert(
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to acknowledge alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to acknowledge alert:', error);
       return false;
     }
 
@@ -412,7 +412,7 @@ export async function acknowledgeAlert(
 
     return true;
   } catch (err) {
-    console.error('Error acknowledging alert:', err);
+    if (import.meta.env.DEV) console.error('Error acknowledging alert:', err);
     return false;
   }
 }
@@ -436,7 +436,7 @@ export async function resolveAlert(
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to resolve alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to resolve alert:', error);
       return false;
     }
 
@@ -454,7 +454,7 @@ export async function resolveAlert(
 
     return true;
   } catch (err) {
-    console.error('Error resolving alert:', err);
+    if (import.meta.env.DEV) console.error('Error resolving alert:', err);
     return false;
   }
 }
@@ -496,7 +496,7 @@ export async function getAlerts(filter?: {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Failed to get alerts:', error);
+      if (import.meta.env.DEV) console.error('Failed to get alerts:', error);
       return alertHistory;
     }
 
@@ -523,7 +523,7 @@ export async function getAlerts(filter?: {
       notificationsSent: row.notifications_sent || []
     }));
   } catch (err) {
-    console.error('Error getting alerts:', err);
+    if (import.meta.env.DEV) console.error('Error getting alerts:', err);
     return alertHistory;
   }
 }
@@ -546,7 +546,7 @@ export async function getAlertStats(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('Failed to get alert stats:', error);
+      if (import.meta.env.DEV) console.error('Failed to get alert stats:', error);
       return null;
     }
 
@@ -597,7 +597,7 @@ export async function getAlertStats(
       openAlerts: byStatus.open + byStatus.acknowledged + byStatus.investigating
     };
   } catch (err) {
-    console.error('Error getting alert stats:', err);
+    if (import.meta.env.DEV) console.error('Error getting alert stats:', err);
     return null;
   }
 }
@@ -623,13 +623,13 @@ export async function addAlertNote(alertId: string, note: string): Promise<boole
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to add note:', error);
+      if (import.meta.env.DEV) console.error('Failed to add note:', error);
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('Error adding note:', err);
+    if (import.meta.env.DEV) console.error('Error adding note:', err);
     return false;
   }
 }
@@ -655,13 +655,13 @@ export async function escalateAlert(alertId: string): Promise<boolean> {
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to escalate alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to escalate alert:', error);
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('Error escalating alert:', err);
+    if (import.meta.env.DEV) console.error('Error escalating alert:', err);
     return false;
   }
 }
@@ -690,13 +690,13 @@ export async function cleanupOldAlerts(daysToKeep: number = 90): Promise<number>
       .select('id');
 
     if (error) {
-      console.error('Failed to cleanup old alerts:', error);
+      if (import.meta.env.DEV) console.error('Failed to cleanup old alerts:', error);
       return 0;
     }
 
     return data?.length || 0;
   } catch (err) {
-    console.error('Error cleaning up alerts:', err);
+    if (import.meta.env.DEV) console.error('Error cleaning up alerts:', err);
     return 0;
   }
 }

@@ -70,7 +70,7 @@ export const useBatchSelection = <T extends SelectableTrack>(tracks: T[]) => {
       toast.success(`${ids.length} piste(s) supprimée(s)`);
       clearSelection();
     } catch (error) {
-      console.error('Erreur suppression batch:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression batch:', error);
       toast.error('Erreur lors de la suppression');
     } finally {
       setIsProcessing(false);

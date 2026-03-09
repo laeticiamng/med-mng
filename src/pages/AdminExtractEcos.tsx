@@ -42,7 +42,7 @@ const AdminExtractEcos = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur extraction ECOS:', error);
+        if (import.meta.env.DEV) console.error('❌ Erreur extraction ECOS:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction ECOS');
         setIsExtracting(false);
@@ -55,7 +55,7 @@ const AdminExtractEcos = () => {
       toast.success(`Extraction ECOS terminée! ${data.stats?.totalProcessed || 0} situations traitées`);
 
     } catch (error: any) {
-      console.error('💥 Erreur critique ECOS:', error);
+      if (import.meta.env.DEV) console.error('💥 Erreur critique ECOS:', error);
       
       // Gestion spécifique de l'erreur de timeout credentials
       if (error.message.includes('Timeout') || error.message.includes('credential')) {
@@ -85,7 +85,7 @@ const AdminExtractEcos = () => {
 
       return data;
     } catch (error: any) {
-      console.error('Erreur vérification données ECOS:', error);
+      if (import.meta.env.DEV) console.error('Erreur vérification données ECOS:', error);
       toast.error('Erreur lors de la vérification des données ECOS');
     }
   };

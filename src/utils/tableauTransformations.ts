@@ -128,7 +128,7 @@ const parseJsonValue = (value: unknown) => {
   try {
     return JSON.parse(value);
   } catch (error) {
-    console.warn('⚠️ Impossible de parser un JSONB stringifié:', error);
+    if (import.meta.env.DEV) console.warn('⚠️ Impossible de parser un JSONB stringifié:', error);
     return null;
   }
 };

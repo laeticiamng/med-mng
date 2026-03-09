@@ -140,7 +140,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
       };
       
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        if (import.meta.env.DEV) console.error('Speech recognition error:', event.error);
         setIsListening(false);
         toast({
           title: "Erreur micro",
@@ -265,7 +265,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
         loadStats(user.id);
       }
     } catch (error) {
-      console.error('[Chat IA] Erreur envoi message:', error);
+      if (import.meta.env.DEV) console.error('[Chat IA] Erreur envoi message:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing' && msg.id !== streamingMessageId));
       
       // Message user-friendly selon le type d'erreur
@@ -327,7 +327,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
           description: "Parlez maintenant, je vous écoute.",
         });
       } catch (error) {
-        console.error('Failed to start speech recognition:', error);
+        if (import.meta.env.DEV) console.error('Failed to start speech recognition:', error);
         toast({
           title: "Erreur micro",
           description: "Impossible de démarrer la reconnaissance vocale.",

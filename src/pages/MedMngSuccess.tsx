@@ -52,7 +52,7 @@ export const MedMngSuccess = () => {
         window.open(data.url, '_blank');
       }
     } catch (error) {
-      console.error('Error opening customer portal:', error);
+      if (import.meta.env.DEV) console.error('Error opening customer portal:', error);
       toast.error('Erreur lors de l\'ouverture du portail client');
     }
   };

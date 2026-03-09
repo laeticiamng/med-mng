@@ -118,7 +118,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
     try {
       // Guard against undefined supabase client (test environment)
       if (!supabase || typeof supabase.from !== 'function') {
-        console.warn('Supabase client not available');
+        if (import.meta.env.DEV) console.warn('Supabase client not available');
         safeSetResults([]);
         safeSetIsLoading(false);
         return;
@@ -131,7 +131,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
         .limit(10);
 
       if (error) {
-        console.error('Search error:', error);
+        if (import.meta.env.DEV) console.error('Search error:', error);
         safeSetResults([]);
         return;
       }
@@ -152,7 +152,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
         safeSetResults(searchResults);
       }
     } catch (error) {
-      console.error('Search error:', error);
+      if (import.meta.env.DEV) console.error('Search error:', error);
       safeSetResults([]);
     } finally {
       safeSetIsLoading(false);

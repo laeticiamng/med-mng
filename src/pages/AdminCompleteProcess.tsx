@@ -74,7 +74,7 @@ const AdminCompleteProcess = () => {
         });
 
         if (auditError) {
-          console.error(`Erreur audit ${auditType}:`, auditError);
+          if (import.meta.env.DEV) console.error(`Erreur audit ${auditType}:`, auditError);
           setAuditResults(prev => [...prev, {
             type: auditType,
             success: false,
@@ -98,7 +98,7 @@ const AdminCompleteProcess = () => {
       toast.success('Processus complet terminé avec succès!');
       
     } catch (error: any) {
-      console.error('Erreur processus complet:', error);
+      if (import.meta.env.DEV) console.error('Erreur processus complet:', error);
       setError(error.message);
       toast.error('Erreur lors du processus complet');
     } finally {
@@ -129,7 +129,7 @@ const AdminCompleteProcess = () => {
       });
 
     } catch (error: any) {
-      console.error('Erreur ré-importation:', error);
+      if (import.meta.env.DEV) console.error('Erreur ré-importation:', error);
       setError(error.message);
       toast.error('Erreur lors de la ré-importation');
     } finally {

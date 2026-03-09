@@ -145,7 +145,7 @@ export const AdminExtractionQualityDashboard: React.FC = () => {
       setQualityMetrics(metrics);
       setLastUpdated(new Date());
     } catch (err) {
-      console.error('Erreur récupération KPI qualité:', err);
+      if (import.meta.env.DEV) console.error('Erreur récupération KPI qualité:', err);
       toast.error('Erreur lors du chargement des KPI qualité OIC');
     } finally {
       setLoading(false);

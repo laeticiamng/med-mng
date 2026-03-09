@@ -44,7 +44,7 @@ export function useEffectivenessScores() {
 
       setScores(scoresMap);
     } catch (err: any) {
-      console.error('Error loading effectiveness scores:', err);
+      if (import.meta.env.DEV) console.error('Error loading effectiveness scores:', err);
       setError(err.message);
     } finally {
       setLoading(false);

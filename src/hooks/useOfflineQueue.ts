@@ -55,7 +55,7 @@ export const useOfflineQueue = () => {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.error('Erreur chargement queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement queue:', error);
       return [];
     }
   }, []);
@@ -77,7 +77,7 @@ export const useOfflineQueue = () => {
         return [...prev, item];
       });
     } catch (error) {
-      console.error('Erreur sauvegarde queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur sauvegarde queue:', error);
     }
   }, []);
 
@@ -91,7 +91,7 @@ export const useOfflineQueue = () => {
       
       setQueue(prev => prev.filter(p => p.id !== id));
     } catch (error) {
-      console.error('Erreur suppression queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression queue:', error);
     }
   }, []);
 
@@ -192,7 +192,7 @@ export const useOfflineQueue = () => {
       setQueue([]);
       toast.info('File d\'attente vidée');
     } catch (error) {
-      console.error('Erreur clear queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur clear queue:', error);
     }
   }, []);
 

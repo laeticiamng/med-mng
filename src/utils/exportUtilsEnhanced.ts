@@ -256,7 +256,7 @@ export const exportEnhancedPDF = async (options: EnhancedExportOptions): Promise
     pdf.save(`EDN-${itemCode}-Complete-${Date.now()}.pdf`);
     toast.success('PDF complet téléchargé avec succès !');
   } catch (error) {
-    console.error('Enhanced PDF export error:', error);
+    if (import.meta.env.DEV) console.error('Enhanced PDF export error:', error);
     toast.error("Erreur lors de l'export PDF");
     throw error;
   }

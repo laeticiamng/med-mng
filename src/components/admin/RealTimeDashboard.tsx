@@ -112,7 +112,7 @@ export const RealTimeDashboard = () => {
           setRecentActivity(data);
         }
       } catch (err) {
-        console.error('Erreur récupération activité:', err);
+        if (import.meta.env.DEV) console.error('Erreur récupération activité:', err);
       }
     };
 

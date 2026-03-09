@@ -186,7 +186,7 @@ export const useListeningModes = () => {
 
       return timer;
     } catch (error) {
-      console.error('Erreur démarrage mode:', error);
+      if (import.meta.env.DEV) console.error('Erreur démarrage mode:', error);
       toast({
         title: "Erreur",
         description: "Impossible de démarrer le mode d'écoute.",
@@ -224,7 +224,7 @@ export const useListeningModes = () => {
       setTimeRemaining(0);
       setIsSessionActive(false);
     } catch (error) {
-      console.error('Erreur fin de session:', error);
+      if (import.meta.env.DEV) console.error('Erreur fin de session:', error);
     }
   }, [activeMode, sessionStartTime, toast]);
 

@@ -102,11 +102,11 @@ function logToConsole(entry: LogEntry): void {
       if (import.meta.env.DEV) console.info(message, entry.metadata || '');
       break;
     case 'warn':
-      console.warn(message, entry.metadata || '');
+      if (import.meta.env.DEV) console.warn(message, entry.metadata || '');
       break;
     case 'error':
     case 'critical':
-      console.error(message, entry.metadata || '', entry.stackTrace || '');
+      if (import.meta.env.DEV) console.error(message, entry.metadata || '', entry.stackTrace || '');
       break;
   }
 }
@@ -140,12 +140,12 @@ async function flushBuffer(): Promise<void> {
     );
 
     if (error) {
-      console.error('Failed to flush log buffer:', error);
+      if (import.meta.env.DEV) console.error('Failed to flush log buffer:', error);
       // Remettre les logs dans le buffer en cas d'échec
       logBuffer = [...logsToFlush, ...logBuffer].slice(0, BUFFER_SIZE * 2);
     }
   } catch (err) {
-    console.error('Error flushing log buffer:', err);
+    if (import.meta.env.DEV) console.error('Error flushing log buffer:', err);
   }
 }
 
@@ -219,7 +219,7 @@ export async function log(
         created_at: entry.timestamp
       });
     } catch (err) {
-      console.error('Failed to log immediately:', err);
+      if (import.meta.env.DEV) console.error('Failed to log immediately:', err);
     }
   } else {
     // Ajouter au buffer
@@ -283,7 +283,7 @@ export async function logOperation(
 // Récupération des logs avec filtres
 export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
   if (!client) {
-    console.warn('Supabase not configured for log retrieval');
+    if (import.meta.env.DEV) console.warn('Supabase not configured for log retrieval');
     return [];
   }
 
@@ -331,7 +331,7 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
     const { data, error: queryError } = await query;
 
     if (queryError) {
-      console.error('Failed to retrieve logs:', queryError);
+      if (import.meta.env.DEV) console.error('Failed to retrieve logs:', queryError);
       return [];
     }
 
@@ -351,7 +351,7 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
       userAgent: row.meta?.userAgent
     }));
   } catch (err) {
-    console.error('Error retrieving logs:', err);
+    if (import.meta.env.DEV) console.error('Error retrieving logs:', err);
     return [];
   }
 }
@@ -359,7 +359,7 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
 // Statistiques des logs
 export async function getLogStats(startDate?: string, endDate?: string): Promise<LogStats | null> {
   if (!client) {
-    console.warn('Supabase not configured for log stats');
+    if (import.meta.env.DEV) console.warn('Supabase not configured for log stats');
     return null;
   }
 
@@ -377,7 +377,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
     const { data, error: queryError } = await query;
 
     if (queryError || !data) {
-      console.error('Failed to get log stats:', queryError);
+      if (import.meta.env.DEV) console.error('Failed to get log stats:', queryError);
       return null;
     }
 
@@ -430,7 +430,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
       averageResponseTime: durationCount > 0 ? Math.round(totalDuration / durationCount) : 0
     };
   } catch (err) {
-    console.error('Error getting log stats:', err);
+    if (import.meta.env.DEV) console.error('Error getting log stats:', err);
     return null;
   }
 }
@@ -438,7 +438,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
 // Suppression des vieux logs
 export async function deleteOldLogs(daysToKeep: number = 30): Promise<number> {
   if (!client) {
-    console.warn('Supabase not configured for log deletion');
+    if (import.meta.env.DEV) console.warn('Supabase not configured for log deletion');
     return 0;
   }
 
@@ -453,13 +453,13 @@ export async function deleteOldLogs(daysToKeep: number = 30): Promise<number> {
       .select('id');
 
     if (deleteError) {
-      console.error('Failed to delete old logs:', deleteError);
+      if (import.meta.env.DEV) console.error('Failed to delete old logs:', deleteError);
       return 0;
     }
 
     return data?.length || 0;
   } catch (err) {
-    console.error('Error deleting old logs:', err);
+    if (import.meta.env.DEV) console.error('Error deleting old logs:', err);
     return 0;
   }
 }

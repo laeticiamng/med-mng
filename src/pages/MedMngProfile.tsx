@@ -102,7 +102,7 @@ const MedMngProfileComponent = () => {
           joinDate: profile?.created_at,
         };
       } catch (err) {
-        console.error('Error fetching stats:', err);
+        if (import.meta.env.DEV) console.error('Error fetching stats:', err);
         return {
           totalSongs: 0,
           creditsUsed: 0,

@@ -57,7 +57,7 @@ export const exportComparisonToPDF = async (
       doc.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
       yPosition += imgHeight + 10;
     } catch (error) {
-      console.error('Erreur lors de la capture du graphique:', error);
+      if (import.meta.env.DEV) console.error('Erreur lors de la capture du graphique:', error);
     }
   }
   

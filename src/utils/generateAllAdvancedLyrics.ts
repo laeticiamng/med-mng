@@ -87,7 +87,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           result.failed++;
           const errorMsg = `❌ ${item.item_code}: ${error instanceof Error ? error.message : 'Erreur inconnue'}`;
           result.errors.push(errorMsg);
-          console.error(errorMsg);
+          if (import.meta.env.DEV) console.error(errorMsg);
         }
       });
       
@@ -104,7 +104,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     return result;
     
   } catch (error) {
-    console.error('❌ Erreur générale:', error);
+    if (import.meta.env.DEV) console.error('❌ Erreur générale:', error);
     result.errors.push(`Erreur générale: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     return result;
   }
@@ -155,7 +155,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     return true;
     
   } catch (error) {
-    console.error(`❌ Erreur ${itemCode}:`, error);
+    if (import.meta.env.DEV) console.error(`❌ Erreur ${itemCode}:`, error);
     return false;
   }
 }
@@ -171,7 +171,7 @@ export async function previewLyricsForItem(itemCode: string, rang: 'A' | 'B' | '
     if (import.meta.env.DEV) console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
     return lyrics;
   } catch (error) {
-    console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);
+    if (import.meta.env.DEV) console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);
     return [`Erreur: Impossible de générer la prévisualisation pour ${itemCode}`];
   }
 }

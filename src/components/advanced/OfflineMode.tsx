@@ -219,7 +219,7 @@ export const OfflineMode: React.FC = () => {
       }));
 
     } catch (error) {
-      console.error('Erreur chargement IndexedDB:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement IndexedDB:', error);
       toast.error('Erreur de chargement du stockage hors ligne');
     } finally {
       setLoading(false);
@@ -274,7 +274,7 @@ export const OfflineMode: React.FC = () => {
 
       setAvailableContent(available);
     } catch (error) {
-      console.error('Erreur chargement contenu disponible:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement contenu disponible:', error);
     }
   }, [isOnline, offlineData]);
 
@@ -407,7 +407,7 @@ export const OfflineMode: React.FC = () => {
       toast.success(`${title} téléchargé`);
 
     } catch (error) {
-      console.error('Erreur téléchargement:', error);
+      if (import.meta.env.DEV) console.error('Erreur téléchargement:', error);
       toast.error('Erreur lors du téléchargement');
     } finally {
       // Retirer de la progression après un délai
@@ -468,7 +468,7 @@ export const OfflineMode: React.FC = () => {
       }
 
     } catch (error) {
-      console.error('Erreur synchronisation:', error);
+      if (import.meta.env.DEV) console.error('Erreur synchronisation:', error);
       setSyncStatus(prev => ({
         ...prev,
         syncing: false,
@@ -488,7 +488,7 @@ export const OfflineMode: React.FC = () => {
       // Rafraîchir le contenu disponible
       loadAvailableContent();
     } catch (error) {
-      console.error('Erreur suppression:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression:', error);
       toast.error('Erreur lors de la suppression');
     }
   };
@@ -501,7 +501,7 @@ export const OfflineMode: React.FC = () => {
       toast.success('Stockage hors ligne vidé');
       loadAvailableContent();
     } catch (error) {
-      console.error('Erreur vidage:', error);
+      if (import.meta.env.DEV) console.error('Erreur vidage:', error);
       toast.error('Erreur lors du vidage');
     }
   };

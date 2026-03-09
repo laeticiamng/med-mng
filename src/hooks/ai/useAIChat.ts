@@ -51,7 +51,7 @@ const loadSessionsFromStorage = (): ChatSession[] => {
       }))
     }));
   } catch (error) {
-    console.error('Error loading chat sessions from storage:', error);
+    if (import.meta.env.DEV) console.error('Error loading chat sessions from storage:', error);
     return [];
   }
 };
@@ -63,7 +63,7 @@ const saveSessionsToStorage = (sessions: ChatSession[]) => {
     const sessionsToSave = sessions.slice(0, MAX_STORED_SESSIONS);
     localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(sessionsToSave));
   } catch (error) {
-    console.error('Error saving chat sessions to storage:', error);
+    if (import.meta.env.DEV) console.error('Error saving chat sessions to storage:', error);
     // If quota exceeded, try removing oldest sessions
     if (error instanceof DOMException && error.name === 'QuotaExceededError') {
       try {
@@ -261,7 +261,7 @@ INSTRUCTIONS CONTEXTUELLES :
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
-      console.error('Erreur envoi message IA:', err);
+      if (import.meta.env.DEV) console.error('Erreur envoi message IA:', err);
       throw err;
     } finally {
       setIsLoading(false);

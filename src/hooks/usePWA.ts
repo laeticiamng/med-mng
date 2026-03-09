@@ -92,7 +92,7 @@ export const usePWA = () => {
       }
       return false;
     } catch (error) {
-      console.error('Error installing app:', error);
+      if (import.meta.env.DEV) console.error('Error installing app:', error);
       return false;
     }
   }, [deferredPrompt]);

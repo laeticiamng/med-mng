@@ -124,7 +124,7 @@ const Statistics = () => {
       pdf.save('mes-statistiques-medmng.pdf');
       toast.success('PDF exporté avec succès !');
     } catch (err) {
-      console.error('Erreur export PDF:', err);
+      if (import.meta.env.DEV) console.error('Erreur export PDF:', err);
       toast.error('Erreur lors de l\'export PDF');
     }
   };

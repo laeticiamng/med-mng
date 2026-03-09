@@ -118,7 +118,7 @@ const MedMngFavoritesComponent = () => {
       });
       await refetch();
     } catch (error) {
-      console.error('Failed to remove selected favorites', error);
+      if (import.meta.env.DEV) console.error('Failed to remove selected favorites', error);
       toast({
         title: 'Erreur lors de la mise à jour des favoris',
         description: 'Une erreur est survenue lors du retrait des items sélectionnés des favoris.',

@@ -169,7 +169,7 @@ export const GlobalSearchBar: React.FC = () => {
       searchResults.sort((a, b) => b.relevance - a.relevance);
       setResults(searchResults);
     } catch (error) {
-      console.error('Search error:', error);
+      if (import.meta.env.DEV) console.error('Search error:', error);
     } finally {
       setLoading(false);
     }
