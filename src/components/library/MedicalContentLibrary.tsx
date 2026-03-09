@@ -234,7 +234,7 @@ export const MedicalContentLibrary = () => {
                 variant="ghost"
                 size="sm"
                 className="mt-3 text-muted-foreground"
-                onClick={() => { setSpecialty('all'); setYear('all'); setDifficulty('all'); setContentLang('all'); setSearch(''); }}
+                onClick={() => { setSpecialty('all'); setYear('all'); setDifficulty('all'); setSearch(''); }}
               >
                 <X className="h-3 w-3 mr-1" /> Réinitialiser les filtres
               </Button>

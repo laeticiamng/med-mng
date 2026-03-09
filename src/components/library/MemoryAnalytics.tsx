@@ -305,6 +305,7 @@ export const MemoryAnalytics = () => {
                       size="sm"
                       variant={isPastDue ? 'default' : 'outline'}
                       className="gap-1"
+                      onClick={() => navigate(ROUTE_PATHS.srsReview)}
                     >
                       <TrendingUp className="h-3 w-3" />
                       Réviser

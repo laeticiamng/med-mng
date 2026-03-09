@@ -162,9 +162,9 @@ export const ApplePlatformFeatures = () => {
                       variant="ghost"
                       size="sm"
                       className="self-start group/btn hover:bg-primary/10"
-                      onClick={() => handleClick(feat.tab)}
+                      onClick={() => handleClick(feat.tab, feat.comingSoon)}
                     >
-                      <TranslatedText text="Découvrir" />
+                      <TranslatedText text={feat.comingSoon ? "En savoir plus" : "Découvrir"} />
                       <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
                   ) : (
