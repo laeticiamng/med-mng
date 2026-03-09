@@ -11,7 +11,7 @@ const features = [
   {
     icon: BookOpen,
     titleFr: 'Catalogue Médical',
-    descFr: '367 items EDN organisés par spécialité, année d\'étude et niveau de difficulté. Chaque chanson avec stats de rétention.',
+    descFr: '367 cours organisés par spécialité et niveau. Chaque chanson t\'aide à retenir l\'essentiel.',
     tab: 'content',
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
@@ -21,7 +21,7 @@ const features = [
   {
     icon: Wand2,
     titleFr: 'Studio Créateur IA',
-    descFr: 'Uploadez un PDF ou PPTX → l\'IA génère des paroles médicales structurées. Éditez et publiez.',
+    descFr: 'Importe ton cours en PDF → l\'IA crée des paroles de chanson adaptées. Tu édites et tu publies.',
     tab: 'creator',
     colSpan: 1,
     gradient: 'from-accent/20 via-accent/5 to-transparent',
@@ -31,7 +31,7 @@ const features = [
   {
     icon: Brain,
     titleFr: 'Courbe de Mémoire',
-    descFr: 'Visualisez votre courbe d\'oubli d\'Ebbinghaus par sujet. Rappels intelligents de répétition espacée.',
+    descFr: 'Visualise ta courbe d\'oubli par sujet. Des rappels intelligents t\'aident à réviser au bon moment.',
     tab: 'memory',
     colSpan: 1,
     gradient: 'from-warning/20 via-warning/5 to-transparent',
@@ -40,22 +40,12 @@ const features = [
   },
   {
     icon: GraduationCap,
-    titleFr: 'Certification DPC',
-    descFr: 'Suivez vos modules de formation médicale continue et téléchargez vos attestations conformes en PDF.',
+    titleFr: 'Attestations PDF',
+    descFr: 'Suis ta progression et télécharge tes attestations de formation en PDF.',
     tab: 'dpc',
     colSpan: 1,
     gradient: 'from-success/20 via-success/5 to-transparent',
     iconBg: 'bg-success/15 text-success',
-    comingSoon: false,
-  },
-  {
-    icon: Globe,
-    titleFr: 'Multilingue',
-    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English et 🇩🇪 Deutsch.',
-    tab: null,
-    colSpan: 1,
-    gradient: 'from-secondary/30 via-secondary/10 to-transparent',
-    iconBg: 'bg-secondary/50 text-secondary-foreground',
     comingSoon: false,
   },
 ];
