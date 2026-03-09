@@ -35,7 +35,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
   };
 
   const testAudioPlayback = async () => {
-    console.log('🧪 Test de lecture audio démarré');
+    if (import.meta.env.DEV) console.log('🧪 Test de lecture audio démarré');
     const results: any = {
       canCreateAudio: false,
       canLoadUrl: false,
@@ -49,7 +49,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
       // Test 1: Création d'objet Audio
       const testAudio = new Audio();
       results.canCreateAudio = true;
-      console.log('✅ Audio object créé');
+      if (import.meta.env.DEV) console.log('✅ Audio object créé');
 
       // Test 2: Chargement URL
       testAudio.src = testAudioUrl;
@@ -58,7 +58,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
         
         testAudio.addEventListener('loadstart', () => {
           results.canLoadUrl = true;
-          console.log('✅ Chargement URL démarré');
+          if (import.meta.env.DEV) console.log('✅ Chargement URL démarré');
         });
 
         testAudio.addEventListener('canplay', () => {
@@ -78,7 +78,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
       try {
         await testAudio.play();
         results.canPlay = true;
-        console.log('✅ Lecture réussie');
+        if (import.meta.env.DEV) console.log('✅ Lecture réussie');
         testAudio.pause();
       } catch (playError: any) {
         console.warn('⚠️ Erreur de lecture:', playError);
@@ -103,7 +103,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
 
   const testCurrentTrack = () => {
     if (currentTrack) {
-      console.log('🧪 Test de la piste actuelle:', currentTrack);
+      if (import.meta.env.DEV) console.log('🧪 Test de la piste actuelle:', currentTrack);
       
       if (isPlaying) {
         pause();
