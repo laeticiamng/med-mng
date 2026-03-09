@@ -6,7 +6,7 @@ import { AuditValidators } from './validators';
 export class EDNItemsAuditor {
   
   static async auditAllItems(): Promise<AuditReport> {
-    console.log('🔍 Démarrage de l\'audit des items EDN...');
+    if (import.meta.env.DEV) console.log('🔍 Démarrage de l\'audit des items EDN...');
     
     try {
       // Récupération de tous les items
@@ -24,14 +24,14 @@ export class EDNItemsAuditor {
         return this.createEmptyReport();
       }
 
-      console.log(`📦 ${items.length} items trouvés, début de l'audit...`);
+      if (import.meta.env.DEV) console.log(`📦 ${items.length} items trouvés, début de l'audit...`);
 
       // Audit de chaque item
       const results: AuditResult[] = [];
       for (const item of items) {
         const auditResult = await AuditValidators.auditSingleItem(item);
         results.push(auditResult);
-        console.log(`✅ Audit terminé pour ${auditResult.item_code}: ${auditResult.status}`);
+        if (import.meta.env.DEV) console.log(`✅ Audit terminé pour ${auditResult.item_code}: ${auditResult.status}`);
       }
 
       // Génération du rapport
@@ -44,7 +44,7 @@ export class EDNItemsAuditor {
         results
       };
 
-      console.log('📊 Rapport d\'audit généré:', {
+      if (import.meta.env.DEV) console.log('📊 Rapport d\'audit généré:', {
         total: report.totalItems,
         valid: report.validItems,
         invalid: report.invalidItems,
