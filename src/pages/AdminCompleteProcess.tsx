@@ -74,7 +74,7 @@ const AdminCompleteProcess = () => {
         });
 
         if (auditError) {
-          console.error(`Erreur audit ${auditType}:`, auditError);
+          if (import.meta.env.DEV) console.error(`Erreur audit ${auditType}:`, auditError);
           setAuditResults(prev => [...prev, {
             type: auditType,
             success: false,
