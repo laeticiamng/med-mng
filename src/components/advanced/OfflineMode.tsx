@@ -407,7 +407,7 @@ export const OfflineMode: React.FC = () => {
       toast.success(`${title} téléchargé`);
 
     } catch (error) {
-      console.error('Erreur téléchargement:', error);
+      if (import.meta.env.DEV) console.error('Erreur téléchargement:', error);
       toast.error('Erreur lors du téléchargement');
     } finally {
       // Retirer de la progression après un délai
