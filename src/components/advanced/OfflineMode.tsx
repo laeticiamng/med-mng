@@ -488,7 +488,7 @@ export const OfflineMode: React.FC = () => {
       // Rafraîchir le contenu disponible
       loadAvailableContent();
     } catch (error) {
-      console.error('Erreur suppression:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression:', error);
       toast.error('Erreur lors de la suppression');
     }
   };
