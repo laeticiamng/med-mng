@@ -58,7 +58,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
         
         testAudio.addEventListener('loadstart', () => {
           results.canLoadUrl = true;
-          console.log('✅ Chargement URL démarré');
+          if (import.meta.env.DEV) console.log('✅ Chargement URL démarré');
         });
 
         testAudio.addEventListener('canplay', () => {
