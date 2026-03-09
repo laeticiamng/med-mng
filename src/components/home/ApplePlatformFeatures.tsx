@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Wand2, Brain, GraduationCap, Globe, ArrowRight } from 'lucide-react';
+import { BookOpen, Wand2, Brain, GraduationCap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
