@@ -10,17 +10,17 @@ const testimonials = [
   {
     id: 1,
     quote: "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.",
-    author: "Marie L.", role: "D4 — CHU Bordeauxatar: "ML", avatarGradient: "from-primary to-accent"
+    author: "Marie L.", role: "D4 — CHU BordeauxarGradient: "from-primary to-accent"
   },
   {
     id: 2,
     quote: "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.",
-    author: "Thomas K.", role: "D3 - Paris Descarte— Paris Descartesatar: "TK", avatarGradient: "from-accent to-warning"
+    author: "Thomas K.", role: "D3 - Paris Descarte— Paris Descar— Paris Descartesaccent to-warning"
   },
   {
     id: 3,
     quote: "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
-    author: "Sarah M.", role: "D2 - Lyon Est · Bêta-testeuse", rating: 4, avatar: "SM", avatarGradient: "from-warning to-success"
+    author: "Sarah M.", role: "D2 - Lyon Est · Bêta-testeuse", rat— Lyon EstGradient: "from-warning to-success"
   },
   {
     id: 4,
