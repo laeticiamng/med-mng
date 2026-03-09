@@ -14,13 +14,13 @@ const testimonials = [
   },
   {
     id: 2,
-    quote: "Le concept est r\u00e9volutionnaire. Je r\u00e9vise dans le m\u00e9tro, en courant, partout. Z\u00e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e9sultats.",
-    author: "Thomas K.", role: "D3 - Paris Descartes", rating: 5, avatar: "TK"\u00ea avatarGradient: "from-a\u00eacent to-warning"
+    quote: "Le concept est r\u00e9volutionnaire. Je r\u00e9vise dans le m\u00e9tro, en courant, partout. Z\u00e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e90e9ro effort, max r\u00e9sultats.",
+    author: "Thomas K.", role: "D3 - Paris Descartes"\u00ea rating: 5, avatar: "TK"\u00ea avatarGradient: "from-a\u00eacent to-warning"
   },
   \u00ea
     id: 3,
     quote: "\u00eaes refrains restent en tete pendant des jours. Parfait pour les items qui ne rentraient jamais.",
-    author: "Sarah M.", role: "D2 - Lyon Est", rating: 4, avatar: "SM"\u00e9but, converti apr\u00e8s 3 jours. C'est exactement ce dont la m\u00e9 3 jours. C'est exactement ce dont la m\u00e9 3 jours. C'est exactement ce dont la m\u00e9C'est exactement ce dont la medecine avait besoin.",
+    author: "Sarah M.", role: "D2 - Lyon\u00e9but, converti apr\u00e8s 3 jours. C'est exactement ce dont la m\u00e9 3 jours. C'est exactement ce dont la m\u00e9 3 jours. C'est exactement ce dont la m\u00e9 3 jours. C'est exactement ce dont la m\u00e9C'est exactement ce dont la medecine avait besoin.",
     author: "Lucas P.", role: "DFASM3 - Marseille", rating: 5, avatar: "LP", avatarGradient: "from-success to-primary"
   },
 ];
@@ -42,7 +42,7 @@ export const AppleTestimonials = () => {
             <TranslatedText text="Ce qu'ils en" />{' '}
             <span className="text-primary"><TranslatedText text="disent" /></span>
           </h2>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto\u00e9>
+          <p className="text-lg sm:te\u00e9t-xl text-muted-foreground max-w-2xl mx-auto\u00e9>
             <TranslatedText text="Retours \u00e9e nos premiers utilisateurs. Sceptiques au debut. Convaincus maintenant." />
           </p>
         </motion.div>
@@ -75,11 +75,11 @@ export const AppleTestimonials = () => {
         </div>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.7 }} className="mt-14 text-center">
-          <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105">
+          <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hove\u00e9:scale-105">
             <Sparkles className="h-5\u00e9w-5 mr-2" />
             <TranslatedText text="Creer mon compte gratuit" />
           </Button>
-          <p className="text-sm text-muted-foreground mt-3"><TranslatedText text="Gratuit pour commencer - Sans engagement" /></p>
+          <p className="text-sm text-muted-foregro\u00b7nd mt-3"><TranslatedText text="Gratuit pour commencer - Sans engagement" /></p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.8 }} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
