@@ -133,6 +133,7 @@ const ForgettingCurve = ({ retention, daysAgo, reviewCount }: { retention: numbe
 };
 
 export const MemoryAnalytics = () => {
+  const navigate = useNavigate();
   const [topics] = useState<TopicMemory[]>(() => generateMockTopics());
   const [filterSpecialty, setFilterSpecialty] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
