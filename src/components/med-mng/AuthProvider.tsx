@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               try {
                 await sendWelcomeEmail(session.user.email!, name);
               } catch (e) {
-                console.warn('Échec envoi email de bienvenue:', e);
+                if (import.meta.env.DEV) console.warn('Échec envoi email de bienvenue:', e);
               }
             }, 2000);
           }
