@@ -55,7 +55,7 @@ export const useOfflineQueue = () => {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.error('Erreur chargement queue:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement queue:', error);
       return [];
     }
   }, []);
