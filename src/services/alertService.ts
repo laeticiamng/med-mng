@@ -297,7 +297,7 @@ async function persistAlert(alert: Alert): Promise<boolean> {
     });
 
     if (error) {
-      console.error('Failed to persist alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to persist alert:', error);
       return false;
     }
     return true;
