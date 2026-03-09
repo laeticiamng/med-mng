@@ -95,7 +95,7 @@ export const useAudioCache = () => {
       const blob = await response.blob();
       return URL.createObjectURL(blob);
     } catch (error) {
-      console.error('Error getting cached audio:', error);
+      if (import.meta.env.DEV) console.error('Error getting cached audio:', error);
       return null;
     }
   }, [isSupported]);
