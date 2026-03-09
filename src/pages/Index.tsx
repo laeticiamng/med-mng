@@ -26,7 +26,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
             .maybeSingle();
           
           if (error) {
-            console.warn('Onboarding check failed:', error.message);
+            if (import.meta.env.DEV) console.warn('Onboarding check failed:', error.message);
           }
           
           if (!data?.onboarding_completed) {
