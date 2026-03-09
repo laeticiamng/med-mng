@@ -148,7 +148,7 @@ export const useAudioCache = () => {
       refreshStats();
       return true;
     } catch (error) {
-      console.error('Error caching audio:', error);
+      if (import.meta.env.DEV) console.error('Error caching audio:', error);
       return false;
     }
   }, [isSupported, cacheStats.totalSize, getCachedAudio, refreshStats]);
