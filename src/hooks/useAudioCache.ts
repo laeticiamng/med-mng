@@ -69,7 +69,7 @@ export const useAudioCache = () => {
         newestEntry: newest
       });
     } catch (error) {
-      console.error('Error refreshing cache stats:', error);
+      if (import.meta.env.DEV) console.error('Error refreshing cache stats:', error);
     }
   }, [isSupported]);
 
