@@ -181,7 +181,7 @@ export const EdnAuditDashboard: React.FC = () => {
       await loadAuditResults();
 
     } catch (error: any) {
-      console.error('Error completing item:', error);
+      if (import.meta.env.DEV) console.error('Error completing item:', error);
       
       // Message d'erreur plus détaillé
       let errorMessage = error.message || "Impossible de compléter les compétences";
