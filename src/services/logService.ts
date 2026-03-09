@@ -351,7 +351,7 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
       userAgent: row.meta?.userAgent
     }));
   } catch (err) {
-    console.error('Error retrieving logs:', err);
+    if (import.meta.env.DEV) console.error('Error retrieving logs:', err);
     return [];
   }
 }
