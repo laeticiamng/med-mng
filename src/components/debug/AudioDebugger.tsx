@@ -81,7 +81,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
         if (import.meta.env.DEV) console.log('✅ Lecture réussie');
         testAudio.pause();
       } catch (playError: any) {
-        console.warn('⚠️ Erreur de lecture:', playError);
+        if (import.meta.env.DEV) console.warn('⚠️ Erreur de lecture:', playError);
         if (playError.name === 'NotAllowedError') {
           results.autoplayBlocked = true;
         }

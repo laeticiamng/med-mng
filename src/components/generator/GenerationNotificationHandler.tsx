@@ -33,7 +33,7 @@ export const useGenerationNotifications = ({
       }
       audioRef.current.play().catch(() => {});
     } catch (err) {
-      console.warn('Erreur lecture son notification:', err);
+      if (import.meta.env.DEV) console.warn('Erreur lecture son notification:', err);
     }
   }, [playNotificationSound]);
 
@@ -59,7 +59,7 @@ export const useGenerationNotifications = ({
         });
         playSound();
       } catch (err) {
-        console.warn('Erreur notification push:', err);
+        if (import.meta.env.DEV) console.warn('Erreur notification push:', err);
         // Fallback sur toast
         toast.success(title, { description: body });
       }

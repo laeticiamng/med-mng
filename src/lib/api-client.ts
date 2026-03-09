@@ -118,7 +118,7 @@ export class APIClient {
             try {
               validateSchema.parse(responseData);
             } catch (validationError) {
-              console.warn('Response validation failed:', validationError.message);
+              if (import.meta.env.DEV) console.warn('Response validation failed:', validationError.message);
             }
           }
 

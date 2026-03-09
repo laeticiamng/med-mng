@@ -3,7 +3,7 @@ import type { IC1CompletenessReport } from '../types/ic1Types';
 
 export class IC1MedicalContentChecker {
   static checkMedicalContent(item: any, report: IC1CompletenessReport): void {
-    console.log('🏥 Vérification du contenu médical IC-1...');
+    if (import.meta.env.DEV) console.log('🏥 Vérification du contenu médical IC-1...');
     
     const fullContent = this.extractAllContent(item).toLowerCase();
     
@@ -17,7 +17,7 @@ export class IC1MedicalContentChecker {
     const medicalChecks = Object.values(report.medicalContentCheck);
     const medicalScore = medicalChecks.filter(Boolean).length / medicalChecks.length;
     
-    console.log(`🏥 Score médical: ${Math.round(medicalScore * 100)}%`);
+    if (import.meta.env.DEV) console.log(`🏥 Score médical: ${Math.round(medicalScore * 100)}%`);
 
     if (medicalScore < 0.75) {
       report.isCompliant = false;

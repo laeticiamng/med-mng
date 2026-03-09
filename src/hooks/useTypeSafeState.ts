@@ -314,7 +314,7 @@ export function useTypeSafeLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? deserialize(item) : defaultValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      if (import.meta.env.DEV) console.warn(`Error reading localStorage key "${key}":`, error);
       return defaultValue;
     }
   });
@@ -328,7 +328,7 @@ export function useTypeSafeLocalStorage<T>(
         window.localStorage.setItem(key, serialize(valueToStore));
       }
     } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
+      if (import.meta.env.DEV) console.warn(`Error setting localStorage key "${key}":`, error);
     }
   }, [key, serialize, storedValue]);
 
@@ -339,7 +339,7 @@ export function useTypeSafeLocalStorage<T>(
         window.localStorage.removeItem(key);
       }
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      if (import.meta.env.DEV) console.warn(`Error removing localStorage key "${key}":`, error);
     }
   }, [key, defaultValue]);
 

@@ -176,13 +176,13 @@ export const DataExportManager: React.FC = () => {
               .limit(10000);
 
             if (error) {
-              console.warn(`Erreur pour ${tableName}:`, error);
+              if (import.meta.env.DEV) console.warn(`Erreur pour ${tableName}:`, error);
               moduleData[tableName] = [];
             } else {
               moduleData[tableName] = data || [];
             }
           } catch (err) {
-            console.warn(`Table ${tableName} non accessible:`, err);
+            if (import.meta.env.DEV) console.warn(`Table ${tableName} non accessible:`, err);
             moduleData[tableName] = [];
           }
         }

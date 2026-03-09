@@ -73,7 +73,7 @@ export function useDiagnosticLogs() {
       await supabase.from('ai_monitoring_errors').insert(entries as any);
     } catch (error) {
       // Don't log errors about logging - could cause infinite loop
-      console.debug('Failed to persist diagnostic logs:', error);
+      if (import.meta.env.DEV) console.debug('Failed to persist diagnostic logs:', error);
     }
   };
 
@@ -163,12 +163,12 @@ export const diagnosticLogger = {
     console.error(`[ERROR] ${message}`, context);
   },
   warning: (message: string, context?: Record<string, any>) => {
-    console.warn(`[WARNING] ${message}`, context);
+    if (import.meta.env.DEV) console.warn(`[WARNING] ${message}`, context);
   },
   info: (message: string, context?: Record<string, any>) => {
     if (import.meta.env.DEV) console.log(`[INFO] ${message}`, context);
   },
   debug: (message: string, context?: Record<string, any>) => {
-    console.debug(`[DEBUG] ${message}`, context);
+    if (import.meta.env.DEV) console.debug(`[DEBUG] ${message}`, context);
   },
 };

@@ -52,7 +52,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         });
 
         if (!response.ok) {
-          console.error('❌ Erreur Supabase REST:', response.status, response.statusText);
+          if (import.meta.env.DEV) console.error('❌ Erreur Supabase REST:', response.status, response.statusText);
           setError('Item non trouvé');
           return;
         }
@@ -94,13 +94,13 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
               parsedItem = EDNItemParser.parseItemV2(validatedData, itemId);
               valErrors = [];
             } else if ('success' in validation && validation.success === false && 'errors' in validation) {
-              console.warn('⚠️ Item v2 invalide:', validation.errors);
+              if (import.meta.env.DEV) console.warn('⚠️ Item v2 invalide:', validation.errors);
               valErrors = validation.errors;
               // On continue quand même le parsing pour éviter la régression
               parsedItem = EDNItemParser.parseAnyItem(data, itemId);
             }
           } catch (err) {
-            console.error('❌ Erreur de validation:', err);
+            if (import.meta.env.DEV) console.error('❌ Erreur de validation:', err);
             // En cas d'erreur, on parse comme v1
             const itemId = (data as any).id ?? (data as any).slug ?? slug;
             parsedItem = EDNItemParser.parseAnyItem(data, itemId);
@@ -116,7 +116,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         setError(null);
         
       } catch (catchError) {
-        console.error('❌ Erreur générale:', catchError);
+        if (import.meta.env.DEV) console.error('❌ Erreur générale:', catchError);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

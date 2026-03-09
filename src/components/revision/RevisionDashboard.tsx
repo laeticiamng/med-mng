@@ -73,7 +73,7 @@ export const RevisionDashboard: React.FC = () => {
               const parsed = JSON.parse(savedHistory);
               setRevisionHistory(parsed.slice(0, 20));
             } catch (e) {
-              console.warn('Failed to parse revision history');
+              if (import.meta.env.DEV) console.warn('Failed to parse revision history');
             }
           }
         }

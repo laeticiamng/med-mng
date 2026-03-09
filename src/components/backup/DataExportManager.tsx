@@ -188,7 +188,7 @@ export const DataExportManager: React.FC = () => {
           )
         );
       } catch (err) {
-        console.warn(`Export type ${typeId} skipped:`, err);
+        if (import.meta.env.DEV) console.warn(`Export type ${typeId} skipped:`, err);
       }
     }
     

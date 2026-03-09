@@ -79,13 +79,13 @@ class MusicService {
         // Événement analytics
         this.trackGeneration(request, data.duration_seconds, true)
       } else {
-        console.error('❌ Song generation failed:', data.error)
+        if (import.meta.env.DEV) console.error('❌ Song generation failed:', data.error)
         this.trackGeneration(request, 0, false, data.error)
       }
 
       return data
     } catch (error) {
-      console.error('❌ Error generating song:', error)
+      if (import.meta.env.DEV) console.error('❌ Error generating song:', error)
       this.trackGeneration(request, 0, false, error.message)
       throw error
     }
@@ -104,7 +104,7 @@ class MusicService {
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching generation stats:', error)
+      if (import.meta.env.DEV) console.error('❌ Error fetching generation stats:', error)
       throw error
     }
   }
@@ -129,7 +129,7 @@ class MusicService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('❌ Error fetching user library:', error)
+      if (import.meta.env.DEV) console.error('❌ Error fetching user library:', error)
       throw error
     }
   }
@@ -151,7 +151,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Song added to library')
     } catch (error) {
-      console.error('❌ Error adding to library:', error)
+      if (import.meta.env.DEV) console.error('❌ Error adding to library:', error)
       throw error
     }
   }
@@ -166,7 +166,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Song removed from library')
     } catch (error) {
-      console.error('❌ Error removing from library:', error)
+      if (import.meta.env.DEV) console.error('❌ Error removing from library:', error)
       throw error
     }
   }
@@ -176,7 +176,7 @@ class MusicService {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        console.warn('⚠️ User not authenticated for playlists')
+        if (import.meta.env.DEV) console.warn('⚠️ User not authenticated for playlists')
         return []
       }
 
@@ -195,7 +195,7 @@ class MusicService {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('❌ Error fetching playlists:', error)
+        if (import.meta.env.DEV) console.error('❌ Error fetching playlists:', error)
         return []
       }
 
@@ -246,7 +246,7 @@ class MusicService {
       if (import.meta.env.DEV) console.log('✅ Playlist created:', name)
       return newPlaylist
     } catch (error) {
-      console.error('❌ Error creating playlist:', error)
+      if (import.meta.env.DEV) console.error('❌ Error creating playlist:', error)
       throw error
     }
   }
@@ -274,7 +274,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Song added to playlist')
     } catch (error) {
-      console.error('❌ Error adding song to playlist:', error)
+      if (import.meta.env.DEV) console.error('❌ Error adding song to playlist:', error)
       throw error
     }
   }
@@ -290,7 +290,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Song removed from playlist')
     } catch (error) {
-      console.error('❌ Error removing song from playlist:', error)
+      if (import.meta.env.DEV) console.error('❌ Error removing song from playlist:', error)
       throw error
     }
   }
@@ -312,7 +312,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Playlist deleted')
     } catch (error) {
-      console.error('❌ Error deleting playlist:', error)
+      if (import.meta.env.DEV) console.error('❌ Error deleting playlist:', error)
       throw error
     }
   }
@@ -337,7 +337,7 @@ class MusicService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('❌ Error fetching favorites:', error)
+      if (import.meta.env.DEV) console.error('❌ Error fetching favorites:', error)
       throw error
     }
   }
@@ -379,7 +379,7 @@ class MusicService {
         return true
       }
     } catch (error) {
-      console.error('❌ Error toggling favorite:', error)
+      if (import.meta.env.DEV) console.error('❌ Error toggling favorite:', error)
       throw error
     }
   }
@@ -423,7 +423,7 @@ class MusicService {
         })
       }
     } catch (err) {
-      console.warn('Failed to save music analytics:', err)
+      if (import.meta.env.DEV) console.warn('Failed to save music analytics:', err)
     }
   }
 
@@ -474,7 +474,7 @@ class MusicService {
         item.item_code?.toLowerCase().includes(queryLower)
       )
     } catch (error) {
-      console.error('Error searching library:', error)
+      if (import.meta.env.DEV) console.error('Error searching library:', error)
       return []
     }
   }
@@ -515,7 +515,7 @@ class MusicService {
         byRang
       }
     } catch (error) {
-      console.error('Error getting library stats:', error)
+      if (import.meta.env.DEV) console.error('Error getting library stats:', error)
       return {
         totalSongs: 0,
         totalPlaylists: 0,
@@ -534,7 +534,7 @@ class MusicService {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, limit)
     } catch (error) {
-      console.error('Error getting recent songs:', error)
+      if (import.meta.env.DEV) console.error('Error getting recent songs:', error)
       return []
     }
   }
@@ -561,7 +561,7 @@ class MusicService {
       if (import.meta.env.DEV) console.log('Playlist duplicated successfully')
       return newPlaylist
     } catch (error) {
-      console.error('Error duplicating playlist:', error)
+      if (import.meta.env.DEV) console.error('Error duplicating playlist:', error)
       return null
     }
   }
@@ -585,7 +585,7 @@ class MusicService {
 
       return JSON.stringify(exportData, null, 2)
     } catch (error) {
-      console.error('Error exporting playlist:', error)
+      if (import.meta.env.DEV) console.error('Error exporting playlist:', error)
       return null
     }
   }
@@ -620,7 +620,7 @@ class MusicService {
       const playlists = await this.getUserPlaylists()
       return playlists.filter(p => p.songs.some(s => s.song_id === songId))
     } catch (error) {
-      console.error('Error getting playlists containing song:', error)
+      if (import.meta.env.DEV) console.error('Error getting playlists containing song:', error)
       return []
     }
   }
