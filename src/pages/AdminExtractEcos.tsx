@@ -55,7 +55,7 @@ const AdminExtractEcos = () => {
       toast.success(`Extraction ECOS terminée! ${data.stats?.totalProcessed || 0} situations traitées`);
 
     } catch (error: any) {
-      console.error('💥 Erreur critique ECOS:', error);
+      if (import.meta.env.DEV) console.error('💥 Erreur critique ECOS:', error);
       
       // Gestion spécifique de l'erreur de timeout credentials
       if (error.message.includes('Timeout') || error.message.includes('credential')) {
