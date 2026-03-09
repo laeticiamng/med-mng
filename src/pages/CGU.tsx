@@ -476,7 +476,7 @@ const CGU = () => {
             <h3 className="text-lg font-semibold text-foreground mb-3">📧 NOUS CONTACTER</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p><strong>EmotionsCare SASU</strong></p>
-              <p>5 rue Caudron, 80000 Amiens, France</p>
+              <p>Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               <p>Email : contact@emotionscare.com</p>
               <p>SIRET : 944 505 445 00011</p>
             </div>

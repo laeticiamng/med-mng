@@ -181,8 +181,8 @@ const About = () => {
                 <ul className="text-sm space-y-1">
                   <li><strong>Raison sociale :</strong> EmotionsCare SASU</li>
                   <li><strong>Capital social :</strong> 100 euros</li>
-                  <li><strong>Siège social :</strong> 5 rue Caudron, 80000 Amiens, France</li>
-                  <li><strong>RCS Amiens :</strong> 944 505 445</li>
+                  <li><strong>Siège social :</strong> Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
+                  <li><strong>RCS Amiens :</strong> 944 505 445 (inscrit le 21/05/2025)</li>
                   <li><strong>SIRET :</strong> 944 505 445 00011</li>
                   <li><strong>TVA intracommunautaire :</strong> FR89944505445</li>
                   <li><strong>Présidente :</strong> Laeticia Motongane</li>

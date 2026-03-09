@@ -190,7 +190,7 @@ const MentionsLegales = () => {
                   <Mail className="h-4 w-4 text-primary" />
                   <span>dpo@emotionscare.com</span>
                 </div>
-                <p className="text-sm">Adresse postale : EMOTIONSCARE – DPO, 5 rue Caudron, 80000 Amiens, France</p>
+                <p className="text-sm">Adresse postale : EMOTIONSCARE – DPO, Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               </div>
               <p className="text-sm">Pour toute question relative à la protection de vos données personnelles ou pour exercer vos droits RGPD (accès, rectification, effacement, portabilité, limitation, opposition), vous pouvez contacter le DPO à l'adresse ci-dessus.</p>
               <div className="bg-success/10 p-4 rounded-lg">

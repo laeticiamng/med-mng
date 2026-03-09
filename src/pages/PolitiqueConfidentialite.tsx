@@ -269,7 +269,7 @@ const PolitiqueConfidentialite = () => {
                   <Mail className="h-4 w-4 text-primary" />
                   <span>dpo@emotionscare.com</span>
                 </div>
-                <p className="text-sm">EMOTIONSCARE – DPO, 5 rue Caudron, 80000 Amiens, France</p>
+                <p className="text-sm">EMOTIONSCARE – DPO, Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               </div>
               <p className="text-sm">Le DPO est votre point de contact pour toute question relative à la protection de vos données personnelles et pour l'exercice de vos droits RGPD.</p>
             </div>
