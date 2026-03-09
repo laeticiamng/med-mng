@@ -176,7 +176,7 @@ export const MedMngPricing = () => {
             </PremiumCard>
           </div>
         </div>
-        <AppFooter />
+        
       </PremiumBackground>
     </>
   );

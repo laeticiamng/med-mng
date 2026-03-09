@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Wand2, Brain, GraduationCap, Globe, ArrowRight } from 'lucide-react';
+import { BookOpen, Wand2, Brain, GraduationCap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ROUTE_PATHS } from '@/config/routes';
 
@@ -11,7 +11,7 @@ const features = [
   {
     icon: BookOpen,
     titleFr: 'Catalogue Médical',
-    descFr: '367 items EDN organisés par spécialité, année d\'étude et niveau de difficulté. Chaque chanson avec stats de rétention.',
+    descFr: '367 cours organisés par spécialité et niveau. Chaque chanson t\'aide à retenir l\'essentiel.',
     tab: 'content',
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
@@ -21,7 +21,7 @@ const features = [
   {
     icon: Wand2,
     titleFr: 'Studio Créateur IA',
-    descFr: 'Uploadez un PDF ou PPTX → l\'IA génère des paroles médicales structurées. Éditez et publiez.',
+    descFr: 'Importe ton cours en PDF → l\'IA crée des paroles de chanson adaptées. Tu édites et tu publies.',
     tab: 'creator',
     colSpan: 1,
     gradient: 'from-accent/20 via-accent/5 to-transparent',
@@ -31,7 +31,7 @@ const features = [
   {
     icon: Brain,
     titleFr: 'Courbe de Mémoire',
-    descFr: 'Visualisez votre courbe d\'oubli d\'Ebbinghaus par sujet. Rappels intelligents de répétition espacée.',
+    descFr: 'Visualise ta courbe d\'oubli par sujet. Des rappels intelligents t\'aident à réviser au bon moment.',
     tab: 'memory',
     colSpan: 1,
     gradient: 'from-warning/20 via-warning/5 to-transparent',
@@ -40,30 +40,18 @@ const features = [
   },
   {
     icon: GraduationCap,
-    titleFr: 'Certification DPC',
-    descFr: 'Suivez vos modules de formation médicale continue et téléchargez vos attestations conformes en PDF.',
+    titleFr: 'Attestations PDF',
+    descFr: 'Suis ta progression et télécharge tes attestations de formation en PDF.',
     tab: 'dpc',
     colSpan: 1,
     gradient: 'from-success/20 via-success/5 to-transparent',
     iconBg: 'bg-success/15 text-success',
     comingSoon: false,
   },
-  {
-    icon: Globe,
-    titleFr: 'Multilingue',
-    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English et 🇩🇪 Deutsch.',
-    tab: null,
-    colSpan: 1,
-    gradient: 'from-secondary/30 via-secondary/10 to-transparent',
-    iconBg: 'bg-secondary/50 text-secondary-foreground',
-    comingSoon: false,
-  },
 ];
 
 export const ApplePlatformFeatures = () => {
   const navigate = useNavigate();
-  const { setCurrentLanguage } = useLanguage();
-
   const { user } = useAuth();
 
   const handleClick = (tab: string | null, comingSoon: boolean) => {
@@ -106,7 +94,7 @@ export const ApplePlatformFeatures = () => {
             <TranslatedText text="Une plateforme complète" />
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            <TranslatedText text="Tout ce dont vous avez besoin pour apprendre la médecine en musique, au même endroit." />
+            <TranslatedText text="Tout ce dont tu as besoin pour apprendre la médecine en musique, au même endroit." />
           </p>
         </motion.div>
 
@@ -157,31 +145,16 @@ export const ApplePlatformFeatures = () => {
                   </p>
 
                   {/* CTA */}
-                  {feat.tab ? (
+                  {feat.tab && (
                     <Button
                       variant="ghost"
                       size="sm"
                       className="self-start group/btn hover:bg-primary/10"
                       onClick={() => handleClick(feat.tab, feat.comingSoon)}
                     >
-                      <TranslatedText text={feat.comingSoon ? "En savoir plus" : "Découvrir"} />
+                      <TranslatedText text={user ? "Découvrir" : "S'inscrire pour accéder"} />
                       <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
-                  ) : (
-                    <div className="flex gap-2 self-start">
-                      {(['fr', 'en', 'de'] as const).map((lang) => (
-                        <Button
-                          key={lang}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs px-3 hover:bg-primary/10 border-border/50"
-                          onClick={() => setCurrentLanguage(lang as any)}
-                          aria-label={lang === 'fr' ? 'Français' : lang === 'en' ? 'English' : 'Deutsch'}
-                        >
-                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : '🇩🇪'}
-                        </Button>
-                      ))}
-                    </div>
                   )}
                 </div>
               </motion.div>

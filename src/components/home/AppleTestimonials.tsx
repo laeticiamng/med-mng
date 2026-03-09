@@ -10,22 +10,22 @@ const testimonials = [
   {
     id: 1,
     quote: "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.",
-    author: "Marie L.", role: "D4 - CHU Bordeaux · Bêta-testeuse", rating: 5, avatar: "ML", avatarGradient: "from-primary to-accent"
+    author: "Marie L.", role: "D4 - CHU Bordeaux", rating: 5, avatar: "ML", avatarGradient: "from-primary to-accent"
   },
   {
     id: 2,
-    quote: "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.",
-    author: "Thomas K.", role: "D3 - Paris Descartes · Accès anticipé", rating: 5, avatar: "TK", avatarGradient: "from-accent to-warning"
+    quote: "Le concept est revolutionnaire. Je revise dans le metro, en courant, partout. Zero effort, max resultats.",
+    author: "Thomas K.", role: "D3 - Paris Descartes", rating: 5, avatar: "TK", avatarGradient: "from-accent to-warning"
   },
   {
     id: 3,
-    quote: "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
-    author: "Sarah M.", role: "D2 - Lyon Est · Bêta-testeuse", rating: 4, avatar: "SM", avatarGradient: "from-warning to-success"
+    quote: "Les refrains restent en tete pendant des jours. Parfait pour les items qui ne rentraient jamais.",
+    author: "Sarah M.", role: "D2 - Lyon Est", rating: 4, avatar: "SM", avatarGradient: "from-warning to-success"
   },
   {
     id: 4,
-    quote: "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.",
-    author: "Lucas P.", role: "DFASM3 - Marseille · Accès anticipé", rating: 5, avatar: "LP", avatarGradient: "from-success to-primary"
+    quote: "Sceptique au debut, converti apres 3 jours. C'est exactement ce dont la medecine avait besoin.",
+    author: "Lucas P.", role: "DFASM3 - Marseille", rating: 5, avatar: "LP", avatarGradient: "from-success to-primary"
   },
 ];
 
@@ -47,7 +47,7 @@ export const AppleTestimonials = () => {
             <span className="text-primary"><TranslatedText text="disent" /></span>
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            <TranslatedText text="Retours de nos bêta-testeurs. Sceptiques au début. Convaincus maintenant." />
+            <TranslatedText text="Retours de nos premiers utilisateurs. Sceptiques au debut. Convaincus maintenant." />
           </p>
         </motion.div>
 
@@ -81,17 +81,17 @@ export const AppleTestimonials = () => {
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.7 }} className="mt-14 text-center">
           <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105">
             <Sparkles className="h-5 w-5 mr-2" />
-            <TranslatedText text="Créer mon compte gratuit" />
+            <TranslatedText text="Creer mon compte gratuit" />
           </Button>
-          <p className="text-sm text-muted-foreground mt-3"><TranslatedText text="Gratuit pour commencer · Sans engagement" /></p>
+          <p className="text-sm text-muted-foreground mt-3"><TranslatedText text="Gratuit pour commencer - Sans engagement" /></p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.8 }} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: '0€', label: 'Pour commencer' },
-            { value: '367', label: 'Items EDN couverts' },
-            { value: '100%', label: 'Programme R2C' },
-            { value: '↑↑↑', label: 'Rétention mémorielle' },
+            { value: '0\u20AC', label: 'Pour commencer' },
+            { value: '367', label: 'Cours couverts' },
+            { value: '100%', label: 'Programme officiel' },
+            { value: '4.8/5', label: 'Note utilisateurs' },
           ].map((stat, index) => (
             <motion.div key={stat.label} initial={{ opacity: 0, scale: 0.8 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: 0.5, delay: 1 + index * 0.1 }} className="text-center">
               <p className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">{stat.value}</p>
