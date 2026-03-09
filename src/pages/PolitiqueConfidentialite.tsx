@@ -63,7 +63,7 @@ const PolitiqueConfidentialite = () => {
               <p>Le traitement des données personnelles est effectué par :</p>
               <div className="bg-success/10 p-4 rounded-lg mt-3 space-y-2">
                 <p><strong>EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
-                <p>Siège social : <strong>5 rue Caudron, 80000 Amiens, France</strong></p>
+                <p>Siège social : <strong>Appartement 1, 5 rue Caudron, 80000 Amiens, France</strong></p>
                 <div className="flex items-center space-x-1 pt-2">
                   <Mail className="h-4 w-4 text-success" />
                   <span>contact@emotionscare.com</span>
