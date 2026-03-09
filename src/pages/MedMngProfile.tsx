@@ -183,10 +183,10 @@ const MedMngProfileComponent = () => {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Profile Header */}
         <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-primary to-accent text-primary-foreground">
-          <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6">
               <div className="relative">
-                <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary-foreground/20">
+                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 md:h-32 md:w-32 border-4 border-primary-foreground/20">
                   <AvatarImage src="" alt={profile?.name} />
                   <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-2xl font-bold">
                     {profile?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}
@@ -203,7 +203,7 @@ const MedMngProfileComponent = () => {
               
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-                  <h1 className="text-3xl md:text-4xl font-bold">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
                     {profile?.name || 'Utilisateur'}
                   </h1>
                   {getSubscriptionBadge(profile?.subscription_plan)}
@@ -228,37 +228,37 @@ const MedMngProfileComponent = () => {
         {gamificationStats && (
           <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-primary/5 via-accent/5 to-warning/5">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between flex-wrap gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Award className="h-8 w-8 text-primary" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <Award className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold">Niveau {level}</h3>
-                    <p className="text-sm text-muted-foreground">{gamificationStats.currentXP || 0} XP total</p>
-                    <div className="w-32 mt-2">
+                    <h3 className="text-xl sm:text-2xl font-bold">Niveau {level}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{gamificationStats.currentXP || 0} XP total</p>
+                    <div className="w-24 sm:w-32 mt-2">
                       <Progress value={xpProgress} className="h-2" />
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-8">
+                <div className="grid grid-cols-3 gap-4 sm:gap-8 w-full sm:w-auto">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Flame className="h-5 w-5 text-warning" />
-                      <span className="text-3xl font-bold">{gamificationStats.currentStreak || 0}</span>
+                      <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
+                      <span className="text-xl sm:text-3xl font-bold">{gamificationStats.currentStreak || 0}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">Jours de suite</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Jours de suite</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Trophy className="h-5 w-5 text-primary" />
-                      <span className="text-3xl font-bold">{gamificationStats.badges?.length || 0}</span>
+                      <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                      <span className="text-xl sm:text-3xl font-bold">{gamificationStats.badges?.length || 0}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">Badges</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Badges</p>
                   </div>
                   <div className="text-center">
-                    <span className="text-3xl font-bold text-success">{gamificationStats.longestStreak || 0}</span>
-                    <p className="text-sm text-muted-foreground">Record streak</p>
+                    <span className="text-xl sm:text-3xl font-bold text-success">{gamificationStats.longestStreak || 0}</span>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Record streak</p>
                   </div>
                 </div>
               </div>
@@ -284,7 +284,7 @@ const MedMngProfileComponent = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
           <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">

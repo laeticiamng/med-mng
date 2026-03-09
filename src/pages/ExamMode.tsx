@@ -281,36 +281,36 @@ export default function ExamMode() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Retour
+        <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="shrink-0 h-9 w-9 sm:h-auto sm:w-auto p-0 sm:px-3">
+            <ChevronLeft className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Retour</span>
           </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
               S'entraîner
             </h1>
-            <p className="text-muted-foreground">Tu n'as pas besoin de tout savoir. Juste d'être prêt.</p>
+            <p className="text-muted-foreground text-sm sm:text-base truncate">Tu n'as pas besoin de tout savoir. Juste d'être prêt.</p>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-6">
-            <TabsTrigger value="exam" className="gap-2">
+          <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-6 h-auto">
+            <TabsTrigger value="exam" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
               <Brain className="h-4 w-4" />
-              Examen
+              <span className="text-[10px] sm:text-xs">Examen</span>
             </TabsTrigger>
-            <TabsTrigger value="stats" className="gap-2">
+            <TabsTrigger value="stats" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
               <BarChart3 className="h-4 w-4" />
-              Stats
+              <span className="text-[10px] sm:text-xs">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2">
+            <TabsTrigger value="history" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
               <Clock className="h-4 w-4" />
-              Historique
+              <span className="text-[10px] sm:text-xs">Historique</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="gap-2">
+            <TabsTrigger value="ranking" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
               <Users className="h-4 w-4" />
-              Classement
+              <span className="text-[10px] sm:text-xs">Classement</span>
             </TabsTrigger>
           </TabsList>
 
@@ -415,7 +415,7 @@ export default function ExamMode() {
                     <p className="text-muted-foreground mb-6 text-sm">
                       {examMode === 'ai' ? '10 questions IA • 20 minutes' : '20 questions • 30 minutes'} • QCM EDN
                     </p>
-                    <div className="grid grid-cols-4 gap-3 mb-6 max-w-md mx-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6 max-w-md mx-auto">
                       <div className="bg-muted/50 rounded-lg p-3">
                         <Clock className="h-5 w-5 mx-auto mb-1 text-primary" />
                         <p className="text-xs font-medium">{examMode === 'ai' ? '20' : '30'} min</p>
@@ -466,11 +466,11 @@ export default function ExamMode() {
               <div className="space-y-6">
                 {/* Timer and progress */}
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="gap-2 text-lg px-4 py-2">
-                    <Timer className="h-4 w-4" />
+                  <Badge variant="outline" className="gap-1.5 sm:gap-2 text-sm sm:text-lg px-2.5 sm:px-4 py-1.5 sm:py-2">
+                    <Timer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     {formatTime(timeRemaining)}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Question {currentQuestionIndex + 1} / {totalQuestions}
                   </span>
                 </div>
@@ -628,12 +628,12 @@ export default function ExamMode() {
             {stats && (
               <div className="space-y-6">
                 {/* Overview */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   <Card>
-                    <CardContent className="p-4 text-center">
-                      <Trophy className="h-8 w-8 mx-auto mb-2 text-primary" />
-                      <p className="text-2xl font-bold">{stats.totalExams}</p>
-                      <p className="text-sm text-muted-foreground">Examens passés</p>
+                    <CardContent className="p-3 sm:p-4 text-center">
+                      <Trophy className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-primary" />
+                      <p className="text-xl sm:text-2xl font-bold">{stats.totalExams}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Examens passés</p>
                     </CardContent>
                   </Card>
                   <Card>

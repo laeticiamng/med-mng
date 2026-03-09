@@ -91,7 +91,7 @@ const Achievements: React.FC = () => {
                 <Sparkles className="h-3 w-3 text-warning" />
                 <span className="text-xs font-medium text-warning">Gamification</span>
               </div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3">
                 <Trophy className="w-8 h-8 text-warning" />
                 Succès & Progression
               </h1>

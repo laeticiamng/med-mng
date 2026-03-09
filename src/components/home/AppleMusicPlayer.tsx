@@ -21,7 +21,7 @@ export const AppleMusicPlayer = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             <TranslatedText text="Écoute." />{' '}
             <span className="text-primary">
               <TranslatedText text="Apprends." />
@@ -41,19 +41,19 @@ export const AppleMusicPlayer = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-accent/30 to-warning/30 rounded-3xl blur-3xl opacity-50" />
           
-          <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl">
+          <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
             <div className="flex items-center gap-2 text-primary">
               <Music className="h-5 w-5" />
               <span className="text-sm font-medium"><TranslatedText text="APERÇU" /></span>
             </div>
 
-            <div className="flex items-start gap-6 mb-8">
-              <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary via-accent to-warning flex items-center justify-center shadow-lg flex-shrink-0">
-                <Music className="h-12 w-12 text-primary-foreground" />
+            <div className="flex items-start gap-3 sm:gap-6 mb-6 sm:mb-8">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary via-accent to-warning flex items-center justify-center shadow-lg flex-shrink-0">
+                <Music className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-primary-foreground" />
               </div>
 
               <div className="flex-1 min-w-0">
-                <h3 className="text-2xl font-bold text-foreground mb-2 truncate">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 truncate">
                   Item 105 - Épilepsie
                 </h3>
                 <p className="text-muted-foreground mb-4">
@@ -82,11 +82,11 @@ export const AppleMusicPlayer = () => {
             <div className="flex flex-col items-center gap-4">
               <Link to={ROUTE_PATHS.medMngSignup}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button 
+                  <Button
                     size="lg"
-                    className="h-16 px-10 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30"
+                    className="h-12 sm:h-14 md:h-16 px-6 sm:px-8 md:px-10 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 w-full sm:w-auto"
                   >
-                    <Music className="h-6 w-6 mr-2" />
+                    <Music className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                     <TranslatedText text="S'inscrire pour écouter" />
                   </Button>
                 </motion.div>

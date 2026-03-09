@@ -233,9 +233,9 @@ const UserSettings: React.FC = () => {
 
       <div className="min-h-screen bg-background">
         <div className="medical-container py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8">
             {/* Sidebar Navigation */}
-            <div className="lg:w-64 flex-shrink-0 space-y-4">
+            <div className="md:w-56 lg:w-64 flex-shrink-0 space-y-4">
               {/* Gamification Stats Card */}
               {user && gamificationStats && (
                 <Card className="medical-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -280,14 +280,14 @@ const UserSettings: React.FC = () => {
                   <CardDescription>Gérez votre compte</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <nav className="space-y-1">
+                  <nav className="flex md:flex-col overflow-x-auto md:overflow-x-visible hide-scrollbar gap-1 md:space-y-1 md:gap-0">
                     {sections.map((section) => (
                       <button
                         key={section.id}
                         onClick={() => setActiveSection(section.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors ${
+                        className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 text-left text-xs md:text-sm transition-colors rounded-lg md:rounded-none whitespace-nowrap ${
                           activeSection === section.id
-                            ? 'bg-primary/10 text-primary border-r-2 border-primary'
+                            ? 'bg-primary/10 text-primary md:border-r-2 border-primary'
                             : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                         }`}
                       >

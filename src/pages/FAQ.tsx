@@ -33,7 +33,7 @@ const FAQ = () => {
               <span>Retour</span>
             </Link>
             <div className="h-6 border-l border-border" />
-            <h1 className="text-3xl font-bold text-foreground">Questions Frequentes</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Questions Frequentes</h1>
           </div>
         </div>
 

@@ -24,7 +24,7 @@ export default function BillingPage() {
             Profil
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
               Facturation & Abonnement
             </h1>
             <p className="text-muted-foreground">Gérez votre plan et votre consommation</p>

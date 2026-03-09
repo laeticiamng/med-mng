@@ -139,8 +139,8 @@ const Statistics = () => {
       <div className="container mx-auto p-6 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="text-center md:text-left space-y-2">
-            <h1 className="text-4xl font-bold text-foreground">Mes Statistiques</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Mes Statistiques</h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
               Analyse de votre progression et performances sur MED-MNG
             </p>
           </div>
@@ -151,7 +151,7 @@ const Statistics = () => {
         </div>
 
         {/* Stats personnelles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Niveau</CardTitle>

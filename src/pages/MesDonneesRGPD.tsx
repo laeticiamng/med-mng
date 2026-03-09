@@ -186,7 +186,7 @@ const MesDonneesRGPD = () => {
             <div className="h-6 border-l border-border" />
             <div className="flex items-center space-x-2">
               <Shield className="h-6 w-6 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Mes Données RGPD</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Mes Données RGPD</h1>
             </div>
           </div>
         </div>

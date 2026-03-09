@@ -212,7 +212,7 @@ export default function PlatformStatusPage() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Activity className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                 État de la Plateforme
               </h1>
             </div>

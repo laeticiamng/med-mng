@@ -76,7 +76,7 @@ export const AppleHero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6"
         >
           <span className="text-foreground"><TranslatedText text="Apprends la médecine" /></span>
           <br />
@@ -107,7 +107,7 @@ export const AppleHero = () => {
           <Button 
             size="lg"
             onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
-            className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105 glow-pulse"
+            className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105 glow-pulse w-full sm:w-auto"
           >
             <Sparkles className="h-5 w-5 mr-2" />
             <TranslatedText text="Créer un compte gratuit" />
@@ -116,7 +116,7 @@ export const AppleHero = () => {
             variant="outline"
             size="lg"
             onClick={() => navigate(ROUTE_PATHS.ednComplete)}
-            className="h-14 px-8 text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105"
+            className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105 w-full sm:w-auto"
           >
             <Play className="h-5 w-5 mr-2" />
             <TranslatedText text="Voir les 367 cours" />
@@ -150,7 +150,7 @@ export const AppleHero = () => {
                 transition={{ duration: 3, delay: 2 + index * 0.3, repeat: Infinity, repeatDelay: 5 }}
               />
               <item.icon className="h-4 w-4 text-primary" />
-              <span className="text-base font-medium text-foreground"><TranslatedText text={item.label} /></span>
+              <span className="text-sm sm:text-base font-medium text-foreground"><TranslatedText text={item.label} /></span>
             </motion.div>
           ))}
         </motion.div>

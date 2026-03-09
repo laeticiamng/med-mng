@@ -142,24 +142,28 @@ export default function ProgressDashboard() {
 
         {/* Tabs for different views */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-            <TabsTrigger value="badges">
-              <Award className="h-4 w-4 mr-1" />
-              Badges
+          <TabsList className="flex w-full overflow-x-auto hide-scrollbar h-auto p-1">
+            <TabsTrigger value="overview" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
+              <span className="text-[10px] sm:text-xs">Vue d'ensemble</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics">Analyses</TabsTrigger>
-            <TabsTrigger value="history">
-              <History className="h-4 w-4 mr-1" />
-              Historique
+            <TabsTrigger value="badges" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
+              <Award className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Badges</span>
             </TabsTrigger>
-            <TabsTrigger value="reminders">
-              <Bell className="h-4 w-4 mr-1" />
-              Rappels
+            <TabsTrigger value="analytics" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
+              <span className="text-[10px] sm:text-xs">Analyses</span>
             </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="h-4 w-4 mr-1" />
-              Options
+            <TabsTrigger value="history" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
+              <History className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Historique</span>
+            </TabsTrigger>
+            <TabsTrigger value="reminders" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
+              <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Rappels</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
+              <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Options</span>
             </TabsTrigger>
           </TabsList>
 
@@ -174,28 +178,28 @@ export default function ProgressDashboard() {
                 <CardDescription>Votre activité des 7 derniers jours</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-4 gap-6">
-                  <div className="text-center p-4 bg-background/50 rounded-lg">
-                    <Activity className="h-6 w-6 mx-auto mb-2 text-primary" />
-                    <p className="text-3xl font-bold text-primary">{weeklyData.total}</p>
-                    <p className="text-sm text-muted-foreground">activités</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                  <div className="text-center p-3 sm:p-4 bg-background/50 rounded-lg">
+                    <Activity className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 text-primary" />
+                    <p className="text-xl sm:text-3xl font-bold text-primary">{weeklyData.total}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">activités</p>
                   </div>
-                  <div className="text-center p-4 bg-background/50 rounded-lg">
-                    <Brain className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-3xl font-bold text-accent">{weeklyData.byType['review'] || weeklyData.byType['srs_review'] || 0}</p>
-                    <p className="text-sm text-muted-foreground">révisions</p>
+                  <div className="text-center p-3 sm:p-4 bg-background/50 rounded-lg">
+                    <Brain className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 text-accent" />
+                    <p className="text-xl sm:text-3xl font-bold text-accent">{weeklyData.byType['review'] || weeklyData.byType['srs_review'] || 0}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">révisions</p>
                   </div>
-                  <div className="text-center p-4 bg-background/50 rounded-lg">
-                    <Trophy className="h-6 w-6 mx-auto mb-2 text-warning" />
-                    <p className="text-3xl font-bold text-warning">{examStats?.totalExams || weeklyData.byType['exam'] || 0}</p>
-                    <p className="text-sm text-muted-foreground">examens</p>
+                  <div className="text-center p-3 sm:p-4 bg-background/50 rounded-lg">
+                    <Trophy className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 text-warning" />
+                    <p className="text-xl sm:text-3xl font-bold text-warning">{examStats?.totalExams || weeklyData.byType['exam'] || 0}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">examens</p>
                   </div>
-                  <div className={`text-center p-4 rounded-lg ${weeklyData.trend >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                    <TrendingUp className={`h-6 w-6 mx-auto mb-2 ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`} />
-                    <p className={`text-3xl font-bold ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <div className={`text-center p-3 sm:p-4 rounded-lg ${weeklyData.trend >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                    <TrendingUp className={`h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`} />
+                    <p className={`text-xl sm:text-3xl font-bold ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {weeklyData.trend >= 0 ? '+' : ''}{weeklyData.trend}%
                     </p>
-                    <p className="text-sm text-muted-foreground">vs sem. dernière</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">vs sem. dernière</p>
                   </div>
                 </div>
 

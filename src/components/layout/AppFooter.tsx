@@ -26,7 +26,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
       <div className="container mx-auto px-4 py-8">
         {/* Quick Stats for logged-in users */}
         {isLoggedIn && stats && (
-          <div className="flex justify-center gap-4 mb-6 pb-6 border-b border-border">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 pb-6 border-b border-border">
             <Badge variant="outline" className="gap-1 px-3 py-1">
               <Flame className="h-3 w-3 text-warning" />
               {stats.currentStreak} jours

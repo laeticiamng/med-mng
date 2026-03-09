@@ -308,16 +308,16 @@ export default function SRSReview() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Retour
+        <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="shrink-0 h-9 w-9 sm:h-auto sm:w-auto p-0 sm:px-3">
+            <ChevronLeft className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Retour</span>
           </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Révisions espacées
             </h1>
-            <p className="text-muted-foreground">Commence. La motivation viendra après.</p>
+            <p className="text-muted-foreground text-sm sm:text-base truncate">Commence. La motivation viendra après.</p>
           </div>
         </div>
 
@@ -352,11 +352,11 @@ export default function SRSReview() {
 
         {/* Stats Dashboard */}
         {!isSessionActive && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
             <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 hover:shadow-md transition-shadow">
-              <CardContent className="p-4 text-center">
-                <Clock className="h-8 w-8 mx-auto mb-2 text-destructive" />
-                <p className="text-2xl font-bold text-destructive">{stats?.dueToday || 0}</p>
+              <CardContent className="p-3 sm:p-4 text-center">
+                <Clock className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-destructive" />
+                <p className="text-xl sm:text-2xl font-bold text-destructive">{stats?.dueToday || 0}</p>
                 <p className="text-sm text-muted-foreground">À réviser</p>
                 {(stats?.dueToday || 0) > 0 && (
                   <Badge variant="destructive" className="mt-2 text-xs">Prioritaire</Badge>
@@ -520,7 +520,7 @@ export default function SRSReview() {
                       <p className="text-center text-sm text-muted-foreground mb-4">
                         Comment évaluez-vous votre réponse ?
                       </p>
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <Button 
                           variant="destructive" 
                           onClick={() => handleResponse(0)}

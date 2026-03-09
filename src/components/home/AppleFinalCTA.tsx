@@ -23,7 +23,7 @@ export const AppleFinalCTA = () => {
           <span className="text-sm font-medium text-warning"><TranslatedText text="Gratuit pour commencer" /></span>
         </motion.div>
 
-        <motion.h2 initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8">
+        <motion.h2 initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6 sm:mb-8">
           <span className="text-foreground"><TranslatedText text="Prêt à" /></span>
           <br />
           <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
@@ -38,7 +38,7 @@ export const AppleFinalCTA = () => {
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-16 px-10 text-xl font-bold rounded-2xl bg-gradient-to-r from-primary via-primary-hover to-accent hover:opacity-90 shadow-xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-2xl glow-pulse">
+          <Button size="lg" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="h-12 sm:h-14 md:h-16 px-6 sm:px-8 md:px-10 text-base sm:text-lg md:text-xl font-bold rounded-2xl bg-gradient-to-r from-primary via-primary-hover to-accent hover:opacity-90 shadow-xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-2xl glow-pulse w-full sm:w-auto">
             <Play className="h-6 w-6 mr-3" />
             <TranslatedText text="Créer mon compte gratuit" />
             <ArrowRight className="h-6 w-6 ml-3" />
