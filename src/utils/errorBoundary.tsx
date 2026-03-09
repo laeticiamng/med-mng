@@ -102,7 +102,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       if (import.meta.env.DEV) console.error('[ErrorBoundary] Error logged:', error);
     } catch (reportingError) {
       // Silently fail - don't let error reporting break the error boundary
-      console.warn('Failed to report error:', reportingError);
+      if (import.meta.env.DEV) console.warn('Failed to report error:', reportingError);
     }
   };
 
