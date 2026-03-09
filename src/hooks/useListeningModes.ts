@@ -186,7 +186,7 @@ export const useListeningModes = () => {
 
       return timer;
     } catch (error) {
-      console.error('Erreur démarrage mode:', error);
+      if (import.meta.env.DEV) console.error('Erreur démarrage mode:', error);
       toast({
         title: "Erreur",
         description: "Impossible de démarrer le mode d'écoute.",
