@@ -22,7 +22,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
     
     logActivity({ activity_type: 'study', metadata: { action: 'debug_audio_test', url: audioUrl.substring(0, 50) } });
     
-    console.log('🔍 Debug Audio Test:', {
+    if (import.meta.env.DEV) console.log('🔍 Debug Audio Test:', {
       url: audioUrl,
       urlType: typeof audioUrl,
       isValidUrl: audioUrl?.startsWith('http'),
