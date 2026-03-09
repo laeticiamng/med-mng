@@ -655,7 +655,7 @@ export async function escalateAlert(alertId: string): Promise<boolean> {
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to escalate alert:', error);
+      if (import.meta.env.DEV) console.error('Failed to escalate alert:', error);
       return false;
     }
 
