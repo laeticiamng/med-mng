@@ -132,7 +132,6 @@ export const MedicalContentLibrary = () => {
       if (specialty !== 'all' && t.specialty !== specialty) return false;
       if (year !== 'all' && t.year !== year) return false;
       if (difficulty !== 'all' && t.difficulty !== difficulty) return false;
-      if (contentLang !== 'all' && t.language !== contentLang) return false;
       return true;
     }),
   [enrichedTracks, search, specialty, year, difficulty, contentLang]);
