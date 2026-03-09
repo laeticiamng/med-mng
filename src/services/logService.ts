@@ -106,7 +106,7 @@ function logToConsole(entry: LogEntry): void {
       break;
     case 'error':
     case 'critical':
-      console.error(message, entry.metadata || '', entry.stackTrace || '');
+      if (import.meta.env.DEV) console.error(message, entry.metadata || '', entry.stackTrace || '');
       break;
   }
 }
