@@ -534,7 +534,7 @@ class MusicService {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, limit)
     } catch (error) {
-      console.error('Error getting recent songs:', error)
+      if (import.meta.env.DEV) console.error('Error getting recent songs:', error)
       return []
     }
   }
