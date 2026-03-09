@@ -30,7 +30,7 @@ export async function generateAllLyrics(_options?: LyricsGenerationOptions): Pro
 }
 
 export async function generateLyricsForItem(_itemCode: string, _options?: Omit<LyricsGenerationOptions, 'itemCodes'>): Promise<LyricsGenerationResult> {
-  console.warn('⚠️ generateLyricsForItem est désactivé : update-edn-unique-content a été supprimée.')
+  if (import.meta.env.DEV) console.warn('⚠️ generateLyricsForItem est désactivé : update-edn-unique-content a été supprimée.')
   return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }
 
