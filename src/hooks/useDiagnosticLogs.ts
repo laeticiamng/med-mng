@@ -163,7 +163,7 @@ export const diagnosticLogger = {
     console.error(`[ERROR] ${message}`, context);
   },
   warning: (message: string, context?: Record<string, any>) => {
-    console.warn(`[WARNING] ${message}`, context);
+    if (import.meta.env.DEV) console.warn(`[WARNING] ${message}`, context);
   },
   info: (message: string, context?: Record<string, any>) => {
     if (import.meta.env.DEV) console.log(`[INFO] ${message}`, context);
