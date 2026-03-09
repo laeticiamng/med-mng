@@ -10,15 +10,22 @@ const testimonials = [
   {
     id: 1,
     quote: "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.",
-    author: "Marie L.", role: "D4 — CHU Bordeauxent"
+    author: "Marie L.", role: "D4 - CHU Bordeaux", rating: 5, avatar: "ML", avatarGradient: "from-primary to-accent"
   },
   {
     id: 2,
     quote: "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.",
-    author: "Thomas K.", role: "D3 - Paris Descarte— Paris Descar— Paris Descar— Paris Descar— Paris Descartesent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
-    author: "Sarah M.", role: "D2 - Lyon Est · Bêta-testeuse", rat— Lyon EstGradient: "from-warnin— Lyon Estd: 4,
-    quote: "Scep— Lyon Estrès 3 jours. C'est exactement ce dont la médecine avait besoin.",
-    author: "Lucas P.", role: "DFASM3 - Marseille · Accès anticipé", rating: 5, avata— Marseillesuccess to-primary"
+    author: "Thomas K.", role: "D3 - Paris Descartes", rating: 5, avatar: "TK", avatarGradient: "from-accent to-warning"
+  },
+  {
+    id: 3,
+    quote: "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
+    author: "Sarah M.", role: "D2 - Lyon Est", rating: 4, avatar: "SM", avatarGradient: "from-warning to-success"
+  },
+  {
+    id: 4,
+    quote: "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.",
+    author: "Lucas P.", role: "DFASM3 - Marseille", rating: 5, avatar: "LP", avatarGradient: "from-success to-primary"
   },
 ];
 
