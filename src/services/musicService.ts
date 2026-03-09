@@ -151,7 +151,7 @@ class MusicService {
       if (error) throw error
       if (import.meta.env.DEV) console.log('✅ Song added to library')
     } catch (error) {
-      console.error('❌ Error adding to library:', error)
+      if (import.meta.env.DEV) console.error('❌ Error adding to library:', error)
       throw error
     }
   }
