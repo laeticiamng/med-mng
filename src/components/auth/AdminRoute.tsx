@@ -58,7 +58,7 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           }
         }
       } catch (error) {
-        console.error('Erreur lors de la vérification admin:', error);
+        if (import.meta.env.DEV) console.error('Erreur lors de la vérification admin:', error);
         setIsAdmin(false);
       } finally {
         setIsLoading(false);

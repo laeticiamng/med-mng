@@ -353,15 +353,19 @@ export const MedicalContentLibrary = () => {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                       <span>Rétention mémoire</span>
-                      <span className="font-medium text-foreground">{track.retention}%</span>
+                      <span className="font-medium text-foreground">{track.retention != null ? `${track.retention}%` : '—'}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          track.retention >= 80 ? 'bg-green-500' : track.retention >= 50 ? 'bg-warning' : 'bg-destructive'
-                        }`}
-                        style={{ width: `${track.retention}%` }}
-                      />
+                      {track.retention != null ? (
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            track.retention >= 80 ? 'bg-green-500' : track.retention >= 50 ? 'bg-warning' : 'bg-destructive'
+                          }`}
+                          style={{ width: `${track.retention}%` }}
+                        />
+                      ) : (
+                        <div className="h-full rounded-full bg-muted-foreground/20 w-full" />
+                      )}
                     </div>
                   </div>
                 </div>

@@ -179,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.warn('Erreur lors de la déconnexion:', error);
+      if (import.meta.env.DEV) console.warn('Erreur lors de la déconnexion:', error);
       // Forcer la déconnexion locale même si l'appel API échoue
       setUser(null);
     }

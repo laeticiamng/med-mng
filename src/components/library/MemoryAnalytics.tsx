@@ -179,6 +179,9 @@ export const MemoryAnalytics = () => {
         <p className="text-muted-foreground">
           Courbe d'oubli d'Ebbinghaus & rappels de révision optimaux
         </p>
+        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
+          📊 Données de démonstration — Connexion à vos données réelles bientôt
+        </Badge>
       </div>
 
       {/* Summary cards */}

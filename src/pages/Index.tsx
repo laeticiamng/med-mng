@@ -72,7 +72,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         title="MED MNG - Apprends la médecine en musique | EDN & ECOS"
         description="🎧 Révolutionne tes révisions. 367 items EDN et simulations ECOS transformés en chansons. Écoute, retiens, réussis. Gratuit pour commencer."
         keywords="médecine, EDN, ECOS, musique, révision, mémorisation, étudiants médecine, apprentissage musical"
-        canonical="/"
+        canonical="https://med-mng.lovable.app/"
       />
       
       {/* Anti-anxiety onboarding */}

@@ -200,7 +200,7 @@ export const useMusicLibrary = () => {
           : "Musique retirée de vos favoris."
       });
     } catch (error) {
-      console.error('Erreur toggle favori:', error);
+      if (import.meta.env.DEV) console.error('Erreur toggle favori:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour",

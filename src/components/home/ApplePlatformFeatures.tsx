@@ -153,15 +153,16 @@ export const ApplePlatformFeatures = () => {
                     </Button>
                   ) : (
                     <div className="flex gap-2 self-start">
-                      {(['fr', 'en', 'de', 'es'] as const).map((lang) => (
+                      {(['fr', 'en', 'de'] as const).map((lang) => (
                         <Button
                           key={lang}
                           variant="outline"
                           size="sm"
                           className="text-xs px-3 hover:bg-primary/10 border-border/50"
                           onClick={() => setCurrentLanguage(lang as any)}
+                          aria-label={lang === 'fr' ? 'Français' : lang === 'en' ? 'English' : 'Deutsch'}
                         >
-                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : lang === 'de' ? '🇩🇪' : '🇪🇸'}
+                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : '🇩🇪'}
                         </Button>
                       ))}
                     </div>
