@@ -60,7 +60,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 
         audio.addEventListener('loadedmetadata', () => {
           clearTimeout(timeout);
-          console.log('✅ Métadonnées chargées:', {
+          if (import.meta.env.DEV) console.log('✅ Métadonnées chargées:', {
             duration: audio.duration,
             readyState: audio.readyState
           });
