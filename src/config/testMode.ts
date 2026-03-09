@@ -23,7 +23,8 @@ const isProduction = typeof window !== 'undefined' &&
    window.location.hostname.endsWith('.netlify.app'));
 
 // DÉSACTIVÉ PAR DÉFAUT - Ne peut JAMAIS être activé en production
-export const TEST_MODE_ENABLED = false && !isProduction;
+// Triple protection : false + !isProduction + import.meta.env.PROD
+export const TEST_MODE_ENABLED = false && !isProduction && !import.meta.env.PROD;
 
 // Utilisateur simulé pour le mode test avec UUID valide
 // NOTE: Ce UUID est invalide par design pour éviter les collisions

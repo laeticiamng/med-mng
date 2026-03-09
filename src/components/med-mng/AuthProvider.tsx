@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               updated_at: new Date().toISOString(),
             }, { onConflict: 'id' });
           } catch (e) {
-            console.warn('Could not upsert profile:', e);
+            if (import.meta.env.DEV) console.warn('Could not upsert profile:', e);
           }
 
           // Send welcome email for new users

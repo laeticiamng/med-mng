@@ -112,7 +112,7 @@ export const MedMngPricing = () => {
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left py-2 px-3 text-muted-foreground">Fonctionnalité</th>
-                      <th className="text-center py-2 px-3 text-foreground font-semibold">Pro 19€</th>
+                      <th className="text-center py-2 px-3 text-foreground font-semibold">Pro 29€</th>
                       <th className="text-center py-2 px-3 text-foreground font-semibold">Premium 39€</th>
                     </tr>
                   </thead>
