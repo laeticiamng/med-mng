@@ -129,7 +129,7 @@ export const useSubscription = () => {
             details: subInfo
           };
           setError(errorObj);
-          console.error('Invalid subscription data received:', subInfo);
+          if (import.meta.env.DEV) console.error('Invalid subscription data received:', subInfo);
           toast.error('Erreur de validation des données d\'abonnement');
         }
       }
