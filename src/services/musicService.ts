@@ -379,7 +379,7 @@ class MusicService {
         return true
       }
     } catch (error) {
-      console.error('❌ Error toggling favorite:', error)
+      if (import.meta.env.DEV) console.error('❌ Error toggling favorite:', error)
       throw error
     }
   }
