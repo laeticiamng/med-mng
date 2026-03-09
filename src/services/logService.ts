@@ -438,7 +438,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
 // Suppression des vieux logs
 export async function deleteOldLogs(daysToKeep: number = 30): Promise<number> {
   if (!client) {
-    console.warn('Supabase not configured for log deletion');
+    if (import.meta.env.DEV) console.warn('Supabase not configured for log deletion');
     return 0;
   }
 
