@@ -265,7 +265,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
         loadStats(user.id);
       }
     } catch (error) {
-      console.error('[Chat IA] Erreur envoi message:', error);
+      if (import.meta.env.DEV) console.error('[Chat IA] Erreur envoi message:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing' && msg.id !== streamingMessageId));
       
       // Message user-friendly selon le type d'erreur
