@@ -37,7 +37,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 
     try {
       // Test 1: Vérifier si l'URL est accessible
-      console.log('🔍 Test 1: Vérification URL...');
+      if (import.meta.env.DEV) console.log('🔍 Test 1: Vérification URL...');
       const response = await fetch(audioUrl, { method: 'HEAD' });
       console.log('📊 Response headers:', {
         status: response.status,
