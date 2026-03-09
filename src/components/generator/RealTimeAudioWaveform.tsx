@@ -86,7 +86,7 @@ export const RealTimeAudioWaveform: React.FC<RealTimeAudioWaveformProps> = ({
       
       setIsAnalyserConnected(true);
     } catch (err) {
-      console.warn('[RealTimeAudioWaveform] Web Audio API non supporté:', err);
+      if (import.meta.env.DEV) console.warn('[RealTimeAudioWaveform] Web Audio API non supporté:', err);
     }
   }, [audioElement, isAnalyserConnected]);
 

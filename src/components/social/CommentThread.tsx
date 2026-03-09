@@ -99,7 +99,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
       onCommentAdded?.();
       toast({ title: "Commentaire ajouté !" });
     } catch (e) {
-      console.error('Error adding comment:', e);
+      if (import.meta.env.DEV) console.error('Error adding comment:', e);
       // Fallback local
       const comment: Comment = {
         id: Date.now().toString(),

@@ -147,7 +147,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
         setPlaylists(mappedPlaylists);
       }
     } catch (error) {
-      console.error('Erreur chargement bibliothèque musicale:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement bibliothèque musicale:', error);
     }
   };
 

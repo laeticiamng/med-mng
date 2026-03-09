@@ -152,7 +152,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
         safeSetResults(searchResults);
       }
     } catch (error) {
-      console.error('Search error:', error);
+      if (import.meta.env.DEV) console.error('Search error:', error);
       safeSetResults([]);
     } finally {
       safeSetIsLoading(false);

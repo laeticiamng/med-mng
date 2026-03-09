@@ -71,7 +71,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
       }, 3000);
       
     } catch (err) {
-      console.error('Erreur téléchargement:', err);
+      if (import.meta.env.DEV) console.error('Erreur téléchargement:', err);
       setError(true);
       toast.error('Échec du téléchargement. Réessayez.');
       

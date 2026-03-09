@@ -122,7 +122,7 @@ export const StylePreviewButton: React.FC<StylePreviewButtonProps> = ({
       }, 10000);
 
     } catch (err) {
-      console.error('Erreur lecture sample:', err);
+      if (import.meta.env.DEV) console.error('Erreur lecture sample:', err);
       setHasError(true);
       setIsLoading(false);
     }

@@ -257,7 +257,7 @@ export const OfflineSyncManager: React.FC = () => {
         description: `"${item.name}" est maintenant disponible hors ligne.`
       });
     } catch (error) {
-      console.error('Erreur sync offline:', error);
+      if (import.meta.env.DEV) console.error('Erreur sync offline:', error);
       setSyncItems(prev => prev.map(si =>
         si.id === itemId ? { ...si, status: 'error' as const } : si
       ));
