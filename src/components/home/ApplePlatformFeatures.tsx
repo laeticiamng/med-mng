@@ -52,8 +52,6 @@ const features = [
 
 export const ApplePlatformFeatures = () => {
   const navigate = useNavigate();
-  const { setCurrentLanguage } = useLanguage();
-
   const { user } = useAuth();
 
   const handleClick = (tab: string | null, comingSoon: boolean) => {
