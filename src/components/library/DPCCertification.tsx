@@ -250,9 +250,9 @@ export const DPCCertification = () => {
                       </Button>
                     )}
                     {module.status === 'in_progress' && (
-                      <Button size="sm" variant="outline" className="gap-2">
+                      <Button size="sm" variant="outline" className="gap-2" disabled>
                         <GraduationCap className="h-4 w-4" />
-                        Continuer
+                        En cours…
                       </Button>
                     )}
                     {module.status === 'locked' && (

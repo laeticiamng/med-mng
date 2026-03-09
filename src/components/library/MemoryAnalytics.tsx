@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -131,6 +133,7 @@ const ForgettingCurve = ({ retention, daysAgo, reviewCount }: { retention: numbe
 };
 
 export const MemoryAnalytics = () => {
+  const navigate = useNavigate();
   const [topics] = useState<TopicMemory[]>(() => generateMockTopics());
   const [filterSpecialty, setFilterSpecialty] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -302,6 +305,7 @@ export const MemoryAnalytics = () => {
                       size="sm"
                       variant={isPastDue ? 'default' : 'outline'}
                       className="gap-1"
+                      onClick={() => navigate(ROUTE_PATHS.srsReview)}
                     >
                       <TrendingUp className="h-3 w-3" />
                       Réviser

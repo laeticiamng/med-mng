@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const features = [
   {
@@ -62,11 +64,25 @@ export const ApplePlatformFeatures = () => {
   const navigate = useNavigate();
   const { setCurrentLanguage } = useLanguage();
 
-  const handleClick = (tab: string | null) => {
-    if (tab) {
-      navigate(`/library?tab=${tab}`);
+  const { user } = useAuth();
+
+  const handleClick = (tab: string | null, comingSoon: boolean) => {
+    if (!tab) return;
+    if (comingSoon) {
+      // Coming soon features: redirect to signup if anonymous, otherwise go to library
+      if (!user) {
+        navigate(ROUTE_PATHS.medMngSignup);
+      } else {
+        navigate(`/library?tab=${tab}`);
+      }
+    } else {
+      // Active features: redirect to signup if anonymous
+      if (!user) {
+        navigate(ROUTE_PATHS.medMngSignup);
+      } else {
+        navigate(`/library?tab=${tab}`);
+      }
     }
-    // For multilingual, we could open language selector — for now just cycle
   };
 
   return (
@@ -146,9 +162,9 @@ export const ApplePlatformFeatures = () => {
                       variant="ghost"
                       size="sm"
                       className="self-start group/btn hover:bg-primary/10"
-                      onClick={() => handleClick(feat.tab)}
+                      onClick={() => handleClick(feat.tab, feat.comingSoon)}
                     >
-                      <TranslatedText text="Découvrir" />
+                      <TranslatedText text={feat.comingSoon ? "En savoir plus" : "Découvrir"} />
                       <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
                   ) : (

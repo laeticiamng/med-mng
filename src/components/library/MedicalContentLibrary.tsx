@@ -9,7 +9,7 @@ import { useMusicLibrary } from '@/hooks/useMusicLibrary';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-  Brain, Filter, Globe, GraduationCap, Heart, Music, Pause, Play,
+  Brain, Filter, GraduationCap, Heart, Music, Pause, Play,
   Search, Star, Stethoscope, Pill, Activity, Eye, Bone, Baby,
   Siren, Shield, Microscope, X, Clock
 } from 'lucide-react';
@@ -47,13 +47,7 @@ const DIFFICULTY_LEVELS = [
   { id: 'expert', label: 'Expert', stars: 3 },
 ];
 
-const CONTENT_LANGUAGES = [
-  { id: 'all', label: 'Toutes', flag: '🌍' },
-  { id: 'fr', label: 'Français', flag: '🇫🇷' },
-  { id: 'en', label: 'English', flag: '🇬🇧' },
-  { id: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { id: 'es', label: 'Español', flag: '🇪🇸' },
-];
+// Language filter removed — all content is currently in French only
 
 // Derive specialty from item_code ranges (mock logic — adapt to real mapping)
 function getSpecialtyFromCode(code?: string): string {
@@ -118,7 +112,6 @@ export const MedicalContentLibrary = () => {
   const [specialty, setSpecialty] = useState('all');
   const [year, setYear] = useState('all');
   const [difficulty, setDifficulty] = useState('all');
-  const [contentLang, setContentLang] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
   const enrichedTracks = useMemo(() =>
@@ -127,7 +120,7 @@ export const MedicalContentLibrary = () => {
       specialty: getSpecialtyFromCode(t.item_code),
       difficulty: getDifficultyFromType(t.type),
       year: getYearFromCode(t.item_code),
-      language: 'fr', // default — extend when multi-lang content exists
+      language: 'fr',
       retention: null, // Real retention requires user_item_progress data
       durationLabel: t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, '0')}` : '—',
     })),
@@ -139,12 +132,11 @@ export const MedicalContentLibrary = () => {
       if (specialty !== 'all' && t.specialty !== specialty) return false;
       if (year !== 'all' && t.year !== year) return false;
       if (difficulty !== 'all' && t.difficulty !== difficulty) return false;
-      if (contentLang !== 'all' && t.language !== contentLang) return false;
       return true;
     }),
-  [enrichedTracks, search, specialty, year, difficulty, contentLang]);
+  [enrichedTracks, search, specialty, year, difficulty]);
 
-  const activeFiltersCount = [specialty, year, difficulty, contentLang].filter(f => f !== 'all').length + (search ? 1 : 0);
+  const activeFiltersCount = [specialty, year, difficulty].filter(f => f !== 'all').length + (search ? 1 : 0);
 
   if (loading) {
     return (
@@ -236,25 +228,13 @@ export const MedicalContentLibrary = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                  <Globe className="h-3 w-3 inline mr-1" />
-                  Langue du contenu
-                </label>
-                <Select value={contentLang} onValueChange={setContentLang}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {CONTENT_LANGUAGES.map(l => <SelectItem key={l.id} value={l.id}>{l.flag} {l.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
             {activeFiltersCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 className="mt-3 text-muted-foreground"
-                onClick={() => { setSpecialty('all'); setYear('all'); setDifficulty('all'); setContentLang('all'); setSearch(''); }}
+                onClick={() => { setSpecialty('all'); setYear('all'); setDifficulty('all'); setSearch(''); }}
               >
                 <X className="h-3 w-3 mr-1" /> Réinitialiser les filtres
               </Button>
@@ -298,9 +278,7 @@ export const MedicalContentLibrary = () => {
                   </Badge>
 
                   {/* Language flag */}
-                  <span className="absolute top-3 right-3 text-lg drop-shadow-md">
-                    {CONTENT_LANGUAGES.find(l => l.id === track.language)?.flag || '🇫🇷'}
-                  </span>
+                  <span className="absolute top-3 right-3 text-lg drop-shadow-md">🇫🇷</span>
 
                   {/* Play overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
