@@ -64,11 +64,25 @@ export const ApplePlatformFeatures = () => {
   const navigate = useNavigate();
   const { setCurrentLanguage } = useLanguage();
 
-  const handleClick = (tab: string | null) => {
-    if (tab) {
-      navigate(`/library?tab=${tab}`);
+  const { user } = useAuth();
+
+  const handleClick = (tab: string | null, comingSoon: boolean) => {
+    if (!tab) return;
+    if (comingSoon) {
+      // Coming soon features: redirect to signup if anonymous, otherwise go to library
+      if (!user) {
+        navigate(ROUTE_PATHS.medMngSignup);
+      } else {
+        navigate(`/library?tab=${tab}`);
+      }
+    } else {
+      // Active features: redirect to signup if anonymous
+      if (!user) {
+        navigate(ROUTE_PATHS.medMngSignup);
+      } else {
+        navigate(`/library?tab=${tab}`);
+      }
     }
-    // For multilingual, we could open language selector — for now just cycle
   };
 
   return (
