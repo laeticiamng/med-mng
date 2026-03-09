@@ -41,7 +41,7 @@ export const useGeneratorPreferences = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       setPreferences(data);
     } catch (err) {
-      console.warn('Erreur sauvegarde préférences:', err);
+      if (import.meta.env.DEV) console.warn('Erreur sauvegarde préférences:', err);
     }
   }, []);
 
