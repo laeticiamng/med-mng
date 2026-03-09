@@ -661,7 +661,7 @@ export async function escalateAlert(alertId: string): Promise<boolean> {
 
     return true;
   } catch (err) {
-    console.error('Error escalating alert:', err);
+    if (import.meta.env.DEV) console.error('Error escalating alert:', err);
     return false;
   }
 }
