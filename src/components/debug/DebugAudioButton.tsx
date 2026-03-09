@@ -78,7 +78,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 
       await testPromise;
       setStatus('success');
-      console.log('✅ Test audio réussi !');
+      if (import.meta.env.DEV) console.log('✅ Test audio réussi !');
 
     } catch (error) {
       console.error('❌ Test audio échoué:', error);

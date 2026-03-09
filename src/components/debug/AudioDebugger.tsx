@@ -103,7 +103,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
 
   const testCurrentTrack = () => {
     if (currentTrack) {
-      console.log('🧪 Test de la piste actuelle:', currentTrack);
+      if (import.meta.env.DEV) console.log('🧪 Test de la piste actuelle:', currentTrack);
       
       if (isPlaying) {
         pause();
