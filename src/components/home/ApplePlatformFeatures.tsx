@@ -124,9 +124,16 @@ export const ApplePlatformFeatures = () => {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    <TranslatedText text={feat.titleFr} />
-                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-semibold text-foreground">
+                      <TranslatedText text={feat.titleFr} />
+                    </h3>
+                    {feat.comingSoon && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-warning/15 text-warning border border-warning/30">
+                        <TranslatedText text="Bientôt" />
+                      </span>
+                    )}
+                  </div>
 
                   {/* Description */}
                   <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
