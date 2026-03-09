@@ -118,7 +118,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
     try {
       // Guard against undefined supabase client (test environment)
       if (!supabase || typeof supabase.from !== 'function') {
-        console.warn('Supabase client not available');
+        if (import.meta.env.DEV) console.warn('Supabase client not available');
         safeSetResults([]);
         safeSetIsLoading(false);
         return;
