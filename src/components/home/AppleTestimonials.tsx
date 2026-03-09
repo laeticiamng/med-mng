@@ -14,12 +14,12 @@ const testimonials = [
   },
   {
     id: 2,
-    quote: "Le concept est r\u00e9volutionnaire. Je r\u00e9vise dans le m\u00e9tro, en courant, partout. Z\u00e9ro effort, max r\u00e9sultats.",
+    quote: "Le concept est r\u00e9volutionnaire. Je r\u00e9vise dans le m\u00e9tro, en courant, partout. Z\u00e9ro effort, max r\u00e90e9ro effort, max r\u00e9sultats.",
     author: "Thomas K.", role: "D3 - Paris Descartes", rating: 5, avatar: "TK", avatarGradient: "from-accent to-warning"
   },
   {
     id: 3,
-    quote: "Les refrains restent en tete pendant des jours. Parfait pour les items qui ne rentraient jamais.",
+    quote: "\u00eaes refrains restent en tete pendant des jours. Parfait pour les items qui ne rentraient jamais.",
     author: "Sarah M.", role: "D2 - Lyon Est", rating: 4, avatar: "SM", avatarGradient: "from-warning to-success"
   },
   {
