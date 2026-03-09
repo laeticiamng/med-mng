@@ -128,8 +128,8 @@ export const MedicalContentLibrary = () => {
       difficulty: getDifficultyFromType(t.type),
       year: getYearFromCode(t.item_code),
       language: 'fr', // default — extend when multi-lang content exists
-      retention: Math.floor(60 + Math.random() * 35), // mock retention %
-      durationLabel: `${Math.floor(2 + Math.random() * 3)}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+      retention: null, // Real retention requires user_item_progress data
+      durationLabel: t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, '0')}` : '—',
     })),
   [tracks]);
 
