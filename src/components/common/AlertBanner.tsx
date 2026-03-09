@@ -160,12 +160,11 @@ export function AlertBanner({
           {/* Auto-hide progress */}
           {autoHide && autoHideDelay > 0 && (
             <div className="mt-2">
-              <div 
-                className="h-1 bg-current opacity-30 rounded-full overflow-hidden"
-              >
+              <div className="h-1 bg-current opacity-30 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-current animate-[shrink_linear] opacity-60"
+                  className="h-full bg-current opacity-60 rounded-full"
                   style={{ 
+                    width: '100%',
                     animation: `shrink ${autoHideDelay}ms linear forwards`,
                   }}
                 />
@@ -202,15 +201,6 @@ export function AlertBanner({
           <div className="absolute inset-0 border-2 border-destructive rounded animate-pulse" />
         </div>
       )}
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes shrink {
-            from { width: 100%; }
-            to { width: 0%; }
-          }
-        `
-      }} />
     </Alert>
   );
 }

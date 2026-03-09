@@ -30,7 +30,7 @@ export const MedMngPricing = () => {
   return (
     <>
       <SEOHead
-        title="Tarifs – Gratuit, Pro 19€, Premium 39€ | MED-MNG"
+        title="Tarifs – Gratuit, Standard 19€, Pro 29€, Premium 39€ | MED-MNG"
         description="Préparez l'EDN et les ECOS avec MED-MNG. Essai gratuit 7 jours. 367 items, examen illimité, musique IA, cas cliniques. À partir de 19€/mois."
         keywords="tarifs EDN, abonnement ECOS, préparation médecine, prix"
         canonical="/med-mng/pricing"
@@ -112,7 +112,7 @@ export const MedMngPricing = () => {
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left py-2 px-3 text-muted-foreground">Fonctionnalité</th>
-                      <th className="text-center py-2 px-3 text-foreground font-semibold">Pro 19€</th>
+                      <th className="text-center py-2 px-3 text-foreground font-semibold">Pro 29€</th>
                       <th className="text-center py-2 px-3 text-foreground font-semibold">Premium 39€</th>
                     </tr>
                   </thead>

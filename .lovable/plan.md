@@ -1,137 +1,127 @@
 
 
-# AUDIT TECHNIQUE COMPLET - MED-MNG Platform
+# Audit Complet MED-MNG -- Mars 2026
 
-## 1. RESUME EXECUTIF
-
-**Etat global:** Plateforme fonctionnellement riche (90+ pages, 115+ Edge Functions, 722 tables) avec une architecture mature mais une dette technique significative liee a l'accumulation de fonctionnalites.
-
-**Niveau de preparation:** 80% - Le coeur fonctionne, mais des problemes de securite residuels, de logs en production, et de fonctionnalites non connectees empechent un go-live serein.
-
-**Verdict go-live:** **NON EN L'ETAT** - 3-5 jours de correctifs critiques necessaires.
-
-### 5 P0 principaux
-
-1. **1481 console.log dans 99 fichiers** - dont ~50 non proteges par `import.meta.env.DEV` (ex: `src/scripts/auditItems.ts` lignes 13-28, fuite d'info en prod)
-2. **2 RLS policies `USING(true)` sur INSERT/UPDATE/DELETE** - tables non identifiees depuis le linter, potentiellement exploitables
-3. **Pricing page affiche "Gratuit, Pro 19EUR, Premium 39EUR"** mais `create-checkout` a 3 plans (standard 19EUR, pro 29EUR, premium 39EUR) - **incoherence prix/plan visible par l'utilisateur**
-4. **`verify_jwt = false` sur toutes les Edge Functions** sans exception dans `config.toml` - le JWT est valide en code mais un oubli dans une seule fonction expose l'endpoint
-5. **`useSubscription` reference un plan `institution` avec `price_id: 'price_institution_contact'`** - faux price ID Stripe qui provoquera un crash checkout
-
-### 5 P1 principaux
-
-1. **~50 fichiers avec `console.log` non conditionne** - fuite d'information et degradation perf en production
-2. **`src/scripts/auditItems.ts`** - 8 `console.log` bruts sans garde DEV, expose les rapports d'audit en production
-3. **Supabase linter: `function_search_path_mutable`** - marque comme ignore mais le warning persiste, risque d'injection SQL sur fonctions sans `search_path`
-4. **`dangerouslySetInnerHTML` dans 14 fichiers** - tous sanitises via DOMPurify (bon), mais `src/components/common/AlertBanner.tsx` injecte du CSS brut sans sanitisation
-5. **Pas de test E2E fonctionnel du flux Stripe** - `create-checkout` et `check-subscription` non verifies live
+## Etat actuel : 7.5/10 -- Socle robuste, potentiel révolutionnaire sous-exploité
 
 ---
 
-## 2. TABLEAU D'AUDIT
+## A. CE QUI EXISTE ET FONCTIONNE
 
-| Priorite | Domaine | Localisation | Probleme | Preuve | Risque | Recommandation | Faisable Lovable? |
-|----------|---------|-------------|----------|--------|--------|---------------|-------------------|
-| P0 | Security | `src/scripts/auditItems.ts` | 8 `console.log` non proteges DEV | Lignes 13-28 | Fuite donnees audit en prod | Wrapper avec `import.meta.env.DEV` | Oui |
-| P0 | Billing | `create-checkout` vs Pricing page | Plans incoherents (Pricing dit "Pro 19EUR", backend dit "Standard 19EUR") | Comparaison `MedMngPricing.tsx` L33 vs `create-checkout` L7-26 | Utilisateur paie un montant inattendu | Aligner nommage et prix | Oui |
-| P0 | Billing | `useSubscription.ts` L12 | `price_institution_contact` = faux ID Stripe | Code source | Crash si selection | Retirer ou marquer comme "contact us" | Oui |
-| P0 | RLS | Supabase linter | 2 policies `USING(true)` INSERT/UPDATE/DELETE | Security scan | Modification non autorisee de donnees | Identifier et restreindre les tables | Requires SQL migration |
-| P0 | Security | `config.toml` | Toutes les fonctions `verify_jwt=false` | 72 occurrences | Si une fonction oublie la validation JWT en code = endpoint ouvert | Auditer chaque fonction pour validation JWT interne | Partiellement |
-| P1 | Performance | 99 fichiers src/ | 1481 `console.log` total | search_files | Perf + fuite info | Audit fichier par fichier, garder uniquement DEV | Oui (progressif) |
-| P1 | Security | `AlertBanner.tsx` L206 | CSS injecte via `dangerouslySetInnerHTML` sans sanitisation | Code source | XSS via keyframe injection | Utiliser une classe CSS Tailwind | Oui |
-| P1 | Auth | `AuthProvider.tsx` L100 | `console.warn('Could not log sign in activity')` non conditionne | Code source | Fuite en prod | Conditionner DEV | Oui |
-| P1 | Frontend | `testMode.ts` | `TEST_MODE_ENABLED = false && !isProduction` - logique correcte mais fragile | Code source | Un changement accidentel bypass toute l'auth | Ajouter un check `import.meta.env.PROD` | Oui |
-| P2 | SEO | Pages SEO pillar | JSON-LD via `dangerouslySetInnerHTML` - correct mais pas de validation schema | 4 fichiers seo/ | Schema invalide non detecte | Ajouter validation Zod pour JSON-LD | Oui |
-| P2 | i18n | Pricing page | Textes hardcodes en francais ("Un seul objectif : reussir l'EDN") | `MedMngPricing.tsx` L56 | UX cassee EN/DE | Wrapper avec `TranslatedText` | Oui |
-| P2 | Observability | Sentry | `@sentry/react` installe mais config non confirmee | `package.json` | Erreurs prod non tracees | Verifier DSN et initialisation | Requires secret |
-| P3 | Performance | `App.tsx` | 7 niveaux de providers (ameliore de 10+) | Architecture v10 | Re-renders en cascade | Acceptable pour l'instant | Non prioritaire |
+| Domaine | Elements | Status |
+|---------|----------|--------|
+| **Coeur pédagogique** | 367 items EDN, quiz, flashcards, SRS (SM-2), cas cliniques, mode examen | Solide |
+| **Audio/Musique** | Génération Suno V4/V5, KaraokePlayer, mini-player persistant global (Spotify-style), paroles synchronisées, vitesse ajustable (0.5x-2x), boucle | Bon |
+| **IA** | Chat GPT-4 (MedChat), RAG sur embeddings EDN, tuteur IA (composant ECNPrediction), génération de playlists personnalisées | Partiel |
+| **Parcours guidés** | Système par spécialité avec progression linéaire, checkpoints, certification (`/parcours`) -- 10 spécialités | Nouveau |
+| **Gamification** | XP, streaks, badges, leaderboard, daily challenges, achievements | Bon |
+| **Social** | CommunityHub (forum, commentaires, messages directs, partage) | UI existe |
+| **PWA/Offline** | OfflineModeManager, OfflineIndicator, push notifications (basiques), PWA Analytics | Squelette |
+| **Admin** | Dashboard, audit, extraction, monitoring, sécurité, migration | Complet |
+| **UX** | Design Apple-style, onboarding anti-anxiété, traduction FR/EN/DE, accessibilité, raccourcis clavier | Bon |
+| **Monétisation** | Stripe intégré, page pricing, billing, subscription | Basique |
 
 ---
 
-## 3. DETAIL PAR CATEGORIE
+## B. CE QUI MANQUE POUR ETRE REVOLUTIONNAIRE
 
-### Frontend & Rendu
-- **Fonctionne:** Lazy loading sur 60+ pages, `PageLoader` fallback, `GlobalErrorBoundary`, 404 page correcte, responsive via CSS media queries
-- **Casse:** Rien de bloquant detecte dans le routing
-- **Douteux:** 90+ pages = maintenance lourde, certaines probablement orphelines
+### URGENCE 1 -- Manques critiques
 
-### Auth & Autorisations
-- **Fonctionne:** `AdminRoute` verifie `user_roles` via RLS (correct), `ProtectedRoute` redirige vers login, refresh token gere, Google OAuth configure
-- **Casse:** Rien de bloquant
-- **Douteux:** `TEST_MODE_ENABLED` - bien que `false`, la logique `false && !isProduction` est fragile
+**1. Duels karaoké en temps réel** -- INEXISTANT
+- Aucun composant duel/battle/versus dans le code
+- C'est LE differenciateur viral absent : 2 étudiants s'affrontent sur un quiz musical live
+- Nécessite : Supabase Realtime channels, matchmaking, scoring en direct, partage social du résultat
 
-### APIs & Edge Functions
-- **Fonctionne:** CORS dynamique via `getCorsHeaders()`, Stripe webhook avec signature validation, `create-checkout` avec plans multiples
-- **Casse:** ~30+ Edge Functions utilisent encore le static `corsHeaders` (deprecated)
-- **Douteux:** 115+ fonctions dont beaucoup potentiellement orphelines
+**2. Données pédagogiques incomplètes** -- BLOQUEUR
+- 97% des items (357/367) n'ont toujours pas d'objectifs/compétences OIC structurés
+- L'edge function `transform-edn-sections` existe mais n'est pas déployée/exécutée
+- Sans contenu structuré, les parcours guidés et le tuteur IA manquent de matière
 
-### Database & RLS
-- **Fonctionne:** 722 tables, RLS activee partout, `user_roles` table separee (bonne pratique)
-- **Casse:** 2 policies `USING(true)` non SELECT (identifiees par linter)
-- **Non confirme:** Tables exactes affectees par les policies permissives
+**3. Mode offline réel** -- FAUX SEMBLANT
+- `OfflineModeManager.tsx` (388 lignes) est une UI statique avec des données mock
+- Aucune implémentation réelle de Cache API ou IndexedDB pour le contenu
+- Le service worker (vite-plugin-pwa) ne cache que les assets statiques, pas les chansons ni les quiz
 
-### Securite
-- **Fonctionne:** DOMPurify pour HTML, CORS restreint, secrets via Supabase, Stripe webhook signature, pas de secrets client-side
-- **Casse:** `AlertBanner.tsx` injecte du CSS brut, logs non gardes en prod
-- **Non confirme:** Rate limiting sur Edge Functions
+**4. Tuteur IA contextuel par item** -- INCOMPLET
+- Seul `ECNPredictionCard.tsx` existe dans `ai-tutor/` -- ce n'est pas un tuteur contextuel
+- Le chat IA (MedChat) est générique, pas intégré dans la page d'un item spécifique
+- Manque : contexte de l'item en cours, historique des erreurs de l'étudiant, plan de remédiation personnalisé
 
-### Paiement & Billing
-- **Fonctionne:** `create-checkout` bien structure, 7j trial, webhook complet (created/updated/deleted/invoice)
-- **Casse:** Incoherence nommage plans (Pricing page vs backend), plan `institution` avec faux price ID
-- **Non confirme:** Stripe en mode live vs test
+### URGENCE 2 -- Différenciateurs manquants
 
-### Performance
-- **Fonctionne:** React Query avec `staleTime` 10min, lazy loading, `react-window` pour listes
-- **Douteux:** 1481 `console.log` impact perf, bundle probablement lourd (60+ lazy chunks)
+**5. Playlists SRS intelligentes automatiques**
+- `PersonalizedPlaylistGenerator` existe mais c'est un formulaire manuel (choix mood/spécialité)
+- Manque : génération AUTOMATIQUE d'une "playlist du jour" basée sur l'algorithme SM-2 (items à réviser aujourd'hui)
+- Devrait se lancer au login : "Voici tes 8 chansons à réécouter aujourd'hui"
 
-### SEO
-- **Fonctionne:** `SEOHead` component, `AutoSEO`, `GlobalJsonLd`, 10 pillar pages, structured data FAQ
-- **Douteux:** Canonical URLs pointent vers paths relatifs (devrait etre absolu avec domaine)
+**6. Notifications push SRS (Duolingo-style)**
+- `usePushNotifications` et `SRSNotificationSettings` existent mais sont des squelettes
+- Pas de logique serveur (edge function) pour déclencher "Tu n'as pas révisé aujourd'hui !"
+- Pas de scheduling côté backend
 
-### i18n
-- **Fonctionne:** FR/EN/DE via `TranslatedText` + dictionnaire statique, `LanguageSelector` global
-- **Casse:** Nombreux textes hardcodes FR dans Pricing, About, legal pages non couverts par le dictionnaire
+**7. Partage social viral**
+- `SocialShare.tsx` existe mais basique
+- Manque : image de score générée (Open Graph), partage story Instagram, "J'ai battu mon ami sur IC-100"
+- Pas de système de parrainage
 
-### Observabilite
-- **Fonctionne:** Sentry installe, health endpoint, `analytics-tracker`, `monitoring-alerts`, web vitals tracking
-- **Non confirme:** Sentry DSN configure, alertes monitoring actives
+**8. Simulation examen blanc national**
+- Mode examen existe mais pas de simulation complète : timer 3h, 120 questions, classement national simulé
+- Pas de conditions réelles (pas de retour arrière, coefficient par rang)
 
----
+### URGENCE 3 -- Polish & croissance
 
-## 4. PLAN D'ACTION PRIORISE
+**9. Visualiseur audio**
+- Aucune animation d'onde sonore pendant la lecture
+- Rendrait le player beaucoup plus "premium" et immersif
 
-### P0 - Correctifs immediats (a implementer maintenant)
-1. Wrapper les `console.log` de `src/scripts/auditItems.ts` avec `import.meta.env.DEV`
-2. Aligner les noms de plans entre `MedMngPricing`, `PricingPlans`, `useSubscription` et `create-checkout`
-3. Retirer le plan `institution` du code frontend ou le marquer explicitement "Contactez-nous"
-4. Corriger `AlertBanner.tsx` pour utiliser du CSS Tailwind au lieu de `dangerouslySetInnerHTML`
+**10. Fiches de synthèse PDF par item**
+- jsPDF est installé mais pas de génération de fiche résumé structurée (1 page, points clés, mnémoniques)
+- L'étudiant devrait pouvoir exporter une fiche après chaque écoute
 
-### P1 - Correctifs rapides (dans la semaine)
-5. Audit systematique des ~50 fichiers avec `console.log` non protege
-6. Conditionner tous les `console.warn` restants dans `AuthProvider.tsx`
-7. Renforcer `testMode.ts` avec check `import.meta.env.PROD`
-8. Migrer les Edge Functions restantes vers `getCorsHeaders(req)`
+**11. Images/schémas médicaux**
+- Zéro contenu visuel médical (ECG, radio, schéma anatomique)
+- Un item de cardiologie sans visuel est incomplet
 
-### P2 - Ameliorations
-9. Wrapper les textes hardcodes FR restants dans `TranslatedText`
-10. Valider la configuration Sentry
-11. Ajouter des tests E2E pour le flux Stripe
-
-### P3 - Polish
-12. Canonicals absolus avec domaine
-13. Audit des pages orphelines
-14. Optimiser le bundle (analyser les chunks)
+**12. Validation médicale professionnelle**
+- Le système `ContentValidationBadge` existe mais aucun contenu n'est réellement validé par un médecin
+- Risque médico-légal sur du contenu IA non vérifié
 
 ---
 
-## 5. IMPLEMENTATION IMMEDIATE
+## C. TOP 5 FEATURES REVOLUTIONNAIRES A IMPLEMENTER
 
-Le plan d'implementation couvrira les correctifs P0 suivants:
+```text
+1. DUELS KARAOKE LIVE          → Viral, unique, aucun concurrent
+2. PLAYLIST SRS AUTO DU JOUR   → "Spotify de la médecine" réalisé
+3. TUTEUR IA CONTEXTUEL        → IA qui connaît ton item + tes erreurs
+4. SIMULATION EXAMEN NATIONAL  → Conditions réelles EDN avec classement
+5. PARTAGE SOCIAL GENERÉ       → Image de score + parrainage viral
+```
 
-1. **`src/scripts/auditItems.ts`** - Wrapper 8 `console.log` avec `import.meta.env.DEV`
-2. **`src/hooks/useSubscription.ts`** - Retirer le tier `institution` ou le marquer non-selectionnable
-3. **`src/components/common/AlertBanner.tsx`** - Remplacer l'injection CSS par une approche Tailwind/style tag securisee
-4. **`src/components/med-mng/AuthProvider.tsx`** - Conditionner les `console.warn` restants
-5. **Coherence plans Stripe** - Aligner le nommage dans le frontend avec les IDs backend
-6. **`src/config/testMode.ts`** - Renforcer la protection production
+## D. DETTE TECHNIQUE NOTABLE
+
+- **700+ tables Supabase** -- fragmentation massive, consolidation nécessaire
+- **11 niveaux de providers** dans App.tsx -- complexité excessive
+- **90+ pages** -- beaucoup sont des dashboards admin rarement utilisés
+- **Tests automatisés** -- quasi inexistants malgré Vitest configuré
+- **Console.log en production** -- certains restent (objectif : 0 en production)
+
+---
+
+## E. SCORE PAR DIMENSION
+
+| Dimension | Score | Commentaire |
+|-----------|-------|-------------|
+| Audio/Player | 8/10 | Mini-player persistant OK, manque visualiseur |
+| Contenu pédagogique | 3/10 | 97% sans objectifs structurés |
+| IA & Personnalisation | 5/10 | RAG existe, tuteur contextuel absent |
+| Social & Viral | 2/10 | UI existe, aucune feature temps réel |
+| Parcours guidés | 7/10 | Nouveau, fonctionnel, à peupler |
+| Gamification | 7/10 | Solide, manque duels |
+| Offline/PWA | 2/10 | Squelette UI sans implémentation |
+| Monétisation | 4/10 | Stripe basique, pas de freemium clair |
+| Performance/Qualité | 6/10 | Lazy loading OK, dette technique lourde |
+| **GLOBAL** | **4.9/10** | **Bon socle, exécution incomplète** |
+
+La plateforme a toutes les briques posées mais la plupart sont des facades UI sans logique backend réelle. Le passage de 5/10 à 9/10 nécessite de transformer les squelettes en features fonctionnelles, en commençant par les duels live et la playlist SRS automatique.
 
