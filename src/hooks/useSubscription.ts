@@ -166,7 +166,7 @@ export const useSubscription = () => {
         if (isValidMusicQuota(adaptedQuota)) {
           setMusicQuota(adaptedQuota);
         } else {
-          console.warn('Invalid adapted quota data, using defaults:', adaptedQuota);
+          if (import.meta.env.DEV) console.warn('Invalid adapted quota data, using defaults:', adaptedQuota);
           // Utiliser quota par défaut si données invalides
           const defaultQuota: MusicQuota = {
             can_generate: true,
