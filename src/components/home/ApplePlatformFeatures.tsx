@@ -1,0 +1,165 @@
+import { motion } from 'framer-motion';
+import { BookOpen, Wand2, Brain, GraduationCap, Globe, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { TranslatedText } from '@/components/global/TranslatedText';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const features = [
+  {
+    icon: BookOpen,
+    titleFr: 'Catalogue Médical',
+    descFr: '367 items EDN organisés par spécialité, année d\'étude et niveau de difficulté. Chaque chanson avec stats de rétention.',
+    tab: 'content',
+    colSpan: 2,
+    gradient: 'from-primary/20 via-primary/5 to-transparent',
+    iconBg: 'bg-primary/15 text-primary',
+  },
+  {
+    icon: Wand2,
+    titleFr: 'Studio Créateur',
+    descFr: 'Uploadez un PDF ou PPTX → l\'IA génère un résumé musical structuré. Éditez les paroles et publiez.',
+    tab: 'creator',
+    colSpan: 1,
+    gradient: 'from-accent/20 via-accent/5 to-transparent',
+    iconBg: 'bg-accent/15 text-accent',
+  },
+  {
+    icon: Brain,
+    titleFr: 'Courbe de Mémoire',
+    descFr: 'Visualisez votre courbe d\'oubli d\'Ebbinghaus par sujet. Rappels intelligents de répétition espacée.',
+    tab: 'memory',
+    colSpan: 1,
+    gradient: 'from-warning/20 via-warning/5 to-transparent',
+    iconBg: 'bg-warning/15 text-warning',
+  },
+  {
+    icon: GraduationCap,
+    titleFr: 'Certification DPC',
+    descFr: 'Suivez vos modules de formation médicale continue et téléchargez vos attestations conformes en PDF.',
+    tab: 'dpc',
+    colSpan: 1,
+    gradient: 'from-success/20 via-success/5 to-transparent',
+    iconBg: 'bg-success/15 text-success',
+  },
+  {
+    icon: Globe,
+    titleFr: 'Multilingue',
+    descFr: 'Interface et contenus disponibles en 🇫🇷 Français, 🇬🇧 English, 🇩🇪 Deutsch, 🇪🇸 Español.',
+    tab: null, // triggers language selector
+    colSpan: 1,
+    gradient: 'from-secondary/30 via-secondary/10 to-transparent',
+    iconBg: 'bg-secondary/50 text-secondary-foreground',
+  },
+];
+
+export const ApplePlatformFeatures = () => {
+  const navigate = useNavigate();
+  const { setCurrentLanguage } = useLanguage();
+
+  const handleClick = (tab: string | null) => {
+    if (tab) {
+      navigate(`/library?tab=${tab}`);
+    }
+    // For multilingual, we could open language selector — for now just cycle
+  };
+
+  return (
+    <section className="py-24 md:py-32 relative overflow-hidden">
+      {/* Background orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Section header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+            <TranslatedText text="Une plateforme complète" />
+          </h2>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <TranslatedText text="Tout ce dont vous avez besoin pour apprendre la médecine en musique, au même endroit." />
+          </p>
+        </motion.div>
+
+        {/* Bento grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+          {features.map((feat, i) => {
+            const Icon = feat.icon;
+            return (
+              <motion.div
+                key={feat.titleFr}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl
+                  transition-all duration-500 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5
+                  ${feat.colSpan === 2 ? 'lg:col-span-2' : ''}`}
+              >
+                {/* Gradient overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feat.gradient} opacity-60`} />
+
+                {/* Hover shimmer */}
+                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.04] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                </div>
+
+                <div className="relative p-6 md:p-8 flex flex-col h-full min-h-[220px]">
+                  {/* Icon */}
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${feat.iconBg}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    <TranslatedText text={feat.titleFr} />
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
+                    <TranslatedText text={feat.descFr} />
+                  </p>
+
+                  {/* CTA */}
+                  {feat.tab ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="self-start group/btn hover:bg-primary/10"
+                      onClick={() => handleClick(feat.tab)}
+                    >
+                      <TranslatedText text="Découvrir" />
+                      <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2 self-start">
+                      {(['fr', 'en', 'de', 'es'] as const).map((lang) => (
+                        <Button
+                          key={lang}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs px-3 hover:bg-primary/10 border-border/50"
+                          onClick={() => setCurrentLanguage(lang as any)}
+                        >
+                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : lang === 'de' ? '🇩🇪' : '🇪🇸'}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};

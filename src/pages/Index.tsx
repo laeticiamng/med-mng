@@ -4,6 +4,7 @@ import { AppleMusicPlayer } from "@/components/home/AppleMusicPlayer";
 import { AppleFeatureShowcase } from "@/components/home/AppleFeatureShowcase";
 import { AppleTestimonials } from "@/components/home/AppleTestimonials";
 import { AppleFinalCTA } from "@/components/home/AppleFinalCTA";
+import { ApplePlatformFeatures } from "@/components/home/ApplePlatformFeatures";
 import { StickyMobileCTA } from "@/components/home/StickyMobileCTA";
 import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,6 +87,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         <AppleHero />
         <AppleMusicPlayer />
         <AppleFeatureShowcase />
+        <ApplePlatformFeatures />
         <AppleTestimonials />
         <AppleFinalCTA />
       </div>

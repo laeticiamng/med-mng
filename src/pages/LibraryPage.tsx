@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Music, Library, Heart, Clock, Flame, Trophy, Star, BookOpen, Wand2, Brain, GraduationCap } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MusicLibrary } from '@/components/library/MusicLibrary';
@@ -18,7 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
 export default function LibraryPage() {
-  const [activeTab, setActiveTab] = useState('content');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'content');
   const { stats } = useGamification();
   const [user, setUser] = useState<any>(null);
 
