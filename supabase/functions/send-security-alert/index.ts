@@ -3,7 +3,7 @@ import { getErrorMessage } from '../_shared/error-utils.ts';
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://med-mng.lovable.app",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
