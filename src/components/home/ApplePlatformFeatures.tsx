@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const features = [
   {
