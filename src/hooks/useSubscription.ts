@@ -492,7 +492,7 @@ export const useSubscription = () => {
       }
       return null;
     } catch (error) {
-      console.error('Error creating checkout:', error);
+      if (import.meta.env.DEV) console.error('Error creating checkout:', error);
       toast.error('Une erreur est survenue lors de la création du paiement');
       return null;
     }
