@@ -258,8 +258,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signOut,
     signInWithGoogle,
-    signInWithFacebook,
-    signInWithApple,
     resetPassword,
     updatePassword,
   };
