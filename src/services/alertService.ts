@@ -546,7 +546,7 @@ export async function getAlertStats(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('Failed to get alert stats:', error);
+      if (import.meta.env.DEV) console.error('Failed to get alert stats:', error);
       return null;
     }
 
