@@ -202,15 +202,6 @@ export function AlertBanner({
           <div className="absolute inset-0 border-2 border-destructive rounded animate-pulse" />
         </div>
       )}
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes shrink {
-            from { width: 100%; }
-            to { width: 0%; }
-          }
-        `
-      }} />
     </Alert>
   );
 }
