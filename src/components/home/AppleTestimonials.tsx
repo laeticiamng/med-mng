@@ -14,7 +14,7 @@ const testimonials = [
   },
   {
     id: 2,
-    quote: "Le concept est revolutionnaire. Je revise dans le metro, en courant, partout. Zero effort, max resultats.",
+    quote: "Le concept est r\u00e9volutionnaire. Je r\u00e9vise dans le m\u00e9tro, en courant, partout. Z\u00e9ro effort, max r\u00e9sultats.",
     author: "Thomas K.", role: "D3 - Paris Descartes", rating: 5, avatar: "TK", avatarGradient: "from-accent to-warning"
   },
   {
