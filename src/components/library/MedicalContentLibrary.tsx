@@ -112,7 +112,6 @@ export const MedicalContentLibrary = () => {
   const [specialty, setSpecialty] = useState('all');
   const [year, setYear] = useState('all');
   const [difficulty, setDifficulty] = useState('all');
-  const [contentLang, setContentLang] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
   const enrichedTracks = useMemo(() =>
