@@ -597,7 +597,7 @@ export async function getAlertStats(
       openAlerts: byStatus.open + byStatus.acknowledged + byStatus.investigating
     };
   } catch (err) {
-    console.error('Error getting alert stats:', err);
+    if (import.meta.env.DEV) console.error('Error getting alert stats:', err);
     return null;
   }
 }
