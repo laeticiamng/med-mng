@@ -125,7 +125,7 @@ const MesDonneesRGPD = () => {
       window.location.href = '/';
 
     } catch (error: any) {
-      console.error('Erreur suppression:', error);
+      if (import.meta.env.DEV) console.error('Erreur suppression:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de supprimer le compte",
