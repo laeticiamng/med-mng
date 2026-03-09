@@ -49,7 +49,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
       // Test 1: Création d'objet Audio
       const testAudio = new Audio();
       results.canCreateAudio = true;
-      console.log('✅ Audio object créé');
+      if (import.meta.env.DEV) console.log('✅ Audio object créé');
 
       // Test 2: Chargement URL
       testAudio.src = testAudioUrl;
