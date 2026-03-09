@@ -25,7 +25,7 @@ export interface LyricsGenerationOptions {
  * TODO: Migrer vers le routeur consolidé ai-content si nécessaire.
  */
 export async function generateAllLyrics(_options?: LyricsGenerationOptions): Promise<LyricsGenerationResult> {
-  console.warn('⚠️ generateAllLyrics est désactivé : update-edn-unique-content a été supprimée.')
+  if (import.meta.env.DEV) console.warn('⚠️ generateAllLyrics est désactivé : update-edn-unique-content a été supprimée.')
   return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }
 
