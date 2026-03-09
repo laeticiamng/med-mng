@@ -696,7 +696,7 @@ export async function cleanupOldAlerts(daysToKeep: number = 90): Promise<number>
 
     return data?.length || 0;
   } catch (err) {
-    console.error('Error cleaning up alerts:', err);
+    if (import.meta.env.DEV) console.error('Error cleaning up alerts:', err);
     return 0;
   }
 }
