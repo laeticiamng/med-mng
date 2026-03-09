@@ -44,7 +44,7 @@ const AdminExtractEdn = () => {
       toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
 
     } catch (error: any) {
-      console.error('💥 Erreur critique:', error);
+      if (import.meta.env.DEV) console.error('💥 Erreur critique:', error);
       setError(error.message);
       toast.error('Erreur critique lors de l\'extraction');
     } finally {
