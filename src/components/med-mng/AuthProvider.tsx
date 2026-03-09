@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Gérer les erreurs de token
         if (event === 'TOKEN_REFRESHED' && !session) {
-          console.warn('⚠️ Échec du rafraîchissement du token');
+          if (import.meta.env.DEV) console.warn('⚠️ Échec du rafraîchissement du token');
           setUser(null);
           setLoading(false);
           return;
