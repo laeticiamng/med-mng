@@ -34,7 +34,7 @@ export const AppleHero = () => {
       
       {/* Floating orbs */}
       <motion.div 
-        className="absolute top-20 left-10 w-72 h-72 rounded-full bg-primary/20 blur-3xl"
+        className="absolute top-20 left-10 w-72 h-72 rounded-full bg-primary/20 blur-3xl hidden md:block"
         animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -44,7 +44,7 @@ export const AppleHero = () => {
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-warning/10 blur-3xl"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-warning/10 blur-3xl hidden md:block"
         animate={{ scale: [1, 1.3, 1], rotate: [0, 180, 360] }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
       />
