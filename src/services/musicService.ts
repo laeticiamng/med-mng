@@ -85,7 +85,7 @@ class MusicService {
 
       return data
     } catch (error) {
-      console.error('❌ Error generating song:', error)
+      if (import.meta.env.DEV) console.error('❌ Error generating song:', error)
       this.trackGeneration(request, 0, false, error.message)
       throw error
     }
