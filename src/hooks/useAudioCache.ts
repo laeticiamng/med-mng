@@ -202,7 +202,7 @@ export const useAudioCache = () => {
 
       refreshStats();
     } catch (error) {
-      console.error('Error cleaning up cache:', error);
+      if (import.meta.env.DEV) console.error('Error cleaning up cache:', error);
     }
   }, [isSupported, refreshStats]);
 
