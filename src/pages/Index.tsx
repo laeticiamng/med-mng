@@ -35,7 +35,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         }
         // Anonymous visitors: NO modal — let them see the hero first
       } catch (err) {
-        console.error('Error checking user:', err);
+        if (import.meta.env.DEV) console.error('Error checking user:', err);
       }
     };
     checkUser();
