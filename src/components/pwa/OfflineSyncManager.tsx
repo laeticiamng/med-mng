@@ -145,7 +145,7 @@ export const OfflineSyncManager: React.FC = () => {
       setSyncItems(syncItemsList);
       setLastFullSync(new Date().toISOString());
     } catch (error) {
-      console.error('Erreur chargement sync data:', error);
+      if (import.meta.env.DEV) console.error('Erreur chargement sync data:', error);
       setSyncItems([]);
     }
   };
