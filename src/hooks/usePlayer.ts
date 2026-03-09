@@ -126,7 +126,7 @@ export const usePlayer = () => {
       setState(prev => ({ ...prev, isPlaying: true }));
 
     } catch (error) {
-      console.error('Erreur lecture:', error);
+      if (import.meta.env.DEV) console.error('Erreur lecture:', error);
       setState(prev => ({ ...prev, isLoading: false, isPlaying: false }));
       toast({
         title: "Erreur de lecture",
