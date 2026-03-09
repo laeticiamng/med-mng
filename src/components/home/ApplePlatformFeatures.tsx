@@ -147,31 +147,16 @@ export const ApplePlatformFeatures = () => {
                   </p>
 
                   {/* CTA */}
-                  {feat.tab ? (
+                  {feat.tab && (
                     <Button
                       variant="ghost"
                       size="sm"
                       className="self-start group/btn hover:bg-primary/10"
                       onClick={() => handleClick(feat.tab, feat.comingSoon)}
                     >
-                      <TranslatedText text={feat.comingSoon ? "En savoir plus" : "Découvrir"} />
+                      <TranslatedText text={user ? "Découvrir" : "S'inscrire pour accéder"} />
                       <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
-                  ) : (
-                    <div className="flex gap-2 self-start">
-                      {(['fr', 'en', 'de'] as const).map((lang) => (
-                        <Button
-                          key={lang}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs px-3 hover:bg-primary/10 border-border/50"
-                          onClick={() => setCurrentLanguage(lang as any)}
-                          aria-label={lang === 'fr' ? 'Français' : lang === 'en' ? 'English' : 'Deutsch'}
-                        >
-                          {lang === 'fr' ? '🇫🇷' : lang === 'en' ? '🇬🇧' : '🇩🇪'}
-                        </Button>
-                      ))}
-                    </div>
                   )}
                 </div>
               </motion.div>
