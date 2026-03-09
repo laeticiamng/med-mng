@@ -105,7 +105,7 @@ export const useSubscription = () => {
           details: subError
         };
         setError(errorObj);
-        console.error('Error fetching subscription:', subError);
+        if (import.meta.env.DEV) console.error('Error fetching subscription:', subError);
         toast.error('Erreur lors de la récupération de l\'abonnement');
         return;
       }
