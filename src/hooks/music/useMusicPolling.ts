@@ -254,7 +254,7 @@ export const useMusicPolling = () => {
 
         if (pollError) {
           currentState.consecutiveErrors++;
-          console.warn(`[useMusicPolling] Erreur polling (${currentState.consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
+          if (import.meta.env.DEV) console.warn(`[useMusicPolling] Erreur polling (${currentState.consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
           
           // ✅ Circuit breaker
           if (currentState.consecutiveErrors >= maxConsecutiveErrors) {
