@@ -19,7 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
 export default function LibraryPage() {
-  const [activeTab, setActiveTab] = useState('content');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'content');
   const { stats } = useGamification();
   const [user, setUser] = useState<any>(null);
 

@@ -87,6 +87,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         <AppleHero />
         <AppleMusicPlayer />
         <AppleFeatureShowcase />
+        <ApplePlatformFeatures />
         <AppleTestimonials />
         <AppleFinalCTA />
       </div>
