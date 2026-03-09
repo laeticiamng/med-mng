@@ -70,7 +70,7 @@ const MesDonneesRGPD = () => {
       });
 
     } catch (error: any) {
-      console.error('Erreur export:', error);
+      if (import.meta.env.DEV) console.error('Erreur export:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible d'exporter les données",
