@@ -423,7 +423,7 @@ class MusicService {
         })
       }
     } catch (err) {
-      console.warn('Failed to save music analytics:', err)
+      if (import.meta.env.DEV) console.warn('Failed to save music analytics:', err)
     }
   }
 
