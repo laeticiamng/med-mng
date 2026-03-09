@@ -83,7 +83,7 @@ const MedMngItemDetailComponent = () => {
       revisionCount: item.revisionCount,
       score: item.score,
     }).catch(error => {
-      console.error('Failed to update progress', error);
+      if (import.meta.env.DEV) console.error('Failed to update progress', error);
     });
   }, [item, user]);
 
