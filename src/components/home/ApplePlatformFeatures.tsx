@@ -96,7 +96,7 @@ export const ApplePlatformFeatures = () => {
             <TranslatedText text="Une plateforme complète" />
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            <TranslatedText text="Tout ce dont vous avez besoin pour apprendre la médecine en musique, au même endroit." />
+            <TranslatedText text="Tout ce dont tu as besoin pour apprendre la médecine en musique, au même endroit." />
           </p>
         </motion.div>
 
