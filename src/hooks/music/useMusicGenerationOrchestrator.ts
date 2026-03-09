@@ -153,7 +153,7 @@ export const useMusicGenerationOrchestrator = () => {
         const response = await audioApi.generateMusic(requestBody);
 
         if (!response.success || response.error) {
-          console.error(`[Orchestrator] Erreur API:`, response.error);
+          if (import.meta.env.DEV) console.error(`[Orchestrator] Erreur API:`, response.error);
           throw new Error(response.error || 'Erreur lors du démarrage de la génération');
         }
 
