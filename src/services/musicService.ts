@@ -474,7 +474,7 @@ class MusicService {
         item.item_code?.toLowerCase().includes(queryLower)
       )
     } catch (error) {
-      console.error('Error searching library:', error)
+      if (import.meta.env.DEV) console.error('Error searching library:', error)
       return []
     }
   }
