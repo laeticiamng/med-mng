@@ -62,7 +62,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
         setComments(formatted);
       }
     } catch (e) {
-      console.error('Error loading comments:', e);
+      if (import.meta.env.DEV) console.error('Error loading comments:', e);
     } finally {
       setLoading(false);
     }
