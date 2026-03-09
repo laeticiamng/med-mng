@@ -690,7 +690,7 @@ export async function cleanupOldAlerts(daysToKeep: number = 90): Promise<number>
       .select('id');
 
     if (error) {
-      console.error('Failed to cleanup old alerts:', error);
+      if (import.meta.env.DEV) console.error('Failed to cleanup old alerts:', error);
       return 0;
     }
 
