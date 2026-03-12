@@ -31,23 +31,26 @@ export class GlobalErrorBoundary extends Component<Props, State> {
     // Log error to console in development
     console.error('GlobalErrorBoundary caught an error:', error, errorInfo);
     
-    // In production, you could send this to an error tracking service
-    if (import.meta.env.PROD) {
-      // Example: Send to Sentry, LogRocket, etc.
-      try {
-        // Log structured error for observability
-        const errorLog = {
-          timestamp: new Date().toISOString(),
-          message: error.message,
-          stack: error.stack,
+    // Send to Sentry for error tracking
+    try {
+      import('@/lib/sentry').then(({ captureError }) => {
+        captureError(error, {
           componentStack: errorInfo.componentStack,
           url: window.location.href,
-          userAgent: navigator.userAgent,
-        };
-        console.error('[ERROR_LOG]', JSON.stringify(errorLog));
-      } catch (logError) {
-        console.error('Failed to log error:', logError);
-      }
+        });
+      }).catch(() => {
+        // Sentry not available, log structured error
+        if (import.meta.env.PROD) {
+          const errorLog = {
+            timestamp: new Date().toISOString(),
+            message: error.message,
+            url: window.location.href,
+          };
+          console.error('[ERROR_LOG]', JSON.stringify(errorLog));
+        }
+      });
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
     }
   }
 

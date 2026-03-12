@@ -56,30 +56,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://med-mng.lovable.app/srs-review</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/exam-mode</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/clinical-cases</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/flashcards</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- Pages d'apprentissage (protected mais indexables pour SEO) -->
 
   <!-- ECOS -->
   <url>
@@ -89,74 +66,41 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Gamification -->
+  <!-- Pages légales additionnelles -->
   <url>
-    <loc>https://med-mng.lovable.app/leaderboard</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <loc>https://med-mng.lovable.app/legal/cgv</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/daily-challenges</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <loc>https://med-mng.lovable.app/legal/cookies</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
-
-  <!-- Outils d'apprentissage -->
-  <url>
-    <loc>https://med-mng.lovable.app/smart-study-planner</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/pomodoro</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/karaoke</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
   <!-- Contenu public -->
   <url>
-    <loc>https://med-mng.lovable.app/generator</loc>
-    <lastmod>2026-03-01</lastmod>
+    <loc>https://med-mng.lovable.app/revision-rapide</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://med-mng.lovable.app/parcours</loc>
+    <lastmod>2026-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/shared-music</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://med-mng.lovable.app/faq</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/store</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/library</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/community</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://med-mng.lovable.app/chat</loc>
-    <lastmod>2026-03-01</lastmod>
+    <loc>https://med-mng.lovable.app/about</loc>
+    <lastmod>2026-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
