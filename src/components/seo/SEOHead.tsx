@@ -38,6 +38,10 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
 
   return (
     <Helmet>
+      {/* Language */}
+      <html lang="fr" />
+      {canonical && <link rel="alternate" hrefLang="fr" href={fullCanonical} />}
+
       {/* Essential Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
