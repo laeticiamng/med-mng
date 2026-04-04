@@ -9,44 +9,31 @@
 export * from './analytics';
 export * from './gamification';
 export * from './pwa';
-export * from './mentorship';
 export * from './ai';
 export * from './auth';
 export * from './profile';
 export * from './settings';
-export * from './store';
 export * from './chat';
 export * from './help';
 export * from './search';
 export * from './feedback';
-export * from './security';
 export * from './onboarding';
 export * from './common';
 export * from './qcm';
 export * from './responsive';
 export * from './content';
-export * from './modern';
 export * from './home';
-export * from './subscription';
 export * from './migration';
-export * from './extraction';
-export * from './shared';
 export * from './quota';
 export * from './priority';
-export * from './items';
 export * from './backup';
 export * from './debug';
 export * from './devtools';
-export * from './documentation';
 export * from './effectiveness';
-export * from './enhanced';
 export * from './platform';
 export * from './seo';
-export * from './test';
-export * from './tests';
 export * from './welcome';
 // providers barrel removed (dead code cleanup)
-export * from './completion';
 export * from './dashboard';
 export * from './quiz';
 export * from './recommendations';
@@ -86,28 +73,11 @@ export {
   MiniPlayer 
 } from './player';
 
-// Mobile (unique exports only)
-export { 
-  MobileNavigation, 
-  MobileOptimizedDashboard, 
-  PWAInstallPrompt 
-} from './mobile';
-
 // Navigation (unique exports only)
 export { 
   AppSidebar, 
   SkipLinks 
 } from './navigation';
-
-// Monitoring (unique exports only)
-export { 
-  AlertsConfiguration, 
-  MonitoringDashboard, 
-  ProductionMonitor,
-  SentryErrorMonitor,
-  UnifiedMonitoringDashboard,
-  UptimeMonitor
-} from './monitoring';
 
 // Global
 export { GlobalControls } from './global';
@@ -214,11 +184,6 @@ export {
 export { 
   KaraokePlayer 
 } from './lyrics';
-
-// Shortcuts (correct export)
-export { 
-  KeyboardShortcuts as ShortcutsDisplay
-} from './shortcuts';
 
 // Audio (selective to avoid conflicts with ./edn AudioPlayer)
 export { 

@@ -319,7 +319,7 @@ export const MigrationDashboard: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
-                    <p>• Le script s'exécute depuis le terminal, pas depuis Lovable</p>
+                    <p>• Le script s'exécute depuis le terminal, pas depuis le navigateur</p>
                     <p>• Assurez-vous d'avoir Node.js installé (v16 ou supérieur)</p>
                     <p>• Le backup permet de restaurer si besoin</p>
                     <p>• Durée estimée : ~10 secondes pour 260 violations</p>

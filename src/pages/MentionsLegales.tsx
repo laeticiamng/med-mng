@@ -77,8 +77,8 @@ const MentionsLegales = () => {
                   <p>Supabase (serveurs sécurisés et scalables)</p>
                 </div>
                 <div className="bg-accent/10 p-4 rounded-lg">
-                  <p><strong className="text-foreground">Prototypage UX/UI :</strong></p>
-                  <p>Réalisé via Lovable.dev</p>
+                  <p><strong className="text-foreground">Développement :</strong></p>
+                  <p>EmotionsCare SASU</p>
                 </div>
                 <div className="bg-warning/10 p-4 rounded-lg">
                   <p><strong className="text-foreground">Versionnement & sécurité :</strong></p>

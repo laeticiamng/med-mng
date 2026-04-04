@@ -47,7 +47,7 @@ export const DynamicOnboarding: React.FC = () => {
 
   const loadDynamicOnboarding = async () => {
     try {
-      // ⚡ OPTIMISATION : Use static onboarding (no API endpoint in Lovable)
+      // ⚡ OPTIMISATION : Use static onboarding (no dedicated API endpoint)
       loadStaticOnboarding();
       setIsLoading(false);
       

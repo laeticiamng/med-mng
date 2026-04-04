@@ -160,7 +160,7 @@ export function generateScoreCardImage(data: ScoreCardData): Promise<string> {
     ctx.textAlign = 'center';
     ctx.font = '14px system-ui, sans-serif';
     ctx.fillStyle = '#475569';
-    ctx.fillText('med-mng.lovable.app • Révise tes items EDN en musique 🎵', CARD_WIDTH / 2, CARD_HEIGHT - 25);
+    ctx.fillText('med-mng.app • Révise tes items EDN en musique 🎵', CARD_WIDTH / 2, CARD_HEIGHT - 25);
 
     resolve(canvas.toDataURL('image/png'));
   });

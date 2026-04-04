@@ -8,7 +8,7 @@
  * - FAQPage : questions fréquentes
  */
 
-const SITE_URL = 'https://med-mng.lovable.app';
+const SITE_URL = 'https://med-mng.app';
 
 export const createSoftwareApplicationSchema = () => ({
   '@context': 'https://schema.org',

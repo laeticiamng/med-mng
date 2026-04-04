@@ -97,8 +97,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         console.groupEnd();
       }
 
-      // Log errors via console in Lovable (no /api endpoint available)
-      // Error tracking should be done via Sentry or Supabase edge functions if configured
+      // Error tracking via Sentry or Supabase edge functions if configured
       if (import.meta.env.DEV) console.error('[ErrorBoundary] Error logged:', error);
     } catch (reportingError) {
       // Silently fail - don't let error reporting break the error boundary

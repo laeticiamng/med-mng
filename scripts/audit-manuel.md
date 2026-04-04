@@ -4,7 +4,7 @@
 
 ### Étapes:
 1. **Ouvrir votre application** dans Chrome
-   - Accédez à: `https://med-mng.lovable.app` (ou votre URL locale)
+   - Accédez à: `https://med-mng.app` (ou votre URL locale)
 
 2. **Ouvrir les DevTools**
    - Windows/Linux: `F12` ou `Ctrl+Shift+I`
@@ -36,7 +36,7 @@
 
 ### Étapes:
 1. Aller sur: https://pagespeed.web.dev/
-2. Entrer l'URL: `https://med-mng.lovable.app`
+2. Entrer l'URL: `https://med-mng.app`
 3. Cliquer sur "Analyser"
 4. Obtenir scores pour Desktop ET Mobile
 
@@ -183,7 +183,7 @@ jobs:
         uses: treosh/lighthouse-ci-action@v9
         with:
           urls: |
-            https://med-mng.lovable.app
+            https://med-mng.app
           uploadArtifacts: true
 ```
 

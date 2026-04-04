@@ -151,7 +151,7 @@ Utilise ces informations pour enrichir ta réponse si elles sont pertinentes.` :
 
 Réponds en français et de manière structurée.`;
 
-      // Appeler l'API de chat via Lovable AI (Gemini)
+      // Appeler l'API de chat via l'IA (Gemini)
       const { data, error } = await supabase.functions.invoke('medical-chat-ai', {
         body: {
           messages: [

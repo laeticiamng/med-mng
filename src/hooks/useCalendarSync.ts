@@ -65,7 +65,7 @@ export const useCalendarSync = () => {
       };
 
       lines.push('BEGIN:VEVENT');
-      lines.push(`UID:${event.id}@med-mng.lovable.app`);
+      lines.push(`UID:${event.id}@med-mng.app`);
       lines.push(`DTSTAMP:${formatDate(new Date())}`);
       
       if (event.allDay) {

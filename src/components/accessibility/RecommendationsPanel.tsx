@@ -127,7 +127,7 @@ export function RecommendationsPanel() {
           throw new Error('Trop de requêtes. Veuillez réessayer dans quelques instants.');
         }
         if (functionError.message.includes('402')) {
-          throw new Error('Crédits Lovable AI épuisés. Veuillez recharger votre compte.');
+          throw new Error('Crédits IA épuisés. Veuillez recharger votre compte.');
         }
         throw functionError;
       }

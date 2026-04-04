@@ -13,7 +13,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const SITE_URL = 'https://med-mng.lovable.app';
+const SITE_URL = 'https://med-mng.app';
 const TODAY = new Date().toISOString().split('T')[0];
 
 interface SitemapEntry {
