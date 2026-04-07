@@ -53,7 +53,7 @@ export function SecureCredentialsForm({
     onSubmit({ username: username.trim(), password });
   };
 
-  // Credentials from env are not supported in Lovable - always require user input
+  // Credentials from env are not supported - always require user input
   const hasEnvCredentials = false;
 
   return (
@@ -161,7 +161,7 @@ export function useSecureCredentials() {
   const [credentials, setCredentials] = useState<{ username: string; password: string } | null>(null);
   const [showCredentialsForm, setShowCredentialsForm] = useState(false);
 
-  // Credentials from env are not supported in Lovable - always require user input
+  // Credentials from env are not supported - always require user input
   const hasEnvCredentials = false;
   
   const getCredentials = (): Promise<{ username: string; password: string }> => {

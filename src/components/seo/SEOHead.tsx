@@ -31,7 +31,7 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
   structuredData,
   noindex = false,
 }, _ref) => {
-  const siteUrl = 'https://med-mng.lovable.app';
+  const siteUrl = 'https://med-mng.app';
   const fullTitle = `${title} - MED-MNG`;
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : undefined;
   const defaultImage = `${siteUrl}/og-image.png`;
@@ -122,8 +122,8 @@ export const createOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'MED-MNG',
-  url: 'https://med-mng.lovable.app',
-  logo: 'https://med-mng.lovable.app/logo.png',
+  url: 'https://med-mng.app',
+  logo: 'https://med-mng.app/logo.png',
   description: 'Plateforme d\'apprentissage médical innovante',
   sameAs: [
     // Ajouter les réseaux sociaux si disponibles
@@ -134,10 +134,10 @@ export const createWebsiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'MED-MNG',
-  url: 'https://med-mng.lovable.app',
+  url: 'https://med-mng.app',
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://med-mng.lovable.app/search?q={search_term_string}',
+    target: 'https://med-mng.app/search?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
 });
@@ -149,6 +149,6 @@ export const createBreadcrumbSchema = (items: Array<{ name: string; url: string 
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://med-mng.lovable.app${item.url}`,
+    item: `https://med-mng.app${item.url}`,
   })),
 });

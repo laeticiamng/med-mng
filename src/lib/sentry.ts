@@ -9,8 +9,8 @@ const getEnvironment = (): string => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') return 'development';
-    if (hostname.includes('preview') || hostname.includes('lovable.app')) return 'staging';
-    if (hostname === 'med-mng.lovable.app') return 'production';
+    if (hostname.includes('preview')) return 'staging';
+    if (hostname === 'med-mng.app' || hostname === 'www.med-mng.app') return 'production';
   }
   return import.meta.env.MODE || 'production';
 };

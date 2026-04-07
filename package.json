@@ -1,7 +1,13 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "med-mng",
+  "description": "Plateforme d'apprentissage médical — ECOS, cas cliniques, QCM adaptatifs",
+  "version": "9.6.3",
+  "author": "EmotionsCare SASU",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laeticiamng/med-mng.git"
+  },
   "private": true,
-  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -123,7 +129,6 @@
     "globals": "^15.9.0",
     "jest": "^29.7.0",
     "jsdom": "^27.0.0",
-    "lovable-tagger": "^1.1.7",
     "msw": "^2.11.3",
     "playwright-lighthouse": "^4.0.0",
     "postcss": "^8.4.47",

@@ -142,7 +142,7 @@ export const CreatorStudio = () => {
       const { error } = await supabase.from('med_mng_songs').insert({
         title: song.title,
         lyrics: { text: song.lyrics, specialty: song.specialty, style: song.style, tempo: song.tempo, key: song.key },
-        meta: { source: 'creator_studio', generated_by: 'lovable_ai' },
+        meta: { source: 'creator_studio', generated_by: 'med_mng' },
         suno_audio_id: `cs-${Date.now()}`, // placeholder until audio is generated
         user_id: user.id,
         created_by: user.id,
@@ -173,7 +173,7 @@ export const CreatorStudio = () => {
           Transformez vos cours en chansons médicales avec l'IA
         </p>
         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs">
-          ✨ Propulsé par Lovable AI
+          ✨ Propulsé par MED-MNG
         </Badge>
       </div>
 

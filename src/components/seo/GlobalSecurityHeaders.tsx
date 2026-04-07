@@ -23,7 +23,7 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
   noIndex = false,
   structuredData
 }) => {
-  const siteUrl = 'https://med-mng.lovable.app';
+  const siteUrl = 'https://med-mng.app';
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : siteUrl;
   const fullTitle = title.includes('MED-MNG') ? title : `${title} | MED-MNG`;
 
@@ -119,8 +119,8 @@ export const getOrganizationSchema = () => ({
   '@type': 'EducationalOrganization',
   name: 'MED-MNG',
   description: 'Plateforme d\'apprentissage médical par la musique',
-  url: 'https://med-mng.lovable.app',
-  logo: 'https://med-mng.lovable.app/logo.png',
+  url: 'https://med-mng.app',
+  logo: 'https://med-mng.app/logo.png',
   sameAs: [],
   contactPoint: {
     '@type': 'ContactPoint',

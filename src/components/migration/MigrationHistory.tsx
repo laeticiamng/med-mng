@@ -237,7 +237,7 @@ export const MigrationHistory: React.FC = () => {
           </div>
           
           <div>
-            <p className="font-medium mb-1">Option 3: Via l'historique Lovable</p>
+            <p className="font-medium mb-1">Option 3: Via l'historique des versions</p>
             <p className="text-muted-foreground">Utilisez le bouton "View History" en haut de l'interface pour restaurer une version précédente.</p>
           </div>
         </CardContent>

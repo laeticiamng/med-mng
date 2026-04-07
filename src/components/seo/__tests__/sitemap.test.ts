@@ -21,7 +21,7 @@ describe('Sitemap', () => {
   });
 
   it('should include homepage with highest priority', () => {
-    expect(sitemapContent).toContain('https://med-mng.lovable.app/</loc>');
+    expect(sitemapContent).toContain('https://med-mng.app/</loc>');
     expect(sitemapContent).toContain('<priority>1.0</priority>');
   });
 

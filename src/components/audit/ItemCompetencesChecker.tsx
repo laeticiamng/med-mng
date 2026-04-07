@@ -189,7 +189,7 @@ export const ItemCompetencesChecker = () => {
         <CardHeader>
           <CardTitle>🤖 Vérification IA d'un Item Spécifique</CardTitle>
           <CardDescription>
-            Utilise Lovable AI pour analyser la complétude des compétences OIC d'un item
+            Utilise l'IA pour analyser la complétude des compétences OIC d'un item
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -5,7 +5,7 @@
  * Stratégie : positionnement laser, expertise unique, contenu citable et structuré.
  */
 
-const SITE_URL = 'https://med-mng.lovable.app';
+const SITE_URL = 'https://med-mng.app';
 
 /**
  * Speakable Schema - Indique aux IA quelles parties du contenu sont citables
