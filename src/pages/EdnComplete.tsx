@@ -1,6 +1,6 @@
 // @refresh reset
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
-import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
+import { cheminItemEdn, segmentDepuisOngletLegacy } from "@/pages/edn-item/ednItemTabs";
 import { OfflineStatusBar } from "@/components/edn/OfflineStatusBar";
 import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
@@ -83,11 +83,8 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
-  const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
-  const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   
@@ -292,27 +289,18 @@ export default function EdnComplete() {
     return () => observer.disconnect();
   }, [hasMore, filteredItems.length]);
 
-  const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
-    // Ouvrir la modal immédiatement avec données partielles
-    setSelectedItem(item);
-    setSelectedItemTab(tab || 'overview');
-    setIsModalOpen(true);
-    
-    // Puis fetch données complètes (tableaux, quiz, scène, etc.) via supabase
-    try {
-      const { data } = await supabase
-        .from('edn_items_immersive')
-        .select('*')
-        .eq('item_code', item.item_code)
-        .maybeSingle();
-
-      if (data) {
-        setSelectedItem({ ...item, ...data });
-      }
-    } catch (err) {
-      // Silently ignore - partial data is still usable
-    }
-  }, []);
+  // La fiche d'un item n'est plus une modale à neuf onglets montés d'un coup :
+  // c'est une route avec une sous-page par écran (cf. src/pages/edn-item/).
+  // On y navigue, ce qui donne une URL partageable, un retour arrière qui
+  // fonctionne écran par écran, et un chargement à la demande. Les anciens
+  // identifiants d'onglet (« music », « bd »…) sont traduits en segments d'URL
+  // par segmentDepuisOngletLegacy, donc les appels existants continuent de
+  // viser le bon écran.
+  const openItemModal = useCallback((item: EdnItem, tab?: string) => {
+    const slug = item.slug || item.item_code?.toLowerCase();
+    if (!slug) return;
+    navigate(cheminItemEdn(slug, segmentDepuisOngletLegacy(tab)));
+  }, [navigate]);
 
   if (loading && ednItems.length === 0) {
     return (
@@ -847,13 +835,6 @@ export default function EdnComplete() {
 
       </div>
 
-        {/* Modal */}
-        <EdnItemModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          initialTab={selectedItemTab}
-        />
       </Tabs>
       <MVPFooter />
     </div>

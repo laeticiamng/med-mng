@@ -10,7 +10,20 @@ export const ROUTE_PATHS = {
   optimizedIndex: '/optimized',
   generator: '/generator',
   ednComplete: '/edn-complete',
+  // Fiche d'un item : route parente + une sous-page par écran. L'ancienne
+  // modale à neuf onglets (EdnItemModal) montait les neuf contenus d'un coup ;
+  // chaque écran est maintenant une URL propre, chargée en lazy.
+  // `/edn-complete/:slug` (sans segment) redirige vers l'aperçu.
   ednCompleteDetail: '/edn-complete/:slug',
+  ednItemApercu: '/edn-complete/:slug/apercu',
+  ednItemRangA: '/edn-complete/:slug/rang-a',
+  ednItemRangB: '/edn-complete/:slug/rang-b',
+  ednItemQuiz: '/edn-complete/:slug/quiz',
+  ednItemStats: '/edn-complete/:slug/stats',
+  ednItemMusique: '/edn-complete/:slug/musique',
+  ednItemScene: '/edn-complete/:slug/scene',
+  ednItemPlanches: '/edn-complete/:slug/planches',
+  ednItemRecit: '/edn-complete/:slug/recit',
   ednImmersive: '/edn/:slug/immersive',
   ednMusicLibrary: '/edn/music-library',
   ecosIndex: '/ecos',

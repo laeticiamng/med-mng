@@ -535,6 +535,22 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
 };
 
 /**
+ * Sous-pages d'un item EDN (`/edn-complete/:slug/<segment>`).
+ * Les libellés reprennent ceux affichés par les composants correspondants.
+ */
+const SEO_SOUS_PAGES_ITEM_EDN: Record<string, { titre: string; description: string }> = {
+  'apercu': { titre: 'Aperçu', description: 'Aperçu d\'un item EDN : compétences UNESS de rang A et de rang B, contenus disponibles, notes et export PDF.' },
+  'rang-a': { titre: 'Rang A', description: 'Compétences officielles de rang A d\'un item EDN, issues du référentiel UNESS.' },
+  'rang-b': { titre: 'Rang B', description: 'Compétences officielles de rang B d\'un item EDN, issues du référentiel UNESS.' },
+  'quiz': { titre: 'Quiz', description: 'Quiz d\'un item EDN construit sur les compétences OIC officielles.' },
+  'stats': { titre: 'Statistiques', description: 'Progression sur un item EDN : historique des quiz, activité et validation des compétences.' },
+  'musique': { titre: 'Musique', description: 'Paroles mnémotechniques d\'un item EDN, par rang A, rang B et fusion A+B.' },
+  'scene': { titre: 'Scène clinique', description: 'Scène clinique immersive d\'un item EDN.' },
+  'planches': { titre: 'Planches de compétences', description: 'Les compétences OIC d\'un item EDN présentées en diaporama illustré.' },
+  'recit': { titre: 'Parcours narré des compétences', description: 'Mise en situation construite à partir des compétences OIC d\'un item EDN.' },
+};
+
+/**
  * Récupère la config SEO pour une route donnée
  * Retourne un fallback si la route n'est pas configurée
  */
@@ -546,9 +562,15 @@ export function getRouteSEO(pathname: string): RouteSEO {
 
   // Pattern matching for dynamic routes
   if (pathname.startsWith('/edn-complete/')) {
+    // La fiche d'un item est découpée en sous-pages (/apercu, /rang-a, …) :
+    // chacune annonce son propre titre. La sous-page affinera ensuite ce titre
+    // avec le code et l'intitulé réels de l'item une fois celui-ci chargé.
+    const segment = pathname.split('/').filter(Boolean)[2];
+    const sousPage = segment ? SEO_SOUS_PAGES_ITEM_EDN[segment] : undefined;
     return {
-      title: 'Item EDN',
-      description: 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur MED-MNG.',
+      title: sousPage ? `Item EDN — ${sousPage.titre}` : 'Item EDN',
+      description: sousPage?.description
+        ?? 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur MED-MNG.',
       keywords: `${BASE_KEYWORDS}, item EDN, cours, détail`,
       canonical: pathname,
       ogType: 'article',
