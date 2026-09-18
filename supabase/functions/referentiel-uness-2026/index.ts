@@ -151,13 +151,18 @@ serve(async (req) => {
     }
 
     // --- application -------------------------------------------------------
+    // Une requête par objectif, mais 24 en parallèle : en série, les 4872 mises
+    // à jour dépassaient la limite de 150 s de la fonction.
     let corrigees = 0
     const echecs: { objectif_id: string; erreur: string }[] = []
-    for (const o of aCorriger) {
+    const LARGEUR = 24
+    const horodatage = new Date().toISOString()
+
+    const corrigerUn = async (o: Officiel) => {
       const maj: Record<string, unknown> = {
         intitule: o.intitule,
         rubrique: o.rubrique,
-        updated_at: new Date().toISOString(),
+        updated_at: horodatage,
       }
       if (o.ordre !== null) maj.ordre = o.ordre
       const { error } = await supabase.from('oic_competences').update(maj).eq('objectif_id', o.objectif_id)
@@ -165,15 +170,21 @@ serve(async (req) => {
       else corrigees++
     }
 
+    for (let i = 0; i < aCorriger.length; i += LARGEUR) {
+      await Promise.all(aCorriger.slice(i, i + LARGEUR).map(corrigerUn))
+    }
+
     let titresCorriges = 0
-    for (const i of titresACorriger) {
-      const { error } = await supabase
-        .from('edn_items_complete')
-        .update({ title: i.title, updated_at: new Date().toISOString() })
-        .eq('item_code', i.item_code)
-      if (!error) titresCorriges++
-      else if (echecs.length < 20) echecs.push({ objectif_id: i.item_code, erreur: error.message })
-      await supabase.from('edn_items_immersive').update({ title: i.title }).eq('item_code', i.item_code)
+    for (let i = 0; i < titresACorriger.length; i += LARGEUR) {
+      await Promise.all(titresACorriger.slice(i, i + LARGEUR).map(async (it) => {
+        const { error } = await supabase
+          .from('edn_items_complete')
+          .update({ title: it.title, updated_at: horodatage })
+          .eq('item_code', it.item_code)
+        if (!error) titresCorriges++
+        else if (echecs.length < 20) echecs.push({ objectif_id: it.item_code, erreur: error.message })
+        await supabase.from('edn_items_immersive').update({ title: it.title }).eq('item_code', it.item_code)
+      }))
     }
 
     // Colonnes de remplissage : vidées par lots de 500 identifiants.
