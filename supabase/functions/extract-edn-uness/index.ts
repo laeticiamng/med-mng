@@ -929,6 +929,84 @@ async function extractSingleItem(item: {numero: number, titre: string, url: stri
 }
 
 // Extraction avancée des compétences (améliorée selon ticket)
+// ---------------------------------------------------------------------------
+// CONSTAT D'AUDIT (18/09/2026) — trois filtres faisaient perdre des compétences
+// à l'extraction, silencieusement :
+//
+// 1. `!text.includes('rang')` écartait TOUTE compétence dont l'énoncé contient
+//    le mot « rang ». Or les compétences de rang B renvoient couramment au
+//    rang A (« Connaître les éléments de rang A relatifs à… »). On ne veut
+//    écarter que les EN-TÊTES de colonne, pas les énoncés qui citent un rang.
+// 2. `length > 10` écartait les intitulés courts pourtant réels : « Définition »
+//    fait exactement 10 caractères et existe bel et bien dans le référentiel
+//    (OIC-019-05-A, OIC-055-13-B). Seuil ramené à 3 caractères.
+// 3. Dans les tableaux, le rang était déduit du texte du TABLEAU ENTIER. Une
+//    page UNESS présente souvent les deux rangs dans un même tableau : les deux
+//    tests étaient vrais et chaque cellule partait dans les DEUX rangs. Le rang
+//    se lit maintenant par ligne (colonne « Rang »), et on ne retombe sur le
+//    tableau entier que s'il ne contient qu'un seul rang.
+// ---------------------------------------------------------------------------
+
+/** Un en-tête de colonne de rang — à écarter, ce n'est pas une compétence. */
+const EST_ENTETE_RANG = /^\s*(connaissances?\s+|objectifs?\s+|comp[eé]tences?\s+)?rang\s*[ab]\s*$/i
+
+/** Normalise une cellule et dit si elle porte une vraie compétence. */
+function texteCompetence(brut: string | null | undefined): string | null {
+  const t = (brut || '').replace(/\s+/g, ' ').trim()
+  if (t.length < 3) return null
+  if (EST_ENTETE_RANG.test(t)) return null
+  if (/^(rang|item|n[°o]|num[eé]ro|intitul[eé]|description|rubrique)$/i.test(t)) return null
+  return t
+}
+
+/** Le rang porté par une cellule isolée ('A', 'B') ou null. */
+function rangDeCellule(brut: string | null | undefined): 'A' | 'B' | null {
+  const t = (brut || '').trim()
+  if (/^a$/i.test(t) || /^rang\s*a$/i.test(t)) return 'A'
+  if (/^b$/i.test(t) || /^rang\s*b$/i.test(t)) return 'B'
+  return null
+}
+
+/**
+ * Rang annoncé par le CONTEXTE du tableau (sa légende, ou le titre qui le
+ * précède) quand le tableau lui-même ne porte aucun marqueur. Cas courant sur
+ * UNESS : « Connaissances Rang A » en <h3>, puis un tableau sans le mot rang.
+ * Sans ça, ces tableaux ne produisaient RIEN. Un contexte qui cite les deux
+ * rangs reste ambigu : on ne tranche pas.
+ */
+function rangDuContexte($table: any, $: any): 'A' | 'B' | null {
+  const candidats: string[] = []
+
+  const legende = $table.find('caption').first().text()
+  if (legende && legende.trim()) candidats.push(legende)
+
+  // Frères précédents (du plus proche au plus lointain), puis ceux du parent.
+  let noeud = $table
+  for (let saut = 0; saut < 3 && noeud.length; saut++) {
+    let frere = noeud.prev()
+    let garde = 0
+    let trouve = false
+    while (frere.length && garde++ < 20) {
+      const t = frere.text()
+      if (t && t.trim()) { candidats.push(t); trouve = true }
+      if (frere.is('h1, h2, h3, h4, h5, h6')) break
+      frere = frere.prev()
+    }
+    if (trouve) break
+    noeud = noeud.parent()
+  }
+
+  for (const brut of candidats) {
+    const t = brut.toLowerCase()
+    const a = t.includes('rang a') || t.includes('connaissances a')
+    const b = t.includes('rang b') || t.includes('connaissances b')
+    if (a && b) return null // contexte ambigu
+    if (a) return 'A'
+    if (b) return 'B'
+  }
+  return null
+}
+
 function extractCompetencesAdvanced(html: string) {
   const $ = cheerio.load(html)
   const rang_a: string[] = []
@@ -964,8 +1042,9 @@ function extractCompetencesAdvanced(html: string) {
   }
   
   return {
-    rang_a: [...new Set(rang_a.filter(item => item.length > 10))],
-    rang_b: [...new Set(rang_b.filter(item => item.length > 10))]
+    // Seuil à 3 caractères : « Définition » (10) est une compétence réelle.
+    rang_a: [...new Set(rang_a.map(texteCompetence).filter((x): x is string => !!x))],
+    rang_b: [...new Set(rang_b.map(texteCompetence).filter((x): x is string => !!x))]
   }
 }
 
@@ -976,15 +1055,15 @@ function extractContentAfterHeader($header: any, targetArray: string[], $: any) 
   while (current.length && !current.is('h1, h2, h3, h4, h5, h6')) {
     if (current.is('ul, ol')) {
       current.find('li').each((j: number, li: any) => {
-        const text = $(li).text().trim()
-        if (text.length > 10) {
+        const text = texteCompetence($(li).text())
+        if (text) {
           targetArray.push(text)
           foundContent = true
         }
       })
     } else if (current.is('p')) {
-      const text = current.text().trim()
-      if (text.length > 10 && !text.toLowerCase().includes('rang')) {
+      const text = texteCompetence(current.text())
+      if (text) {
         targetArray.push(text)
         foundContent = true
       }
@@ -998,26 +1077,56 @@ function extractContentAfterHeader($header: any, targetArray: string[], $: any) 
 }
 
 function extractFromTables($: any, rang_a: string[], rang_b: string[]) {
-  $('table').each((i: number, table: any) => {
-    const tableText = $(table).text().toLowerCase()
-    
-    if (tableText.includes('rang a') || tableText.includes('connaissances a')) {
-      $(table).find('td, th').each((j: number, cell: any) => {
-        const text = $(cell).text().trim()
-        if (text.length > 10 && !text.toLowerCase().includes('rang')) {
-          rang_a.push(text)
+  $('table').each((_i: number, table: any) => {
+    const $table = $(table)
+
+    // Repère une éventuelle colonne « Rang » à partir de la ligne d'en-tête.
+    let colonneRang = -1
+    const entetes: string[] = []
+    $table.find('tr').first().find('th, td').each((idx: number, cell: any) => {
+      const t = $(cell).text().trim()
+      entetes.push(t)
+      if (/^rang$/i.test(t)) colonneRang = idx
+    })
+
+    const texteTable = $table.text().toLowerCase()
+    const aRangA = texteTable.includes('rang a') || texteTable.includes('connaissances a')
+    const aRangB = texteTable.includes('rang b') || texteTable.includes('connaissances b')
+    // Tableau muet sur le rang : on lit le titre / la légende qui l'introduit.
+    const rangContexte = (!aRangA && !aRangB) ? rangDuContexte($table, $) : null
+
+    $table.find('tr').each((ligneIdx: number, tr: any) => {
+      if (ligneIdx === 0 && entetes.length) return // ligne d'en-tête
+
+      const cellules: string[] = []
+      $(tr).find('td, th').each((_j: number, cell: any) => cellules.push($(cell).text()))
+      if (cellules.length === 0) return
+
+      // Rang de CETTE ligne : colonne dédiée, sinon première cellule qui vaut A/B.
+      let rang: 'A' | 'B' | null = null
+      if (colonneRang >= 0 && cellules[colonneRang] !== undefined) {
+        rang = rangDeCellule(cellules[colonneRang])
+      }
+      if (!rang) {
+        for (const c of cellules) {
+          const r = rangDeCellule(c)
+          if (r) { rang = r; break }
         }
-      })
-    }
-    
-    if (tableText.includes('rang b') || tableText.includes('connaissances b')) {
-      $(table).find('td, th').each((j: number, cell: any) => {
-        const text = $(cell).text().trim()
-        if (text.length > 10 && !text.toLowerCase().includes('rang')) {
-          rang_b.push(text)
-        }
-      })
-    }
+      }
+      // Dernier recours : le tableau ne porte qu'un seul rang…
+      if (!rang && aRangA && !aRangB) rang = 'A'
+      if (!rang && aRangB && !aRangA) rang = 'B'
+      // …ou c'est le titre qui l'introduit qui le dit.
+      if (!rang && rangContexte) rang = rangContexte
+      if (!rang) return // tableau ambigu : on ne devine pas, on n'invente pas
+
+      for (const c of cellules) {
+        const t = texteCompetence(c)
+        if (!t) continue
+        if (rangDeCellule(c)) continue // la cellule de rang elle-même
+        ;(rang === 'A' ? rang_a : rang_b).push(t)
+      }
+    })
   })
 }
 
@@ -1027,13 +1136,13 @@ function extractFromLists($: any, rang_a: string[], rang_b: string[]) {
     
     if (listContext.includes('rang a')) {
       $(list).find('li').each((j: number, li: any) => {
-        const text = $(li).text().trim()
-        if (text.length > 10) rang_a.push(text)
+        const text = texteCompetence($(li).text())
+        if (text) rang_a.push(text)
       })
     } else if (listContext.includes('rang b')) {
       $(list).find('li').each((j: number, li: any) => {
-        const text = $(li).text().trim()
-        if (text.length > 10) rang_b.push(text)
+        const text = texteCompetence($(li).text())
+        if (text) rang_b.push(text)
       })
     }
   })
@@ -1064,7 +1173,7 @@ function extractFromTextPatterns(html: string, rang_a: string[], rang_b: string[
       const items = match[1]
         .split(/[•\-–—\n]/)
         .map(s => s.trim())
-        .filter(s => s.length > 10)
+        .map(texteCompetence).filter((s): s is string => !!s)
       rang_a.push(...items)
       break
     }
@@ -1076,7 +1185,7 @@ function extractFromTextPatterns(html: string, rang_a: string[], rang_b: string[
       const items = match[1]
         .split(/[•\-–—\n]/)
         .map(s => s.trim())
-        .filter(s => s.length > 10)
+        .map(texteCompetence).filter((s): s is string => !!s)
       rang_b.push(...items)
       break
     }
