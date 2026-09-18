@@ -23,8 +23,10 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
   noIndex = false,
   structuredData
 }) => {
-  const siteUrl = 'https://med-mng.lovable.app';
-  const fullCanonical = canonical ? `${siteUrl}${canonical}` : siteUrl;
+  const siteUrl = 'https://medmng.com';
+  // Comme dans SEOHead : une URL déjà absolue ne doit pas être re-préfixée.
+  const abs = (u?: string) => (u ? (/^https?:\/\//i.test(u) ? u : `${siteUrl}${u}`) : undefined);
+  const fullCanonical = canonical ? abs(canonical)! : siteUrl;
   const fullTitle = title.includes('MED-MNG') ? title : `${title} | MED-MNG`;
 
   // CSP stricte pour grade A sécurité
@@ -76,7 +78,7 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={fullCanonical} />
-      <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+      <meta property="og:image" content={abs(ogImage)} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:locale" content="fr_FR" />
@@ -86,7 +88,7 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
       <meta name="twitter:site" content="@medmng" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+      <meta name="twitter:image" content={abs(ogImage)} />
 
       {/* Preconnect for performance */}
       <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossOrigin="anonymous" />
@@ -119,8 +121,8 @@ export const getOrganizationSchema = () => ({
   '@type': 'EducationalOrganization',
   name: 'MED-MNG',
   description: 'Plateforme d\'apprentissage médical par la musique',
-  url: 'https://med-mng.lovable.app',
-  logo: 'https://med-mng.lovable.app/logo.png',
+  url: 'https://medmng.com',
+  logo: 'https://medmng.com/logo.png',
   sameAs: [],
   contactPoint: {
     '@type': 'ContactPoint',
