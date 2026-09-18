@@ -26,6 +26,13 @@ interface DailyPlaylistState {
   totalDue: number;
   completedCount: number;
   sessionStartedAt: string | null;
+  /**
+   * Pourquoi la playlist est vide. La page affichait « Tout est à jour ! Ta
+   * mémoire est au top ! » dans tous les cas — y compris quand la seule raison
+   * est qu'aucune piste audio n'existe (`edn_suno_tracks`, `edn_lyrics_versions`
+   * et `generated_songs` sont vides). Ce n'est pas la même information.
+   */
+  emptyReason: 'audio_absent' | 'rien_a_reviser' | null;
 }
 
 export const useDailySRSPlaylist = () => {
@@ -38,6 +45,7 @@ export const useDailySRSPlaylist = () => {
     totalDue: 0,
     completedCount: 0,
     sessionStartedAt: null,
+    emptyReason: null,
   });
 
   // Predict retention using Ebbinghaus curve
@@ -81,7 +89,7 @@ export const useDailySRSPlaylist = () => {
         .select('id, item_code, title, specialite');
 
       if (!items || items.length === 0) {
-        setState(prev => ({ ...prev, loading: false, items: [] }));
+        setState(prev => ({ ...prev, loading: false, items: [], emptyReason: 'audio_absent' }));
         return;
       }
 
@@ -93,7 +101,7 @@ export const useDailySRSPlaylist = () => {
         .in('item_code', itemCodes);
 
       if (!lyricsVersions || lyricsVersions.length === 0) {
-        setState(prev => ({ ...prev, loading: false, items: [] }));
+        setState(prev => ({ ...prev, loading: false, items: [], emptyReason: 'audio_absent' }));
         return;
       }
 
@@ -125,7 +133,7 @@ export const useDailySRSPlaylist = () => {
           return;
         }
 
-        setState(prev => ({ ...prev, loading: false, items: [] }));
+        setState(prev => ({ ...prev, loading: false, items: [], emptyReason: 'audio_absent' }));
         return;
       }
 
@@ -209,6 +217,7 @@ export const useDailySRSPlaylist = () => {
         items: finalItems,
         totalDue: finalItems.length,
         loading: false,
+        emptyReason: finalItems.length === 0 ? 'rien_a_reviser' : null,
       }));
     } catch (error) {
       console.error('Error generating SRS playlist:', error);

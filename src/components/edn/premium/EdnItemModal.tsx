@@ -25,7 +25,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
-import { normalizeTableauData, transformTableauToSections } from "@/utils/tableauTransformations";
+import { normalizeTableauData, sceneImmersiveEstGenerique, transformTableauToSections } from "@/utils/tableauTransformations";
 import {
     BarChart3,
     BookOpen,
@@ -258,9 +258,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     // Scène - toujours visible (avec message si pas de données)
     tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
     
-    // BD et Roman - disponibles pour génération à la demande
-    tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
-    tabs.push({ id: 'roman', label: 'Roman', icon: FileText, available: true });
+    // Ces deux formats ne sont ni une bande dessinée ni un roman : ce sont deux
+    // présentations des compétences OIC de l'item (diaporama illustré de photos
+    // génériques / mise en situation à partir de phrases types). Les libellés
+    // disent maintenant ce qu'ils contiennent.
+    tabs.push({ id: 'bd', label: 'Planches', icon: Image, available: true });
+    tabs.push({ id: 'roman', label: 'Récit', icon: FileText, available: true });
     
     return tabs;
   };
@@ -414,7 +417,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                             {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
                               <Badge className="bg-success/10 text-success">Musique</Badge>
                             )}
-                            {finalItem.scene_immersive && (
+                            {!sceneImmersiveEstGenerique(finalItem.scene_immersive) && (
                               <Badge className="bg-success/10 text-success">Scène</Badge>
                             )}
                             {finalItem.quiz_questions && (
@@ -683,11 +686,16 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               </TabsContent>
 
               <TabsContent value="music" className="mt-0 p-6">
+                {/* La liste (useEdnItemsOptimized) ne sélectionne que `paroles_musicales` :
+                    `finalItem.paroles_rang_a/b/ab` étaient toujours undefined, donc une
+                    seule section s'affichait et les variantes Rang B et Fusion A+B
+                    annoncées étaient inatteignables. Les valeurs ci-dessous viennent de
+                    `edn_items_complete`, chargées par loadCompleteData(). */}
                 <ParolesMusicales
                   paroles={completeItemData?.paroles_musicales || finalItem.paroles_musicales}
-                  paroles_rang_a={finalItem.paroles_rang_a}
-                  paroles_rang_b={finalItem.paroles_rang_b}
-                  paroles_rang_ab={finalItem.paroles_rang_ab}
+                  paroles_rang_a={completeItemData?.paroles_rang_a ?? finalItem.paroles_rang_a}
+                  paroles_rang_b={completeItemData?.paroles_rang_b ?? finalItem.paroles_rang_b}
+                  paroles_rang_ab={completeItemData?.paroles_rang_ab ?? finalItem.paroles_rang_ab}
                   itemCode={finalItem.item_code}
                   tableauRangA={finalItem.tableau_rang_a}
                   tableauRangB={finalItem.tableau_rang_b}
@@ -696,7 +704,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* Scene - Toujours affichée */}
               <TabsContent value="scene" className="mt-0 p-6 space-y-4">
-                {(completeItemData?.scene_immersive || finalItem.scene_immersive) ? (
+                {/* La scène stockée est, pour les 367 items, le même gabarit sans
+                    contenu clinique (« Patient présentant une pathologie typique de
+                    l'item N ») : on la traite comme absente et on affiche le message
+                    « en préparation » plutôt qu'une simulation qui n'en est pas. */}
+                {!sceneImmersiveEstGenerique(completeItemData?.scene_immersive || finalItem.scene_immersive) ? (
                   <>
                     {/* Audio Ambiance Player */}
                     {finalItem.audio_ambiance && (
@@ -713,11 +725,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                       <div className="w-16 h-16 mx-auto rounded-full bg-accent/10 flex items-center justify-center mb-4">
                         <Users className="h-8 w-8 text-accent" />
                       </div>
-                      <CardTitle>Scène immersive en préparation</CardTitle>
+                      <CardTitle>Pas de scène clinique pour cet item</CardTitle>
                     </CardHeader>
                     <CardContent className="text-center space-y-4">
                       <p className="text-muted-foreground">
-                        La scène immersive pour <strong>{finalItem.item_code}</strong> est en cours de création.
+                        Aucune scène clinique rédigée n'est disponible pour <strong>{finalItem.item_code}</strong>.
                       </p>
                       <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
                         <button 
@@ -736,7 +748,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground pt-2">
-                        En attendant, explorez les autres formats pédagogiques disponibles.
+                        Les compétences officielles de l'item restent consultables dans les onglets Rang A et Rang B.
                       </p>
                     </CardContent>
                   </Card>

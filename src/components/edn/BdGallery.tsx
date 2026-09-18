@@ -264,7 +264,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <div className="h-48 bg-muted rounded-lg"></div>
             <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
           </div>
-          <p className="text-muted-foreground mt-4">Chargement de la BD interactive...</p>
+          <p className="text-muted-foreground mt-4">Chargement des planches...</p>
         </CardContent>
       </Card>
     );
@@ -277,7 +277,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
         <CardHeader className="bg-gradient-to-r from-accent/10 to-primary/10">
           <CardTitle className="flex items-center gap-2">
             <Image className="h-6 w-6" />
-            BD Interactive - {itemCode}
+            Planches de compétences - {itemCode}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center space-y-4">
@@ -285,13 +285,13 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <Image className="h-8 w-8 text-accent" />
           </div>
           <div>
-            <p className="font-medium text-foreground">BD en préparation</p>
+            <p className="font-medium text-foreground">Pas de planches pour cet item</p>
             <p className="text-sm text-muted-foreground mt-1">
               Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
-            La BD sera automatiquement générée une fois les compétences disponibles.
+Les planches se construisent à partir des compétences OIC de l'item ; aucune n'est disponible ici.
           </div>
         </CardContent>
       </Card>
@@ -402,7 +402,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <div className="flex items-center justify-between">
               <DialogTitle className="text-primary-foreground flex items-center gap-2">
                 <Image className="h-5 w-5" />
-                BD Interactive - {itemCode}
+                Planches de compétences - {itemCode}
               </DialogTitle>
               <div className="flex items-center gap-2">
                 <Badge className="bg-primary-foreground/20 text-primary-foreground">
@@ -454,7 +454,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="flex items-center gap-2">
               <Image className="h-6 w-6" />
-              BD Interactive - {itemCode}
+              Planches de compétences - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
               {stats && (
@@ -476,6 +476,14 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           </div>
         </CardHeader>
         <CardContent className="p-4">
+          {/* Ce format était annoncé comme une « BD ». Il n'y a ni dessin ni
+              récit : les 2848 planches des 367 items réutilisent 10 photos
+              Unsplash génériques, et le texte est la liste des compétences OIC.
+              On le dit plutôt que de laisser croire à une bande dessinée. */}
+          <p className="text-xs text-muted-foreground mb-3">
+            Diaporama des compétences officielles de l'item. Les illustrations sont des photos
+            d'illustration génériques, non spécifiques à l'item.
+          </p>
           <div className="flex items-center justify-between">
             <Button 
               variant="outline" 

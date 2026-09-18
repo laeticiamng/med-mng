@@ -28,7 +28,7 @@ export const useParolesMusicales = (
     currentLanguage
   } = useMusicGenerationWithTranslation();
 
-  const { startPolling, completedAudio: pollingAudio, pollingTracks } = useSunoPolling();
+  const { completedAudio: pollingAudio, pollingTracks } = useSunoPolling();
   const { completedAudio: callbackAudio } = useSunoCallbackListener();
 
   const {
@@ -39,6 +39,7 @@ export const useParolesMusicales = (
     volume,
     play,
     pause,
+    stop,
     seek,
     changeVolume
   } = useGlobalAudio();
@@ -76,24 +77,23 @@ export const useParolesMusicales = (
         description: `${parolesCompletes.length} vers avec assonances - ${itemData.item_code}`,
       });
 
-      // Appel génération musicale avec les paroles complètes
-      const trackId = await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, musicDuration);
+      // Appel génération musicale avec les paroles complètes.
+      // generateMusicInLanguage résout avec l'URL audio finale (son polling interne
+      // a déjà attendu la fin) et non avec un trackId : la relancer dans
+      // useSunoPolling revenait à interroger generated_music_tracks avec une URL
+      // comme task_id, ce qui n'appariait jamais rien.
+      await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, musicDuration);
       
-      // Toast de succès pour le démarrage
       toast({
-        title: `🎵 ${itemData.item_code} Rang ${rang} en cours...`,
-        description: `La génération a été lancée, l'audio sera disponible dans quelques minutes`,
+        title: `🎵 ${itemData.item_code} Rang ${rang} prêt`,
+        description: `Chanson générée à partir de ${parolesCompletes.length} vers`,
       });
       
-      // Démarrer le polling pour ce trackId
-      if (trackId) {
-        startPolling(trackId, rang, itemData.item_code);
-      }
-      
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "❌ Échec génération complète",
-        description: `Impossible de générer ${itemData.item_code} Rang ${rang} avec toutes les compétences`,
+        description: `${itemData.item_code} Rang ${rang} : ${message}`,
         variant: "destructive"
       });
     }
@@ -134,10 +134,11 @@ export const useParolesMusicales = (
         description: `Fusion Rang A et B complète - ${Math.floor(mixDuration/60)}min${mixDuration%60}s`,
       });
       
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "❌ Échec génération Mix",
-        description: `Impossible de générer ${itemData.item_code} Mix A+B complet`,
+        description: `${itemData.item_code} Mix A+B : ${message}`,
         variant: "destructive"
       });
     }
@@ -202,6 +203,7 @@ export const useParolesMusicales = (
     handleGenerateMix,
     handlePlayAudio,
     seek,
+    stop,
     changeVolume
   };
 };

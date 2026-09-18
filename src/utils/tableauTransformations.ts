@@ -170,3 +170,53 @@ const FORMAT_CODE_OIC = /^OIC-\d{3}-\d{2}-[AB]$/;
 
 export const estCompetenceOICReelle = (objectifId?: string | null): boolean =>
   FORMAT_CODE_OIC.test((objectifId ?? '').trim());
+
+/**
+ * `edn_items_complete.quiz_questions` contient exactement 3 questions pour
+ * chacun des 367 items, soit 1101 questions — mais seulement 3 jeux de
+ * réponses distincts au total : d'un item à l'autre, seul le numéro change.
+ *
+ *   « Quelle est la compétence principale de rang A pour l'item 99 ? »
+ *   → Connaissances théoriques de base / Application clinique pratique /
+ *     Recherche et innovation / Enseignement et formation
+ *
+ * Aucune de ces questions ne porte de contenu médical : ce sont des gabarits.
+ * Les 1101 questions stockées correspondent aux trois motifs ci-dessous
+ * (vérifié : 1101/1101). On ne les propose pas comme quiz pédagogique ; le
+ * quiz est alors reconstruit depuis les compétences OIC réelles de l'item.
+ */
+const GABARITS_QUIZ_GENERIQUE = [
+  /^Quelle est la compétence principale de rang [AB] pour l'item \d+\s*\?$/,
+  /^Dans le contexte de l'item \d+, quelle approche thérapeutique est privilégiée\s*\?$/,
+  /^Quel est l'objectif principal de rang [AB] pour l'item \d+\s*\?$/,
+];
+
+export const estQuestionQuizGenerique = (question?: string | null): boolean => {
+  const texte = (question ?? '').trim();
+  if (!texte) return true;
+  return GABARITS_QUIZ_GENERIQUE.some((motif) => motif.test(texte));
+};
+
+/**
+ * `edn_items_complete.scene_immersive` est rempli pour les 367 items, mais avec
+ * un gabarit unique dont seul le numéro d'item varie :
+ *
+ *   titre     : « Simulation clinique interactive - Item 99 »
+ *   contexte  : « Environnement hospitalier virtuel avec patient simulé » (367/367 identique)
+ *   scenarios : « Patient présentant une pathologie typique de l'item 99 »
+ *   objectifs : les 4 mêmes phrases pour les 367 items
+ *
+ * Aucune pathologie, aucun signe, aucune conduite à tenir : ce n'est pas une
+ * scène clinique. Vérifié : 367/367 correspondent au gabarit. On préfère
+ * afficher « en préparation » plutôt qu'une simulation qui n'en est pas.
+ */
+const TITRE_SCENE_GABARIT = /^Simulation clinique interactive - Item \d+$/;
+const CONTEXTE_SCENE_GABARIT = 'Environnement hospitalier virtuel avec patient simulé';
+
+export const sceneImmersiveEstGenerique = (scene: unknown): boolean => {
+  if (!scene || typeof scene !== 'object') return true;
+  const s = scene as { titre?: unknown; contexte?: unknown };
+  const titre = typeof s.titre === 'string' ? s.titre.trim() : '';
+  const contexte = typeof s.contexte === 'string' ? s.contexte.trim() : '';
+  return TITRE_SCENE_GABARIT.test(titre) && contexte === CONTEXTE_SCENE_GABARIT;
+};

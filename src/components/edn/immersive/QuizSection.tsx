@@ -6,6 +6,7 @@ import { CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { estQuestionQuizGenerique } from '@/utils/tableauTransformations';
 
 interface QuizQuestion {
   question: string;
@@ -58,7 +59,11 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
     } else {
       return [];
     }
-    
+
+    // Écarter les 3 gabarits génériques stockés à l'identique sur les 367 items
+    // (« Quelle est la compétence principale de rang A pour l'item N ? »).
+    allQuestions = allQuestions.filter((q: QuizQuestion) => !estQuestionQuizGenerique(q?.question));
+
     const rangAQuestions = allQuestions.filter((q: QuizQuestion) => q.rang === 'A');
     const rangBQuestions = allQuestions.filter((q: QuizQuestion) => q.rang === 'B');
     
@@ -83,7 +88,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
           <CardTitle className="text-destructive">⚠️ Quiz - Contenu indisponible</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Les questions du quiz ne sont pas encore disponibles dans Supabase.</p>
+          <p className="text-muted-foreground">Aucune question rédigée pour cet item : la base ne contient que des gabarits identiques d'un item à l'autre, qui ne sont pas un quiz.</p>
         </CardContent>
       </Card>
     );

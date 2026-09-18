@@ -59,7 +59,12 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
       setError(null);
 
       try {
-        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle,paroles_musicales,paroles_rang_a,paroles_rang_b,paroles_rang_ab&limit=1`;
+        // Table canonique : `edn_items_complete` (367 lignes). Ce hook lisait
+        // encore `edn_items_immersive`, l'ancienne table, dont les quatre colonnes
+        // de paroles sont un gabarit unique décliné sur les 367 items (« Rang A
+        // Fondamentaux, expertise qui s'précise », présent 367 fois) : le
+        // générateur envoyait donc à Suno, pour chaque item, la même chanson.
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle,paroles_musicales,paroles_rang_a,paroles_rang_b,paroles_rang_ab&limit=1`;
         const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
         
         const response = await fetch(url, {

@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { estCompetenceOICReelle } from '@/utils/tableauTransformations';
 
 interface CompetenceOIC {
   objectif_id: string;
@@ -32,25 +33,42 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     if (import.meta.env.DEV) console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
 
     if (error) {
-      if (import.meta.env.DEV) console.error('Erreur récupération compétences:', error);
-      return generateFallbackLyrics(itemCode, rang);
+      // supabase-js ne lève pas sur erreur PostgREST : on la remonte explicitement
+      // pour que l'appelant affiche un toast plutôt que de lancer une génération
+      // Suno (payante) sur des paroles fabriquées.
+      throw new Error(
+        `Compétences OIC illisibles pour ${itemCode} rang ${rang} : ${error.message}`
+      );
     }
 
-    if (!competences || competences.length === 0) {
-      if (import.meta.env.DEV) console.log('Aucune compétence OIC trouvée, génération fallback');
-      return generateFallbackLyrics(itemCode, rang);
+    // `oic_competences` contient 734 fausses lignes de la forme `IC-<n>-A|B`
+    // (« Item EDN 99 - Compétence médicale spécialisée »), 2 par item, qui ne
+    // viennent pas du référentiel UNESS. Triées par objectif_id, elles arrivent
+    // en tête et devenaient le thème répété dans l'intro, le refrain et l'outro
+    // de chaque chanson. On ne garde que les identifiants OIC-<item>-<n>-<rang>.
+    const competencesReelles = (competences ?? []).filter(
+      (c) => estCompetenceOICReelle(c.objectif_id) && Boolean(c.intitule)
+    );
+
+    if (competencesReelles.length === 0) {
+      throw new Error(
+        `Aucune compétence OIC officielle en rang ${rang} pour ${itemCode} : ` +
+        `impossible de générer des paroles à partir du référentiel.`
+      );
     }
 
-    if (import.meta.env.DEV) console.log(`✅ ${competences.length} compétences trouvées pour ${itemCode} Rang ${rang}`);
+    if (import.meta.env.DEV) console.log(`✅ ${competencesReelles.length} compétences réelles pour ${itemCode} Rang ${rang}`);
 
     // 2. Générer des paroles musicales BASÉES sur le contenu réel
-    const lyricsSection = generateMusicalLyricsFromContent(itemCode, competences, rang);
+    const lyricsSection = generateMusicalLyricsFromContent(itemCode, competencesReelles, rang);
     
     return lyricsSection.content;
     
   } catch (error) {
-    console.error('Erreur génération paroles:', error);
-    return generateFallbackLyrics(itemCode, rang);
+    // Aucun repli fabriqué : une génération Suno coûte des crédits réels, et des
+    // paroles inventées ne sont pas du contenu pédagogique.
+    if (import.meta.env.DEV) console.error('Erreur génération paroles:', error);
+    throw error instanceof Error ? error : new Error(String(error));
   }
 }
 
@@ -188,35 +206,6 @@ function extractKeyPointsFromDescription(description: string): string[] {
   }
   
   return points;
-}
-
-function generateFallbackLyrics(itemCode: string, rang: 'A' | 'B'): string[] {
-  const rangText = rang === 'A' ? 'fondamental' : 'expert';
-  
-  return [
-    `[Intro]`,
-    `${itemCode} formation médicale`,
-    `Niveau ${rangText} à maîtriser`,
-    ``,
-    `[Couplet 1]`,
-    `Connaissances essentielles`,
-    `Compétences professionnelles`,
-    `Savoir médical approfondi`,
-    ``,
-    `[Refrain]`,
-    `${itemCode} bien compris`,
-    `Formation validée aujourd'hui`,
-    ``,
-    `[Couplet 2]`,
-    `Pratique clinique rigoureuse`,
-    `Diagnostic méthodique`,
-    `Prise en charge adaptée`,
-    ``,
-    `[Outro]`,
-    `${itemCode} maîtrisé`,
-    `Compétences acquises avec succès`,
-    `Excellence médicale atteinte`
-  ];
 }
 
 // Fonction pour générer des paroles mix A+B

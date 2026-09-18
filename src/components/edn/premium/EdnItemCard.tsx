@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -104,12 +105,14 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
     if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
       features.push({ icon: Music, text: 'Musique', color: 'text-success' });
     }
-    if (finalItem.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
+    if (!sceneImmersiveEstGenerique(finalItem.scene_immersive)) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
     if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-destructive' });
     if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-primary' });
-    // BD et Roman sont toujours disponibles (367/367 items les ont)
-    features.push({ icon: Image, text: 'BD', color: 'text-pink-500' });
-    features.push({ icon: FileText, text: 'Roman', color: 'text-indigo-500' });
+    // Présents sur les 367 items, mais ce ne sont ni une BD ni un roman :
+    // diaporama des compétences (photos génériques) et mise en situation
+    // construite à partir de phrases types. Libellés corrigés en conséquence.
+    features.push({ icon: Image, text: 'Planches', color: 'text-pink-500' });
+    features.push({ icon: FileText, text: 'Récit', color: 'text-indigo-500' });
     return features;
   };
 

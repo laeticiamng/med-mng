@@ -115,7 +115,7 @@ const PlaylistItemRow: React.FC<{
 const DailySRSPlaylist: React.FC = () => {
   const navigate = useNavigate();
   const {
-    items, currentIndex, isAutoPlaying, loading, totalDue,
+    items, currentIndex, isAutoPlaying, loading, totalDue, emptyReason,
     completedCount, currentItem, playItem, startAutoPlay,
     playNext, playPrevious, toggleAutoPlay, markReviewed,
     generatePlaylist,
@@ -217,11 +217,28 @@ const DailySRSPlaylist: React.FC = () => {
         {items.length === 0 && !loading && (
           <Card className="bg-card/50 border-border/50">
             <CardContent className="py-12 text-center">
-              <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-foreground mb-2">Tout est à jour ! 🎉</h2>
-              <p className="text-muted-foreground mb-4">
-                Aucun item à réviser aujourd'hui. Ta mémoire est au top !
-              </p>
+              {emptyReason === 'audio_absent' ? (
+                <>
+                  {/* Ne pas féliciter l'utilisateur quand la playlist est vide
+                      parce qu'aucune chanson n'existe : la session audio a besoin
+                      de pistes générées, pas d'une révision « à jour ». */}
+                  <Music2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h2 className="text-xl font-bold text-foreground mb-2">Aucune chanson disponible</h2>
+                  <p className="text-muted-foreground mb-4">
+                    La session d'écoute a besoin de chansons déjà générées. Aucune n'est
+                    disponible pour l'instant : lance une génération depuis un item pour
+                    alimenter cette playlist.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
+                  <h2 className="text-xl font-bold text-foreground mb-2">Tout est à jour ! 🎉</h2>
+                  <p className="text-muted-foreground mb-4">
+                    Aucun item à réviser aujourd'hui. Ta mémoire est au top !
+                  </p>
+                </>
+              )}
               <Button variant="outline" onClick={() => navigate('/edn-complete')}>
                 Explorer de nouveaux items
               </Button>

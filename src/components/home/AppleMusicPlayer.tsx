@@ -54,28 +54,21 @@ export const AppleMusicPlayer = () => {
 
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 truncate">
-                  Item 105 - Épilepsie
+                  <TranslatedText text="367 items EDN, Rang A et Rang B" />
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  <TranslatedText text="Rang A · Neurologie" />
+                  <TranslatedText text="Compétences officielles du référentiel UNESS" />
                 </p>
-                
+
+                {/* Ni citation de paroles ni barre de lecture ici : le catalogue
+                    audio est vide (edn_suno_tracks et generated_music_tracks : 0
+                    ligne), et le couplet affiché auparavant sous le libellé
+                    « Paroles actuelles » n'existait dans aucun item. */}
                 <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
-                  <p className="text-sm text-muted-foreground mb-1">🎵 <TranslatedText text="Paroles actuelles :" /></p>
-                  <p className="text-foreground font-medium italic">
-                    "Trois minutes de crise, c'est le seuil de l'état de mal, Benzos en IV, protocole magistral..."
+                  <p className="text-sm text-muted-foreground">
+                    <TranslatedText text="Chaque item est mis en chanson à la demande, à partir de ses compétences officielles. La génération se lance depuis votre compte." />
                   </p>
                 </div>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full w-[35%] bg-gradient-to-r from-primary to-accent rounded-full" />
-              </div>
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>1:23</span>
-                <span>3:45</span>
               </div>
             </div>
 
@@ -92,7 +85,7 @@ export const AppleMusicPlayer = () => {
                 </motion.div>
               </Link>
               <p className="text-sm text-muted-foreground">
-                <TranslatedText text="Créez un compte gratuit pour accéder aux 367 chansons médicales" />
+                <TranslatedText text="Créez un compte gratuit pour générer et écouter vos chansons" />
               </p>
             </div>
 

@@ -364,7 +364,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
         <CardHeader className="bg-gradient-to-r from-success/10 to-accent/10">
           <CardTitle className="flex items-center gap-2 text-foreground">
             <BookOpen className="h-6 w-6" />
-            Roman Narratif - {itemCode}
+            Parcours narré des compétences - {itemCode}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center space-y-4">
@@ -372,13 +372,13 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
             <BookOpen className="h-8 w-8 text-success" />
           </div>
           <div>
-            <p className="font-medium text-foreground">Roman en préparation</p>
+            <p className="font-medium text-foreground">Pas de parcours narré pour cet item</p>
             <p className="text-sm text-muted-foreground mt-1">
               Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
-            Le roman narratif sera automatiquement généré une fois les compétences disponibles.
+Le parcours se construit à partir des compétences OIC de l'item ; aucune n'est disponible ici.
           </div>
         </CardContent>
       </Card>
@@ -428,7 +428,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-background">
               <BookOpen className="h-6 w-6" />
-              Roman Narratif - {itemCode}
+              Parcours narré des compétences - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
               {stats && (
@@ -531,6 +531,18 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
           </div>
         </CardHeader>
         <CardContent className="p-6">
+          {/* Ce format était annoncé comme un « roman ». Mesuré sur les 3719
+              chapitres des 367 items : 90 % commencent par l'une de 9 phrases
+              d'amorce interchangeables (« Ce matin-là, aux urgences, un patient
+              arrive en détresse. »), et les titres de chapitre sont les mêmes
+              partout (« Chapitre N : Les Fondements »). Le fond utile, ce sont
+              les compétences OIC citées : on le dit plutôt que de laisser croire
+              à une histoire écrite pour cet item. */}
+          <p className="text-xs text-muted-foreground mb-4">
+            Mise en situation générée automatiquement autour des compétences officielles de
+            l'item. Les phrases de mise en scène sont des formules types, communes à tous les
+            items : le contenu à retenir est la compétence citée dans chaque paragraphe.
+          </p>
           <div className="prose prose-lg max-w-none space-y-4">
             {currentChap.content.split('\n\n').map((paragraph, index) => (
               <div key={index} className="p-4 bg-background/60 rounded-xl border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors">

@@ -8,6 +8,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { estQuestionQuizGenerique, sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
+import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
 
 interface TableauSection {
   competences?: unknown[];
@@ -117,6 +119,20 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
 
   const rangACount = getCompetencesCount('A');
   const rangBCount = getCompetencesCount('B');
+
+  // Ces pastilles alimentent le pourcentage « Item Complet ». Elles étaient
+  // vraies dès qu'une colonne était non vide, quel qu'en soit le contenu :
+  // tous les items affichaient donc 100 %, alors que la scène (367/367) et le
+  // quiz (1101 questions pour 3 jeux de réponses) sont des gabarits identiques
+  // d'un item à l'autre, et que les paroles ne sont, pour 345 items, qu'une
+  // liste de mots-clés.
+  const parolesRedigees = parolesSontRedigees(item.paroles_musicales ?? []);
+  const sceneReelle = !sceneImmersiveEstGenerique(item.scene_immersive);
+  const questionsReelles = Array.isArray(item.quiz_questions)
+    ? (item.quiz_questions as Array<{ question?: string }>).filter(
+        (q) => !estQuestionQuizGenerique(q?.question),
+      ).length
+    : 0;
   
   const features = [
     {
@@ -143,28 +159,28 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       id: 'music',
       label: 'Musique',
       icon: Music,
-      available: !!(item.paroles_musicales && item.paroles_musicales.length > 0),
-      count: item.paroles_musicales?.length || 0,
-      description: 'Chansons d\'apprentissage',
-      color: item.paroles_musicales?.length > 0 ? 'text-success bg-success/10 border-success/20' : 'text-muted-foreground bg-muted border-border'
+      available: parolesRedigees,
+      count: parolesRedigees ? (item.paroles_musicales?.length || 0) : 0,
+      description: parolesRedigees ? 'Paroles rédigées' : 'Paroles non rédigées',
+      color: parolesRedigees ? 'text-success bg-success/10 border-success/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
       id: 'scene',
       label: 'Scène',
       icon: Users,
-      available: !!item.scene_immersive,
-      count: item.scene_immersive ? 1 : 0,
-      description: 'Expérience immersive',
-      color: item.scene_immersive ? 'text-warning bg-warning/10 border-warning/20' : 'text-muted-foreground bg-muted border-border'
+      available: sceneReelle,
+      count: sceneReelle ? 1 : 0,
+      description: sceneReelle ? 'Scène clinique' : 'Aucune scène rédigée',
+      color: sceneReelle ? 'text-warning bg-warning/10 border-warning/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
       id: 'quiz',
       label: 'Quiz',
       icon: Gamepad2,
-      available: !!item.quiz_questions,
-      count: Array.isArray(item.quiz_questions) ? item.quiz_questions.length : (item.quiz_questions ? 1 : 0),
-      description: 'Questions interactives',
-      color: item.quiz_questions ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
+      available: questionsReelles > 0,
+      count: questionsReelles,
+      description: questionsReelles > 0 ? 'Questions interactives' : 'Questions reconstruites depuis les compétences OIC',
+      color: questionsReelles > 0 ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
     }
   ];
 

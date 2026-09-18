@@ -58,6 +58,7 @@ const construireResume = (
   ligne: any,
   favoris: Set<string>,
   progression: Map<string, any>,
+  itemsAvecAudio: Set<string>,
 ): ItemSummary => {
   const p = progression.get(ligne.id);
   return {
@@ -76,9 +77,28 @@ const construireResume = (
     isFavorite: favoris.has(ligne.item_code),
     revisionCount: p?.attempts_count ?? 0,
     score: p?.best_score ?? 0,
-    hasAudio: versTableauDeTextes(ligne.paroles_musicales).length > 0,
+    // `hasAudio` pilote la pastille « note de musique » de la bibliothèque.
+    // Elle était vraie dès qu'il existait un champ TEXTE `paroles_musicales`,
+    // donc sur 367 items sur 367, alors qu'aucun fichier audio n'existe.
+    // On la fait dépendre des pistes réellement générées.
+    hasAudio: itemsAvecAudio.has(ligne.item_code),
     popularityScore: p?.attempts_count ?? 0,
   };
+};
+
+/** Items pour lesquels une piste audio a réellement été générée. */
+const chargerItemsAvecAudio = async (): Promise<Set<string>> => {
+  const { data } = await (supabase as any)
+    .from('generated_music_tracks')
+    .select('metadata')
+    .eq('generation_status', 'completed')
+    .not('audio_url', 'is', null);
+
+  return new Set<string>(
+    (data ?? [])
+      .map((piste: any) => piste?.metadata?.itemCode)
+      .filter((code: unknown): code is string => typeof code === 'string' && code.length > 0),
+  );
 };
 
 /** Favoris et progression de la personne, en une passe. */
@@ -111,8 +131,11 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
     throw error;
   }
 
-  const { favoris, progression } = await chargerContexteUtilisateur(userId);
-  return (lignes ?? []).map((ligne: any) => construireResume(ligne, favoris, progression));
+  const [{ favoris, progression }, itemsAvecAudio] = await Promise.all([
+    chargerContexteUtilisateur(userId),
+    chargerItemsAvecAudio(),
+  ]);
+  return (lignes ?? []).map((ligne: any) => construireResume(ligne, favoris, progression, itemsAvecAudio));
 };
 
 /** Un tableau de rang devient une « fiche » affichable. */
@@ -148,8 +171,11 @@ export const fetchItemDetail = async (
     throw new Error(`Item introuvable : ${itemCode}`);
   }
 
-  const { favoris, progression } = await chargerContexteUtilisateur(userId);
-  const resume = construireResume(ligne, favoris, progression);
+  const [{ favoris, progression }, itemsAvecAudio] = await Promise.all([
+    chargerContexteUtilisateur(userId),
+    chargerItemsAvecAudio(),
+  ]);
+  const resume = construireResume(ligne, favoris, progression, itemsAvecAudio);
 
   // Les « fiches » ne sont pas une table : ce sont les tableaux de rang A et B
   // portés par l'item lui-même.

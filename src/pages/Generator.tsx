@@ -30,6 +30,8 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useEcosLyrics } from '@/hooks/useEcosLyrics';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
+import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
+import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
@@ -234,12 +236,25 @@ const Generator = () => {
         titlePrefix = `${ecosLyrics.scenario.scenario_code} - ${ecosLyrics.scenario.title}`;
       }
 
+      const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
+
+      // Les colonnes `paroles_rang_*` d'`edn_items_complete` ne contiennent, pour
+      // 345 des 367 items, qu'une suite de mots-clés sans verbe ni ponctuation
+      // (« nbsp nbsp migraine évaluer »). Envoyer ça à Suno consomme des crédits
+      // payants pour un résultat inchantable : on repart alors des compétences
+      // OIC officielles de l'item, comme le fait l'onglet Musique.
+      if (contentType === 'edn' && selectedItem && !parolesSontRedigees(lyricsToUse)) {
+        toast.info('Paroles reconstruites depuis les compétences OIC officielles de l\'item.');
+        lyricsToUse = rang === 'AB'
+          ? await generateMixedLyrics(selectedItem)
+          : await generateComprehensiveLyrics(selectedItem, rang);
+      }
+
       if (lyricsToUse.length === 0) {
         toast.error('Aucune parole disponible pour cet item');
         return;
       }
 
-      const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
       const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
       
       // Marquer le début de la génération
@@ -296,7 +311,8 @@ const Generator = () => {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Erreur génération:', error);
       setGenerationStartTime(null);
-      toast.error('Échec de la génération musicale. Veuillez réessayer.');
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Échec de la génération musicale : ${message}`);
     }
   }, [canGenerate, user, remainingFree, musicQuota?.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
