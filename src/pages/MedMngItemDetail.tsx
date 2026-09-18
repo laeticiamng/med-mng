@@ -109,9 +109,12 @@ const MedMngItemDetailComponent = () => {
     }
 
     try {
+      // Les favoris sont indexés par code d'item (`user_edn_favorites`),
+      // pas par identifiant.
       const nextFavorite = await toggleFavoriteItem({
         userId: user.id,
-        itemId: item.id,
+        itemCode: item.code,
+        itemTitle: item.title,
         isFavorite,
       });
       setIsFavorite(nextFavorite);
