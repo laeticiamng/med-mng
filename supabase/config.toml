@@ -119,3 +119,6 @@ verify_jwt = false
 
 [functions.referentiel-uness-2026]
 verify_jwt = false
+
+[functions.generer-recit-item]
+verify_jwt = false
