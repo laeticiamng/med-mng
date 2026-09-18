@@ -181,6 +181,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
               allEdnItems={allEdnItems}
               itemsLoading={itemsLoading}
               itemsError={itemsError}
+              ednLyrics={ednLyrics}
             />
 
             <LyricsStatusDisplay

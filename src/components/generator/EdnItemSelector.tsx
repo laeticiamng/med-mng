@@ -4,6 +4,7 @@ import { TranslatedText } from '@/components/TranslatedText';
 import { Input } from '@/components/ui/input';
 import { Search, Loader2, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ApercuItemSelectionne } from './ApercuItemSelectionne';
 
 interface EdnItemSelectorProps {
   selectedItem: string;
@@ -11,6 +12,8 @@ interface EdnItemSelectorProps {
   allEdnItems: any[];
   itemsLoading: boolean;
   itemsError: string | null;
+  /** Paroles stockées pour l'item choisi, telles que chargées par la page. */
+  ednLyrics?: { paroles_rang_a?: string[]; paroles_rang_b?: string[]; paroles_rang_ab?: string[] } | null;
 }
 
 export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
@@ -18,7 +21,8 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
   setSelectedItem,
   allEdnItems,
   itemsLoading,
-  itemsError
+  itemsError,
+  ednLyrics,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -123,17 +127,19 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
         </SelectContent>
       </Select>
       
-      {/* Affichage de l'item sélectionné - compact */}
+      {/* Item sélectionné : on montre ce qui existe réellement pour lui.
+          L'ancien libellé « ✅ Paroles chargées automatiquement » était affirmé
+          sans rien vérifier, alors que 345 items sur 367 n'ont en base qu'une
+          suite de mots-clés. */}
       {selectedItemData && (
-        <div className="p-2.5 sm:p-3 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in">
-          <div className="flex items-center gap-2 mb-1">
-            <Badge className="bg-primary text-primary-foreground text-xs">{selectedItemData.item_code}</Badge>
-            <span className="text-xs sm:text-sm font-medium text-foreground truncate">{selectedItemData.title}</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            ✅ Paroles chargées automatiquement
-          </p>
-        </div>
+        <ApercuItemSelectionne
+          itemCode={selectedItemData.item_code}
+          titre={selectedItemData.title}
+          slug={selectedItemData.slug || selectedItemData.item_code?.toLowerCase()}
+          parolesRangA={ednLyrics?.paroles_rang_a}
+          parolesRangB={ednLyrics?.paroles_rang_b}
+          parolesRangAB={ednLyrics?.paroles_rang_ab}
+        />
       )}
     </div>
   );
