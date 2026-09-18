@@ -138,15 +138,21 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
     setMessages(prev => [...prev, typingMessage]);
 
     try {
-      const { data, error } = await supabase.functions.invoke('contextual-medical-chat', {
+      // L'edge function « contextual-medical-chat » n'existe pas : ni dans
+      // supabase/functions/, ni deployee (OPTIONS -> 404, temoin inexistant
+      // -> 404 aussi, donc le 404 est discriminant). Chaque message partait
+      // donc dans le vide. La fonction reellement deployee et faite pour cet
+      // usage est « contextual-ai-chat » ; son contrat est
+      // { message, conversation_history, context_items } en entree et
+      // { success, response, context } en sortie.
+      const { data, error } = await supabase.functions.invoke('contextual-ai-chat', {
         body: {
           message: content,
-          currentItem,
-          conversationId,
-          context: {
-            previousMessages: messages.slice(-5),
-            userId: (await supabase.auth.getUser()).data.user?.id
-          }
+          conversation_history: messages.slice(-5).map((m) => ({
+            role: m.isUser ? 'user' : 'assistant',
+            content: m.content,
+          })),
+          context_items: currentItem ? [currentItem] : [],
         }
       });
 
@@ -160,8 +166,10 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
         isUser: false,
         timestamp: new Date(),
         source: data.source || 'mixed',
-        relatedItems: data.relatedItems || [],
-        suggestions: data.suggestions || []
+        // contextual-ai-chat renvoie les items utilises dans data.context.items,
+        // et ne renvoie pas de suggestions : on n'en invente pas.
+        relatedItems: data.context?.items ?? [],
+        suggestions: []
       };
 
       setMessages(prev => [...prev, assistantMessage]);
