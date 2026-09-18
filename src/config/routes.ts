@@ -17,6 +17,17 @@ export const ROUTE_PATHS = {
   ednMusicLibrary: '/edn/music-library',
   ecosIndex: '/ecos',
   ecosScenario: '/ecos/:scenarioId',
+  // ⚠️ CONSTAT D'AUDIT — ROUTES FANTOMES
+  // Le commit ca5d38cb (« Changes », 28/02/2026) a supprimé 9 pages d'un coup :
+  // B2B, CommunityHub, KaraokePage, MoodTracker, Pomodoro, ProductDetail,
+  // SharedMusic, SharedMusicIndex, Store — sans nettoyer ce fichier.
+  // Les 9 entrées correspondantes (store, productDetail, community, karaoke,
+  // moodTracker, pomodoro, sharedMusic, sharedMusicIndex, b2b) n'ont plus aucun
+  // <Route> dans App.tsx. 8 d'entre elles ne sont liées nulle part (config morte),
+  // mais ROUTE_PATHS.b2b est encore utilisé par AppFooter.tsx (x2) et FAQ.tsx
+  // => lien « Universités & CHU » en 404 sur TOUTES les pages du site.
+  // A TRANCHER : restaurer les pages (git show ca5d38cb^:src/pages/B2B.tsx) ou
+  // supprimer ces entrées et les liens qui pointent dessus.
   store: '/store',
   productDetail: '/product/:handle',
   audit: '/audit',

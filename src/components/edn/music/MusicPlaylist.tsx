@@ -123,6 +123,15 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     try {
       setLoading(true);
       
+      // ⚠️ CONSTAT D'AUDIT — PROMESSE « 367 chansons » : cette « playlist musicale » ne
+      // contient AUCUN audio. Les pistes sont construites à partir de 'paroles_musicales'
+      // (un tableau de TEXTE) et la durée est calculée arithmétiquement ci-dessous, pas lue
+      // sur un fichier. Même logique ailleurs : medMngItemsService.ts l.79 (hasAudio) et
+      // CompetencesBadges.tsx l.127 déduisent « audio disponible » de la présence de paroles.
+      // La seule table portant de vraies URLs audio est 'edn_suno_tracks' (colonne audio_url),
+      // interrogée uniquement par AudioDemoPlayer.tsx et useDailySRSPlaylist.ts.
+      // A TRANCHER : mesurer combien des 367 items ont réellement une piste dans
+      // edn_suno_tracks, puis soit générer le manquant, soit ajuster la promesse.
       const { data: itemsData } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, paroles_musicales')

@@ -120,6 +120,12 @@ export function useSearch() {
       return;
     }
 
+    // ⚠️ CONSTAT D'AUDIT — les 3 fonctions edge appelées par ce hook
+    // ('search-suggestions', 'similar-search', 'popular-searches') N'EXISTENT PAS dans
+    // supabase/functions/. Ce hook est utilisé par AdvancedSearch, affiché sur la page
+    // publique /med-mng/music-library : suggestions, recherches proches et recherches
+    // populaires sont donc systématiquement vides.
+    // Une fonction 'advanced-search' existe et pourrait servir de base.
     try {
       const { data, error } = await supabase.functions.invoke('search-suggestions', {
         body: { query: query.trim() }

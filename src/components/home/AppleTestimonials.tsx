@@ -6,6 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { TranslatedText } from '@/components/global/TranslatedText';
 
+// ⚠️ CONSTAT D'AUDIT — TEMOIGNAGES ET NOTE FICTIFS
+// Les 4 témoignages ci-dessous (« Marie L. », « Thomas K. », « Sarah M. », « Lucas P. »)
+// sont codés en dur : aucune source, aucun utilisateur réel, aucune table Supabase.
+// Le bloc `stats` plus bas affiche « 4.8/5 — Note utilisateurs », chiffre lui aussi
+// inventé et INCOHERENT avec About.tsx qui affiche « 4.9/5 — Note des étudiants ».
+// En France, la publication d'avis de consommateurs fictifs est une pratique
+// commerciale trompeuse (art. L.121-2 et s. du code de la consommation).
+// DECISION ATTENDUE : remplacer par de vrais avis vérifiables, ou retirer la section.
 const testimonials = [
   {
     id: 1,

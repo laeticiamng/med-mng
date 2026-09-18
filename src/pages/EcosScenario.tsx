@@ -356,6 +356,13 @@ const EcosScenario = () => {
               scenarioId={scenarioData.id}
               scenarioTitle={scenarioData.title}
               onComplete={(score, total, items) => {
+                // ⚠️ CONSTAT D'AUDIT — le résultat de la simulation ECOS n'est PAS enregistré.
+                // EcosEvaluationGrid ne persiste rien non plus (aucun .from/.insert) : le score
+                // n'existe que le temps de l'affichage. Conséquence : aucune progression ECOS,
+                // aucun historique, rien dans les statistiques utilisateur.
+                // A COMPLETER : écrire le résultat (tables candidates existantes :
+                // assessment_sessions, clinical_assessments, user_progress avec
+                // content_type = 'ecos').
                 if (import.meta.env.DEV) console.log('Evaluation complete:', { score, total, items });
               }}
             />

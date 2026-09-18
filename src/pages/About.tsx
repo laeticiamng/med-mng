@@ -124,6 +124,15 @@ const About = () => {
               <Sparkles className="h-6 w-6 text-primary" />
               <h3 className="text-xl font-semibold text-foreground">MED MNG en chiffres</h3>
             </div>
+            {/* ⚠️ CONSTAT D'AUDIT — 3 des 4 chiffres ci-dessous ne sont adossés à aucune source :
+                - « ×3 Rétention améliorée » : non sourcé. AppleFeatureShowcase.tsx cite, lui,
+                  Wallace 1994 et Rainey & Larsen 2002 pour une formulation prudente
+                  (« rétention significativement supérieure ») — le facteur ×3 n'en vient pas.
+                - « 4.9/5 Note des étudiants » : inventé, et INCOHERENT avec la page d'accueil
+                  qui affiche « 4.8/5 » (AppleTestimonials.tsx).
+                - « A+ Sécurité certifiée » : aucune certification de sécurité n'existe.
+                Seul « 367 items EDN couverts » est vérifiable (table edn_items_complete).
+                A TRANCHER : sourcer, corriger ou retirer ces 3 chiffres. */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-primary/10 rounded-lg">
                 <p className="text-3xl font-bold text-primary">367</p>

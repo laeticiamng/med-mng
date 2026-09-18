@@ -94,7 +94,13 @@ export const BillingDashboard = () => {
         setSubscription({ plan: 'gratuit', status: 'active', currentPeriodEnd: null, cancelAtPeriodEnd: false });
       }
 
-      // Fetch invoices
+      // ⚠️ CONSTAT D'AUDIT — la table 'invoices' n'existe pas dans le schéma Supabase et
+      // aucune table équivalente n'a été trouvée (purchase_history couvre les achats
+      // Shopify, pas les factures d'abonnement). La section « Factures » est donc
+      // toujours vide sur /med-mng/billing et /settings.
+      // A TRANCHER : les factures Stripe sont déjà accessibles via le portail client
+      // (fonction edge 'customer-portal', déjà branchée ligne ~163) => soit on retire
+      // cette section au profit du portail, soit on crée la table et son alimentation.
       const { data: invoiceData, error: invoiceError } = await (supabase as any)
         .from('invoices')
         .select('*')

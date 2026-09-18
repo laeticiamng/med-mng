@@ -317,6 +317,12 @@ export const useShareTracking = () => {
     }));
 
     // Sauvegarder dans Supabase
+    // ⚠️ CONSTAT D'AUDIT — la table 'share_stats' n'existe pas. Le compteur de partages
+    // affiché n'est donc jamais persisté : il repart à zéro à chaque rechargement.
+    // Ce composant est bien vivant (EdnItemModal <- EdnComplete <- /edn-complete).
+    // Cible probable : la table 'social_shares' (user_id, platform, share_type,
+    // content_data, created_at) — MAIS 'share_type' y est NOT NULL et n'est pas fourni
+    // ici : le renommage seul ne suffit pas, il faut décider de la valeur à écrire.
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await (supabase as any).from('share_stats').insert({

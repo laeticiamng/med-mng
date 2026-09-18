@@ -124,6 +124,13 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
     const comment = comments.find(c => c.id === commentId);
     if (!comment) return;
 
+    // ⚠️ CONSTAT D'AUDIT — la table 'community_comment_likes' n'existe pas. Le catch
+    // ci-dessous avale l'erreur et le state local est mis à jour quand même : le « like »
+    // s'affiche à l'écran mais N'EST JAMAIS ENREGISTRE. Il n'existe aucune table
+    // équivalente ; le schéma ne prévoit qu'un compteur agrégé
+    // (community_comments.likes_count + RPC increment_comment_likes), pas l'état par
+    // utilisateur. A TRANCHER : créer la table, basculer sur le compteur+RPC, ou retirer
+    // le bouton like des commentaires.
     try {
       if (comment.isLiked) {
         await (supabase as any).from('community_comment_likes').delete()

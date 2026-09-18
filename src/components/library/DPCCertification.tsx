@@ -22,7 +22,17 @@ interface DPCModule {
   objectives: string[];
 }
 
-// Static modules — will be replaced by Supabase table when DPC backend is ready
+// ⚠️ CONSTAT D'AUDIT — FONCTIONNALITE NON REELLE (onglet « DPC » de /library)
+// 1. Ces 6 modules sont ENTIEREMENT CODES EN DUR : aucune table Supabase, aucune
+//    progression réelle. Les heures « completedHours » et les dates sont fictives.
+// 2. generateCertificate() fabrique un numéro d'attestation ALEATOIRE
+//    (Math.random, cf. plus bas) et produit un PDF téléchargeable qui a l'apparence
+//    d'une attestation de formation.
+// 3. Le DPC (Développement Professionnel Continu) est un dispositif réglementé
+//    (Agence nationale du DPC). Délivrer une attestation non adossée à un organisme
+//    enregistré expose à un risque juridique.
+// DECISION ATTENDUE : retirer l'onglet DPC, ou le brancher sur un vrai back-office
+// de formation. Ne pas laisser en l'état.
 const DPC_MODULES: DPCModule[] = [
   {
     id: 'dpc-1',
