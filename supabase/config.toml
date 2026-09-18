@@ -113,3 +113,6 @@ verify_jwt = false
 
 [functions.generate-medical-lyrics]
 verify_jwt = false
+
+[functions.generer-paroles-item]
+verify_jwt = false
