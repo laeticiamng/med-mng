@@ -539,9 +539,12 @@ export class ComprehensivePlatformAuditor {
     // Recommandation 4: Sections
     const sectionIssues = issues.filter(i => i.category === 'Sections');
     if (sectionIssues.length > 0) {
+      // Constat vérifié le 2026-09-18 : la fonction 'transform-edn-sections' n'existe pas
+      // (ni dans supabase/functions/, ni déployée : 404 NOT_FOUND). On ne recommande plus
+      // d'exécuter une fonction inexistante.
       recommendations.push(
         `🔧 ${sectionIssues.length} items ont des sections manquantes ou mal formées. ` +
-        `Exécuter la fonction transform-edn-sections pour corriger.`
+        `Relancer 'regenerate-all-oic-content' depuis le panneau Régénération OIC.`
       );
     }
 

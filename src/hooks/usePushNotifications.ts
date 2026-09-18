@@ -75,13 +75,22 @@ export const usePushNotifications = () => {
     setIsLoading(true);
 
     try {
-      // Fetch VAPID public key from Edge Function
+      // Constat verifie le 2026-09-18 : l'edge function 'get-vapid-key' n'est deployee
+      // sur aucun environnement (GET .../functions/v1/get-vapid-key -> 404 NOT_FOUND) et
+      // son code source est absent de supabase/functions/. Sans clef publique VAPID,
+      // pushManager.subscribe() ne peut pas creer d'abonnement web-push : la fonctionnalite
+      // est donc techniquement impossible aujourd'hui.
+      // L'ancien code masquait cet echec en affichant "Notifications locales activees" puis
+      // en passant isSubscribed a true sans qu'aucun abonnement n'existe : l'utilisateur se
+      // croyait abonne et le bouton "notification de test" ne pouvait rien envoyer.
+      // On fait desormais remonter l'echec au lieu de l'avaler.
       const { data, error } = await supabase.functions.invoke('get-vapid-key');
 
       if (error || !data?.publicKey) {
-        // Fallback: use local notification instead
-        toast.info('Notifications locales activées (mode hors-ligne)');
-        setIsSubscribed(true);
+        toast.error(
+          "Notifications push indisponibles : aucune clef VAPID n'est configuree cote serveur."
+        );
+        setIsSubscribed(false);
         setIsLoading(false);
         return;
       }

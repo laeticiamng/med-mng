@@ -5,11 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import {
     Activity,
-    Bell, BellOff,
     Clock,
     Download,
     Monitor,
@@ -40,15 +38,10 @@ const PWAAnalytics: React.FC = () => {
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { metrics } = usePWAMetrics();
-  const { 
-    isSupported, 
-    isSubscribed, 
-    permission, 
-    isLoading: notifLoading,
-    subscribe, 
-    unsubscribe,
-    sendTestNotification 
-  } = usePushNotifications();
+  // Onglet "Notifications" retire le 2026-09-18 : il proposait un abonnement push alors que
+  // l'edge function 'get-vapid-key' n'existe nulle part (404 NOT_FOUND) et qu'aucune clef
+  // VAPID n'est configuree. Le bouton "S'abonner" ne pouvait donc rien abonner, et le bouton
+  // "notification de test" rien envoyer. Offre supprimee plutot que laissee inerte.
 
   useEffect(() => {
     loadAnalytics();
@@ -212,11 +205,10 @@ const PWAAnalytics: React.FC = () => {
           </div>
 
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="devices">Devices</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -390,73 +382,6 @@ const PWAAnalytics: React.FC = () => {
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
-
-            {/* Notifications Tab */}
-            <TabsContent value="notifications" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="w-5 h-5" />
-                    Notifications Push
-                  </CardTitle>
-                  <CardDescription>
-                    Gérez vos abonnements aux notifications push
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {!isSupported ? (
-                    <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
-                      <p className="text-warning">
-                        ⚠️ Les notifications push ne sont pas supportées sur ce navigateur
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                        <div className="flex items-center gap-3">
-                          {isSubscribed ? (
-                            <Bell className="w-6 h-6 text-success" />
-                          ) : (
-                            <BellOff className="w-6 h-6 text-muted-foreground" />
-                          )}
-                          <div>
-                            <div className="font-semibold">
-                              {isSubscribed ? 'Abonné aux notifications' : 'Non abonné'}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              Permission: {permission}
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={isSubscribed ? unsubscribe : subscribe}
-                          disabled={notifLoading}
-                          variant={isSubscribed ? 'outline' : 'default'}
-                        >
-                          {notifLoading ? 'Chargement...' : isSubscribed ? 'Se désabonner' : 'S\'abonner'}
-                        </Button>
-                      </div>
-
-                      {isSubscribed && (
-                        <div className="space-y-3">
-                          <Button
-                            onClick={sendTestNotification}
-                            variant="outline"
-                            className="w-full"
-                          >
-                            🧪 Envoyer une notification de test
-                          </Button>
-                          <p className="text-sm text-muted-foreground text-center">
-                            Vous recevrez des notifications pour les nouvelles fonctionnalités,
-                            mises à jour importantes et alertes système
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </CardContent>
-              </Card>
             </TabsContent>
           </Tabs>
         </div>

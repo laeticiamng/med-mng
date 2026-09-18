@@ -274,7 +274,6 @@ export * from './useKaraokeSession';
 export { useCommunityEvents } from './useCommunityEvents';
 export { useCommunityPosts } from './useCommunityPosts';
 export { useForumThreads } from './useForumThreads';
-export { useMentorshipMatching } from './useMentorshipMatching';
 export { useCollaborativeStudy } from './useCollaborativeStudy';
 export { useStudySessions } from './useStudySessions';
 export { useStudyGroups } from './useStudyGroups';
@@ -282,7 +281,6 @@ export { useAnkiImport } from './useAnkiImport';
 export { useCalendarSync } from './useCalendarSync';
 export { useDiagnosticLogs } from './useDiagnosticLogs';
 export { useVoiceChat } from './useVoiceChat';
-export { useStudyGoals } from './useStudyGoals';
 
 // ────────────────────────────────────────────
 // 🔒 VALIDATION & CONFORMITÉ (v9.6.1)

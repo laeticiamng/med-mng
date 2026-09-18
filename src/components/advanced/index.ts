@@ -1,6 +1,5 @@
 // Advanced components
 export { AnalyticsTracker } from './AnalyticsTracker';
-export { BookmarkSystem } from './BookmarkSystem';
 export { DragDropManager } from './DragDropManager';
 export { KeyboardShortcuts } from './KeyboardShortcuts';
 export { NotificationSystem } from './NotificationSystem';
