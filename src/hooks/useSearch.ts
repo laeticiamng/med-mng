@@ -45,7 +45,14 @@ export function useSearch() {
   const [error, setError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  // CONSTAT : ce hook appelait trois fonctions edge qui n’existent pas dans
+  // supabase/functions/ — 'search-suggestions', 'similar-search' et 'popular-searches'.
+  // Suggestions de saisie, recherches proches et recherches populaires ne renvoyaient
+  // donc jamais rien : chaque appel partait en erreur et retournait une liste vide.
+  // Les trois fonctions et l’état 'suggestions' ont été retirés, côté hook comme côté
+  // interface. La recherche elle-même passe par la fonction edge 'advanced-search',
+  // qui existe, et continue de fonctionner.
   
   const cache = useCache<SearchResult[]>('search-cache');
 
@@ -114,32 +121,6 @@ export function useSearch() {
     }
   }, [cache]);
 
-  const searchSuggestions = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-
-    // ⚠️ CONSTAT D'AUDIT — les 3 fonctions edge appelées par ce hook
-    // ('search-suggestions', 'similar-search', 'popular-searches') N'EXISTENT PAS dans
-    // supabase/functions/. Ce hook est utilisé par AdvancedSearch, affiché sur la page
-    // publique /med-mng/music-library : suggestions, recherches proches et recherches
-    // populaires sont donc systématiquement vides.
-    // Une fonction 'advanced-search' existe et pourrait servir de base.
-    try {
-      const { data, error } = await supabase.functions.invoke('search-suggestions', {
-        body: { query: query.trim() }
-      });
-
-      if (error) throw error;
-
-      setSuggestions(data.suggestions || []);
-    } catch (error) {
-      console.error('Erreur suggestions:', error);
-      setSuggestions([]);
-    }
-  }, []);
-
   const clearHistory = useCallback(async () => {
     setSearchHistory([]);
     const { data: { user } } = await supabase.auth.getUser();
@@ -159,36 +140,6 @@ export function useSearch() {
   const searchByTags = useCallback(async (tags: string[]) => {
     return search('', { tags }, { limit: 20, sortBy: 'relevance' });
   }, [search]);
-
-  const searchSimilar = useCallback(async (itemId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('similar-search', {
-        body: { itemId }
-      });
-
-      if (error) throw error;
-
-      return data.results || [];
-    } catch (error) {
-      console.error('Erreur recherche similaire:', error);
-      return [];
-    }
-  }, []);
-
-  const getPopularSearches = useCallback(async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('popular-searches', {
-        body: { limit: 10 }
-      });
-
-      if (error) throw error;
-
-      return data.searches || [];
-    } catch (error) {
-      console.error('Erreur recherches populaires:', error);
-      return [];
-    }
-  }, []);
 
   // Recherche en temps réel avec debounce
   // Load search history from Supabase
@@ -417,16 +368,12 @@ export function useSearch() {
     error,
     totalResults,
     searchHistory,
-    suggestions,
     search,
     realtimeSearch: search,
-    searchSuggestions,
     clearHistory,
     removeFromHistory,
     quickSearch,
     searchByTags,
-    searchSimilar,
-    getPopularSearches,
     searchWithFilters,
     searchInCategory,
     getSearchAnalytics,

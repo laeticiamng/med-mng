@@ -124,32 +124,15 @@ const About = () => {
               <Sparkles className="h-6 w-6 text-primary" />
               <h3 className="text-xl font-semibold text-foreground">MED MNG en chiffres</h3>
             </div>
-            {/* ⚠️ CONSTAT D'AUDIT — 3 des 4 chiffres ci-dessous ne sont adossés à aucune source :
-                - « ×3 Rétention améliorée » : non sourcé. AppleFeatureShowcase.tsx cite, lui,
-                  Wallace 1994 et Rainey & Larsen 2002 pour une formulation prudente
-                  (« rétention significativement supérieure ») — le facteur ×3 n'en vient pas.
-                - « 4.9/5 Note des étudiants » : inventé, et INCOHERENT avec la page d'accueil
-                  qui affiche « 4.8/5 » (AppleTestimonials.tsx).
-                - « A+ Sécurité certifiée » : aucune certification de sécurité n'existe.
-                Seul « 367 items EDN couverts » est vérifiable (table edn_items_complete).
-                A TRANCHER : sourcer, corriger ou retirer ces 3 chiffres. */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-3xl font-bold text-primary">367</p>
-                <p className="text-sm text-muted-foreground">Items EDN couverts</p>
-              </div>
-              <div className="text-center p-4 bg-accent/10 rounded-lg">
-                <p className="text-3xl font-bold text-accent">×3</p>
-                <p className="text-sm text-muted-foreground">Rétention améliorée</p>
-              </div>
-              <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-3xl font-bold text-primary">4.9/5</p>
-                <p className="text-sm text-muted-foreground">Note des étudiants</p>
-              </div>
-              <div className="text-center p-4 bg-accent/10 rounded-lg">
-                <p className="text-3xl font-bold text-accent">A+</p>
-                <p className="text-sm text-muted-foreground">Sécurité certifiée</p>
-              </div>
+            {/* CONSTAT : cette carte affichait 4 chiffres dont 3 sans aucune source —
+                « ×3 Rétention améliorée » (non sourcé), « 4.9/5 Note des étudiants »
+                (inventé, et contredit par le « 4.8/5 » qui s’affichait en page d’accueil)
+                et « A+ Sécurité certifiée » (aucune certification de sécurité n’existe).
+                Les trois ont été retirés. Seul le nombre d’items EDN couverts est
+                vérifiable (table edn_items_complete) et reste affiché. */}
+            <div className="text-center p-6 bg-primary/10 rounded-lg max-w-sm mx-auto">
+              <p className="text-4xl font-bold text-primary">367</p>
+              <p className="text-sm text-muted-foreground mt-1">Items EDN couverts</p>
             </div>
           </Card>
 
@@ -231,8 +214,10 @@ const About = () => {
               </div>
               <div className="bg-accent/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Respect des données</h4>
+                {/* CONSTAT : « sécurité A+ » annonçait une certification qui n’existe pas
+                    (même allégation que le « A+ » retiré de la carte « en chiffres »). */}
                 <p className="text-sm text-muted-foreground">
-                  RGPD, sécurité A+, zéro tracking publicitaire : vos données sont sacrées.
+                  RGPD, zéro tracking publicitaire : vos données sont sacrées.
                 </p>
               </div>
             </div>

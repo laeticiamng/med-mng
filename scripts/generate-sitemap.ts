@@ -101,15 +101,13 @@ const PUBLIC_ROUTES: string[] = [
   '/ecos',
   '/leaderboard',
   '/daily-challenges',
-  '/pomodoro',
-  '/karaoke',
+  // CONSTAT : ce sitemap déclarait encore /pomodoro, /karaoke, /shared-music, /store et
+  // /community aux moteurs de recherche, alors que les pages correspondantes ont été
+  // supprimées (commit ca5d38cb) : 5 URL indexables qui renvoyaient une 404. Retirées.
   '/smart-study-planner',
   '/generator',
-  '/shared-music',
-  '/store',
   '/mng-method',
   '/chat',
-  '/community',
   '/library',
   // Pillar pages SEO
   '/preparation-ecos-2026',

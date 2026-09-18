@@ -1,5 +1,5 @@
 import { EcosHeader } from '@/components/ecos/EcosHeader';
-import { EcosEvaluationGrid } from '@/components/ecos/EcosEvaluationGrid';
+import { EcosEvaluationGrid, type EcosSaveOutcome } from '@/components/ecos/EcosEvaluationGrid';
 import { EcosRealTimeTimer } from '@/components/ecos/EcosRealTimeTimer';
 import { PatientCard } from '@/components/ecos/PatientCard';
 import { QuizSection } from '@/components/ecos/QuizSection';
@@ -205,6 +205,75 @@ const EcosScenario = () => {
     checkUser();
   }, [loadStats]);
 
+  // CONSTAT : à la fin d’une simulation ECOS, le score n’était nulle part — un
+  // console.log en développement, rien en production, et aucune écriture côté grille.
+  // Conséquence : pas d’historique, pas de progression ECOS, rien dans les statistiques.
+  // Le résultat est désormais écrit dans user_progress (content_type = 'ecos'), en
+  // conservant le meilleur score et en incrémentant le nombre de tentatives.
+  const saveEcosResult = async (
+    score: number,
+    total: number,
+    checkedItems: string[]
+  ): Promise<EcosSaveOutcome> => {
+    const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      // Visiteur non connecté : il n’y a pas de compte où écrire. On le dit, sans planter.
+      if (!currentUser) return 'anonymous';
+
+      const contentId = String(scenarioData.id);
+
+      const { data: existing } = await (supabase as any)
+        .from('user_progress')
+        .select('attempts_count, best_score')
+        .eq('user_id', currentUser.id)
+        .eq('content_type', 'ecos')
+        .eq('content_id', contentId)
+        .maybeSingle();
+
+      const attempts = (existing?.attempts_count ?? 0) + 1;
+      const bestScore = Math.max(existing?.best_score ?? 0, percentage);
+      const masteryLevel =
+        percentage >= 60 ? 'revised' : percentage > 0 ? 'in_progress' : 'not_started';
+      const now = new Date().toISOString();
+
+      const { error } = await (supabase as any).from('user_progress').upsert(
+        {
+          user_id: currentUser.id,
+          content_type: 'ecos',
+          content_id: contentId,
+          progress_percentage: percentage,
+          best_score: bestScore,
+          attempts_count: attempts,
+          mastery_level: masteryLevel,
+          last_accessed: now,
+          updated_at: now,
+        },
+        { onConflict: 'user_id,content_type,content_id' }
+      );
+
+      if (error) throw error;
+
+      await logActivity({
+        activity_type: 'ecos',
+        count: 1,
+        metadata: {
+          scenarioId: contentId,
+          score,
+          total,
+          percentage,
+          criteriaValidated: checkedItems.length,
+        },
+      });
+
+      return 'saved';
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Enregistrement du score ECOS impossible:', err);
+      return 'error';
+    }
+  };
+
   const handleResponse = (field: string, value: string) => {
     setResponses(prev => ({...prev, [field]: value}));
   };
@@ -355,16 +424,7 @@ const EcosScenario = () => {
             <EcosEvaluationGrid
               scenarioId={scenarioData.id}
               scenarioTitle={scenarioData.title}
-              onComplete={(score, total, items) => {
-                // ⚠️ CONSTAT D'AUDIT — le résultat de la simulation ECOS n'est PAS enregistré.
-                // EcosEvaluationGrid ne persiste rien non plus (aucun .from/.insert) : le score
-                // n'existe que le temps de l'affichage. Conséquence : aucune progression ECOS,
-                // aucun historique, rien dans les statistiques utilisateur.
-                // A COMPLETER : écrire le résultat (tables candidates existantes :
-                // assessment_sessions, clinical_assessments, user_progress avec
-                // content_type = 'ecos').
-                if (import.meta.env.DEV) console.log('Evaluation complete:', { score, total, items });
-              }}
+              onComplete={saveEcosResult}
             />
           )}
         </div>

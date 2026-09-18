@@ -387,14 +387,10 @@ export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
   "La musique active l'hippocampe et l'amygdale simultanément. Rétention 3x supérieure à la lecture passive. C'est neuroscientifique.": { en: "Music activates the hippocampus and amygdala simultaneously. 3x better retention than passive reading. It's neuroscience.", de: "Musik aktiviert den Hippocampus und die Amygdala gleichzeitig. 3x bessere Merkfähigkeit als passives Lesen. Das ist Neurowissenschaft." },
   "Explorer les 367 items": { en: "Explore the 367 items", de: "Die 367 Elemente erkunden" },
 
-  // ===== Homepage - AppleTestimonials =====
-  "Ce qu'ils en": { en: "What they", de: "Was sie" },
-  "disent": { en: "say", de: "sagen" },
-  "Retours de nos bêta-testeurs. Sceptiques au début. Convaincus maintenant.": { en: "Feedback from our beta testers. Skeptical at first. Convinced now.", de: "Rückmeldungen unserer Betatester. Anfangs skeptisch. Jetzt überzeugt." },
-  "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.": { en: "I retained more in 2 weeks of listening than in 2 months of flashcards. My brain remembers on its own.", de: "Ich habe in 2 Wochen Zuhören mehr behalten als in 2 Monaten mit Karteikarten. Mein Gehirn erinnert sich von allein." },
-  "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.": { en: "The concept is revolutionary. I study on the subway, while running, everywhere. Zero effort, max results.", de: "Das Konzept ist revolutionär. Ich lerne in der U-Bahn, beim Laufen, überall. Null Aufwand, maximale Ergebnisse." },
-  "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.": { en: "The choruses stay in your head for days. Perfect for items that never stuck.", de: "Die Refrains bleiben tagelang im Kopf. Perfekt für Elemente, die nie hängen blieben." },
-  "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.": { en: "Skeptical at first, converted after 3 days. This is exactly what medicine needed.", de: "Anfangs skeptisch, nach 3 Tagen überzeugt. Genau das, was die Medizin brauchte." },
+  // ===== Homepage - anciens libellés de la section « témoignages » =====
+  // CONSTAT : les 4 témoignages traduits ici étaient inventés (aucun utilisateur réel).
+  // La section a été retirée de la page d’accueil, ses clés de traduction aussi.
+  // Les clés conservées ci-dessous servent au CTA final et à d’autres sections.
   "Créer mon compte gratuit": { en: "Create my free account", de: "Mein kostenloses Konto erstellen" },
   "Gratuit pour commencer · Sans engagement": { en: "Free to start · No commitment", de: "Kostenlos zum Starten · Ohne Verpflichtung" },
   "Pour commencer": { en: "To get started", de: "Zum Starten" },

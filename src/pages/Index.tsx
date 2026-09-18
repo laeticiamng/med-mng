@@ -2,7 +2,6 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { AppleHero } from "@/components/home/AppleHero";
 import { AppleMusicPlayer } from "@/components/home/AppleMusicPlayer";
 import { AppleFeatureShowcase } from "@/components/home/AppleFeatureShowcase";
-import { AppleTestimonials } from "@/components/home/AppleTestimonials";
 import { AppleFinalCTA } from "@/components/home/AppleFinalCTA";
 import { ApplePlatformFeatures } from "@/components/home/ApplePlatformFeatures";
 import { StickyMobileCTA } from "@/components/home/StickyMobileCTA";
@@ -88,7 +87,11 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
         <AppleMusicPlayer />
         <AppleFeatureShowcase />
         <ApplePlatformFeatures />
-        <AppleTestimonials />
+        {/* CONSTAT : la section « Ce qu’ils en disent » affichait 4 témoignages
+            d’étudiants écrits en dur (« Marie L. », « Thomas K. »…) et une note
+            « 4.8/5 » : aucun utilisateur réel derrière, aucune source. Des avis
+            fictifs présentés comme réels sont une pratique commerciale trompeuse
+            (art. L.121-2 du code de la consommation) : section et composant retirés. */}
         <AppleFinalCTA />
       </div>
       

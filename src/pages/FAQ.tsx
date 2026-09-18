@@ -328,10 +328,13 @@ const FAQ = () => {
                   A qui s'adresse MED MNG ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
+                  {/* CONSTAT : ce paragraphe renvoyait vers /b2b, page supprimée (commit ca5d38cb)
+                      et sans route : le lien « offre B2B » tombait en 404. Lien retiré et renvoi
+                      vers le contact, seule voie réellement disponible aujourd’hui. */}
                   MED MNG s'adresse principalement aux etudiants en medecine preparant l'EDN (DFGSM2 a DFASM3),
-                  mais aussi aux professionnels de sante en formation continue. La plateforme est egalement
-                  accessible aux institutions academiques (universites, CHU, facultes de medecine) via notre{' '}
-                  <Link to={ROUTE_PATHS.b2b} className="text-primary hover:underline">offre B2B</Link>.
+                  mais aussi aux professionnels de sante en formation continue. Pour un usage institutionnel
+                  (universites, CHU, facultes de medecine), ecrivez-nous a{' '}
+                  <a href="mailto:contact@emotionscare.com" className="text-primary hover:underline">contact@emotionscare.com</a>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

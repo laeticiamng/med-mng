@@ -23,26 +23,17 @@ interface SubscriptionInfo {
   cancelAtPeriodEnd: boolean;
 }
 
-interface Invoice {
-  id: string;
-  amount: number;
-  currency: string;
-  status: string;
-  date: string;
-  invoiceUrl: string | null;
-}
-
 const PLAN_DETAILS: Record<string, { label: string; price: string; color: string }> = {
-  gratuit: { label: 'Gratuit', price: '0\u20AC/mois', color: 'bg-muted text-muted-foreground' },
-  standard: { label: 'Standard', price: '19\u20AC/mois', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
-  pro: { label: 'Pro', price: '29\u20AC/mois', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
-  premium: { label: 'Premium', price: '39\u20AC/mois', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
-  institution: { label: 'Institution', price: '99\u20AC/mois', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' },
+  gratuit: { label: 'Gratuit', price: '0€/mois', color: 'bg-muted text-muted-foreground' },
+  standard: { label: 'Standard', price: '19€/mois', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
+  pro: { label: 'Pro', price: '29€/mois', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
+  premium: { label: 'Premium', price: '39€/mois', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
+  institution: { label: 'Institution', price: '99€/mois', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' },
 };
 
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'success' | 'warning' | 'destructive' }> = {
   active: { label: 'Actif', variant: 'success' },
-  canceled: { label: 'Annul\u00E9', variant: 'warning' },
+  canceled: { label: 'Annulé', variant: 'warning' },
   past_due: { label: 'Paiement en retard', variant: 'destructive' },
 };
 
@@ -51,7 +42,6 @@ export const BillingDashboard = () => {
   const { toast } = useToast();
 
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [usageStats, setUsageStats] = useState<{ songsGenerated: number; sessionsThisMonth: number; storageUsedMB: number }>({
     songsGenerated: 0,
     sessionsThisMonth: 0,
@@ -79,7 +69,7 @@ export const BillingDashboard = () => {
         .maybeSingle();
 
       if (subError) {
-        console.error('Erreur lors de la r\u00E9cup\u00E9ration de l\u2019abonnement:', subError);
+        console.error('Erreur lors de la récupération de l’abonnement:', subError);
       }
 
       if (subData) {
@@ -94,36 +84,10 @@ export const BillingDashboard = () => {
         setSubscription({ plan: 'gratuit', status: 'active', currentPeriodEnd: null, cancelAtPeriodEnd: false });
       }
 
-      // ⚠️ CONSTAT D'AUDIT — la table 'invoices' n'existe pas dans le schéma Supabase et
-      // aucune table équivalente n'a été trouvée (purchase_history couvre les achats
-      // Shopify, pas les factures d'abonnement). La section « Factures » est donc
-      // toujours vide sur /med-mng/billing et /settings.
-      // A TRANCHER : les factures Stripe sont déjà accessibles via le portail client
-      // (fonction edge 'customer-portal', déjà branchée ligne ~163) => soit on retire
-      // cette section au profit du portail, soit on crée la table et son alimentation.
-      const { data: invoiceData, error: invoiceError } = await (supabase as any)
-        .from('invoices')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (invoiceError) {
-        console.error('Erreur lors de la r\u00E9cup\u00E9ration des factures:', invoiceError);
-      }
-
-      if (invoiceData) {
-        setInvoices(
-          (invoiceData as any[]).map((inv: Record<string, unknown>) => ({
-            id: inv.id as string,
-            amount: (inv.amount as number) ?? 0,
-            currency: (inv.currency as string) ?? 'eur',
-            status: (inv.status as string) ?? 'unknown',
-            date: (inv.created_at as string) ?? '',
-            invoiceUrl: (inv.invoice_url as string) ?? null,
-          }))
-        );
-      }
+      // CONSTAT : cette fonction lisait une table 'invoices' qui n'existe pas dans le
+      // schéma Supabase. La requête partait en erreur à chaque chargement et la liste
+      // des factures restait vide en permanence. Lecture supprimée : les vraies factures
+      // sont celles de Stripe, accessibles par le portail client déjà branché plus bas.
 
       // Fetch usage stats
       const now = new Date();
@@ -147,7 +111,7 @@ export const BillingDashboard = () => {
         storageUsedMB: 0,
       });
     } catch (error) {
-      console.error('Erreur lors du chargement des donn\u00E9es de facturation:', error);
+      console.error('Erreur lors du chargement des données de facturation:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les informations de facturation.',
@@ -175,13 +139,13 @@ export const BillingDashboard = () => {
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        throw new Error('Aucune URL de portail re\u00E7ue.');
+        throw new Error('Aucune URL de portail reçue.');
       }
     } catch (error) {
       console.error('Erreur portail client:', error);
       toast({
         title: 'Erreur',
-        description: 'Impossible d\u2019ouvrir le portail de gestion. Veuillez r\u00E9essayer.',
+        description: 'Impossible d’ouvrir le portail de gestion. Veuillez réessayer.',
         variant: 'destructive',
       });
     } finally {
@@ -190,19 +154,12 @@ export const BillingDashboard = () => {
   };
 
   const formatDate = (dateString: string | null): string => {
-    if (!dateString) return '\u2014';
+    if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
-  };
-
-  const formatAmount = (amount: number, currency: string): string => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(amount / 100);
   };
 
   if (loading) {
@@ -223,7 +180,7 @@ export const BillingDashboard = () => {
       <div>
         <h2 className="text-2xl font-bold">Facturation</h2>
         <p className="text-muted-foreground">
-          G\u00E9rez votre abonnement, consultez vos factures et suivez votre utilisation.
+          Gérez votre abonnement, consultez vos factures et suivez votre utilisation.
         </p>
       </div>
 
@@ -234,7 +191,7 @@ export const BillingDashboard = () => {
             <Crown className="h-5 w-5" />
             Abonnement actuel
           </CardTitle>
-          <CardDescription>D\u00E9tails de votre forfait et statut de l\u2019abonnement</CardDescription>
+          <CardDescription>Détails de votre forfait et statut de l’abonnement</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -249,7 +206,7 @@ export const BillingDashboard = () => {
 
           {subscription?.cancelAtPeriodEnd && (
             <div className="rounded-md border border-warning/30 bg-warning/5 p-3 text-sm text-warning-foreground">
-              Votre abonnement sera annul\u00E9 \u00E0 la fin de la p\u00E9riode en cours.
+              Votre abonnement sera annulé à la fin de la période en cours.
             </div>
           )}
 
@@ -258,7 +215,7 @@ export const BillingDashboard = () => {
               <Calendar className="h-4 w-4" />
               <span>
                 {subscription.cancelAtPeriodEnd
-                  ? `Acc\u00E8s jusqu\u2019au ${formatDate(subscription.currentPeriodEnd)}`
+                  ? `Accès jusqu’au ${formatDate(subscription.currentPeriodEnd)}`
                   : `Prochain renouvellement le ${formatDate(subscription.currentPeriodEnd)}`}
               </span>
             </div>
@@ -274,7 +231,7 @@ export const BillingDashboard = () => {
                 ) : (
                   <CreditCard className="h-4 w-4 mr-2" />
                 )}
-                G\u00E9rer l\u2019abonnement
+                Gérer l’abonnement
               </Button>
             )}
             {planKey !== 'premium' && (
@@ -294,99 +251,68 @@ export const BillingDashboard = () => {
             <TrendingUp className="h-5 w-5" />
             Utilisation ce mois-ci
           </CardTitle>
-          <CardDescription>Suivi de votre consommation pour la p\u00E9riode en cours</CardDescription>
+          <CardDescription>Suivi de votre consommation pour la période en cours</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-lg border p-4 text-center">
               <p className="text-3xl font-bold">{usageStats.songsGenerated}</p>
-              <p className="text-sm text-muted-foreground mt-1">Morceaux g\u00E9n\u00E9r\u00E9s</p>
+              <p className="text-sm text-muted-foreground mt-1">Morceaux générés</p>
             </div>
             <div className="rounded-lg border p-4 text-center">
               <p className="text-3xl font-bold">{usageStats.sessionsThisMonth}</p>
-              <p className="text-sm text-muted-foreground mt-1">Sessions d\u2019\u00E9tude</p>
+              <p className="text-sm text-muted-foreground mt-1">Sessions d’étude</p>
             </div>
             <div className="rounded-lg border p-4 text-center">
               <p className="text-3xl font-bold">{usageStats.storageUsedMB}</p>
-              <p className="text-sm text-muted-foreground mt-1">Mo de stockage utilis\u00E9s</p>
+              <p className="text-sm text-muted-foreground mt-1">Mo de stockage utilisés</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Historique des paiements */}
+      {/* Factures */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Receipt className="h-5 w-5" />
-            Historique des paiements
+            Factures
           </CardTitle>
-          <CardDescription>Vos derni\u00E8res factures et transactions</CardDescription>
+          <CardDescription>Vos factures sont émises et conservées par Stripe</CardDescription>
         </CardHeader>
         <CardContent>
-          {invoices.length === 0 ? (
+          {/* CONSTAT : cette carte listait des factures venant d'une table 'invoices'
+              inexistante — elle affichait donc « Aucune facture » même aux abonnés payants.
+              Les factures réelles sont celles de Stripe : on renvoie vers le portail
+              client, qui les affiche, plutôt que de promettre une liste vide. */}
+          {planKey === 'gratuit' ? (
             <div className="text-center py-8 text-muted-foreground">
               <Receipt className="h-10 w-10 mx-auto mb-3 opacity-40" />
               <p>Aucune facture pour le moment.</p>
-              {planKey === 'gratuit' && (
-                <p className="text-sm mt-1">
-                  Les factures appara\u00EEtront ici une fois que vous aurez souscrit \u00E0 un forfait payant.
-                </p>
-              )}
+              <p className="text-sm mt-1">
+                Le forfait Gratuit n’en génère pas. Vos factures apparaîtront dans le portail
+                Stripe dès votre premier forfait payant.
+              </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {invoices.map((invoice) => (
-                <div
-                  key={invoice.id}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">
-                        {formatAmount(invoice.amount, invoice.currency)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(invoice.date)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      variant={
-                        invoice.status === 'paid'
-                          ? 'success'
-                          : invoice.status === 'open'
-                            ? 'warning'
-                            : 'destructive'
-                      }
-                    >
-                      {invoice.status === 'paid'
-                        ? 'Pay\u00E9e'
-                        : invoice.status === 'open'
-                          ? 'En attente'
-                          : invoice.status === 'void'
-                            ? 'Annul\u00E9e'
-                            : invoice.status}
-                    </Badge>
-                    {invoice.invoiceUrl && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => window.open(invoice.invoiceUrl!, '_blank')}
-                        aria-label="Voir la facture"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Le portail de facturation Stripe regroupe vos factures et reçus téléchargeables,
+                ainsi que votre moyen de paiement.
+              </p>
+              <Button onClick={handleManageSubscription} disabled={portalLoading} variant="outline">
+                {portalLoading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                )}
+                Voir mes factures sur Stripe
+              </Button>
             </div>
           )}
         </CardContent>
       </Card>
+
     </div>
   );
 };

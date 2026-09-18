@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Music, ExternalLink, Flame, Star, Trophy, Building2 } from "lucide-react";
+import { Music, ExternalLink, Flame, Star, Trophy } from "lucide-react";
 import { ROUTE_PATHS } from "@/config/routes";
 import { useGamification } from "@/hooks/useGamification";
 import { Badge } from "@/components/ui/badge";
@@ -67,19 +67,16 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
 
             <div>
               <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
-              {/* ⚠️ CONSTAT D'AUDIT — le lien « Universités & CHU » ci-dessous pointe vers
-                  ROUTE_PATHS.b2b (/b2b). La page src/pages/B2B.tsx a été supprimée par le
-                  commit ca5d38cb et aucun <Route> ne subsiste dans App.tsx : ce lien renvoie
-                  une 404. Il est présent DEUX FOIS dans ce fichier (footer connecté et footer
-                  anonyme), donc sur toutes les pages, plus une fois dans FAQ.tsx.
-                  A TRANCHER : restaurer la page (git show ca5d38cb^:src/pages/B2B.tsx) ou
-                  retirer les 3 liens. */}
+              {/* CONSTAT : le lien « Universités & CHU » pointait vers /b2b, dont la page
+                  a été supprimée (commit ca5d38cb) sans qu’aucune route ne subsiste : 404
+                  depuis le footer, donc sur toutes les pages du site. Lien retiré ici et
+                  dans le footer anonyme plus bas. La page n’est pas restaurée : ses
+                  promesses commerciales sont à relire avant toute remise en ligne. */}
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Bibliothèque</Link>
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
                 <Link to={ROUTE_PATHS.faq} className="block text-muted-foreground hover:text-primary text-xs transition-colors">FAQ</Link>
                 <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">À propos</Link>
-                <Link to={ROUTE_PATHS.b2b} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Universités & CHU</Link>
               </div>
             </div>
 
@@ -125,7 +122,6 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
                 <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">À propos</Link>
-                <Link to={ROUTE_PATHS.b2b} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Universités & CHU</Link>
                 <Link to={ROUTE_PATHS.medMngSignup} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Créer un compte</Link>
                 <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Installer l'app</Link>
               </div>

@@ -13,21 +13,22 @@ import { Bookmark, Calendar, Filter, History, Search, Star, Tag } from 'lucide-r
 import React, { useEffect, useState } from 'react';
 
 export const AdvancedSearch: React.FC = () => {
+  // CONSTAT : la liste de suggestions sous le champ de recherche s’appuyait sur la
+  // fonction edge 'search-suggestions', qui n’existe pas : elle ne s’affichait jamais et
+  // chaque frappe déclenchait un appel en erreur. Suggestions retirées ; le champ, lui,
+  // interroge 'advanced-search' (qui existe) et fonctionne normalement.
   const {
     results,
     loading,
     error,
     totalResults,
     searchHistory,
-    suggestions,
     search,
-    searchSuggestions,
     clearHistory,
     removeFromHistory
   } = useSearch();
 
   const [query, setQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({});
   const [savedSearches, setSavedSearches] = useState<string[]>([]);
 
@@ -35,22 +36,6 @@ export const AdvancedSearch: React.FC = () => {
     if (query.trim()) {
       search(query, filters);
     }
-  };
-
-  const handleQueryChange = (value: string) => {
-    setQuery(value);
-    if (value.length > 1) {
-      searchSuggestions(value);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  };
-
-  const selectSuggestion = (suggestion: string) => {
-    setQuery(suggestion);
-    setShowSuggestions(false);
-    search(suggestion, filters);
   };
 
   const selectFromHistory = (historyQuery: string) => {
@@ -143,29 +128,11 @@ export const AdvancedSearch: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   value={query}
-                  onChange={(e) => handleQueryChange(e.target.value)}
+                  onChange={(e) => setQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Rechercher dans tout le contenu..."
                   className="pl-10"
                 />
-                
-                {/* Suggestions */}
-                {showSuggestions && suggestions.length > 0 && (
-                  <Card className="absolute top-full left-0 right-0 z-50 mt-1">
-                    <CardContent className="p-2">
-                      {suggestions.map((suggestion, index) => (
-                        <div
-                          key={index}
-                          onClick={() => selectSuggestion(suggestion)}
-                          className="px-3 py-2 hover:bg-muted rounded cursor-pointer text-sm"
-                        >
-                          <Search className="inline h-3 w-3 mr-2" />
-                          {suggestion}
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
               </div>
               
               <Button onClick={handleSearch} disabled={loading}>

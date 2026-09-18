@@ -136,7 +136,8 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
   { path: ROUTE_PATHS.faq, label: 'FAQ', category: 'Ressources' },
   { path: ROUTE_PATHS.about, label: 'A propos', category: 'Ressources' },
-  { path: ROUTE_PATHS.b2b, label: 'Universités & CHU', category: 'Ressources' },
+  // CONSTAT : une 4e référence à /b2b traînait ici (page supprimée, route inexistante).
+  // Retirée pour qu’aucun sitemap ni aucune recherche interne ne propose une 404.
   { path: ROUTE_PATHS.medMngSignup, label: 'Créer un compte', category: 'Compte' },
   { path: ROUTE_PATHS.mentionsLegales, label: 'Mentions légales', category: 'Légal' },
   { path: ROUTE_PATHS.politiqueConfidentialite, label: 'Confidentialité', category: 'Légal' },
