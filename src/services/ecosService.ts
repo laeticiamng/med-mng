@@ -263,14 +263,19 @@ class EcosService {
     return Math.min(score, 100);
   }
 
-  // Obtenir des situations recommandées (using ecos_situations table that exists)
+  // Obtenir des situations recommandées.
+  // La table s'appelle `ecos_situations_uness`. `ecos_situations` n'existe pas
+  // en base : la requête échouait silencieusement (try/catch), la méthode
+  // renvoyait toujours une liste vide, et aucune situation n'a jamais été
+  // recommandée. Les colonnes de `ecos_situations_uness` correspondent
+  // exactement à l'interface EcosSituation (sd_id, intitule_sd,
+  // contenu_complet_html, competences_associees, url_source).
   async getRecommendedSituations(userId: string, count: number = 5): Promise<EcosSituation[]> {
     try {
       const studiedIds = await this.getStudiedSituations(userId);
 
-      // Use any cast to bypass type checking for table that may not exist in types
       const { data } = await (supabase as any)
-        .from('ecos_situations')
+        .from('ecos_situations_uness')
         .select('*')
         .limit(count + studiedIds.length);
 
