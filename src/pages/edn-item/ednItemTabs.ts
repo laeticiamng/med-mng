@@ -8,6 +8,12 @@ import { BarChart3, BookOpen, Brain, FileText, Image, Music, Users, type LucideI
  * (`EdnItemModal`) : `EdnItemCard` l'envoie encore via `onOpen('music')` /
  * `onOpen('quiz')`, et d'anciens liens ou favoris peuvent le contenir.
  *
+ * L'onglet « Scène » a été retiré le 18/09/2026 : les 367 scènes en base
+ * partageaient un seul contexte (« Environnement hospitalier virtuel avec
+ * patient simulé ») et un seul objectif pédagogique, sans aucune pathologie
+ * ni signe clinique — et le composant attendait de toute façon un autre
+ * schéma. Aucun apport pour l'étudiant, donc on ne l'annonce plus.
+ *
  * Les libellés « Planches de compétences » et « Parcours narré des compétences »
  * sont ceux affichés par BdGallery et RomanNarratif : ce ne sont ni une bande
  * dessinée ni un roman, mais deux présentations des compétences OIC de l'item.
@@ -77,15 +83,6 @@ export const ONGLETS_ITEM_EDN: OngletItemEdn[] = [
     icone: Music,
     titreDocument: 'Musique',
     description: "Paroles mnémotechniques de l'item EDN, par rang A, rang B et fusion A+B.",
-  },
-  {
-    segment: 'scene',
-    ongletLegacy: 'scene',
-    label: 'Scène',
-    labelLong: 'Scène clinique',
-    icone: Users,
-    titreDocument: 'Scène clinique',
-    description: "Scène clinique immersive de l'item EDN.",
   },
   {
     segment: 'planches',

@@ -21,7 +21,6 @@ export const ROUTE_PATHS = {
   ednItemQuiz: '/edn-complete/:slug/quiz',
   ednItemStats: '/edn-complete/:slug/stats',
   ednItemMusique: '/edn-complete/:slug/musique',
-  ednItemScene: '/edn-complete/:slug/scene',
   ednItemPlanches: '/edn-complete/:slug/planches',
   ednItemRecit: '/edn-complete/:slug/recit',
   ednImmersive: '/edn/:slug/immersive',

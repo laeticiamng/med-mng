@@ -55,7 +55,6 @@ const EdnItemRangB = lazy(() => import("./pages/edn-item/EdnItemRangB"));
 const EdnItemQuiz = lazy(() => import("./pages/edn-item/EdnItemQuiz"));
 const EdnItemStats = lazy(() => import("./pages/edn-item/EdnItemStats"));
 const EdnItemMusique = lazy(() => import("./pages/edn-item/EdnItemMusique"));
-const EdnItemScene = lazy(() => import("./pages/edn-item/EdnItemScene"));
 const EdnItemPlanches = lazy(() => import("./pages/edn-item/EdnItemPlanches"));
 const EdnItemRecit = lazy(() => import("./pages/edn-item/EdnItemRecit"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
@@ -280,7 +279,6 @@ const App = () => {
                                       <Route path="quiz" element={<S><EdnItemQuiz /></S>} />
                                       <Route path="stats" element={<S><EdnItemStats /></S>} />
                                       <Route path="musique" element={<S><EdnItemMusique /></S>} />
-                                      <Route path="scene" element={<S><EdnItemScene /></S>} />
                                       <Route path="planches" element={<S><EdnItemPlanches /></S>} />
                                       <Route path="recit" element={<S><EdnItemRecit /></S>} />
                                       <Route path="*" element={<EdnItemApercuRedirect />} />
