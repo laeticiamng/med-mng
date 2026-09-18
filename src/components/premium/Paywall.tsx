@@ -155,7 +155,10 @@ export function usePremiumAccess(): PremiumAccessState {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
-      fetchPlan();
+      // Repousse hors du callback : supabase-js le declenche en tenant son
+      // verrou d'authentification, et toute requete lancee depuis l'interieur
+      // le redemande (cf. AuthProvider.tsx).
+      setTimeout(() => fetchPlan(), 0);
     });
 
     return () => {

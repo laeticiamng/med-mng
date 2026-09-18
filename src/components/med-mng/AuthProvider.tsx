@@ -68,9 +68,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       });
 
-    // Listen for auth changes
+    // ------------------------------------------------------------------
+    // INTERBLOCAGE (constate en production le 18/09/2026)
+    // supabase-js execute ce callback EN TENANT son verrou d'authentification
+    // (navigator.locks : "lock:sb-<projet>-auth-token"). Tout appel a
+    // supabase.from(...) fait depuis l'interieur redemande ce meme verrou et
+    // ne l'obtient jamais : le verrou n'est plus jamais relache, et plus
+    // AUCUNE requete REST ne part de l'application. Mesure en ligne : verrou
+    // detenu, 24 acquisitions en attente, zero requete /rest/v1 sur toute la
+    // session. Favoris, gamification, quota, hors-ligne : tout etait gele.
+    //
+    // La regle de la documentation Supabase : dans ce callback, uniquement des
+    // mises a jour d'etat synchrones. Tout le reste est repousse hors du
+    // callback (setTimeout 0), une fois le verrou relache.
+    // ------------------------------------------------------------------
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (import.meta.env.DEV) console.log('🔔 Auth state change:', event);
         
         // Gérer les erreurs de token
@@ -84,8 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Log auth events & upsert profile
+        // Log auth events & upsert profile — hors du callback (cf. ci-dessus).
         if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(async () => {
           // Log activity
           try {
             await supabase.from('user_activity_log').insert({
@@ -133,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             }, 2000);
           }
-
+          }, 0);
         }
 
         if (event === 'SIGNED_OUT') {

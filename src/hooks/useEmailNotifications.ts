@@ -1,8 +1,12 @@
 
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useEmailNotifications = () => {
-  const sendWelcomeEmail = async (email: string, name: string) => {
+  // useCallback obligatoire : ce hook est consomme par AuthProvider, dont
+  // l'effet depend de cette fonction. Non memoisee, elle changeait d'identite
+  // a chaque rendu et provoquait une re-souscription permanente.
+  const sendWelcomeEmail = useCallback(async (email: string, name: string) => {
     try {
       
       const { data, error } = await supabase.functions.invoke('send-welcome-email', {
@@ -22,9 +26,9 @@ export const useEmailNotifications = () => {
       console.error('Erreur:', error);
       return { success: false, error };
     }
-  };
+  }, []);
 
-  const sendSubscriptionEmail = async (
+  const sendSubscriptionEmail = useCallback(async (
     email: string, 
     name: string, 
     planName: string, 
@@ -56,7 +60,7 @@ export const useEmailNotifications = () => {
       console.error('Erreur:', error);
       return { success: false, error };
     }
-  };
+  }, []);
 
   return {
     sendWelcomeEmail,
