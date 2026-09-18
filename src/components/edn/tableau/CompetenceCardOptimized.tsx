@@ -241,21 +241,28 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
                 </div>
               )}
               
-              {/* Indicateurs de contenu */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  {sections.slice(0, 4).map((_section, idx) => (
-                    <div key={idx} className="w-2 h-2 rounded-full bg-primary/60"></div>
-                  ))}
-                  {availableSectionsCount > 4 && (
-                    <span className="text-xs text-muted-foreground">+{availableSectionsCount - 4}</span>
-                  )}
+              {/* Indicateurs de contenu — masqués quand il n'y a rien à
+                  compter. Les colonnes de détail d'`oic_competences`
+                  (sommaire, mécanismes, indications, surveillance…) sont du
+                  remplissage générique — une même phrase revient jusqu'à 569
+                  fois sur 1000 lignes — on ne les charge donc pas, et le badge
+                  affichait « 0 section détaillée » sur chaque compétence. */}
+              {availableSectionsCount > 0 && (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    {sections.slice(0, 4).map((_section, idx) => (
+                      <div key={idx} className="w-2 h-2 rounded-full bg-primary/60"></div>
+                    ))}
+                    {availableSectionsCount > 4 && (
+                      <span className="text-xs text-muted-foreground">+{availableSectionsCount - 4}</span>
+                    )}
+                  </div>
+                  <Badge variant="secondary" className="text-xs font-medium px-3 py-1">
+                    <List className="w-3 h-3 mr-1" />
+                    {availableSectionsCount} section{availableSectionsCount > 1 ? 's' : ''} détaillée{availableSectionsCount > 1 ? 's' : ''}
+                  </Badge>
                 </div>
-                <Badge variant="secondary" className="text-xs font-medium px-3 py-1">
-                  <List className="w-3 h-3 mr-1" />
-                  {availableSectionsCount} section{availableSectionsCount > 1 ? 's' : ''} détaillée{availableSectionsCount > 1 ? 's' : ''}
-                </Badge>
-              </div>
+              )}
             </div>
           </div>
           

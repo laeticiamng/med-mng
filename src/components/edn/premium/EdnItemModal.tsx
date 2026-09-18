@@ -400,10 +400,15 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         <div className="space-y-3">
                           <h4 className="font-semibold">Contenu disponible</h4>
                           <div className="space-y-2 flex flex-wrap gap-2">
-                            {finalItem.tableau_rang_a && (
+                            {/* On se fie aux compétences OIC réellement
+                                chargées : c'est exactement ce que les onglets
+                                Rang A / Rang B vont afficher. `tableau_rang_a`
+                                n'est pas chargé par la liste, donc ces deux
+                                pastilles n'apparaissaient jamais. */}
+                            {oicCompetencesA.length > 0 && (
                               <Badge className="bg-primary/10 text-primary">Rang A</Badge>
                             )}
-                            {finalItem.tableau_rang_b && (
+                            {oicCompetencesB.length > 0 && (
                               <Badge className="bg-accent/10 text-accent">Rang B</Badge>
                             )}
                             {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
@@ -540,8 +545,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   {/* FAQ Section */}
                   <FaqSection />
                   
-                  {/* Badges de compétences */}
-                  <CompetencesBadges item={finalItem} />
+                  {/* Badges de compétences — alimentés par les compétences OIC
+                      réellement chargées, pour que cet encadré ne contredise
+                      pas les onglets Rang A / Rang B de la même fiche. */}
+                  <CompetencesBadges
+                    item={finalItem}
+                    competencesRangA={oicCompetencesA.length}
+                    competencesRangB={oicCompetencesB.length}
+                  />
                 </div>
               </TabsContent>
 

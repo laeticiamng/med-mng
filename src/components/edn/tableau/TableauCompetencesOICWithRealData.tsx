@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
+import { estCompetenceOICReelle } from '@/utils/tableauTransformations';
 
 interface OicCompetence {
   objectif_id: string;
@@ -61,7 +62,13 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       })
       .then(data => {
         if (Array.isArray(data)) {
-          const filtered = data.filter((c: OicCompetence) => c.objectif_id && c.intitule);
+          // On n'affiche que les vraies compétences du référentiel : les lignes
+          // d'en-tête `IC-<n>-<rang>` gonflaient le compteur d'une unité sur
+          // les 367 items, et constituaient la seule ligne visible pour les
+          // items dépourvus de compétences de rang B en base.
+          const filtered = data.filter(
+            (c: OicCompetence) => c.objectif_id && c.intitule && estCompetenceOICReelle(c.objectif_id)
+          );
           setCompetences(filtered);
         } else {
           setError('Format de réponse inattendu');
@@ -113,7 +120,8 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
             Compétences OIC {itemCode} Rang {rang}
           </h3>
           <p className="text-muted-foreground text-sm">
-            Aucune compétence OIC trouvée pour cet item.
+            Le référentiel UNESS ne contient aucune compétence de rang {rang} pour
+            cet item. Rien n'est masqué : il n'y a rien à afficher.
           </p>
         </div>
       </div>

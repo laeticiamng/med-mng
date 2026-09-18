@@ -360,11 +360,14 @@ export const useFlashcards = () => {
         const competences = tableauA.competences_cles;
         for (let i = 0; i < Math.min(competences.length, 5); i++) {
           const comp = competences[i];
-          if (comp.intitule) {
+          // Clé réelle en base : `competence` (aucune ligne n'a `intitule`),
+          // sans quoi aucune carte de compétence n'était générée.
+          const libelle = comp.competence || comp.intitule || comp.titre || '';
+          if (libelle) {
             const card = await addCard(
               deckId,
               `Item ${itemCode}: Compétence clé #${i + 1}`,
-              comp.intitule,
+              libelle,
               ['competence', itemCode, 'rang-a'],
               itemCode,
               'medium'

@@ -63,11 +63,15 @@ export const useAIExam = () => {
         const tableauA = item.tableau_rang_a as any;
         const tableauB = item.tableau_rang_b as any;
         
+        // Clé réelle en base : `competence` (aucune ligne n'a `intitule`).
+        // La fonction de génération recevait sinon deux listes vides.
+        const libelle = (c: any): string => c?.competence || c?.intitule || c?.titre || '';
+
         return {
           item_code: item.item_code,
           title: item.title,
-          competences_a: tableauA?.competences_cles?.map((c: any) => c.intitule).filter(Boolean) || [],
-          competences_b: tableauB?.competences_cles?.map((c: any) => c.intitule).filter(Boolean) || []
+          competences_a: tableauA?.competences_cles?.map(libelle).filter(Boolean) || [],
+          competences_b: tableauB?.competences_cles?.map(libelle).filter(Boolean) || []
         };
       });
 

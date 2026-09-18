@@ -22,6 +22,15 @@ interface TableauData {
 }
 
 interface CompetencesBadgesProps {
+  /**
+   * Nombre de compétences OIC réellement chargées pour chaque rang. Quand il
+   * est fourni, il fait foi : c'est ce que les onglets Rang A / Rang B
+   * affichent. Les compteurs stockés en base divergent du référentiel
+   * `oic_competences` sur 11 items en rang B (8 à 10 compétences annoncées,
+   * aucune en réalité).
+   */
+  competencesRangA?: number;
+  competencesRangB?: number;
   item: {
     tableau_rang_a?: TableauData;
     tableau_rang_b?: TableauData;
@@ -33,7 +42,11 @@ interface CompetencesBadgesProps {
   };
 }
 
-export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) => {
+export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
+  item,
+  competencesRangA,
+  competencesRangB,
+}) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { stats, loadStats } = useGamification();
@@ -59,7 +72,11 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
   }, [logActivity]);
   
   const getCompetencesCount = (rang: 'A' | 'B') => {
-    // 1. Priorité: utiliser les compteurs pré-calculés (plus rapide)
+    // 0. Priorité absolue : le décompte OIC réellement chargé par l'appelant.
+    if (rang === 'A' && competencesRangA !== undefined) return competencesRangA;
+    if (rang === 'B' && competencesRangB !== undefined) return competencesRangB;
+
+    // 1. Sinon : compteurs pré-calculés (plus rapide)
     if (rang === 'A' && item.competences_count_rang_a && item.competences_count_rang_a > 0) {
       return item.competences_count_rang_a;
     }
@@ -106,7 +123,9 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       id: 'rang-a',
       label: 'Rang A',
       icon: BookOpen,
-      available: !!item.tableau_rang_a,
+      // « Disponible » = il y a quelque chose à lire, pas « la colonne
+      // tableau_rang_a a été chargée » (elle ne l'est pas depuis la liste).
+      available: rangACount > 0,
       count: rangACount,
       description: 'Compétences fondamentales',
       color: rangACount > 0 ? 'text-primary bg-primary/10 border-primary/20' : 'text-muted-foreground bg-muted border-border'
@@ -115,7 +134,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       id: 'rang-b',
       label: 'Rang B',
       icon: Brain,
-      available: !!item.tableau_rang_b,
+      available: rangBCount > 0,
       count: rangBCount,
       description: 'Compétences expertes',
       color: rangBCount > 0 ? 'text-accent bg-accent/10 border-accent/20' : 'text-muted-foreground bg-muted border-border'

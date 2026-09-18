@@ -2,6 +2,17 @@
  * Transforme la structure tableau avec objectifs/competences_cles/situations_cliniques
  * en format sections compatible avec les composants TableauRangA/B
  */
+/**
+ * Certaines colonnes JSONB peuvent arriver sous forme de chaîne au lieu d'un
+ * tableau. On les ramène toujours à un tableau plutôt que de sauter la section
+ * en silence (l'objectif disparaissait alors de l'écran sans message).
+ */
+const versListe = (valeur: unknown): unknown[] => {
+  if (Array.isArray(valeur)) return valeur;
+  if (typeof valeur === 'string' && valeur.trim() !== '') return [valeur];
+  return [];
+};
+
 export const transformTableauToSections = (tableauData: any, itemCode: string, title: string, rang: 'A' | 'B') => {
   const normalizedTableau = normalizeTableauData(tableauData);
 
@@ -17,10 +28,13 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
   const sections = [];
 
   // Section 1 : Objectifs pédagogiques
-  if (normalizedTableau.objectifs && Array.isArray(normalizedTableau.objectifs) && normalizedTableau.objectifs.length > 0) {
+  const objectifs = versListe(normalizedTableau.objectifs);
+  if (objectifs.length > 0) {
     sections.push({
       title: "Objectifs pédagogiques",
-      content: normalizedTableau.objectifs.join('\n• '),
+      // `join('\n• ')` laissait le premier objectif sans puce (481 cas sur les
+      // 734 tableaux de la table canonique). On préfixe chaque ligne.
+      content: objectifs.map((o: unknown) => `• ${String(o)}`).join('\n'),
       keywords: []
     });
   }
@@ -31,7 +45,12 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
       title: "Compétences clés",
       content: "",
       competences: normalizedTableau.competences_cles.map((comp: any) => ({
-        competence_id: comp.niveau || comp.id || 'N/A',
+        // Le code OIC (`objectif_id`, ex. OIC-001-03-A) est la seule référence
+        // opposable au référentiel UNESS. Il était écrasé par `niveau`
+        // (« Fondamental », « Avancé »…) : les 1114 compétences de la table
+        // canonique perdaient leur code. On le conserve, `niveau` ne sert plus
+        // que de repli.
+        competence_id: comp.objectif_id || comp.niveau || comp.id || 'N/A',
         concept: comp.competence || comp.titre || comp.intitule || '',
         definition: comp.description || '',
         exemple: comp.exemple || '',
@@ -40,7 +59,7 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
         // Format compatible avec TableauCompetencesOICOptimized
         intitule: comp.competence || comp.titre || comp.intitule || '',
         description: comp.description || '',
-        objectif_id: comp.niveau || comp.id || 'N/A',
+        objectif_id: comp.objectif_id || comp.niveau || comp.id || 'N/A',
         rubrique: comp.rubrique || 'Compétence Clé',
         titre_complet: comp.competence || comp.titre || comp.intitule || '',
         sommaire: comp.description?.substring(0, 150) || ''
@@ -50,19 +69,21 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
   }
 
   // Section 3 : Situations cliniques
-  if (normalizedTableau.situations_cliniques && Array.isArray(normalizedTableau.situations_cliniques) && normalizedTableau.situations_cliniques.length > 0) {
+  const situations = versListe(normalizedTableau.situations_cliniques);
+  if (situations.length > 0) {
     sections.push({
       title: "Situations cliniques",
-      content: normalizedTableau.situations_cliniques.join('\n• '),
+      content: situations.map((v: unknown) => `• ${String(v)}`).join('\n'),
       keywords: []
     });
   }
 
   // Section 4 : Cas complexes (pour Rang B)
-  if (rang === 'B' && normalizedTableau.cas_complexes && Array.isArray(normalizedTableau.cas_complexes) && normalizedTableau.cas_complexes.length > 0) {
+  const casComplexes = versListe(normalizedTableau.cas_complexes);
+  if (rang === 'B' && casComplexes.length > 0) {
     sections.push({
       title: "Cas complexes",
-      content: normalizedTableau.cas_complexes.join('\n• '),
+      content: casComplexes.map((v: unknown) => `• ${String(v)}`).join('\n'),
       keywords: []
     });
   }
@@ -73,14 +94,14 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
       title: "Compétences expertes",
       content: "",
       competences: normalizedTableau.competences_expertes.map((comp: any) => ({
-        competence_id: comp.niveau || 'Expert',
+        competence_id: comp.objectif_id || comp.niveau || 'Expert',
         concept: comp.expertise || comp.competence || '',
         definition: comp.description || '',
         niveau: comp.niveau || 'Expert',
         // Format compatible avec TableauCompetencesOICOptimized
         intitule: comp.expertise || comp.competence || '',
         description: comp.description || '',
-        objectif_id: comp.niveau || 'Expert',
+        objectif_id: comp.objectif_id || comp.niveau || 'Expert',
         rubrique: 'Expertise Avancée',
         titre_complet: comp.expertise || comp.competence || '',
         sommaire: comp.description?.substring(0, 150) || ''
@@ -132,3 +153,20 @@ const parseJsonValue = (value: unknown) => {
     return null;
   }
 };
+
+/**
+ * `oic_competences` contient 5606 lignes, dont 734 qui ne sont PAS des
+ * compétences : une ligne d'en-tête par item et par rang (`IC-1-A`,
+ * `IC-330-B`…), au libellé générique (« Item EDN 330 - Compétence médicale
+ * spécialisée »). Affichées telles quelles, elles ajoutaient une fausse
+ * compétence en tête de chaque tableau — et, pour les 11 items sans aucune
+ * compétence de rang B en base, elles étaient la seule ligne affichée alors
+ * que la fiche annonçait « Rang B : 10 ».
+ *
+ * Une vraie compétence du référentiel UNESS porte un identifiant de la forme
+ * OIC-<item sur 3 chiffres>-<numéro sur 2 chiffres>-<A|B>.
+ */
+const FORMAT_CODE_OIC = /^OIC-\d{3}-\d{2}-[AB]$/;
+
+export const estCompetenceOICReelle = (objectifId?: string | null): boolean =>
+  FORMAT_CODE_OIC.test((objectifId ?? '').trim());
