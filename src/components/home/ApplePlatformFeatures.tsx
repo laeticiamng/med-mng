@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Wand2, Brain, GraduationCap, ArrowRight } from 'lucide-react';
+import { BookOpen, Brain, GraduationCap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
@@ -16,16 +16,6 @@ const features = [
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
     iconBg: 'bg-primary/15 text-primary',
-    comingSoon: false,
-  },
-  {
-    icon: Wand2,
-    titleFr: 'Studio Créateur IA',
-    descFr: 'Importe ton cours en PDF → l\'IA crée des paroles de chanson adaptées. Tu édites et tu publies.',
-    tab: 'creator',
-    colSpan: 1,
-    gradient: 'from-accent/20 via-accent/5 to-transparent',
-    iconBg: 'bg-accent/15 text-accent',
     comingSoon: false,
   },
   {

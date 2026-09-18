@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Music, Library, Heart, Clock, Flame, Trophy, Star, BookOpen, Wand2, Brain } from 'lucide-react';
+import { Music, Library, Heart, Clock, Flame, Trophy, Star, BookOpen, Brain } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MusicLibrary } from '@/components/library/MusicLibrary';
 import { MedicalContentLibrary } from '@/components/library/MedicalContentLibrary';
-import { CreatorStudio } from '@/components/library/CreatorStudio';
 import { MemoryAnalytics } from '@/components/library/MemoryAnalytics';
 import { FavoritesTab } from '@/components/library/FavoritesTab';
 import { RecentTab } from '@/components/library/RecentTab';
@@ -20,7 +19,10 @@ import { Card } from '@/components/ui/card';
 // CONSTAT : l’onglet « DPC » affichait 6 modules codés en dur et délivrait des
 // attestations à numéro tiré au hasard, alors que le DPC est un dispositif réglementé
 // (ANDPC). Onglet et point d’entrée retirés ; cf. src/components/library/DPCCertification.tsx.
-const LIBRARY_TABS = ['content', 'creator', 'memory', 'library', 'favorites', 'recent', 'playlists'];
+// Le Studio Créateur ('creator') a été retiré : importer un cours pour en
+// faire une chanson est le coeur de COGNITIO, et le doublonner ici brouillait
+// les deux produits. MED MNG reste le catalogue des 367 items déjà en musique.
+const LIBRARY_TABS = ['content', 'memory', 'library', 'favorites', 'recent', 'playlists'];
 
 export default function LibraryPage() {
   const [searchParams] = useSearchParams();
@@ -74,14 +76,10 @@ export default function LibraryPage() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="overflow-x-auto -mx-2 px-2">
-              <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-7 gap-1">
+              <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-6 gap-1">
                 <TabsTrigger value="content" className="flex items-center gap-1.5 text-xs">
                   <BookOpen className="h-3.5 w-3.5" />
                   <span className="hidden md:inline">Catalogue</span>
-                </TabsTrigger>
-                <TabsTrigger value="creator" className="flex items-center gap-1.5 text-xs">
-                  <Wand2 className="h-3.5 w-3.5" />
-                  <span className="hidden md:inline">Studio</span>
                 </TabsTrigger>
                 <TabsTrigger value="memory" className="flex items-center gap-1.5 text-xs">
                   <Brain className="h-3.5 w-3.5" />
@@ -108,10 +106,6 @@ export default function LibraryPage() {
 
             <TabsContent value="content">
               <MedicalContentLibrary />
-            </TabsContent>
-
-            <TabsContent value="creator">
-              <CreatorStudio />
             </TabsContent>
 
             <TabsContent value="memory">
