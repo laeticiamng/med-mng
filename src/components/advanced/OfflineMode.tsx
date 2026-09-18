@@ -232,8 +232,9 @@ export const OfflineMode: React.FC = () => {
 
     try {
       // Charger les items EDN disponibles
+      // Table canonique : edn_items_complete (cf. EdnItemModal).
       const { data: ednItems } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('item_code, title')
         .limit(20);
 
@@ -330,7 +331,7 @@ export const OfflineMode: React.FC = () => {
 
         // Récupérer l'item EDN complet
         const { data: ednData, error: ednError } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('*')
           .eq('item_code', itemCode)
           .maybeSingle();

@@ -12,7 +12,10 @@ export async function handleEdn(
     const offset = (page - 1) * limit;
 
     const { data, count, error } = await supabase
-      .from('edn_items_immersive')
+      // Table canonique : edn_items_complete (367 items, tableaux de rang issus du
+      // référentiel OIC). edn_items_immersive est l'ancienne table, au contenu
+      // pédagogique générique — elle n'est plus la source de vérité.
+      .from('edn_items_complete')
       .select('item_code,title,subtitle,slug', { count: 'exact' })
       .order('item_code')
       .range(offset, offset + limit - 1);
@@ -35,7 +38,7 @@ export async function handleEdn(
     const slug = path.split('/')[2];
 
     const { data, error } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('*')
       .eq('slug', slug)
       .single();

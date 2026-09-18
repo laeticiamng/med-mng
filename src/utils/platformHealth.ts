@@ -22,7 +22,7 @@ export const checkPlatformHealth = async (): Promise<PlatformHealthCheck> => {
   // Vérification de la base de données
   let dbConnected = false;
   try {
-    const { data, error } = await supabase.from('edn_items_immersive').select('count', { count: 'exact' });
+    const { data, error } = await supabase.from('edn_items_complete').select('count', { count: 'exact' });
     if (!error && data !== null) {
       dbConnected = true;
       completedFeatures++;

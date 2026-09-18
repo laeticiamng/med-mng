@@ -152,12 +152,24 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     const loadCompleteData = async () => {
       if (finalItem && isOpen) {
         try {
-          // Toujours fetch les données complètes depuis Supabase pour avoir bd_panels et roman_story
-          const { data } = await supabase
-            .from('edn_items_immersive')
-            .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab, bd_panels, roman_story')
-            .eq('item_code', finalItem.item_code)
-            .maybeSingle();
+          // Le contenu pédagogique vient de edn_items_complete : c'est la table
+          // canonique (367 items, tableaux de rang construits depuis le
+          // référentiel OIC). edn_items_immersive est l'ancienne table, dont le
+          // contenu pédagogique est générique (« Connaître les bases
+          // fondamentales de l'item 99 ») ; on ne l'interroge plus que pour
+          // bd_panels et roman_story, qui n'existent que là.
+          const [{ data }, { data: recits }] = await Promise.all([
+            supabase
+              .from('edn_items_complete')
+              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
+              .eq('item_code', finalItem.item_code)
+              .maybeSingle(),
+            supabase
+              .from('edn_items_immersive')
+              .select('bd_panels, roman_story')
+              .eq('item_code', finalItem.item_code)
+              .maybeSingle(),
+          ]);
 
           if (data) {
             // Normaliser paroles_musicales: si c'est une string, la convertir en array
@@ -197,8 +209,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               paroles_rang_ab: data.paroles_rang_ab as string[],
               competences_oic_rang_a: oicCompetencesA,
               competences_oic_rang_b: oicCompetencesB,
-              bd_panels: data.bd_panels as unknown,
-              roman_story: data.roman_story as unknown,
+              bd_panels: recits?.bd_panels as unknown,
+              roman_story: recits?.roman_story as unknown,
             });
           }
         } catch {
