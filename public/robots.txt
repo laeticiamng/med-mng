@@ -84,7 +84,7 @@ User-agent: Applebot-Extended
 Allow: /
 
 # Sitemap
-Sitemap: https://med-mng.lovable.app/sitemap.xml
+Sitemap: https://medmng.com/sitemap.xml
 
 # LLMs.txt - Guide pour les crawlers IA
-# https://med-mng.lovable.app/llms.txt
+# https://medmng.com/llms.txt

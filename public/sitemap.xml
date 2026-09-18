@@ -5,25 +5,25 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <!-- Pages principales -->
   <url>
-    <loc>https://med-mng.lovable.app/</loc>
+    <loc>https://medmng.com/</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/demo</loc>
+    <loc>https://medmng.com/demo</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/med-mng/pricing</loc>
+    <loc>https://medmng.com/med-mng/pricing</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/mng-method</loc>
+    <loc>https://medmng.com/mng-method</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -31,13 +31,13 @@
 
   <!-- Authentification (public) -->
   <url>
-    <loc>https://med-mng.lovable.app/med-mng/login</loc>
+    <loc>https://medmng.com/med-mng/login</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/med-mng/signup</loc>
+    <loc>https://medmng.com/med-mng/signup</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -45,13 +45,13 @@
 
   <!-- EDN & Apprentissage -->
   <url>
-    <loc>https://med-mng.lovable.app/edn-complete</loc>
+    <loc>https://medmng.com/edn-complete</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/edn/music-library</loc>
+    <loc>https://medmng.com/edn/music-library</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -60,7 +60,7 @@
 
   <!-- ECOS -->
   <url>
-    <loc>https://med-mng.lovable.app/ecos</loc>
+    <loc>https://medmng.com/ecos</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -68,38 +68,38 @@
 
   <!-- Pages légales additionnelles -->
   <url>
-    <loc>https://med-mng.lovable.app/legal/cgv</loc>
+    <loc>https://medmng.com/legal/cgv</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/legal/cookies</loc>
+    <loc>https://medmng.com/legal/cookies</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <!-- Contenu public -->
   <url>
-    <loc>https://med-mng.lovable.app/revision-rapide</loc>
+    <loc>https://medmng.com/revision-rapide</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/parcours</loc>
+    <loc>https://medmng.com/parcours</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/faq</loc>
+    <loc>https://medmng.com/faq</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/about</loc>
+    <loc>https://medmng.com/about</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -107,61 +107,61 @@
 
   <!-- Pillar Pages SEO (contenu long-form, acquisition organique) -->
   <url>
-    <loc>https://med-mng.lovable.app/preparation-ecos-2026</loc>
+    <loc>https://medmng.com/preparation-ecos-2026</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/reussir-edn</loc>
+    <loc>https://medmng.com/reussir-edn</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/fiches-ecos-interactives</loc>
+    <loc>https://medmng.com/fiches-ecos-interactives</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/simulation-examen-edn</loc>
+    <loc>https://medmng.com/simulation-examen-edn</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/cas-cliniques-edn</loc>
+    <loc>https://medmng.com/cas-cliniques-edn</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/erreurs-frequentes-ecos</loc>
+    <loc>https://medmng.com/erreurs-frequentes-ecos</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/classement-edn-explique</loc>
+    <loc>https://medmng.com/classement-edn-explique</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/rang-a-vs-rang-b</loc>
+    <loc>https://medmng.com/rang-a-vs-rang-b</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/travailler-cas-cliniques</loc>
+    <loc>https://medmng.com/travailler-cas-cliniques</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/exemple-cas-clinique</loc>
+    <loc>https://medmng.com/exemple-cas-clinique</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -169,7 +169,7 @@
 
   <!-- PWA Install -->
   <url>
-    <loc>https://med-mng.lovable.app/install</loc>
+    <loc>https://medmng.com/install</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -177,25 +177,25 @@
 
   <!-- Pages légales -->
   <url>
-    <loc>https://med-mng.lovable.app/mentions-legales</loc>
+    <loc>https://medmng.com/mentions-legales</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/politique-confidentialite</loc>
+    <loc>https://medmng.com/politique-confidentialite</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/cgu</loc>
+    <loc>https://medmng.com/cgu</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://med-mng.lovable.app/declaration-accessibilite</loc>
+    <loc>https://medmng.com/declaration-accessibilite</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
