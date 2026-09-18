@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { corsHeaders, securityHeaders } from './types.ts';
+import { corsHeaders, securityHeaders, resolveCorsOrigin } from './types.ts';
 import { validateAuth } from './auth.ts';
 import { handleSubscriptions } from './routes/subscriptions.ts';
 import { handleSongs } from './routes/songs.ts';
@@ -37,7 +37,7 @@ function checkRate(key: string, limit: number, windowMs: number) {
   return true;
 }
 
-serve(async (req) => {
+const handleRequest = async (req: Request): Promise<Response> => {
   let requestId: string | null = null;
   let path = '';
 
@@ -240,4 +240,25 @@ serve(async (req) => {
       error instanceof Error ? error.message : 'An unexpected error occurred'
     );
   }
+};
+
+/**
+ * Une seule sortie pour toutes les réponses : l'origine CORS y est recollée
+ * en fonction de la requête.
+ *
+ * POURQUOI ICI : `corsHeaders` est une constante de module, elle ne peut
+ * nommer qu'une origine figée, et elle est utilisée à 31 endroits dans cette
+ * fonction. Corriger la valeur à la sortie règle les 31 d'un coup, sans
+ * toucher aux routes.
+ */
+serve(async (req: Request): Promise<Response> => {
+  const response = await handleRequest(req);
+  const headers = new Headers(response.headers);
+  headers.set('Access-Control-Allow-Origin', resolveCorsOrigin(req));
+  headers.set('Vary', 'Origin');
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 });

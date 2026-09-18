@@ -15,8 +15,40 @@ export interface AddToLibraryRequest {
   song_id: string;
 }
 
+/**
+ * Origines autorisées à appeler l'API depuis un navigateur.
+ * L'en-tête ci-dessous ne peut nommer QU'UNE origine : le vrai choix se fait
+ * par requête dans `resolveCorsOrigin()`, appliqué à la sortie de index.ts.
+ */
+export const API_ALLOWED_ORIGINS: (string | RegExp)[] = [
+  'https://medmng.com',
+  'https://www.medmng.com',
+  'https://med-mng.com',
+  'https://www.med-mng.com',
+  'https://med-mng.lovable.app',
+  /^https:\/\/.*\.lovableproject\.com$/,
+  /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.sandbox\.lovable\.dev$/,
+];
+
+/** Origine à renvoyer pour cette requête, ou la production par défaut. */
+export function resolveCorsOrigin(req: Request): string {
+  const origin = req.headers.get('origin') ?? '';
+  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+    return origin;
+  }
+  const ok = API_ALLOWED_ORIGINS.some((a) =>
+    typeof a === 'string' ? a === origin : a.test(origin),
+  );
+  return ok ? origin : 'https://medmng.com';
+}
+
+// Repli statique. L'origine par défaut est la PRODUCTION : elle pointait sur
+// l'aperçu Lovable (med-mng.lovable.app), si bien que toutes les réponses
+// refusaient le navigateur sur medmng.com — bibliothèque, quota et profil
+// restaient vides en ligne alors que tout marchait dans l'aperçu.
 export const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://med-mng.lovable.app',
+  'Access-Control-Allow-Origin': 'https://medmng.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-csrf-token, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 };

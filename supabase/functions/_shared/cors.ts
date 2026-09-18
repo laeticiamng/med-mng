@@ -6,12 +6,21 @@
  */
 
 const ALLOWED_ORIGINS = [
-  'https://med-mng.lovable.app',
+  // Domaines de PRODUCTION. Sans tiret : le site est servi sur medmng.com.
+  // La liste ne contenait que la variante avec tiret (med-mng.com), qui n'est
+  // pas le domaine réel — toutes les requêtes du navigateur depuis medmng.com
+  // étaient donc rejetées au préflight, et l'API restait injoignable en
+  // production alors qu'elle fonctionnait dans l'aperçu Lovable.
+  'https://medmng.com',
+  'https://www.medmng.com',
+  // Variante avec tiret conservée au cas où ce domaine soit aussi utilisé.
   'https://med-mng.com',
   'https://www.med-mng.com',
-  // Preview URLs Lovable
+  // Aperçus Lovable
+  'https://med-mng.lovable.app',
   /^https:\/\/.*\.lovableproject\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.sandbox\.lovable\.dev$/,
 ];
 
 /**
@@ -45,6 +54,7 @@ export function getCorsHeaders(req: Request): Record<string, string> {
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
     'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
   };
 }
 
@@ -53,7 +63,7 @@ export function getCorsHeaders(req: Request): Record<string, string> {
  * Conservé pour compatibilité avec les fonctions existantes
  */
 export const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://med-mng.lovable.app',
+  'Access-Control-Allow-Origin': 'https://medmng.com',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
   'Access-Control-Max-Age': '86400',
