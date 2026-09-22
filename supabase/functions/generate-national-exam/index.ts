@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -68,13 +69,7 @@ serve(async (req) => {
         return `Item ${item.item_code}: ${item.title} (Rang ${item.rang || '?'}, ${item.specialite || '?'})\nCompétences A: ${compAStr}\nCompétences B: ${compBStr}`;
       }).join('\n\n');
 
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await completionIA({
           model: "google/gemini-3-flash-preview",
           messages: [
             {
@@ -126,8 +121,7 @@ ${itemsContext}`
             }
           }],
           tool_choice: { type: "function", function: { name: "generate_exam_questions" } }
-        }),
-      });
+        });
 
       if (!response.ok) {
         if (response.status === 429) {

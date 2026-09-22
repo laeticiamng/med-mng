@@ -314,10 +314,21 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
     return chapters;
   };
 
-  // Utiliser les chapitres stockés en priorité, sinon générer dynamiquement
-  const chapters = storedRomanStory && storedRomanStory.length > 0 
-    ? storedRomanStory 
-    : generateChapters();
+  // Le récit rédigé (generer-recit-item) est stocké sous la forme
+  // { titre, texte, competences: ['OIC-…'] } ; les anciens récits sous { title, content }.
+  const histoire: RomanChapter[] = (Array.isArray(storedRomanStory) ? storedRomanStory : [])
+    .map((c: any, i: number, tous: any[]) => ({
+      id: String(c?.id ?? `chapitre-${i + 1}`),
+      title: String(c?.title ?? c?.titre ?? '').trim(),
+      content: String(c?.content ?? c?.texte ?? '').trim(),
+      type: (i === 0 ? 'intro' : i === tous.length - 1 ? 'conclusion' : 'rang-a') as RomanChapter['type'],
+      competences: [],
+    }))
+    .filter((c) => c.title && c.content);
+
+  // Plus de chapitres fabriqués à partir de gabarits (« Chapitre 1 : Les Fondements ») :
+  // sans récit rédigé, on le dit.
+  const chapters = histoire;
 
   const nextChapter = async () => {
     if (currentChapter < chapters.length - 1) {
@@ -358,7 +369,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
   };
 
   // Only show placeholder if chapters have just intro+epilogue (no competences)
-  if (chapters.length <= 2 || (competencesA.length === 0 && competencesB.length === 0)) {
+  if (chapters.length === 0) {
     return (
       <Card className="border-2 border-warning/20">
         <CardHeader className="bg-gradient-to-r from-success/10 to-accent/10">
@@ -372,13 +383,13 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
             <BookOpen className="h-8 w-8 text-success" />
           </div>
           <div>
-            <p className="font-medium text-foreground">Pas de parcours narré pour cet item</p>
+            <p className="font-medium text-foreground">Le récit de cet item n'est pas encore rédigé</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
+              Il est écrit à partir des connaissances officielles (UNESS) de <strong>{itemCode}</strong> ; il apparaîtra ici dès qu'il aura passé le contrôle de qualité.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
-Le parcours se construit à partir des compétences OIC de l'item ; aucune n'est disponible ici.
+Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
           </div>
         </CardContent>
       </Card>
@@ -525,7 +536,7 @@ Le parcours se construit à partir des compétences OIC de l'item ; aucune n'est
                 </Badge>
               )}
               <Badge className={getChapterColor(currentChap.type).replace('bg-', 'bg-').replace('border-', 'border-')}>
-                {currentChap.type.toUpperCase()}
+                {({ intro: 'Début', 'rang-a': 'Suite', 'rang-b': 'Suite', conclusion: 'Fin' } as Record<string, string>)[currentChap.type]}
               </Badge>
             </div>
           </div>
@@ -646,13 +657,13 @@ Le parcours se construit à partir des compétences OIC de l'item ; aucune n'est
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{chapter.title}</span>
                   <div className="flex items-center gap-2">
-                    {chapter.competences > 0 && (
+                    {chapter.competences.length > 0 && (
                       <Badge variant="outline" className="text-xs">
-                        {chapter.competences}
+                        {chapter.competences.length}
                       </Badge>
                     )}
                     <Badge className={`text-xs ${getChapterColor(chapter.type)}`}>
-                      {chapter.type}
+                      {({ intro: 'Début', 'rang-a': 'Suite', 'rang-b': 'Suite', conclusion: 'Fin' } as Record<string, string>)[chapter.type]}
                     </Badge>
                   </div>
                 </div>

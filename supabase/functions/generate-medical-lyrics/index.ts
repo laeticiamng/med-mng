@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -34,13 +35,7 @@ Règles :
 
 Génère un titre créatif et les paroles complètes.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const response = await completionIA({
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
@@ -65,8 +60,7 @@ Génère un titre créatif et les paroles complètes.`;
           },
         ],
         tool_choice: { type: "function", function: { name: "generate_song" } },
-      }),
-    });
+      });
 
     if (!response.ok) {
       if (response.status === 429) {

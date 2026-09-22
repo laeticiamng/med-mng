@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 const ALLOWED_ORIGINS = [
   Deno.env.get("ALLOWED_ORIGIN") || "https://med-mng.com",
@@ -41,13 +42,7 @@ Spécialité demandée: ${specialty || 'Médecine générale'}
 Niveau de difficulté: ${difficulty}
 ${relatedItems.length > 0 ? `Items EDN à intégrer: ${relatedItems.join(', ')}` : ''}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const response = await completionIA({
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
@@ -110,8 +105,7 @@ ${relatedItems.length > 0 ? `Items EDN à intégrer: ${relatedItems.join(', ')}`
           }
         ],
         tool_choice: { type: "function", function: { name: "generate_clinical_case" } }
-      }),
-    });
+      });
 
     if (!response.ok) {
       if (response.status === 429) {

@@ -7,6 +7,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
+import { IllustrationCase } from '@/components/edn/IllustrationCase';
 import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import {
     BookOpen,
@@ -38,7 +39,10 @@ interface BdPanel {
   id: string;
   title: string;
   description: string;
-  image: string;
+  image?: string | null;
+  /** Description de la scène à dessiner (BD rédigée par generer-recit-item). */
+  illustration?: string | null;
+  dialogue?: string | null;
   type: 'intro' | 'rang-a' | 'rang-b' | 'conclusion';
   competences: OicCompetenceRef[];
 }
@@ -167,10 +171,21 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     return vignettes;
   };
 
-  // Utiliser les panels stockés en priorité, sinon générer dynamiquement
-  const vignettes = storedBdPanels && storedBdPanels.length > 0 
-    ? storedBdPanels 
-    : generateVignettes();
+  // La BD rédigée (generer-recit-item) est stockée sous la forme
+  // { titre, narration, dialogue, illustration } ; les anciennes planches sous { title, description, image }.
+  // Plus de planches fabriquées à partir de gabarits ni de photos de stock tirées au hasard.
+  const vignettes: BdPanel[] = (Array.isArray(storedBdPanels) ? storedBdPanels : [])
+    .map((c: any, i: number, toutes: any[]) => ({
+      id: String(c?.id ?? `case-${i + 1}`),
+      title: String(c?.title ?? c?.titre ?? '').trim(),
+      description: String(c?.description ?? c?.narration ?? '').trim(),
+      dialogue: c?.dialogue ? String(c.dialogue).trim() : null,
+      illustration: c?.illustration ? String(c.illustration).trim() : null,
+      image: typeof c?.image === 'string' && !/images\.unsplash\.com/.test(c.image) ? c.image : null,
+      type: (i === 0 ? 'intro' : i === toutes.length - 1 ? 'conclusion' : 'rang-a') as BdPanel['type'],
+      competences: [],
+    }))
+    .filter((v) => v.title && v.description);
 
   // Auto-play slideshow
   const toggleAutoPlay = React.useCallback(() => {
@@ -270,7 +285,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     );
   }
 
-  if (vignettes.length <= 2) {
+  if (vignettes.length === 0) {
     // Only intro and conclusion, no real content
     return (
       <Card className="border-2 border-warning/20">
@@ -285,13 +300,13 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <Image className="h-8 w-8 text-accent" />
           </div>
           <div>
-            <p className="font-medium text-foreground">Pas de planches pour cet item</p>
+            <p className="font-medium text-foreground">La BD de cet item n'est pas encore rédigée</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
+              Elle est écrite à partir des connaissances officielles (UNESS) de <strong>{itemCode}</strong> ; elle apparaîtra ici dès qu'elle aura passé le contrôle de qualité.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
-Les planches se construisent à partir des compétences OIC de l'item ; aucune n'est disponible ici.
+Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
           </div>
         </CardContent>
       </Card>
@@ -304,16 +319,25 @@ Les planches se construisent à partir des compétences OIC de l'item ; aucune n
   const VignetteContent = ({ fullscreen = false }: { fullscreen?: boolean }) => (
     <div className={`${fullscreen ? 'h-full flex flex-col' : ''}`}>
       <div className="relative">
-        <img 
-          src={currentVig.image} 
-          alt={currentVig.title}
-          loading="lazy"
-          className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} object-cover ${fullscreen ? '' : 'rounded-t-lg'}`}
-        />
+        {currentVig.image ? (
+          <img
+            src={currentVig.image}
+            alt={currentVig.title}
+            loading="lazy"
+            className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} object-cover ${fullscreen ? '' : 'rounded-t-lg'}`}
+          />
+        ) : (
+          <IllustrationCase
+            itemCode={itemCode}
+            illustration={currentVig.illustration}
+            titre={currentVig.title}
+            className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} ${fullscreen ? '' : 'rounded-t-lg'}`}
+          />
+        )}
         <div className="absolute top-4 left-4">
           <Badge className={`${getVignetteColor(currentVig.type)} border-2`}>
             {getTypeIcon(currentVig.type)}
-            <span className="ml-1">{currentVig.type.toUpperCase()}</span>
+            <span className="ml-1">{({ intro: 'Début', 'rang-a': 'Suite', 'rang-b': 'Suite', conclusion: 'Fin' } as Record<string, string>)[currentVig.type]}</span>
           </Badge>
         </div>
         {!fullscreen && (
@@ -332,6 +356,11 @@ Les planches se construisent à partir des compétences OIC de l'item ; aucune n
       <div className={fullscreen ? 'flex-1 overflow-auto p-6' : isMobile ? 'p-4' : 'p-6'}>
         <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
         <p className="text-muted-foreground mb-4">{currentVig.description}</p>
+        {currentVig.dialogue && (
+          <blockquote className="relative mb-4 rounded-2xl border-2 border-foreground/80 bg-background px-4 py-3 text-sm font-medium">
+            {currentVig.dialogue}
+          </blockquote>
+        )}
         
         {currentVig.competences && currentVig.competences.length > 0 && (
           <div className="space-y-2 mb-4">
@@ -539,11 +568,11 @@ Les planches se construisent à partir des compétences OIC de l'item ; aucune n
                     : 'border-border hover:border-muted-foreground'
                   }`}
               >
-                <img 
-                  src={vignette.image} 
-                  alt={vignette.title}
-                  className="w-full h-full object-cover"
-                />
+                {vignette.image ? (
+                  <img src={vignette.image} alt={vignette.title} className="w-full h-full object-cover" />
+                ) : (
+                  <IllustrationCase itemCode={itemCode} illustration={vignette.illustration} titre={vignette.title} className="w-full h-full" miniature />
+                )}
                 <div className="absolute inset-0 bg-black/20"></div>
                 <div className="absolute bottom-1 left-1">
                   {getTypeIcon(vignette.type)}

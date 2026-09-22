@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -41,13 +42,7 @@ Crée un planning de révision optimal sur les 7 prochains jours avec:
 - Sessions de révision espacée intégrées
 - Pauses et récupération`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const response = await completionIA({
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
@@ -105,8 +100,7 @@ Crée un planning de révision optimal sur les 7 prochains jours avec:
           }
         ],
         tool_choice: { type: "function", function: { name: "generate_study_plan" } }
-      }),
-    });
+      });
 
     if (!response.ok) {
       if (response.status === 429) {

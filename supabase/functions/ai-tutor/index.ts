@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -134,21 +135,14 @@ ${studentContext}
 - Sois concis mais complet : l'étudiant doit pouvoir agir après ta réponse
 - Ne révèle JAMAIS les données de performance brutes, utilise-les de manière naturelle`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const response = await completionIA({
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
         ],
         stream: true,
-      }),
-    });
+      });
 
     if (!response.ok) {
       if (response.status === 429) {

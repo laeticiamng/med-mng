@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { getCorsHeaders } from '../_shared/cors.ts'
+import { completionIA } from '../_shared/ia-resiliente.ts'
 
 /**
  * Génère les paroles d'un item EDN à partir de SES compétences OIC officielles.
@@ -22,7 +23,6 @@ import { getCorsHeaders } from '../_shared/cors.ts'
  */
 
 const MODELE = 'google/gemini-2.5-flash'
-const PASSERELLE = 'https://ai.gateway.lovable.dev/v1/chat/completions'
 
 /** Seules ces lignes sont de vraies compétences (734 lignes IC-<n> sont fausses). */
 const EST_COMPETENCE_REELLE = /^OIC-\d{3}-\d{2}-[AB]$/
@@ -187,18 +187,15 @@ ${liste}
   return { systeme, utilisateur }
 }
 
-async function appelerModele(systeme: string, utilisateur: string, cle: string, temperature: number) {
-  const r = await fetch(PASSERELLE, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${cle}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODELE,
-      temperature,
-      messages: [
-        { role: 'system', content: systeme },
-        { role: 'user', content: utilisateur },
-      ],
-    }),
+async function appelerModele(systeme: string, utilisateur: string, _cle: string, temperature: number) {
+  // Passerelle Lovable d'abord, OpenAI si elle refuse (crédits épuisés, surcharge).
+  const r = await completionIA({
+    model: MODELE,
+    temperature,
+    messages: [
+      { role: 'system', content: systeme },
+      { role: 'user', content: utilisateur },
+    ],
   })
   if (!r.ok) {
     const corps = await r.text()
@@ -227,8 +224,7 @@ serve(async (req) => {
     if (!itemCode) return repondre({ error: 'itemCode manquant' }, 400)
     if (!['A', 'B', 'AB'].includes(rang)) return repondre({ error: 'rang doit valoir A, B ou AB' }, 400)
 
-    const cle = Deno.env.get('LOVABLE_API_KEY')
-    if (!cle) return repondre({ error: 'LOVABLE_API_KEY non configurée' }, 500)
+    const cle = Deno.env.get('LOVABLE_API_KEY') ?? ''
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,

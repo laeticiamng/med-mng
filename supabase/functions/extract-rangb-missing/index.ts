@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { getErrorMessage } from '../_shared/error-utils.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { corsHeaders } from '../_shared/cors.ts'
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -68,21 +69,14 @@ Réponds UNIQUEMENT avec un tableau JSON (pas de texte avant ou après), au form
   {"intitule": "...", "description": "..."}
 ]`
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  const response = await completionIA({
       model: 'google/gemini-2.5-flash',
       messages: [
         { role: 'system', content: 'Tu es un professeur de médecine spécialisé dans le programme EDN 2025. Tu génères du contenu pédagogique médical précis et structuré.' },
         { role: 'user', content: prompt },
       ],
       temperature: 0.3,
-    }),
-  })
+    })
 
   if (!response.ok) {
     const errText = await response.text()

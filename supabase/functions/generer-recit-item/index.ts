@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { getCorsHeaders } from '../_shared/cors.ts'
+import { completionIA } from '../_shared/ia-resiliente.ts'
 
 /**
  * Récit et planches d'un item EDN, écrits à partir de SES compétences OIC.
@@ -23,7 +24,6 @@ import { getCorsHeaders } from '../_shared/cors.ts'
  */
 
 const MODELE = 'google/gemini-2.5-flash'
-const PASSERELLE = 'https://ai.gateway.lovable.dev/v1/chat/completions'
 const EST_COMPETENCE_REELLE = /^OIC-\d{3}-\d{2}-[AB]$/
 
 /** Formules bannies : celles des anciens gabarits, et le remplissage creux. */
@@ -171,19 +171,16 @@ ${listeCompetences(competences)}
   return { systeme, utilisateur }
 }
 
-async function appelerModele(systeme: string, utilisateur: string, cle: string, temperature: number) {
-  const r = await fetch(PASSERELLE, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${cle}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODELE,
-      temperature,
+async function appelerModele(systeme: string, utilisateur: string, _cle: string, temperature: number) {
+  // Passerelle Lovable d'abord, OpenAI si elle refuse (crédits épuisés, surcharge).
+  const r = await completionIA({
+    model: MODELE,
+    temperature,
       response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systeme },
-        { role: 'user', content: utilisateur },
-      ],
-    }),
+    messages: [
+      { role: 'system', content: systeme },
+      { role: 'user', content: utilisateur },
+    ],
   })
   if (!r.ok) throw new Error(`passerelle IA ${r.status} : ${(await r.text()).slice(0, 300)}`)
   const j = await r.json()
@@ -209,8 +206,7 @@ serve(async (req) => {
     if (!itemCode) return repondre({ error: 'itemCode manquant' }, 400)
     if (!['roman', 'bd'].includes(format)) return repondre({ error: "format doit valoir « roman » ou « bd »" }, 400)
 
-    const cle = Deno.env.get('LOVABLE_API_KEY')
-    if (!cle) return repondre({ error: 'LOVABLE_API_KEY non configurée' }, 500)
+    const cle = Deno.env.get('LOVABLE_API_KEY') ?? ''
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
