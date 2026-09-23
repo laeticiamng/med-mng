@@ -65,7 +65,7 @@ const CGV = () => {
                   <li>Capital social : 100 euros</li>
                   <li>Siège social : Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
                   <li>RCS Amiens : 944 505 445 (inscrit le 21/05/2025)</li>
-                  <li>SIRET : 944 505 445 00011</li>
+                  <li>SIRET : 944 505 445 00014</li>
                   <li>TVA intracommunautaire : FR89944505445</li>
                   <li>Email : contact@emotionscare.com</li>
                   <li>Présidente : Laeticia Motongane</li>
@@ -313,7 +313,7 @@ const CGV = () => {
               <p><strong>EmotionsCare SASU</strong></p>
               <p>Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               <p>Email : contact@emotionscare.com</p>
-              <p>SIRET : 944 505 445 00011</p>
+              <p>SIRET : 944 505 445 00014</p>
             </div>
           </Card>
 

@@ -56,7 +56,7 @@ serve(async (req) => {
         subscribed: false,
         tier: null,
         subscription_end: null,
-        generations_limit: 5,
+        generations_limit: 3, // aligné sur la grille : 3 générations audio offertes
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -78,7 +78,7 @@ serve(async (req) => {
     const hasActiveSub = !!validSub;
     let tier = null;
     let subscriptionEnd = null;
-    let generationsLimit = 5;
+    let generationsLimit = 3;
     let isTrialing = false;
 
     if (hasActiveSub && validSub) {

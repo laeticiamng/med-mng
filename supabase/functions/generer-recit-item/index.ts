@@ -23,8 +23,8 @@ import { completionIA } from '../_shared/ia-resiliente.ts'
  * sortie est refusée sinon (voir controlerQualite).
  */
 
-// Modèle plus puissant : la version rapide rendait des récits trop courts (193 refus sur 734).
-const MODELE = 'google/gemini-2.5-pro'
+// Modèle rapide (le modèle « pro » dépassait le délai de 150 s) ; la longueur est imposée dans la consigne.
+const MODELE = 'google/gemini-2.5-flash'
 const EST_COMPETENCE_REELLE = /^OIC-\d{3}-\d{2}-[AB]$/
 
 /** Formules bannies : celles des anciens gabarits, et le remplissage creux. */
@@ -140,6 +140,7 @@ function inviteRoman(titre: string, competences: Competence[]) {
   const systeme = `Tu écris un récit clinique qui sert à retenir un cours de médecine. Le lecteur est un étudiant : il doit finir le texte en sachant ce qu'il faut savoir, parce que l'histoire le lui a fait vivre.
 
 ${REGLES_COMMUNES}
+- Longueur : 900 à 1 400 mots au total, chaque chapitre entre 150 et 250 mots (un récit plus court est refusé).
 - Forme : un récit suivi, en 5 à 8 chapitres. Un seul fil narratif, des personnages qui reviennent, une progression : présentation, examen, hypothèses, examens complémentaires, décision, suivi.
 - Chaque chapitre porte un titre qui dit ce qu'on y apprend, pas un titre décoratif.
 - Les connaissances de rang A forment le fil principal ; celles de rang B arrivent comme des complications, des formes rares ou des situations difficiles rencontrées en chemin.
@@ -158,6 +159,7 @@ function inviteBd(titre: string, competences: Competence[]) {
   const systeme = `Tu écris le scénario d'une bande dessinée qui sert à retenir un cours de médecine. Chaque case montre une scène concrète et dit une chose précise.
 
 ${REGLES_COMMUNES}
+- Longueur : chaque narration fait 25 à 45 mots ; l'ensemble dépasse 400 mots (plus court est refusé).
 - Forme : 10 à 16 cases qui se suivent et racontent une histoire, pas une liste illustrée.
 - Chaque case comporte : une narration courte (une à deux phrases), un dialogue quand il éclaire la notion, et une description d'image PRÉCISE et dessinable (lieu, personnages, ce qu'on voit, ce qui est montré du doigt). La description d'image ne contient ni texte à afficher, ni logo, ni visage de personne réelle.
 - Les connaissances de rang A ouvrent l'histoire ; celles de rang B apparaissent dans les cases suivantes, comme des cas plus difficiles.
