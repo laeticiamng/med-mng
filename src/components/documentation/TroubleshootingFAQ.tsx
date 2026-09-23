@@ -211,7 +211,7 @@ src/stories/
 **Debug local:**
 \`\`\`bash
 # Tester directement l'edge function
-curl -X POST "https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music" \\
+curl -X POST "https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/mm-generate-music" \\
   -H "Authorization: Bearer [ANON_KEY]" \\
   -H "Content-Type: application/json" \\
   -d '{"lyrics": "test", "style": "pop", "rang": "A", "duration": 120}'

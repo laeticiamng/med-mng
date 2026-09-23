@@ -219,7 +219,7 @@ serve(async (req) => {
     const sunoClient = new SunoAPIClient(SUNO_API_KEY);
 
     // Build callback URL for async processing
-    const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
+    const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/mm-suno-callback`;
 
     // Prepare Suno payload avec tous les nouveaux paramètres
     const sunoPayload: SunoGenerationOptions = {

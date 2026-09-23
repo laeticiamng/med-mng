@@ -182,7 +182,7 @@ export const usePushNotifications = () => {
 
     try {
       // Appeler l'edge function pour envoyer une notification
-      const { error } = await supabase.functions.invoke('send-push-notification', {
+      const { error } = await supabase.functions.invoke('mm-send-push-notification', {
         body: {
           title: '🎉 Notification Test',
           body: 'Ceci est une notification de test de MED-MNG!',

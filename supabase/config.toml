@@ -62,7 +62,7 @@ verify_jwt = false
 # WEBHOOKS EXTERNES - verify_jwt = false (signatures validées en code)
 # ============================================================================
 
-[functions.stripe-webhook]
+[functions.mm-stripe-webhook]
 verify_jwt = false
 
 [functions.auth-webhook]
@@ -75,22 +75,13 @@ verify_jwt = false
 # FONCTIONS AUTHENTIFIÉES - verify_jwt = false, JWT validé en code
 # ============================================================================
 
-[functions.create-checkout]
-verify_jwt = false
-
-[functions.check-subscription]
-verify_jwt = false
-
-[functions.customer-portal]
-verify_jwt = false
-
-[functions.firecrawl-scrape]
+[functions.mm-firecrawl-scrape]
 verify_jwt = false
 
 [functions.firecrawl-search]
 verify_jwt = false
 
-[functions.perplexity-search]
+[functions.mm-perplexity-search]
 verify_jwt = false
 
 [functions.whisper-transcribe]

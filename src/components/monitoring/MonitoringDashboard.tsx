@@ -57,7 +57,7 @@ export const MonitoringDashboard = () => {
   const runHealthChecks = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { data, error } = await supabase.functions.invoke('mm-monitoring-alerts', {
         body: { action: 'health_check' }
       });
 
@@ -76,7 +76,7 @@ export const MonitoringDashboard = () => {
 
   const fetchIncidents = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { data, error } = await supabase.functions.invoke('mm-monitoring-alerts', {
         body: { action: 'get_incidents' }
       });
 
@@ -91,7 +91,7 @@ export const MonitoringDashboard = () => {
 
   const resolveIncident = async (incidentId: string, notes: string) => {
     try {
-      const { error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { error } = await supabase.functions.invoke('mm-monitoring-alerts', {
         body: { 
           action: 'resolve_incident',
           incident_id: incidentId,
@@ -111,7 +111,7 @@ export const MonitoringDashboard = () => {
 
   const sendTestAlert = async () => {
     try {
-      const { error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { error } = await supabase.functions.invoke('mm-monitoring-alerts', {
         body: { 
           action: 'send_alert',
           type: 'warning',

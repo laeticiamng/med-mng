@@ -5,7 +5,7 @@
  * par des appels aux nouvelles fonctions routeurs consolidées.
  * 
  * MIGRATION: 
- * - Avant: supabase.functions.invoke('generate-music', { body: {...} })
+ * - Avant: supabase.functions.invoke('mm-generate-music', { body: {...} })
  * - Après: unifiedApi.audio.generateMusic({...})
  */
 
