@@ -153,47 +153,20 @@ export const BillingDashboard = () => {
           <CardTitle>Comparer les plans</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            {/* Gratuit */}
-            <div className={`p-4 rounded-lg border-2 ${planTier === 'free' ? 'border-primary bg-primary/5' : 'border-muted'}`}>
-              <h3 className="font-bold mb-2">Gratuit</h3>
-              <p className="text-2xl font-bold mb-3">0€<span className="text-sm font-normal">/mois</span></p>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-muted-foreground" /> 3 générations IA/mois</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-muted-foreground" /> 10 flashcards/jour</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-muted-foreground" /> Items EDN basiques</li>
-              </ul>
-            </div>
-
-            {/* Premium */}
-            <div className={`p-4 rounded-lg border-2 ${planTier === 'premium' ? 'border-accent bg-accent/5' : 'border-muted'}`}>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold">Premium</h3>
-                <Badge variant="secondary">Recommandé</Badge>
+          {/* Grille unique : SUBSCRIPTION_TIERS (hooks/useSubscription.ts). Les contenus
+              (367 items, rang A/B, quiz, paroles, ECOS) sont les mêmes pour tous les plans ;
+              seuls les quotas de génération audio diffèrent. */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {(Object.entries(SUBSCRIPTION_TIERS) as [string, { name: string; price: number; generations: number }][]).map(([tier, t]) => (
+              <div key={tier} className={`p-4 rounded-lg border-2 ${planTier === tier ? 'border-primary bg-primary/5' : 'border-muted'}`}>
+                <h3 className="font-bold mb-2">{t.name}</h3>
+                <p className="text-2xl font-bold mb-3">{t.price}€<span className="text-sm font-normal">/mois</span></p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-muted-foreground" /> 367 items EDN, quiz, paroles</li>
+                  <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-muted-foreground" /> {tier === 'free' ? `${t.generations} générations audio offertes` : `${t.generations.toLocaleString('fr-FR')} générations audio/mois`}</li>
+                </ul>
               </div>
-              <p className="text-2xl font-bold mb-3">39€<span className="text-sm font-normal">/mois</span></p>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-accent" /> Musique IA illimitée</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-accent" /> 367 items EDN complets</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-accent" /> QCM + QRU + QROC</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-accent" /> Cas cliniques avancés</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-accent" /> Mode examen EDN</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-accent" /> Support VIP</li>
-              </ul>
-            </div>
-
-            {/* Institution */}
-            <div className={`p-4 rounded-lg border-2 border-muted`}>
-              <h3 className="font-bold mb-2">Institution</h3>
-              <p className="text-2xl font-bold mb-3">99€<span className="text-sm font-normal">/mois</span></p>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" /> Multi-utilisateurs</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" /> Dashboard admin</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" /> Analytics promotion</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" /> Support dédié</li>
-                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" /> Toutes fonctions Premium</li>
-              </ul>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>

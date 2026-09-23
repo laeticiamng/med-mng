@@ -22,7 +22,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           name: 'Premium',
           icon: <Crown className="h-5 w-5 text-warning" />,
           color: 'bg-warning/10 text-warning',
-          features: ['3 000 chansons/mois', 'Tableaux EDN', 'QCM entraînement', 'Bande dessinée', 'Sauvegarde bibliothèque', 'Support VIP'],
+          features: ['3 000 générations audio/mois', '367 items EDN, quiz, paroles', 'Sauvegarde bibliothèque'],
           price: '39€/mois',
           totalCredits: 3000
         };
@@ -31,7 +31,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           name: 'Pro',
           icon: <Star className="h-5 w-5 text-accent" />,
           color: 'bg-accent/10 text-accent-foreground',
-          features: ['300 chansons/mois', 'Tableaux EDN', 'QCM entraînement', 'Sauvegarde bibliothèque', 'Support prioritaire'],
+          features: ['300 générations audio/mois', '367 items EDN, quiz, paroles', 'Sauvegarde bibliothèque'],
           price: '29€/mois',
           totalCredits: 300
         };
@@ -40,7 +40,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           name: 'Standard',
           icon: <Zap className="h-5 w-5 text-primary" />,
           color: 'bg-primary/10 text-primary',
-          features: ['30 chansons/mois', 'Tableaux EDN', 'Sauvegarde bibliothèque', 'Support email'],
+          features: ['30 générations audio/mois', '367 items EDN, quiz, paroles', 'Sauvegarde bibliothèque'],
           price: '19€/mois',
           totalCredits: 30
         };
@@ -49,7 +49,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           name: 'Gratuit',
           icon: <Zap className="h-5 w-5 text-muted-foreground" />,
           color: 'bg-muted text-muted-foreground',
-          features: ['3 chansons/mois'],
+          features: ['3 générations audio offertes', '367 items EDN, quiz, paroles'],
           price: 'Gratuit',
           totalCredits: 3
         };

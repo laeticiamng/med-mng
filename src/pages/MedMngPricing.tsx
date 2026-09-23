@@ -11,7 +11,7 @@ import { PremiumCard } from '@/components/ui/premium-card';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useSubscription } from '@/hooks/useSubscription';
-import { ArrowLeft, Shield, Clock, CreditCard } from 'lucide-react';
+import { ArrowLeft, Shield, CreditCard } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trackConversionEvent } from '@/lib/conversionTracking';
@@ -31,7 +31,7 @@ export const MedMngPricing = () => {
     <>
       <SEOHead
         title="Tarifs – Gratuit, Standard 19€, Pro 29€, Premium 39€ | MED-MNG"
-        description="Préparez l'EDN et les ECOS avec MED-MNG. Essai gratuit 7 jours. 367 items, examen illimité, musique IA, cas cliniques. À partir de 19€/mois."
+        description="MED-MNG : 367 items EDN gratuits (fiches, rang A, rang B, quiz, paroles). Formules payantes pour générer l'audio des chansons : Standard 19€, Pro 29€, Premium 39€ par mois."
         keywords="tarifs EDN, abonnement ECOS, préparation médecine, prix"
         canonical="/med-mng/pricing"
       />
@@ -56,22 +56,18 @@ export const MedMngPricing = () => {
               Un seul objectif : réussir l'EDN
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
-              367 items, examens illimités, cas cliniques, musique IA. Tout ce qu'il faut pour cartonner.
+              Les 367 items EDN sont accessibles gratuitement. Les formules payantes augmentent le nombre de chansons audio que vous pouvez générer chaque mois.
             </p>
             
             {/* Trust badges */}
             <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-              <Badge variant="secondary" className="px-3 py-1.5 gap-1.5">
-                <Clock className="h-3.5 w-3.5" />
-                7 jours d'essai gratuit
-              </Badge>
               <Badge variant="secondary" className="px-3 py-1.5 gap-1.5">
                 <Shield className="h-3.5 w-3.5" />
                 Sans engagement
               </Badge>
               <Badge variant="secondary" className="px-3 py-1.5 gap-1.5">
                 <CreditCard className="h-3.5 w-3.5" />
-                Annulation en 1 clic
+                Résiliation depuis votre profil
               </Badge>
             </div>
           </div>
@@ -103,56 +99,6 @@ export const MedMngPricing = () => {
             }}
           />
 
-          {/* Comparaison Pro vs Premium */}
-          <div className="mt-10 max-w-3xl mx-auto">
-            <PremiumCard variant="glass" className="p-6">
-              <h3 className="text-lg font-bold text-foreground text-center mb-6">Pro vs Premium — en détail</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-2 px-3 text-muted-foreground">Fonctionnalité</th>
-                      <th className="text-center py-2 px-3 text-foreground font-semibold">Pro 29€</th>
-                      <th className="text-center py-2 px-3 text-foreground font-semibold">Premium 39€</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-foreground">
-                    {[
-                      ['367 items EDN', true, true],
-                      ['Examens illimités', true, true],
-                      ['Cas cliniques complets', true, true],
-                      ['Musique IA', true, true],
-                      ['QCM illimité', true, true],
-                      ['IA avancée & chat illimité', false, true],
-                      ['Planning personnalisé IA', false, true],
-                      ['Percentile national simulé', false, true],
-                      ['Cas cliniques premium', false, true],
-                      ['Support VIP prioritaire', false, true],
-                    ].map(([feature, pro, premium], i) => (
-                      <tr key={i} className="border-b border-border/50">
-                        <td className="py-2 px-3">{feature as string}</td>
-                        <td className="text-center py-2 px-3">{pro ? '✅' : '—'}</td>
-                        <td className="text-center py-2 px-3">{premium ? '✅' : '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </PremiumCard>
-          </div>
-
-          {/* Pack 6 mois */}
-          <div className="mt-8 max-w-md mx-auto">
-            <PremiumCard variant="glass" className="p-6 text-center">
-              <p className="text-sm font-semibold text-foreground mb-1">💡 Pack 6 mois Pro</p>
-              <p className="text-2xl font-bold text-foreground">
-                <span className="line-through text-muted-foreground text-lg mr-2">114€</span>
-                99€
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">Soit 16,50€/mois — Économisez 15€</p>
-            </PremiumCard>
-          </div>
-
           {/* FAQ */}
           <div className="max-w-4xl mx-auto mt-12">
             <PricingFAQ />
@@ -161,9 +107,9 @@ export const MedMngPricing = () => {
           {/* CTA */}
           <div className="mt-12 text-center">
             <PremiumCard variant="gradient" className="p-8 max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold mb-3">Prêt à cartonner à l'EDN ?</h3>
+              <h3 className="text-2xl font-bold mb-3">Envie d'essayer ?</h3>
               <p className="text-base mb-6 opacity-90">
-                Rejoignez les étudiants qui révisent déjà avec MED-MNG
+                Créez votre compte gratuit et testez la méthode sur vos items.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <PremiumButton onClick={() => navigate(ROUTE_PATHS.ednComplete)} variant="primary" size="lg">

@@ -94,7 +94,7 @@ interface ExamTypePreset {
 const EXAM_TYPE_PRESETS: Record<ExamType, ExamTypePreset> = {
   edn_blanc: {
     label: 'EDN Blanc complet',
-    description: '120 dossiers — simulation complète des conditions réelles',
+    description: '120 questions en 3 h, chronométrées',
     icon: <Target className="h-5 w-5" />,
     questionCountRange: [120, 120],
     timerRange: [180, 180],

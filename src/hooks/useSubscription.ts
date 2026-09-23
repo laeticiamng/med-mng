@@ -377,10 +377,7 @@ export const useSubscription = () => {
     const features = [
       { feature: 'Tableaux de révision', basic: true, pro: true, premium: true },
       { feature: 'Quiz interactifs', basic: true, pro: true, premium: true },
-      { feature: 'Bande dessinée EDN', basic: false, pro: true, premium: true },
-      { feature: 'Sauvegarde musique', basic: false, pro: true, premium: true },
-      { feature: 'Support prioritaire', basic: false, pro: false, premium: true },
-      { feature: 'Accès anticipé', basic: false, pro: false, premium: true }
+      { feature: 'Sauvegarde musique', basic: true, pro: true, premium: true }
     ];
 
     const planKey = planName.toLowerCase().includes('standard') ? 'basic'

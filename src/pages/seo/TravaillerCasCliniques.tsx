@@ -54,26 +54,11 @@ const TravaillerCasCliniques = () => {
               <Brain className="h-6 w-6 text-primary" />
               Pourquoi les cas cliniques sont essentiels
             </h2>
-            <div className="grid sm:grid-cols-3 gap-4 mb-6">
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <p className="text-3xl font-bold text-primary mb-2">40%</p>
-                  <p className="text-sm text-muted-foreground">du classement EDN vient des ECOS (cas cliniques pratiques)</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <p className="text-3xl font-bold text-primary mb-2">60%</p>
-                  <p className="text-sm text-muted-foreground">des QCM EDN sont contextualisés dans des dossiers cliniques</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <p className="text-3xl font-bold text-primary mb-2">10</p>
-                  <p className="text-sm text-muted-foreground">stations ECOS de 15 min avec patient simulé</p>
-                </CardContent>
-              </Card>
-            </div>
+            <p className="text-muted-foreground mb-6">
+              Les dossiers progressifs de l'EDN et les stations des ECOS mettent en situation clinique :
+              s'entraîner sur des cas aide à passer de la connaissance au raisonnement. L'EDN et les ECOS
+              comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte.
+            </p>
           </section>
 
           {/* Méthode */}
@@ -187,7 +172,7 @@ const TravaillerCasCliniques = () => {
             <Accordion type="single" collapsible>
               {[
                 { q: "Combien de cas cliniques faut-il faire avant l'EDN ?", a: "Minimum 100 cas cliniques complets sur 6 mois. L'idéal est 3-4 cas/semaine avec une analyse approfondie des erreurs." },
-                { q: "Les cas cliniques MED-MNG sont-ils conformes au programme ?", a: "Oui, tous les cas sont alignés sur les items EDN officiels avec scoring par compétence UNESS." },
+                { q: "Les cas cliniques MED-MNG sont-ils conformes au programme ?", a: "Ils sont générés par IA à partir des items EDN. Ils peuvent contenir des erreurs : vérifiez-les avec vos sources officielles." },
                 { q: "Faut-il travailler les cas cliniques seul ou en groupe ?", a: "Les deux. Seul pour le raisonnement écrit, en groupe pour les ECOS (simulation de consultation)." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
@@ -204,7 +189,7 @@ const TravaillerCasCliniques = () => {
             <p className="text-muted-foreground mb-6">Correction détaillée, score par compétence, progression suivie.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to="/exemple-cas-clinique">
                 <Button variant="outline" size="lg">Voir un exemple gratuit</Button>

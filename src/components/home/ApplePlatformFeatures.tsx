@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Brain, GraduationCap, ArrowRight } from 'lucide-react';
+import { BookOpen, Brain, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
@@ -10,8 +10,8 @@ import { ROUTE_PATHS } from '@/config/routes';
 const features = [
   {
     icon: BookOpen,
-    titleFr: 'Catalogue Médical',
-    descFr: '367 cours organisés par spécialité et niveau. Chaque chanson t\'aide à retenir l\'essentiel.',
+    titleFr: 'Catalogue des items',
+    descFr: '367 items EDN organisés par spécialité : fiche, rang A, rang B, quiz et paroles de chanson.',
     tab: 'content',
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
@@ -21,21 +21,11 @@ const features = [
   {
     icon: Brain,
     titleFr: 'Courbe de Mémoire',
-    descFr: 'Visualise ta courbe d\'oubli par sujet. Des rappels intelligents t\'aident à réviser au bon moment.',
+    descFr: 'Visualise ta courbe d\'oubli par sujet et repère les notions à revoir.',
     tab: 'memory',
     colSpan: 1,
     gradient: 'from-warning/20 via-warning/5 to-transparent',
     iconBg: 'bg-warning/15 text-warning',
-    comingSoon: false,
-  },
-  {
-    icon: GraduationCap,
-    titleFr: 'Attestations PDF',
-    descFr: 'Suis ta progression et télécharge tes attestations de formation en PDF.',
-    tab: 'dpc',
-    colSpan: 1,
-    gradient: 'from-success/20 via-success/5 to-transparent',
-    iconBg: 'bg-success/15 text-success',
     comingSoon: false,
   },
 ];

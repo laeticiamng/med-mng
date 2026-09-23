@@ -398,7 +398,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">SRS</span>
+                    <span className="hidden sm:inline">Répétition espacée</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -416,7 +416,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 border-success/30 hover:bg-success/10 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <Gamepad2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden lg:inline">Cas</span>
+                    <span className="hidden lg:inline">Cas cliniques</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -425,7 +425,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 border-warning/30 hover:bg-warning/10 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden lg:inline">Flash</span>
+                    <span className="hidden lg:inline">Flashcards</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -434,7 +434,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden xl:inline">Stats</span>
+                    <span className="hidden xl:inline">Progression</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -455,7 +455,7 @@ export default function EdnComplete() {
                     <TabsTrigger value="complete" className="text-[10px] sm:text-xs px-2 sm:px-3">📚 Items</TabsTrigger>
                     <TabsTrigger value="immersive" className="text-[10px] sm:text-xs px-2 sm:px-3">🎯 Approfondir</TabsTrigger>
                     <TabsTrigger value="music" className="text-[10px] sm:text-xs px-2 sm:px-3">🎵 Écouter</TabsTrigger>
-                    <TabsTrigger value="subscription" className="text-[10px] sm:text-xs px-2 sm:px-3">⭐ Premium</TabsTrigger>
+                    <TabsTrigger value="subscription" className="text-[10px] sm:text-xs px-2 sm:px-3">⭐ Abonnement</TabsTrigger>
                   </TabsList>
                 </div>
               </div>
@@ -468,13 +468,13 @@ export default function EdnComplete() {
         <Alert className="mb-4 bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
           <Sparkles className="h-4 w-4 text-primary" />
           <AlertDescription className="text-sm text-foreground">
-            <strong className="font-semibold">Accès gratuit illimité aux révisions EDN</strong>
+            <strong className="font-semibold">Révisions EDN gratuites</strong>
             <div className="mt-1 space-y-1">
-              <div>✅ Réviser les 367 items EDN : <strong>GRATUIT ♾️</strong></div>
-              <div>✅ Lire tout le contenu (Rang A + B) : <strong>GRATUIT</strong></div>
-              <div>✅ Faire les quiz : <strong>GRATUIT</strong></div>
+              <div>✅ Réviser les 367 items EDN : <strong>gratuit</strong></div>
+              <div>✅ Lire les compétences rang A et rang B, et les paroles : <strong>gratuit</strong></div>
+              <div>✅ Faire les quiz : <strong>gratuit</strong></div>
               <div className="mt-2 pt-2 border-t border-primary/20 dark:border-primary/30">
-                🎵 Les crédits ({quota || 80}/160) servent uniquement à <strong>générer des musiques IA personnalisées</strong>
+                🎵 Les crédits servent uniquement à <strong>générer l'audio des chansons</strong> (voir votre solde une fois connecté)
               </div>
             </div>
           </AlertDescription>
@@ -539,11 +539,11 @@ export default function EdnComplete() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate(ROUTE_PATHS.learningDashboard)}
+                onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
                 className="flex items-center gap-2"
               >
                 <BarChart3 className="h-4 w-4" />
-                Analytics
+                Ma progression
               </Button>
               
               <div className="flex gap-1 border rounded-md">

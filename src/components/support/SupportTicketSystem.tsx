@@ -87,7 +87,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     id: '5',
     question: 'Comment fonctionne l\'abonnement Premium ?',
-    answer: 'L\'abonnement Premium débloque : génération illimitée de chansons, accès complet aux simulations ECOS, MedChat IA avancé, export PDF, et statistiques détaillées. Facturation mensuelle via Stripe, annulation possible à tout moment.',
+    answer: 'Les formules Standard (19 €), Pro (29 €) et Premium (39 €) par mois augmentent le nombre de générations audio de chansons (30, 300 ou 3 000 par mois). Les items EDN, quiz, paroles et situations ECOS restent accessibles gratuitement. Facturation mensuelle via Stripe, annulation possible à tout moment.',
     category: 'Compte',
     helpful: 145
   },

@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { trackConversionEvent } from '@/lib/conversionTracking';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ROUTE_PATHS } from '@/config/routes';
+import { SUBSCRIPTION_TIERS } from '@/hooks/useSubscription';
 
 interface PricingPlan {
   id: string;
@@ -23,59 +24,62 @@ interface PricingPlan {
   cta: string;
 }
 
+// Grille unique : source de vérité = SUBSCRIPTION_TIERS (hooks/useSubscription.ts).
+// Les identifiants correspondent à ceux de /med-mng/subscribe/:planId.
+const COMMON_FEATURES = [
+  '367 items EDN : fiche, rang A, rang B, quiz',
+  'Paroles de chanson par item (rang A, rang B, A+B)',
+  'Situations ECOS du référentiel',
+];
+
 const plans: PricingPlan[] = [
   {
     id: 'free',
-    name: 'Gratuit',
-    price: 0,
+    name: SUBSCRIPTION_TIERS.free.name,
+    price: SUBSCRIPTION_TIERS.free.price,
     subtitle: 'Découverte',
     icon: <Star className="h-6 w-6" />,
     cta: 'Commencer gratuitement',
     features: [
-      '10 items EDN accessibles',
-      '3 QCM/jour',
-      'Démo ECOS',
-      '3 générations musicales/mois',
-      'Flashcards limitées',
+      ...COMMON_FEATURES,
+      `${SUBSCRIPTION_TIERS.free.generations} générations audio offertes`,
+    ]
+  },
+  {
+    id: 'standard',
+    name: SUBSCRIPTION_TIERS.standard.name,
+    price: SUBSCRIPTION_TIERS.standard.price,
+    subtitle: 'Pour écouter régulièrement',
+    icon: <Zap className="h-6 w-6" />,
+    popular: true,
+    cta: 'Choisir Standard',
+    features: [
+      ...COMMON_FEATURES,
+      `${SUBSCRIPTION_TIERS.standard.generations} générations audio par mois`,
     ]
   },
   {
     id: 'pro',
-    name: 'Pro Étudiant',
-    price: 19,
-    subtitle: 'Pour réussir l\'EDN',
+    name: SUBSCRIPTION_TIERS.pro.name,
+    price: SUBSCRIPTION_TIERS.pro.price,
+    subtitle: 'Pour un usage intensif',
     icon: <Zap className="h-6 w-6" />,
-    popular: true,
-    trial: '7 jours d\'essai gratuit',
-    cta: 'Essai gratuit 7 jours',
+    cta: 'Choisir Pro',
     features: [
-      '367 items EDN complets',
-      'Examen illimité (EDN + ECOS)',
-      'Cas cliniques complets',
-      'Musique IA illimitée',
-      'Tableaux Rang A & B',
-      'QCM illimité',
-      'Bibliothèque musicale',
-      'Support email prioritaire',
+      ...COMMON_FEATURES,
+      `${SUBSCRIPTION_TIERS.pro.generations} générations audio par mois`,
     ]
   },
   {
     id: 'premium',
-    name: 'Premium',
-    price: 39,
-    priceBarred: 49,
-    subtitle: 'L\'excellence totale',
+    name: SUBSCRIPTION_TIERS.premium.name,
+    price: SUBSCRIPTION_TIERS.premium.price,
+    subtitle: 'Volume maximal',
     icon: <Crown className="h-6 w-6" />,
-    cta: 'S\'abonner',
+    cta: 'Choisir Premium',
     features: [
-      'Tout le plan Pro inclus',
-      'IA avancée & chat illimité',
-      'Planning personnalisé IA',
-      'Percentile national simulé',
-      'Bande dessinée éducative',
-      'Cas cliniques premium',
-      'Support VIP prioritaire',
-      'Accès anticipé nouvelles features',
+      ...COMMON_FEATURES,
+      `${SUBSCRIPTION_TIERS.premium.generations.toLocaleString('fr-FR')} générations audio par mois`,
     ]
   }
 ];
@@ -88,7 +92,6 @@ interface PricingPlansProps {
 
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
-  const [userCount, setUserCount] = useState<number | null>(null);
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
@@ -97,11 +100,6 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       count: 1,
       metadata: { type: 'view_pricing_plans' }
     });
-    // Fetch real user count from profiles table
-    supabase.from('profiles').select('id', { count: 'exact', head: true })
-      .then(({ count }) => {
-        if (count !== null) setUserCount(count);
-      });
   }, [logActivity]);
 
   const handleStripeCheckout = async (planId: string) => {
@@ -123,8 +121,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       }
 
       // Map plan IDs to create-checkout plan names
-      const planMapping: Record<string, string> = { pro: 'standard', premium: 'premium' };
-      const stripePlan = planMapping[planId] || planId;
+      const stripePlan = planId;
       
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { plan: stripePlan },
@@ -156,12 +153,10 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
     <div className="space-y-6">
       <div className="text-center">
         <Badge variant="secondary" className="px-4 py-1.5 text-sm">
-          🎓 {userCount !== null && userCount > 0 
-            ? `${userCount} étudiants nous font confiance` 
-            : '367 items EDN couverts · 100% du programme R2C'}
+          🎓 367 items EDN · compétences rang A et rang B du référentiel
         </Badge>
       </div>
-    <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
       {plans.map((plan) => (
         <Card 
           key={plan.id} 

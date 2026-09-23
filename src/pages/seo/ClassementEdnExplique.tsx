@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ROUTE_PATHS } from '@/config/routes';
-import { ArrowRight, BookOpen, Calendar, BarChart3, Trophy, Target, TrendingUp } from 'lucide-react';
+import { ArrowRight, BookOpen, Calendar, BarChart3, Trophy, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
@@ -14,7 +14,7 @@ const ClassementEdnExplique = () => {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": "Comment fonctionne le classement EDN ? Guide complet 2026",
-    "description": "Comprendre le classement national EDN : calcul du score, pondération, rangs A et B, impact sur le choix de spécialité.",
+    "description": "Comprendre le classement national EDN : épreuves, rangs A et B, choix de spécialité.",
     "author": { "@type": "Organization", "name": "MED-MNG" },
     "datePublished": "2026-02-28",
     "dateModified": "2026-02-28"
@@ -24,7 +24,7 @@ const ClassementEdnExplique = () => {
     <>
       <SEOHead
         title="Comment fonctionne le classement EDN 2026 | MED-MNG"
-        description="Comprendre le classement national EDN : score, pondération, rangs A/B, ECOS, impact sur le choix de spécialité. Guide complet pour étudiants en médecine."
+        description="Comprendre le classement national EDN : épreuves, rangs A/B, ECOS et choix de spécialité."
         keywords="classement EDN, score EDN, rang A rang B, classement national médecine, choix spécialité"
         canonical="/classement-edn-explique"
       />
@@ -55,12 +55,12 @@ const ClassementEdnExplique = () => {
               La structure du classement
             </h2>
             <p className="text-muted-foreground mb-4">
-              Le classement national est composé de deux épreuves complémentaires dont les résultats sont combinés :
+              L'EDN et les ECOS comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte.
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
               <Card>
                 <CardContent className="pt-6">
-                  <h3 className="font-bold text-foreground mb-2">📝 EDN (60% du classement)</h3>
+                  <h3 className="font-bold text-foreground mb-2">📝 EDN</h3>
                   <p className="text-sm text-muted-foreground">
                     Épreuve théorique dématérialisée : QCM, questions à réponse ouverte et courte (QROC), 
                     dossiers cliniques progressifs. Couvre les 367 items du programme.
@@ -69,10 +69,10 @@ const ClassementEdnExplique = () => {
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <h3 className="font-bold text-foreground mb-2">🩺 ECOS (40% du classement)</h3>
+                  <h3 className="font-bold text-foreground mb-2">🩺 ECOS</h3>
                   <p className="text-sm text-muted-foreground">
-                    Épreuve pratique : 10 stations de 15 minutes avec patients simulés. 
-                    Évalue les compétences cliniques, la communication et le professionnalisme.
+                    Épreuve pratique en stations avec patients simulés. Évalue les compétences cliniques,
+                    la communication et le professionnalisme.
                   </p>
                 </CardContent>
               </Card>
@@ -86,8 +86,8 @@ const ClassementEdnExplique = () => {
               Rang A vs Rang B : ce que ça change
             </h2>
             <p className="text-muted-foreground mb-4">
-              Chaque item EDN est classé en Rang A (connaissances indispensables) ou Rang B (connaissances approfondies). 
-              Cette distinction est fondamentale pour votre stratégie de révision.
+              Le rang ne s'applique pas à l'item mais à chaque connaissance : un même item contient des connaissances
+              de rang A (indispensables) et de rang B (approfondies).
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
               <Card className="border-l-4 border-l-primary">
@@ -95,8 +95,6 @@ const ClassementEdnExplique = () => {
                   <h3 className="font-bold text-foreground mb-2">Rang A — Indispensable</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Connaissances que tout médecin doit maîtriser</li>
-                    <li>• Coefficient plus élevé dans le calcul du score</li>
-                    <li>• Erreur sur un Rang A = pénalité significative</li>
                     <li>• Priorité absolue dans vos révisions</li>
                   </ul>
                 </CardContent>
@@ -107,7 +105,6 @@ const ClassementEdnExplique = () => {
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Connaissances spécialisées</li>
                     <li>• Permet de se démarquer dans le classement</li>
-                    <li>• Important pour les spécialités compétitives</li>
                     <li>• À travailler après maîtrise du Rang A</li>
                   </ul>
                 </CardContent>
@@ -116,9 +113,8 @@ const ClassementEdnExplique = () => {
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-sm text-foreground">
-                  <strong>💡 Stratégie gagnante :</strong> Maîtrisez 100% du Rang A avant d'attaquer le Rang B. 
-                  Un étudiant qui maîtrise parfaitement le Rang A est déjà dans le top 40% du classement. 
-                  Le Rang B fait la différence pour accéder aux spécialités les plus demandées.
+                  <strong>💡 Stratégie simple :</strong> pour chaque item, travaillez d'abord ses connaissances de rang A,
+                  puis son rang B. Le rôle exact de chaque rang dans la validation et le classement est fixé par les textes officiels.
                 </p>
               </CardContent>
             </Card>
@@ -130,53 +126,15 @@ const ClassementEdnExplique = () => {
               <TrendingUp className="h-6 w-6 text-primary" />
               Comment est calculé votre score final
             </h2>
-            <p className="text-muted-foreground mb-4">Le score final combine plusieurs composantes :</p>
-            <ol className="space-y-4 mb-6">
-              {[
-                { step: "Score EDN brut", detail: "Somme pondérée de vos réponses aux QCM et dossiers cliniques. Les items Rang A ont un coefficient supérieur." },
-                { step: "Score ECOS brut", detail: "Moyenne pondérée de vos 10 stations selon les grilles UNESS. Chaque compétence a un poids spécifique." },
-                { step: "Standardisation", detail: "Les scores bruts sont standardisés pour tenir compte de la difficulté variable des épreuves entre sessions." },
-                { step: "Pondération 60/40", detail: "Score final = 60% × score EDN standardisé + 40% × score ECOS standardisé." },
-                { step: "Classement national", detail: "Les étudiants sont classés par score final décroissant. Ce rang détermine l'ordre de choix des spécialités et des villes." }
-              ].map((item, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">{i + 1}</span>
-                  <div>
-                    <p className="font-semibold text-foreground">{item.step}</p>
-                    <p className="text-sm text-muted-foreground">{item.detail}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          {/* Impact spécialités */}
-          <section id="specialites" className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-              <Target className="h-6 w-6 text-primary" />
-              Impact sur le choix de spécialité
-            </h2>
             <p className="text-muted-foreground mb-4">
-              Votre rang au classement national détermine directement les spécialités et villes auxquelles vous pouvez accéder. 
-              Les spécialités les plus demandées (chirurgie, dermatologie, ophtalmologie) nécessitent un rang dans le top 15-20%.
+              Les modalités de calcul (pondération entre EDN et ECOS, traitement des rangs, éventuelle standardisation)
+              sont définies par les textes officiels. Nous ne les reproduisons pas ici pour éviter toute erreur :
+              consultez l'arrêté en vigueur et les informations du CNG.
             </p>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-3">
-                  {[
-                    { rang: "Top 10%", specialites: "Chirurgie, Dermatologie, Ophtalmologie" },
-                    { rang: "Top 20%", specialites: "Cardiologie, Radiologie, Anesthésie-réa" },
-                    { rang: "Top 40%", specialites: "Pédiatrie, Neurologie, Gastro-entérologie" },
-                    { rang: "Top 60%", specialites: "Médecine interne, Urgences, Psychiatrie" },
-                  ].map((item) => (
-                    <div key={item.rang} className="flex items-center gap-4 text-sm">
-                      <Badge variant="outline" className="min-w-[80px] justify-center">{item.rang}</Badge>
-                      <span className="text-muted-foreground">{item.specialites}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <p className="text-muted-foreground mb-4">
+              Le principe reste simple : les étudiants sont classés selon leur résultat final, et ce rang détermine
+              l'ordre de choix des spécialités et des villes.
+            </p>
           </section>
 
           {/* Articles liés */}
@@ -207,8 +165,7 @@ const ClassementEdnExplique = () => {
             <Accordion type="single" collapsible>
               {[
                 { q: "Peut-on améliorer son classement après l'EDN ?", a: "Non, le classement est définitif après publication des résultats. C'est pourquoi la préparation est cruciale." },
-                { q: "Le Rang A suffit-il pour choisir sa spécialité ?", a: "Maîtriser le Rang A vous place dans le top 40%. Pour les spécialités compétitives, le Rang B est indispensable." },
-                { q: "Comment MED-MNG simule le percentile national ?", a: "Après chaque examen blanc, votre score est comparé à l'ensemble des utilisateurs pour estimer votre rang national." },
+                { q: "Faut-il travailler le Rang B ?", a: "Oui, le rang B fait partie du programme. Commencez par le rang A de chaque item, puis travaillez son rang B." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
                   <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>
@@ -220,11 +177,11 @@ const ClassementEdnExplique = () => {
 
           {/* CTA */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Simulez votre classement EDN</h2>
-            <p className="text-muted-foreground mb-6">Examens blancs avec percentile national simulé en temps réel.</p>
+            <h2 className="text-2xl font-bold text-foreground mb-3">Entraînez-vous avec des examens blancs</h2>
+            <p className="text-muted-foreground mb-6">Examens blancs chronométrés avec score par spécialité et par rang.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to={ROUTE_PATHS.seoSimulationEdn}>
                 <Button variant="outline" size="lg">Simulation EDN</Button>

@@ -179,7 +179,6 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
             </Button>
           )}
-          {getCompletionBadge()}
         </div>
         </div>
         
@@ -195,20 +194,10 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
       </div>
 
       <CardContent className={`${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'}`}>
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-muted-foreground">Complétude</span>
-            <span className={`text-sm font-bold ${getCompletionColor()}`}>
-              {completionPercentage}%
-            </span>
-          </div>
-          <Progress 
-            value={completionPercentage} 
-            className="h-2"
-          />
-        </div>
-
+        {/* CONSTAT (audit allégations) : un pourcentage « Complétude » (50 %, 70 %…) était
+            calculé à partir du NOMBRE de compétences. Un item qui compte peu de compétences
+            dans le référentiel apparaissait « incomplet » alors que ses données sont complètes.
+            Indicateur retiré ; on affiche seulement les compteurs rang A / rang B plus bas. */}
         {/* Features Grid */}
         <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
           {features.slice(0, isMobile ? 4 : features.length).map((feature, index) => {
@@ -228,7 +217,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         {/* Badges de compétences - version simplifiée pour les cartes */}
         {!isMobile && (
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-foreground">Compétences UNESS:</h4>
+            <h4 className="text-sm font-semibold text-foreground">Compétences du référentiel (source UNESS) :</h4>
             <div className="flex gap-2 flex-wrap">
               <Badge variant="outline" className="text-primary border-primary/30">
                 Rang A: {finalItem.competences_count_rang_a || 0}

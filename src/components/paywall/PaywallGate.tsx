@@ -37,7 +37,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   requiredTier = 'premium',
   children,
   title = 'Contenu Premium',
-  description = 'Passez au Premium pour accéder à cette fonctionnalité et débloquer musique IA illimitée, cas cliniques avancés et mode examen EDN.',
+  description = 'Choisissez une formule payante pour générer plus de chansons audio chaque mois.',
   showPreview = true,
   compact = false,
 }) => {
@@ -114,9 +114,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
             <div className="space-y-3 mb-6 text-left">
               {[
-                { icon: Music, text: 'Musique IA illimitée' },
-                { icon: Sparkles, text: 'Cas cliniques avancés' },
-                { icon: Crown, text: 'Mode examen conditions EDN' },
+                { icon: Music, text: 'Plus de générations audio chaque mois (30, 300 ou 3 000)' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-2 text-sm">
                   <Icon className="h-4 w-4 text-accent" />

@@ -28,7 +28,7 @@ export const AppleMusicPlayer = () => {
             </span>
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            <TranslatedText text="Chaque chanson est un cours complet. Les paroles contiennent tout ce que tu dois retenir." />
+            <TranslatedText text="Les paroles reprennent les compétences rang A et rang B de l'item. Elles complètent la fiche, sans la remplacer." />
           </p>
         </motion.div>
 
@@ -120,8 +120,8 @@ export const AppleMusicPlayer = () => {
           className="mt-16 grid sm:grid-cols-3 gap-8 text-center"
         >
           {[
-            { emoji: '🎧', title: 'Écoute passive', desc: 'Ton cerveau travaille' },
-            { emoji: '📝', title: 'Paroles = cours', desc: 'Contenu 100% médical' },
+            { emoji: '🎧', title: 'Réécoute', desc: 'Réviser en mobilité' },
+            { emoji: '📝', title: 'Paroles', desc: 'Basées sur le référentiel' },
             { emoji: '🔁', title: 'Refrain = clés', desc: "L'essentiel en boucle" },
           ].map((item, index) => (
             <motion.div

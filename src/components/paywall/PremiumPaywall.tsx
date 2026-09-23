@@ -122,7 +122,7 @@ export const PremiumPaywall: React.FC<PremiumPaywallProps> = ({
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Essai gratuit disponible. Annulation à tout moment.
+              Sans engagement. Résiliation depuis votre profil.
             </p>
           </CardContent>
         </Card>

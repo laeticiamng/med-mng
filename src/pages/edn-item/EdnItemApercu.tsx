@@ -72,7 +72,7 @@ export default function EdnItemApercu() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Compétences UNESS (OIC)</span>
+              <span>Compétences du référentiel (source publique UNESS)</span>
               {(chargementRangA || chargementRangB) && (
                 <span className="text-xs text-muted-foreground animate-pulse">Chargement...</span>
               )}

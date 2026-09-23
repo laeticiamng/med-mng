@@ -148,10 +148,6 @@ const MentionsLegales = () => {
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Fiches pédagogiques</div>
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Noms, concepts, logos</div>
               </div>
-              <div className="bg-warning/20 p-4 rounded-lg border-l-4 border-warning">
-                <p className="font-semibold text-foreground">La méthode MNG – Music Neuro Learning Generator est protégée par dépôt de brevet en cours auprès de l'INPI.</p>
-                <p className="text-sm mt-2">Le suffixe "MNG" désigne tout format pédagogique utilisant la génération musicale pour la mémorisation cognitive, dans tous les domaines de formation post-bac diplômante.</p>
-              </div>
               <p className="text-destructive font-medium">Tout usage, reproduction ou adaptation sans autorisation expresse est interdit.</p>
               <p>La créatrice Laëticia Motongane reste l'unique titulaire des droits d'auteur.</p>
             </div>
@@ -267,11 +263,8 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">7. MÉDIATEUR DE LA CONSOMMATION</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>Conformément à l'article L.612-1 du Code de la consommation, en cas de litige vous pouvez recourir à un médiateur :</p>
               <div className="bg-primary/10 p-4 rounded-lg">
-                <p><strong className="text-foreground">Médiateur :</strong> Plateforme européenne de règlement des litiges en ligne</p>
-                <p className="text-sm mt-2">🔗 <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" className="text-primary hover:underline">https://ec.europa.eu/consumers/odr</a></p>
-                <p className="text-sm mt-2">📧 Email : contact@emotionscare.com</p>
+                <p>Médiateur de la consommation : en cours de désignation ; contactez-nous à contact@emotionscare.com en cas de litige.</p>
               </div>
             </div>
           </Card>

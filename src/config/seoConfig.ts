@@ -18,7 +18,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === HOME ===
   '/': {
     title: 'MED MNG - Apprends la médecine en musique | EDN & ECOS',
-    description: 'Révolutionne tes révisions médicales. 367 items EDN et simulations ECOS transformés en chansons. Écoute, retiens, réussis. Gratuit pour commencer.',
+    description: 'Les 367 items EDN avec leurs compétences rang A et rang B, un quiz et des paroles de chanson générées par IA, plus des situations ECOS guidées. Gratuit.',
     keywords: `${BASE_KEYWORDS}, révisions, mémorisation, étudiants médecine`,
     canonical: '/',
   },
@@ -81,7 +81,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/exam-mode': {
     title: 'Mode Examen - Simulation EDN',
-    description: 'Simulez un examen EDN en conditions réelles : QCM, QRU, QROC chronométrés. Correction détaillée et analyse de performance.',
+    description: 'Examens blancs EDN chronométrés : questions générées à partir des items, score par spécialité et par rang.',
     keywords: `${BASE_KEYWORDS}, examen, simulation, QCM, QRU, QROC, entraînement`,
     canonical: '/exam-mode',
   },
@@ -165,7 +165,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === STORE ===
   '/store': {
     title: 'Boutique MED-MNG',
-    description: 'Découvrez les produits et abonnements MED-MNG. Accédez aux contenus premium, générations musicales illimitées et plus.',
+    description: 'Abonnements MED-MNG : Standard 19 €, Pro 29 €, Premium 39 € par mois pour générer 30, 300 ou 3 000 chansons audio.',
     keywords: `${BASE_KEYWORDS}, boutique, premium, abonnement, achats`,
     canonical: '/store',
   },
@@ -185,7 +185,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/pricing': {
     title: 'Tarifs & Abonnements',
-    description: 'Choisissez votre formule MED-MNG : Gratuit, Pro Étudiant (19€) ou Premium (39€). Essai gratuit 7 jours pour réviser la médecine en musique.',
+    description: 'Formules MED-MNG : Gratuit, Standard (19€/mois), Pro (29€/mois) ou Premium (39€/mois). Les 367 items EDN sont gratuits ; les formules payantes augmentent les générations audio.',
     keywords: `${BASE_KEYWORDS}, tarifs, prix, abonnement, premium, pro`,
     canonical: '/med-mng/pricing',
   },
@@ -462,7 +462,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/simulation-examen-edn': {
     title: 'Simulation Examen EDN - Entraînement Réaliste',
-    description: 'Simulez l\'examen EDN en conditions réelles. QCM, QRU, QROC chronométrés avec correction détaillée et analyse de performance.',
+    description: 'Examens blancs EDN chronométrés : questions générées à partir des items, score par spécialité et par rang.',
     keywords: `${BASE_KEYWORDS}, simulation examen, EDN, entraînement, conditions réelles, QCM`,
     canonical: '/simulation-examen-edn',
     ogType: 'article',

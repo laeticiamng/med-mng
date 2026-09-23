@@ -88,16 +88,15 @@ const CGU = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>
                 MED MNG est une plateforme numérique d'apprentissage médical utilisant la méthode 
-                <strong> MNG – Music Neuro Learning Generator</strong> (brevet en cours de dépôt INPI).
+                <strong> MNG – Music Neuro Learning Generator</strong>.
               </p>
               <div className="bg-accent/10 p-4 rounded-lg">
                 <p className="font-semibold text-foreground mb-2">Services proposés :</p>
                 <ul className="space-y-1 text-sm">
-                  <li>• Génération de chansons pédagogiques via IA (OpenAI, Suno AI)</li>
-                  <li>• Tableaux récapitulatifs conformes aux programmes EDN</li>
-                  <li>• Quiz d'entraînement (QCM, QRU, QROC)</li>
-                  <li>• Bandes dessinées pédagogiques générées par IA</li>
-                  <li>• Simulations cliniques ECOS</li>
+                  <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel public UNESS/LiSA), quiz</li>
+                  <li>• Paroles de chansons pédagogiques générées par IA (OpenAI) et génération audio à la demande (Suno AI)</li>
+                  <li>• Récits et planches illustrées générés par IA (en cours de génération)</li>
+                  <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
                   <li>• Bibliothèque personnelle de contenus</li>
                 </ul>
               </div>
@@ -150,10 +149,10 @@ const CGU = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Plans disponibles :</h4>
                 <ul className="text-sm space-y-1">
-                  <li>• <strong>Gratuit</strong> : 3 générations/mois (gratuit)</li>
-                  <li>• <strong>Standard</strong> : 30 générations/mois (19€/mois)</li>
-                  <li>• <strong>Pro</strong> : 300 générations/mois + QCM entraînement (29€/mois)</li>
-                  <li>• <strong>Premium</strong> : 3 000 générations/mois + bande dessinée + support VIP (39€/mois)</li>
+                  <li>• <strong>Gratuit</strong> : 3 générations audio offertes (0 €)</li>
+                  <li>• <strong>Standard</strong> : 30 générations audio par mois (19 €/mois)</li>
+                  <li>• <strong>Pro</strong> : 300 générations audio par mois (29 €/mois)</li>
+                  <li>• <strong>Premium</strong> : 3 000 générations audio par mois (39 €/mois)</li>
                 </ul>
               </div>
 
@@ -325,7 +324,7 @@ const CGU = () => {
                     clinique basée sur notre contenu.
                   </li>
                   <li>
-                    • <strong>Disponibilité du service :</strong> Nous nous efforçons d'assurer une disponibilité de 99,9% 
+                    • <strong>Disponibilité du service :</strong> Nous nous efforçons d'assurer une bonne disponibilité 
                     mais ne pouvons garantir un accès ininterrompu (maintenance, pannes, attaques DDoS).
                   </li>
                   <li>
@@ -361,7 +360,7 @@ const CGU = () => {
                   l'Article 9 du RGPD. Elles bénéficient de mesures de protection renforcées :
                 </p>
                 <ul className="text-sm space-y-1 mt-2">
-                  <li>• Chiffrement AES-256 en transit et au repos</li>
+                  <li>• Chiffrement en transit (TLS) et au repos</li>
                   <li>• Accès restreint aux seules personnes habilitées</li>
                   <li>• Anonymisation après 5 ans d'inactivité</li>
                   <li>• Aucun partage avec des tiers (sauf obligation légale)</li>
@@ -456,11 +455,8 @@ const CGU = () => {
                 <h4 className="font-semibold text-foreground mb-2">En cas de litige :</h4>
                 <ol className="text-sm space-y-2">
                   <li>
-                    <strong>1. Médiation amiable :</strong> Vous pouvez contacter notre médiateur de la consommation :
-                    <br />
-                    <span className="ml-4">📧 Email : contact@emotionscare.com</span>
-                    <br />
-                    <span className="ml-4">🔗 Plateforme européenne : https://ec.europa.eu/consumers/odr</span>
+                    <strong>1. Médiation amiable :</strong> Médiateur de la consommation : en cours de désignation ;
+                    contactez-nous à contact@emotionscare.com en cas de litige.
                   </li>
                   <li>
                     <strong>2. Juridiction compétente :</strong> En l'absence d'accord amiable, les tribunaux 

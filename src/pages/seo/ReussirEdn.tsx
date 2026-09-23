@@ -43,7 +43,7 @@ const ReussirEdn = () => {
               <li><a href="#quest-ce" className="text-primary hover:underline"><TranslatedText text="1. Qu'est-ce que l'EDN ?" /></a></li>
               <li><a href="#items" className="text-primary hover:underline"><TranslatedText text="2. Les 367 items : comment les aborder" /></a></li>
               <li><a href="#rang" className="text-primary hover:underline"><TranslatedText text="3. Rang A vs Rang B : stratégie de priorisation" /></a></li>
-              <li><a href="#methodes" className="text-primary hover:underline"><TranslatedText text="4. Méthodes de révision scientifiquement prouvées" /></a></li>
+              <li><a href="#methodes" className="text-primary hover:underline"><TranslatedText text="4. Méthodes de révision étudiées par la recherche" /></a></li>
               <li><a href="#planning-edn" className="text-primary hover:underline"><TranslatedText text="5. Planning de révision EDN sur 12 mois" /></a></li>
               <li><a href="#qcm" className="text-primary hover:underline"><TranslatedText text="6. Entraînement QCM : qualité vs quantité" /></a></li>
               <li><a href="#musique" className="text-primary hover:underline"><TranslatedText text="7. La méthode musicale : réviser autrement" /></a></li>
@@ -57,10 +57,10 @@ const ReussirEdn = () => {
               <TranslatedText text="1. Qu'est-ce que l'EDN ?" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="L'EDN (Examen Dématérialisé National) est l'épreuve théorique du 2e cycle des études médicales. Il représente 70% de la note finale pour le classement national, les 30% restants étant les ECOS." />
+              <TranslatedText text="L'EDN (Examen Dématérialisé National) est l'épreuve théorique du 2e cycle des études médicales. L'EDN et les ECOS comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="L'examen se compose de dossiers progressifs et de questions isolées couvrant l'ensemble des 367 items du programme. Chaque item est classé Rang A (indispensable) ou Rang B (approfondi)." />
+              <TranslatedText text="L'examen se compose de dossiers progressifs et de questions isolées couvrant l'ensemble des 367 items du programme. Au sein de chaque item, chaque connaissance est classée rang A (indispensable) ou rang B (approfondie)." />
             </p>
             <Card>
               <CardContent className="p-6">
@@ -68,8 +68,8 @@ const ReussirEdn = () => {
                 <div className="grid sm:grid-cols-2 gap-3">
                   {[
                     '367 items au programme',
-                    '70% du classement national',
-                    '120 dossiers progressifs',
+                    'EDN et ECOS comptent dans le classement',
+                    'Dossiers progressifs et questions isolées',
                     'Format dématérialisé sur tablette',
                     'Rang A : connaissances indispensables',
                     'Rang B : connaissances approfondies',
@@ -118,7 +118,7 @@ const ReussirEdn = () => {
                     <li>• <TranslatedText text="Diagnostics et PEC des urgences" /></li>
                     <li>• <TranslatedText text="Sémiologie fondamentale" /></li>
                     <li>• <TranslatedText text="Thérapeutiques de première ligne" /></li>
-                    <li>• <TranslatedText text="Maîtriser à 100% avant l'examen" /></li>
+                    <li>• <TranslatedText text="À maîtriser en priorité" /></li>
                   </ul>
                 </CardContent>
               </Card>
@@ -129,37 +129,37 @@ const ReussirEdn = () => {
                     <li>• <TranslatedText text="Diagnostics différentiels avancés" /></li>
                     <li>• <TranslatedText text="Physiopathologie détaillée" /></li>
                     <li>• <TranslatedText text="Traitements de 2e/3e ligne" /></li>
-                    <li>• <TranslatedText text="Fait la différence dans le top 30%" /></li>
+                    <li>• <TranslatedText text="Permet de départager les candidats" /></li>
                   </ul>
                 </CardContent>
               </Card>
             </div>
             <p className="text-muted-foreground">
-              <TranslatedText text="Règle d'or : Ne commencez jamais le Rang B d'un item si vous ne maîtrisez pas le Rang A. Sur MED-MNG, chaque item affiche clairement le contenu Rang A et Rang B séparément." />
+              <TranslatedText text="Règle d'or : Ne commencez jamais le Rang B d'un item si vous ne maîtrisez pas le Rang A. Sur MED-MNG, chaque item affiche séparément ses connaissances de rang A et de rang B." />
             </p>
           </section>
 
           <section id="methodes" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Brain className="h-6 w-6 text-primary" />
-              <TranslatedText text="4. Méthodes de révision scientifiquement prouvées" />
+              <TranslatedText text="4. Méthodes de révision étudiées par la recherche" />
             </h2>
             <div className="space-y-6 text-muted-foreground">
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Active Recall (rappel actif)" /></h3>
-                <p><TranslatedText text="Au lieu de relire passivement, testez-vous constamment. Les flashcards et les QCM sont les outils les plus efficaces pour le rappel actif. Études montrent une amélioration de 50% vs lecture passive." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Rappel actif (en anglais : active recall)" /></h3>
+                <p><TranslatedText text="Au lieu de relire passivement, testez-vous constamment. Les flashcards et les QCM sont des outils de rappel actif, souvent plus efficaces que la relecture." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Spaced Repetition (répétition espacée)" /></h3>
-                <p><TranslatedText text="Revoyez chaque notion à intervalles croissants (J1, J3, J7, J14, J30). Le système SRS de MED-MNG automatise ce processus pour vous." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Répétition espacée (en anglais : spaced repetition)" /></h3>
+                <p><TranslatedText text="Revoyez chaque notion à intervalles croissants (J1, J3, J7, J14, J30). Le module de répétition espacée de MED-MNG planifie la révision de vos flashcards." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Interleaving (entrelacement)" /></h3>
-                <p><TranslatedText text="Mélangez les sujets plutôt que de réviser une spécialité pendant des jours. L'alternance force votre cerveau à faire des connexions plus profondes." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Entrelacement (en anglais : interleaving)" /></h3>
+                <p><TranslatedText text="Mélangez les sujets plutôt que de réviser une spécialité pendant des jours. L'alternance oblige à identifier le bon raisonnement pour chaque question." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Elaborative Encoding (encodage élaboré)" /></h3>
-                <p><TranslatedText text="Reliez chaque nouvelle information à ce que vous savez déjà. Les chansons MED-MNG créent ces associations automatiquement en transformant les données médicales en mélodies mémorables." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Encodage élaboré (en anglais : elaborative encoding)" /></h3>
+                <p><TranslatedText text="Reliez chaque nouvelle information à ce que vous savez déjà. Les chansons MED-MNG peuvent servir de point d'accroche, en complément de ce travail." /></p>
               </div>
             </div>
           </section>
@@ -193,7 +193,7 @@ const ReussirEdn = () => {
               <TranslatedText text="Faire 10 000 QCM ne sert à rien si vous ne comprenez pas vos erreurs. La qualité prime toujours sur la quantité." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Notre recommandation : 30-50 QCM/jour avec analyse détaillée de chaque erreur. Sur MED-MNG, chaque QCM est lié à un item EDN avec correction pédagogique." />
+              <TranslatedText text="Notre recommandation : 30-50 QCM/jour avec analyse détaillée de chaque erreur. Sur MED-MNG, chaque quiz est rattaché à un item EDN : relisez la fiche de l'item après chaque erreur." />
             </p>
           </section>
 
@@ -202,17 +202,17 @@ const ReussirEdn = () => {
               <TranslatedText text="7. La méthode musicale : réviser autrement" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="MED-MNG est la première plateforme à combiner apprentissage médical et musique IA. Chaque item EDN peut être transformé en chanson, créant des associations mnémotechniques puissantes." />
+              <TranslatedText text="MED-MNG combine révision médicale et musique IA : pour chaque item EDN, l'IA écrit des paroles à partir de ses compétences rang A et rang B, que vous pouvez mettre en musique." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Les études en neurosciences cognitives montrent que l'apprentissage musical active les deux hémisphères cérébraux simultanément, améliorant la rétention de 20 à 40% par rapport à la lecture seule." />
+              <TranslatedText text="Certaines études montrent qu'une mélodie répétée peut aider à retenir un texte. L'effet reste modeste : la chanson complète le rappel actif et vos cours, elle ne les remplace pas." />
             </p>
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6 text-center">
                 <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Essayez la méthode MED-MNG" /></h3>
-                <p className="text-sm text-muted-foreground mb-4"><TranslatedText text="367 items EDN + Musique IA + QCM + Cas cliniques" /></p>
+                <p className="text-sm text-muted-foreground mb-4"><TranslatedText text="367 items EDN : fiche, rang A, rang B, quiz et paroles de chanson" /></p>
                 <Link to={ROUTE_PATHS.medMngSignup}>
-                  <Button className="gap-2"><TranslatedText text="Essai gratuit 7 jours" /> <ArrowRight className="h-4 w-4" /></Button>
+                  <Button className="gap-2"><TranslatedText text="Créer un compte gratuit" /> <ArrowRight className="h-4 w-4" /></Button>
                 </Link>
               </CardContent>
             </Card>
@@ -237,7 +237,7 @@ const ReussirEdn = () => {
 
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à réussir l'EDN ?" /></h2>
-            <p className="text-muted-foreground mb-6"><TranslatedText text="367 items, QCM illimités, musique IA et cas cliniques sur une seule plateforme." /></p>
+            <p className="text-muted-foreground mb-6"><TranslatedText text="367 items EDN avec fiche, rang A, rang B, quiz et paroles de chanson, accessibles gratuitement." /></p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}><Button size="lg" className="gap-2"><TranslatedText text="Commencer" /> <ArrowRight className="h-4 w-4" /></Button></Link>
               <Link to={ROUTE_PATHS.medMngPricing}><Button variant="outline" size="lg"><TranslatedText text="Voir les tarifs" /></Button></Link>

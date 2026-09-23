@@ -28,7 +28,7 @@ interface EDNRealConditionsProps {
 const PRESETS = {
   ednBlanc: {
     label: 'EDN Blanc Complet',
-    description: '120 dossiers, 3h, conditions réelles EDN',
+    description: '120 questions, 3 h, chronométré',
     questionCount: 120,
     timerMinutes: 180,
     questionTypes: ['QCM', 'QRU', 'QROC'] as const,

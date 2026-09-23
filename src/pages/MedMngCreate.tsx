@@ -168,10 +168,9 @@ const MedMngCreateComponent = () => {
                 <div className="bg-success/10 border border-success/20 p-4 rounded-lg">
                   <h3 className="font-semibold text-success mb-2">✨ Ce qui vous attend :</h3>
                   <ul className="text-sm text-success/80 space-y-1 text-left">
-                    <li>• Génération musicale IA illimitée</li>
+                    <li>• Génération audio selon votre formule (30, 300 ou 3 000 par mois)</li>
                     <li>• Tous les styles musicaux (Rap, Lo-Fi, Spoken...)</li>
-                    <li>• Qualité audio premium HD</li>
-                    <li>• Sauvegarde dans votre bibliothèque personnelle</li>
+                                        <li>• Sauvegarde dans votre bibliothèque personnelle</li>
                   </ul>
                 </div>
                 <div className="flex gap-3 justify-center">

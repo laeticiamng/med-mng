@@ -38,7 +38,7 @@ export const MngPresentationBrief = () => {
             <CardTitle className="text-3xl">Méthode MNG</CardTitle>
           </div>
           <CardDescription className="text-primary-foreground/80 text-lg">
-            Music Neuro Learning Generator - Révolutionnez votre apprentissage
+            Music Neuro Learning Generator : réviser avec des chansons
           </CardDescription>
           {gamificationStats && (
             <div className="flex items-center justify-center gap-3 mt-3">
@@ -88,7 +88,7 @@ export const MngPresentationBrief = () => {
               </div>
               <div className="flex items-start space-x-2">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span>Neuroplasticité favorisée par la musique</span>
+                <span>Une mélodie répétée peut aider à retenir un texte</span>
               </div>
               <div className="flex items-start space-x-2">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>

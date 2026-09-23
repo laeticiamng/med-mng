@@ -30,7 +30,7 @@ interface EcosEvaluationGridProps {
   ) => void | Promise<EcosSaveOutcome | void>;
 }
 
-// Grille d'évaluation ECOS officielle UNESS - critères génériques
+// Grille d'auto-évaluation ECOS - critères génériques (ce n'est PAS une grille officielle)
 const defaultCriteria: EvaluationCriteria[] = [
   // Communication
   { id: 'comm-1', category: 'Communication', description: 'Se présente au patient', points: 1, isRequired: true },
@@ -128,7 +128,7 @@ export const EcosEvaluationGrid = ({
           <div className="flex items-center gap-3">
             <FileText className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle>Grille d'évaluation ECOS</CardTitle>
+              <CardTitle>Grille d'auto-évaluation ECOS (critères génériques)</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">{scenarioTitle}</p>
             </div>
           </div>
@@ -140,15 +140,15 @@ export const EcosEvaluationGrid = ({
         {/* Score progress */}
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Score actuel</span>
+            <span className="text-sm text-muted-foreground">Critères cochés</span>
             <span className={`text-2xl font-bold ${getScoreColor(progressPercent)}`}>
               {earnedPoints}/{totalPoints} pts ({Math.round(progressPercent)}%)
             </span>
           </div>
           <Progress value={progressPercent} className="h-3" />
           {isSubmitted && (
-            <Badge className="mt-2" variant={progressPercent >= 60 ? 'default' : 'destructive'}>
-              Note: {getScoreGrade(progressPercent)} - {progressPercent >= 60 ? 'Validé' : 'Non validé'}
+            <Badge className="mt-2" variant="outline">
+              Auto-évaluation : {getScoreGrade(progressPercent)} (indicatif, sans valeur officielle)
             </Badge>
           )}
         </div>
@@ -227,7 +227,7 @@ export const EcosEvaluationGrid = ({
                   : 'Évaluation terminée'}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Score final : {earnedPoints}/{totalPoints} points ({Math.round(progressPercent)}%)
+              Auto-évaluation : {earnedPoints}/{totalPoints} points ({Math.round(progressPercent)}%)
             </p>
             {saveState === 'anonymous' && (
               <p className="text-sm text-warning mt-2">

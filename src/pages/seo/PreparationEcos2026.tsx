@@ -43,7 +43,7 @@ const PreparationEcos2026 = () => {
             <h2 className="font-semibold text-foreground mb-4">📋 <TranslatedText text="Sommaire" /></h2>
             <ol className="space-y-2 text-sm">
               <li><a href="#comprendre" className="text-primary hover:underline"><TranslatedText text="1. Comprendre les ECOS : format, notation, enjeux" /></a></li>
-              <li><a href="#competences" className="text-primary hover:underline"><TranslatedText text="2. Les 11 compétences évaluées" /></a></li>
+              <li><a href="#competences" className="text-primary hover:underline"><TranslatedText text="2. Les compétences évaluées" /></a></li>
               <li><a href="#planning" className="text-primary hover:underline"><TranslatedText text="3. Planning de révision sur 6 mois" /></a></li>
               <li><a href="#strategies" className="text-primary hover:underline"><TranslatedText text="4. Stratégies de préparation efficaces" /></a></li>
               <li><a href="#erreurs" className="text-primary hover:underline"><TranslatedText text="5. Les erreurs à éviter absolument" /></a></li>
@@ -60,20 +60,19 @@ const PreparationEcos2026 = () => {
               <TranslatedText text="1. Comprendre les ECOS : format, notation, enjeux" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Les ECOS constituent une épreuve pratique où l'étudiant est évalué dans des situations cliniques simulées. Chaque station dure entre 7 et 15 minutes et simule une consultation, un geste technique, une annonce diagnostique ou une prise en charge d'urgence." />
+              <TranslatedText text="Les ECOS constituent une épreuve pratique où l'étudiant est évalué dans des situations cliniques simulées. Chaque station simule par exemple une consultation, un geste technique, une annonce diagnostique ou une prise en charge d'urgence. Le nombre et la durée des stations sont fixés par les textes officiels en vigueur." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Depuis la réforme du 2e cycle, les ECOS représentent 30% de la note finale pour le classement national. C'est une épreuve qui ne s'improvise pas : elle exige une préparation méthodique, régulière, et orientée compétences." />
+              <TranslatedText text="L'EDN et les ECOS comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte. C'est une épreuve qui ne s'improvise pas : elle exige une préparation méthodique, régulière, et orientée compétences." />
             </p>
             <Card className="mb-4">
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-3"><TranslatedText text="Format type d'une session ECOS :" /></h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="10 stations de 7 à 15 minutes" /></li>
+                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Plusieurs stations chronométrées (nombre et durée : voir les textes officiels)" /></li>
                   <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Patient standardisé (acteur formé)" /></li>
                   <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Grille d'évaluation par compétence" /></li>
                   <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Notation sur check-list + impression globale" /></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-success mt-0.5" /> <TranslatedText text="Aucune pause entre les stations" /></li>
                 </ul>
               </CardContent>
             </Card>
@@ -86,10 +85,10 @@ const PreparationEcos2026 = () => {
           <section id="competences" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Brain className="h-6 w-6 text-primary" />
-              <TranslatedText text="2. Les 11 compétences évaluées aux ECOS" />
+              <TranslatedText text="2. Les compétences évaluées aux ECOS" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Les ECOS évaluent des compétences transversales, pas uniquement des connaissances. Voici les 11 compétences du référentiel de compétences médicales :" />
+              <TranslatedText text="Les ECOS évaluent des compétences transversales, pas uniquement des connaissances. Voici quelques exemples de dimensions souvent travaillées (liste indicative, non officielle ; référez-vous aux grilles officielles) :" />
             </p>
             <div className="grid sm:grid-cols-2 gap-3 mb-6">
               {[
@@ -112,7 +111,7 @@ const PreparationEcos2026 = () => {
               ))}
             </div>
             <p className="text-muted-foreground">
-              <TranslatedText text="Chaque station ECOS cible 2 à 4 compétences. Votre préparation doit couvrir toutes ces dimensions, pas seulement le savoir théorique. Sur MED-MNG, chaque cas clinique est noté par compétence pour vous permettre d'identifier précisément vos lacunes." />
+              <TranslatedText text="Votre préparation doit couvrir toutes ces dimensions, pas seulement le savoir théorique." />
             </p>
           </section>
 
@@ -123,13 +122,13 @@ const PreparationEcos2026 = () => {
               <TranslatedText text="3. Planning de révision sur 6 mois" />
             </h2>
             <p className="text-muted-foreground mb-6">
-              <TranslatedText text="Un planning structuré est la clé du succès. Voici notre recommandation basée sur les retours de centaines d'étudiants :" />
+              <TranslatedText text="Un planning structuré aide à progresser. Voici un exemple de planning, à adapter à votre calendrier :" />
             </p>
             
             {[
-              { period: 'Mois 1-2 : Fondations', tasks: ['Réviser les 367 items EDN (Rang A prioritaire)', 'Maîtriser l\'anamnèse structurée (SOCRATES, OLDCARTS)', 'Pratiquer 2 cas cliniques/semaine', '1 session musique MED-MNG/jour pour la mémorisation active'] },
+              { period: 'Mois 1-2 : Fondations', tasks: ['Réviser les 367 items EDN (Rang A prioritaire)', 'Maîtriser un interrogatoire structuré (caractériser un symptôme : siège, type, intensité, irradiation, durée, facteurs déclenchants et soulageants)', 'Pratiquer 2 cas cliniques/semaine', 'Réécouter les chansons MED-MNG de vos items en complément'] },
               { period: 'Mois 3-4 : Approfondissement', tasks: ['Compléter les items Rang B', 'Augmenter à 4-5 cas cliniques/semaine', 'Commencer les simulations ECOS chronométrées', 'Travailler spécifiquement l\'annonce diagnostique'] },
-              { period: 'Mois 5 : Simulation intensive', tasks: ['1 ECOS blanc complet/semaine (10 stations)', 'Analyse des scores par compétence', 'Révision ciblée des points faibles identifiés', 'Travail en binôme avec un camarade'] },
+              { period: 'Mois 5 : Simulation intensive', tasks: ['1 ECOS blanc complet par semaine', 'Analyse de vos grilles d\'auto-évaluation', 'Révision ciblée des points faibles identifiés', 'Travail en binôme avec un camarade'] },
               { period: 'Mois 6 : Consolidation', tasks: ['2 ECOS blancs/semaine', 'Révision flash des items critiques', 'Gestion du stress et techniques de relaxation', 'Simulation en conditions réelles (timer strict)'] },
             ].map((phase, i) => (
               <Card key={i} className="mb-4">
@@ -156,20 +155,20 @@ const PreparationEcos2026 = () => {
             </h2>
             <div className="space-y-6 text-muted-foreground">
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="La méthode SOAP pour structurer chaque station" /></h3>
-                <p><TranslatedText text="Subjective (motif, anamnèse) → Objective (examen physique) → Assessment (diagnostic) → Plan (prise en charge). Cette structure vous permet de ne rien oublier et d'être systématique." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Structurer chaque station (méthode SOAP)" /></h3>
+                <p><TranslatedText text="Plainte et interrogatoire → examen clinique → synthèse diagnostique → plan de prise en charge (en anglais : Subjective, Objective, Assessment, Plan). Cette structure vous aide à ne rien oublier." /></p>
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="L'apprentissage par la musique (méthode MED-MNG)" /></h3>
-                <p><TranslatedText text="Les neurosciences montrent que la musique améliore la rétention mémorielle de 20 à 40%. MED-MNG transforme chaque item EDN en chanson médicale, permettant une révision active même pendant vos déplacements." /></p>
+                <p><TranslatedText text="Une mélodie répétée peut aider à retenir un texte ; l'effet reste modeste et complète le rappel actif (quiz). MED-MNG rédige pour chaque item des paroles à partir de ses compétences, que vous pouvez mettre en musique et réécouter pendant vos déplacements." /></p>
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="La répétition espacée (SRS)" /></h3>
-                <p><TranslatedText text="Revoyez chaque item à des intervalles croissants : J+1, J+3, J+7, J+14, J+30. Cette technique scientifiquement prouvée optimise la consolidation en mémoire à long terme." /></p>
+                <p><TranslatedText text="Revoyez chaque item à des intervalles croissants : J+1, J+3, J+7, J+14, J+30. La répétition espacée est une technique de mémorisation bien étudiée." /></p>
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Le travail en binôme" /></h3>
-                <p><TranslatedText text="Simulez des stations ECOS avec un camarade. L'un joue le médecin, l'autre le patient. Alternez les rôles. C'est la méthode la plus efficace pour progresser en communication." /></p>
+                <p><TranslatedText text="Simulez des stations ECOS avec un camarade. L'un joue le médecin, l'autre le patient. Alternez les rôles. C'est un bon moyen de progresser en communication." /></p>
               </div>
             </div>
           </section>
@@ -182,9 +181,9 @@ const PreparationEcos2026 = () => {
             <div className="space-y-3">
               {[
                 'Ne pas chronométrer ses entraînements — le timing est crucial le jour J',
-                'Négliger la communication — elle représente 30-40% de la note',
+                'Négliger la communication — elle fait partie des critères évalués',
                 'Réviser uniquement la théorie sans pratiquer de cas cliniques',
-                'Commencer trop tard — les ECOS se préparent sur 6 mois minimum',
+                'Commencer trop tard — les ECOS se préparent sur plusieurs mois',
                 'Ne pas analyser ses erreurs — sans feedback, pas de progression',
                 'Sous-estimer le stress — pratiquez en conditions réelles',
               ].map((err, i) => (
@@ -203,21 +202,20 @@ const PreparationEcos2026 = () => {
               <TranslatedText text="6. L'importance des simulations" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Les étudiants qui réalisent au moins 5 ECOS blancs complets avant l'épreuve ont un taux de réussite supérieur de 35% (source : étude CNCI 2024). La simulation est le meilleur prédicteur de performance." />
+              <TranslatedText text="S'entraîner en conditions chronométrées aide à gérer le temps et le stress le jour J." />
             </p>
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Simuler sur MED-MNG :" /></h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>✓ <TranslatedText text="10 stations chronométrées sans pause" /></li>
-                  <li>✓ <TranslatedText text="Score détaillé par compétence ECOS" /></li>
-                  <li>✓ <TranslatedText text="Percentile national simulé" /></li>
-                  <li>✓ <TranslatedText text="Feedback structuré après chaque station" /></li>
-                  <li>✓ <TranslatedText text="Historique pour suivre votre progression" /></li>
+                  <li>✓ <TranslatedText text="Situations ECOS issues du référentiel" /></li>
+                  <li>✓ <TranslatedText text="Déroulé guidé et chronomètre" /></li>
+                  <li>✓ <TranslatedText text="Grille d'auto-évaluation à la fin de chaque situation" /></li>
+                  <li>✓ <TranslatedText text="Historique de vos tentatives (avec un compte)" /></li>
                 </ul>
-                <Link to={ROUTE_PATHS.examMode}>
+                <Link to={ROUTE_PATHS.ecosIndex}>
                   <Button className="mt-4 gap-2">
-                    <TranslatedText text="Lancer une simulation ECOS" /> <ArrowRight className="h-4 w-4" />
+                    <TranslatedText text="Voir les situations ECOS" /> <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </CardContent>
@@ -232,8 +230,8 @@ const PreparationEcos2026 = () => {
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { name: 'MED-MNG', desc: 'Plateforme complète : EDN, ECOS, cas cliniques, musique IA', link: ROUTE_PATHS.home },
-                { name: 'Référentiel SIDES', desc: 'Cours officiels par spécialité', link: null },
+                { name: 'MED-MNG', desc: 'Items EDN (fiche, rang A, rang B, quiz, paroles) et situations ECOS', link: ROUTE_PATHS.home },
+                { name: 'SIDES', desc: 'Plateforme d\'entraînement des facultés', link: null },
                 { name: 'Collèges de spécialité', desc: 'Référentiels pédagogiques nationaux', link: null },
                 { name: 'Annales ECOS', desc: 'Sujets des années précédentes', link: null },
               ].map((tool, i) => (
@@ -259,10 +257,10 @@ const PreparationEcos2026 = () => {
             <h2 className="text-2xl font-bold text-foreground mb-4"><TranslatedText text="8. Questions fréquentes" /></h2>
             <Accordion type="single" collapsible>
               {[
-                { q: 'Combien de temps faut-il pour préparer les ECOS ?', a: 'Nous recommandons un minimum de 6 mois de préparation régulière, avec une intensification les 2 derniers mois.' },
-                { q: 'Les ECOS comptent-ils pour le classement ?', a: 'Oui, depuis la réforme, les ECOS représentent 30% de la note finale pour le classement national des étudiants en médecine.' },
-                { q: 'Peut-on préparer les ECOS seul ?', a: 'C\'est possible avec des outils comme MED-MNG qui simulent les stations, mais le travail en binôme reste fortement recommandé pour la dimension communication.' },
-                { q: 'Quelles spécialités tombent le plus souvent ?', a: 'Cardiologie, pneumologie, urgences, pédiatrie et gynécologie sont les plus fréquentes. Mais toutes les spécialités peuvent tomber.' },
+                { q: 'Combien de temps faut-il pour préparer les ECOS ?', a: 'Plusieurs mois de préparation régulière, avec une intensification à l\'approche de l\'épreuve.' },
+                { q: 'Les ECOS comptent-ils pour le classement ?', a: 'Oui. L\'EDN et les ECOS comptent tous deux dans le classement ; consultez l\'arrêté en vigueur pour la pondération exacte.' },
+                { q: 'Peut-on préparer les ECOS seul ?', a: 'En partie, avec des situations guidées comme celles de MED-MNG, mais le travail en binôme reste fortement recommandé pour la dimension communication.' },
+                { q: 'Quelles spécialités tombent le plus souvent ?', a: 'Toutes les spécialités peuvent tomber. Travaillez les situations de départ du référentiel plutôt que de parier sur quelques spécialités.' },
                 { q: 'Comment gérer le stress le jour J ?', a: 'Techniques de respiration, visualisation positive, et surtout : être bien préparé. La confiance vient de la pratique répétée.' },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
@@ -277,11 +275,11 @@ const PreparationEcos2026 = () => {
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à préparer les ECOS 2026 ?" /></h2>
             <p className="text-muted-foreground mb-6">
-              <TranslatedText text="Rejoignez MED-MNG et accédez à des simulations ECOS complètes, des cas cliniques et de la musique médicale IA." />
+              <TranslatedText text="Créez un compte gratuit : situations ECOS guidées, 367 items EDN, quiz et paroles de chanson." />
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2"><TranslatedText text="Essai gratuit 7 jours" /> <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2"><TranslatedText text="Créer un compte gratuit" /> <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to={ROUTE_PATHS.medMngPricing}>
                 <Button variant="outline" size="lg"><TranslatedText text="Voir les tarifs" /></Button>
@@ -294,8 +292,8 @@ const PreparationEcos2026 = () => {
             "@context": "https://schema.org",
             "@type": "FAQPage",
             "mainEntity": [
-              { "@type": "Question", "name": "Combien de temps faut-il pour préparer les ECOS ?", "acceptedAnswer": { "@type": "Answer", "text": "Nous recommandons un minimum de 6 mois de préparation régulière." }},
-              { "@type": "Question", "name": "Les ECOS comptent-ils pour le classement ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, les ECOS représentent 30% de la note finale pour le classement national." }},
+              { "@type": "Question", "name": "Combien de temps faut-il pour préparer les ECOS ?", "acceptedAnswer": { "@type": "Answer", "text": "Plusieurs mois de préparation régulière." }},
+              { "@type": "Question", "name": "Les ECOS comptent-ils pour le classement ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. L'EDN et les ECOS comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte." }},
             ]
           })}} />
           <SeeAlsoLinks currentPath="/preparation-ecos-2026" />
