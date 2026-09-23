@@ -1334,3 +1334,24 @@ a:not([class]):hover {
 .glow-pulse {
   animation: glow-pulse 3s ease-in-out infinite;
 }
+
+/* Contenu officiel des compétences OIC (LiSA 2026) : listes, tableaux, figures */
+.contenu-lisa { @apply text-base leading-relaxed text-foreground/90 break-words; }
+.contenu-lisa > * + * { @apply mt-3; }
+.contenu-lisa h2 { @apply mt-6 text-lg font-semibold text-foreground; }
+.contenu-lisa h3 { @apply mt-5 text-base font-semibold text-foreground; }
+.contenu-lisa h4, .contenu-lisa h5 { @apply mt-4 text-base font-semibold text-foreground/90; }
+.contenu-lisa ul { @apply list-disc pl-6 space-y-1; }
+.contenu-lisa ol { @apply list-decimal pl-6 space-y-1; }
+.contenu-lisa li > ul, .contenu-lisa li > ol { @apply mt-1; }
+.contenu-lisa b, .contenu-lisa strong { @apply font-semibold text-foreground; }
+.contenu-lisa a { @apply text-primary underline underline-offset-2; }
+.contenu-lisa table { @apply block w-full overflow-x-auto border-collapse text-sm; }
+.contenu-lisa caption { @apply mb-2 text-left text-sm font-medium text-foreground; }
+.contenu-lisa td, .contenu-lisa th { @apply border border-border px-3 py-2 align-top; }
+.contenu-lisa tr:first-child td, .contenu-lisa th { @apply bg-muted/50; }
+.contenu-lisa img { @apply my-2 h-auto max-w-full rounded-md border border-border bg-white; }
+.contenu-lisa figure { @apply my-3; }
+.contenu-lisa figcaption { @apply mt-1 text-sm text-muted-foreground; }
+.contenu-lisa blockquote { @apply border-l-4 border-primary/30 pl-4 italic; }
+.contenu-lisa--compact { @apply text-sm; }

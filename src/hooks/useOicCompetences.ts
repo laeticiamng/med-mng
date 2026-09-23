@@ -105,7 +105,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       // Use direct padded item_parent for more reliable matching
       const url =
         `${SUPABASE_URL}/rest/v1/oic_competences` +
-        `?select=objectif_id,intitule,description,rang,item_parent,rubrique` +
+        `?select=objectif_id,intitule,description,rang,item_parent,rubrique,sommaire` +
         `&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
 
       const response = await fetch(url, { headers: getSupabaseHeaders() });
@@ -142,7 +142,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
           description: comp.description || comp.intitule,
           rubrique: comp.rubrique || '',
           rang: comp.rang || rang,
-          item_parent: comp.item_parent || paddedItemParent
+          item_parent: comp.item_parent || paddedItemParent,
+          sommaire: comp.sommaire || undefined
         })) as OicCompetence[];
 
       // Cache results

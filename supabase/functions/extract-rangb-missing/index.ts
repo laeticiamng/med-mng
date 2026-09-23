@@ -3,6 +3,7 @@ import { getErrorMessage } from '../_shared/error-utils.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { corsHeaders } from '../_shared/cors.ts'
 import { completionIA } from '../_shared/ia-resiliente.ts';
+import { exigerAdmin } from '../_shared/exiger-admin.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -113,6 +114,10 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
+
+  // Écrit avec la clé de service : réservé aux administrateurs.
+  const refusAdmin = await exigerAdmin(req, corsHeaders)
+  if (refusAdmin) return refusAdmin
 
   try {
     console.log('🚀 extract-rangb-missing démarré (mode génération IA)')

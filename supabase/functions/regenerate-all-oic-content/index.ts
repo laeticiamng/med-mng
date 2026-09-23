@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdmin } from '../_shared/exiger-admin.ts'
 
 // Images médicales thématiques
 const getMedicalImage = (type: string, index: number = 0): string => {
@@ -172,6 +173,10 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
+
+  // Écrit avec la clé de service : réservé aux administrateurs.
+  const refusAdmin = await exigerAdmin(req, corsHeaders)
+  if (refusAdmin) return refusAdmin
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;

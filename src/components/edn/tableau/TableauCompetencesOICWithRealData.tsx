@@ -7,6 +7,10 @@ interface OicCompetence {
   intitule: string;
   description: string;
   rubrique: string;
+  sommaire?: string | null;
+  url_source?: string | null;
+  ordre?: number | null;
+  contenu_detaille?: { source?: string; html?: string; maj_lisa?: string } | null;
 }
 
 interface TableauCompetencesOICWithRealDataProps {
@@ -45,7 +49,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     setLoading(true);
     setError(null);
 
-    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
+    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique,sommaire,url_source,ordre,contenu_detaille&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
     
     fetch(url, {
       headers: {
@@ -130,13 +134,22 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
 
   const competencesData = {
     title: `${itemCode} Rang ${rang} - Compétences OIC officielles UNESS`,
-    competences: competences.map(comp => ({
-      intitule: comp.intitule,
-      description: comp.description || comp.intitule,
-      objectif_id: comp.objectif_id,
-      rubrique: comp.rubrique,
-      keywords: []
-    })),
+    competences: competences.map(comp => {
+      // Le contenu complet n'est affiché que s'il vient du référentiel LiSA 2026.
+      const officiel = comp.contenu_detaille?.source === 'lisa-2026' ? comp.contenu_detaille : null;
+      return {
+        intitule: comp.intitule,
+        description: comp.description || comp.intitule,
+        objectif_id: comp.objectif_id,
+        rubrique: comp.rubrique,
+        sommaire: comp.sommaire || undefined,
+        html: officiel?.html || undefined,
+        maj_lisa: officiel?.maj_lisa || undefined,
+        url_source: officiel ? comp.url_source || undefined : undefined,
+        ordre_affichage: comp.ordre ?? undefined,
+        keywords: []
+      };
+    }),
     count: competences.length,
     theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'}`
   };

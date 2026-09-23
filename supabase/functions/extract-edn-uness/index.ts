@@ -3,6 +3,7 @@ import { getErrorMessage } from '../_shared/error-utils.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0-rc.12'
 import { corsHeaders } from '../_shared/cors.ts'
+import { exigerAdmin } from '../_shared/exiger-admin.ts'
 
 interface ExtractRequest {
   action: string
@@ -48,6 +49,10 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
+
+  // Écrit avec la clé de service : réservé aux administrateurs.
+  const refusAdmin = await exigerAdmin(req, corsHeaders)
+  if (refusAdmin) return refusAdmin
 
   try {
     const body = await req.json() as ExtractRequest
@@ -318,7 +323,7 @@ async function authenticateUNESS(username: string, password: string, existingSes
     
     // FALLBACK: Accès direct public
     console.log('🔄 Fallback: Test accès public LiSA...')
-    const publicTest = await fetch('https://livret.uness.fr/lisa/2025/Accueil', {
+    const publicTest = await fetch('https://livret.uness.fr/lisa/2026/Accueil', {
       headers: { 'User-Agent': USER_AGENT }
     })
     
@@ -365,7 +370,7 @@ function cookiesToString(cookieMap: Map<string, string>): string {
 
 async function followRedirectionToLisa(cookies: Map<string, string>, userAgent: string) {
   try {
-    const lisaResponse = await fetch('https://livret.uness.fr/lisa/2025/Accueil', {
+    const lisaResponse = await fetch('https://livret.uness.fr/lisa/2026/Accueil', {
       headers: {
         'User-Agent': userAgent,
         'Cookie': cookiesToString(cookies),
@@ -524,9 +529,9 @@ async function extractCompletEdnItems(
 // Mode test avec items connus
 async function extractTestItems(supabase: any, cookies: string) {
   const testItems = [
-    { numero: 1, titre: "La relation médecin-malade", url: "https://livret.uness.fr/lisa/2025/Item_1_-_La_relation_médecin-malade" },
-    { numero: 2, titre: "Les droits du patient", url: "https://livret.uness.fr/lisa/2025/Item_2_-_Les_droits_individuels_et_collectifs_du_patient" },
-    { numero: 3, titre: "Le raisonnement médical", url: "https://livret.uness.fr/lisa/2025/Item_3_-_Le_raisonnement_et_la_décision_en_médecine" }
+    { numero: 1, titre: "La relation médecin-malade", url: "https://livret.uness.fr/lisa/2026/Item_1_-_La_relation_médecin-malade" },
+    { numero: 2, titre: "Les droits du patient", url: "https://livret.uness.fr/lisa/2026/Item_2_-_Les_droits_individuels_et_collectifs_du_patient" },
+    { numero: 3, titre: "Le raisonnement médical", url: "https://livret.uness.fr/lisa/2026/Item_3_-_Le_raisonnement_et_la_décision_en_médecine" }
   ]
   
   let totalProcessed = 0
@@ -571,7 +576,7 @@ async function extractLISA2025(cookies: string) {
   
   try {
     // URL directe de la liste des items de connaissance 2C
-    const itemsListUrl = 'https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C'
+    const itemsListUrl = 'https://livret.uness.fr/lisa/2026/Item_de_connaissance_2C'
     console.log('🔍 Récupération de la liste des items de connaissance...')
     
     const response = await fetch(itemsListUrl, {
@@ -783,7 +788,7 @@ async function discoverAllItems(cookies: string) {
   
   try {
     // Page principale des items de connaissance
-    const response = await fetch('https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C', {
+    const response = await fetch('https://livret.uness.fr/lisa/2026/Item_de_connaissance_2C', {
       headers: {
         'User-Agent': USER_AGENT,
         'Cookie': cookies,
@@ -836,7 +841,7 @@ async function discoverAllItems(cookies: string) {
       fallbackItems.push({
         numero: i,
         titre: `Item EDN ${i}`,
-        url: `https://livret.uness.fr/lisa/2025/Item_${i}`
+        url: `https://livret.uness.fr/lisa/2026/Item_${i}`
       })
     }
     return fallbackItems
