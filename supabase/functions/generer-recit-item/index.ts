@@ -23,7 +23,8 @@ import { completionIA } from '../_shared/ia-resiliente.ts'
  * sortie est refusée sinon (voir controlerQualite).
  */
 
-const MODELE = 'google/gemini-2.5-flash'
+// Modèle plus puissant : la version rapide rendait des récits trop courts (193 refus sur 734).
+const MODELE = 'google/gemini-2.5-pro'
 const EST_COMPETENCE_REELLE = /^OIC-\d{3}-\d{2}-[AB]$/
 
 /** Formules bannies : celles des anciens gabarits, et le remplissage creux. */

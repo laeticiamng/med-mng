@@ -123,7 +123,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       // Map plan IDs to create-checkout plan names
       const stripePlan = planId;
       
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error } = await supabase.functions.invoke('mm-create-checkout', {
         body: { plan: stripePlan },
         headers: {
           Authorization: `Bearer ${session.access_token}`,

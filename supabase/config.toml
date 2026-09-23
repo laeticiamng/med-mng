@@ -119,3 +119,12 @@ verify_jwt = false
 
 [functions.generer-recit-item]
 verify_jwt = false
+
+[functions.mm-create-checkout]
+verify_jwt = false
+
+[functions.mm-check-subscription]
+verify_jwt = false
+
+[functions.mm-customer-portal]
+verify_jwt = false

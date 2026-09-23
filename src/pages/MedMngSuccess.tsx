@@ -42,7 +42,7 @@ export const MedMngSuccess = () => {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
+      const { data, error } = await supabase.functions.invoke('mm-customer-portal', {
         headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
       });
 

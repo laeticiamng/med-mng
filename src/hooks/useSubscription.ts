@@ -474,7 +474,7 @@ export const useSubscription = () => {
       const { trackConversionEvent } = await import('@/lib/conversionTracking');
       trackConversionEvent('checkout_start', { plan });
 
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error } = await supabase.functions.invoke('mm-create-checkout', {
         body: { plan },
       });
 
@@ -503,7 +503,7 @@ export const useSubscription = () => {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
+      const { data, error } = await supabase.functions.invoke('mm-customer-portal');
 
       if (error) {
         toast.error(error.message || 'Impossible d\'ouvrir le portail client');

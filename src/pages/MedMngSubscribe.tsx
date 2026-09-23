@@ -47,7 +47,7 @@ export const MedMngSubscribe = () => {
     setIsProcessing(true);
     try {
       logActivity({ activity_type: 'study', metadata: { action: 'checkout_start', plan: plan.name } });
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error } = await supabase.functions.invoke('mm-create-checkout', {
         body: { plan: planId },
       });
 

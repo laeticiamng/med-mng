@@ -1,0 +1,132 @@
+// Copie propre à MED MNG : EmotionsCare partage le même projet Supabase et déploie
+// sa propre fonction « check-subscription » sous ce nom ; les deux s'écrasaient mutuellement.
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+// Mapping des product IDs vers les tiers
+const PRODUCT_TO_TIER: Record<string, string> = {
+  "plan_standard": "standard",
+  "plan_pro": "pro",
+  "plan_premium": "premium",
+};
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
+};
+
+serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
+  );
+
+  try {
+    logStep("Function started");
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("No authorization header provided");
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    
+    const user = userData.user;
+    if (!user?.email) throw new Error("User not authenticated or email not available");
+    logStep("User authenticated", { userId: user.id });
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+
+    if (customers.data.length === 0) {
+      logStep("No customer found");
+      return new Response(JSON.stringify({ 
+        subscribed: false,
+        tier: null,
+        subscription_end: null,
+        generations_limit: 5,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    const customerId = customers.data[0].id;
+    logStep("Found Stripe customer", { customerId });
+
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      limit: 10,
+    });
+
+    const validSub = subscriptions.data.find(
+      (s) => s.status === "active" || s.status === "trialing"
+    );
+
+    const hasActiveSub = !!validSub;
+    let tier = null;
+    let subscriptionEnd = null;
+    let generationsLimit = 5;
+    let isTrialing = false;
+
+    if (hasActiveSub && validSub) {
+      const subscription = validSub;
+      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      isTrialing = subscription.status === "trialing";
+      
+      const productId = subscription.items.data[0].price.product as string;
+      tier = PRODUCT_TO_TIER[productId] || null;
+      
+      switch (tier) {
+        case "standard":
+          generationsLimit = 30;
+          break;
+        case "pro":
+          generationsLimit = 300;
+          break;
+        case "premium":
+          generationsLimit = 3000;
+          break;
+      }
+      
+      logStep("Active subscription found", { 
+        subscriptionId: subscription.id, 
+        tier, 
+        status: subscription.status,
+        isTrialing,
+      });
+    } else {
+      logStep("No active subscription found");
+    }
+
+    return new Response(JSON.stringify({
+      subscribed: hasActiveSub,
+      tier,
+      is_trialing: isTrialing,
+      subscription_end: subscriptionEnd,
+      generations_limit: generationsLimit,
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
+  }
+});

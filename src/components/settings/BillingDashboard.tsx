@@ -130,7 +130,7 @@ export const BillingDashboard = () => {
     try {
       setPortalLoading(true);
 
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
+      const { data, error } = await supabase.functions.invoke('mm-customer-portal', {
         body: {},
       });
 
