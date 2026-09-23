@@ -119,3 +119,6 @@ verify_jwt = false
 
 [functions.mm-customer-portal]
 verify_jwt = false
+
+[functions.mm-referentiel-lisa-2026]
+verify_jwt = true
