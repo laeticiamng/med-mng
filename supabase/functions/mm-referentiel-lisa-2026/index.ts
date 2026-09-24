@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
         vus.add(id);
         const cd = (l.contenu_detaille ?? {}) as { source?: string; html?: string; maj_lisa?: string; corrections?: Correction[] };
         const e = cd.source === 'lisa-2026'
-          ? await empreinte(id, (l.description as string) ?? '', (l.sommaire as string) ?? '', cd.html ?? '', (l.url_source as string) ?? '', cd.maj_lisa ?? '', cd.corrections ?? [])
+          ? await empreinte(id, (l.description as string) ?? '', (l.sommaire as string) ?? '', cd.html ?? '', (l.url_source as string) ?? '', cd.maj_lisa ?? '', (cd.corrections ?? []).map((c) => ({ avant: c.avant, apres: c.apres, motif: c.motif })))
           : '';
         if (ATTENDUES.get(id) === e) conformes++; else if (ecarts.length < 20) ecarts.push(id);
       }
