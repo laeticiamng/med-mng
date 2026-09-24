@@ -18,7 +18,7 @@ export function nettoyerHtmlOIC(html: string): string {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: BALISES,
     ALLOWED_ATTR: ATTRIBUTS,
-    ALLOWED_URI_REGEXP: /^https:\/\//i,
+    ALLOWED_URI_REGEXP: /^https?:\/\//i,
   }) as unknown as string;
 }
 
