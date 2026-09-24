@@ -63,6 +63,7 @@ interface Competence {
   rang: string
   intitule: string
   description: string | null
+  sommaire?: string | null
   rubrique: string | null
   ordre: number | null
 }
@@ -155,8 +156,11 @@ export function controlerQualite(paroles: string, competences: Competence[]): st
 function invite(titre: string, itemCode: string, rang: 'A' | 'B' | 'AB', competences: Competence[], style: string) {
   const liste = competences
     .map((c, i) => {
+      // Contenu officiel complet (LiSA 2026) : descriptif officiel + l'essentiel du texte.
+      const essentiel = nettoyer(c.sommaire)
       const d = nettoyer(c.description)
-      return `${i + 1}. [${c.rang}] ${nettoyer(c.intitule)}${d ? ` — ${d.slice(0, 400)}` : ''}`
+      const extrait = d.length > 900 ? `${d.slice(0, 900)}…` : d
+      return `${i + 1}. [${c.rang}] ${nettoyer(c.intitule)}${essentiel ? ` (à retenir : ${essentiel})` : ''}${extrait ? ` — ${extrait}` : ''}`
     })
     .join('\n')
 
@@ -242,7 +246,7 @@ serve(async (req) => {
     const numero = String(itemCode).replace(/^IC-/, '').padStart(3, '0')
     const { data: brutes, error: eComp } = await supabase
       .from('oic_competences')
-      .select('objectif_id, rang, intitule, description, rubrique, ordre')
+      .select('objectif_id, rang, intitule, description, sommaire, rubrique, ordre')
       .eq('item_parent', numero)
       .order('objectif_id')
     if (eComp) return repondre({ error: `lecture des compétences : ${eComp.message}` }, 500)
