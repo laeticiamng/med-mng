@@ -23,6 +23,7 @@ import { completionIA } from '../_shared/ia-resiliente.ts'
  */
 
 const MODELE = 'google/gemini-2.5-flash'
+const JETON_REDACTION = '8ecb7f0ec2b9be3c9cc5499f629b3366dd73a858c9343831fbea99751bd77ee0'
 
 /** Seules ces lignes sont de vraies compétences (734 lignes IC-<n> sont fausses). */
 const EST_COMPETENCE_REELLE = /^OIC-\d{3}-\d{2}-[AB]$/
@@ -222,8 +223,15 @@ serve(async (req) => {
     })
 
   try {
-    const { itemCode, rang = 'A', style = 'pop pédagogique, tempo modéré', enregistrer = true } =
+    const { itemCode, rang = 'A', style = 'pop pédagogique, tempo modéré', enregistrer = true, paroles: parolesFournies } =
       await req.json().catch(() => ({}))
+    // Paroles rédigées hors passerelle (crédits IA épuisés) : acceptées seulement
+    // avec le jeton d'administration, et soumises au MÊME contrôle de qualité.
+    if (parolesFournies !== undefined) {
+      const empreinte = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(req.headers.get('x-jeton') ?? '')))]
+        .map((x) => x.toString(16).padStart(2, '0')).join('')
+      if (empreinte !== JETON_REDACTION || typeof parolesFournies !== 'string') return repondre({ error: 'interdit' }, 403)
+    }
 
     if (!itemCode) return repondre({ error: 'itemCode manquant' }, 400)
     if (!['A', 'B', 'AB'].includes(rang)) return repondre({ error: 'rang doit valoir A, B ou AB' }, 400)
@@ -278,7 +286,11 @@ serve(async (req) => {
     let motifs: string[] = []
     const essais: { essai: number; motifs: string[] }[] = []
 
-    for (let essai = 1; essai <= 3; essai++) {
+    if (typeof parolesFournies === 'string') {
+      paroles = parolesFournies.trim()
+      motifs = controlerQualite(paroles, competences)
+      essais.push({ essai: 1, motifs })
+    } else for (let essai = 1; essai <= 3; essai++) {
       const rappel = essai === 1 ? '' :
         `\n\nLa version précédente a été refusée pour : ${motifs.join(' ; ')}. Reprends en corrigeant précisément ces points.`
       paroles = await appelerModele(systeme, utilisateur + rappel, cle, essai === 1 ? 0.7 : 0.5)
