@@ -166,7 +166,7 @@ const ErreursFrquentesEcos = () => {
             <h2 className="text-2xl font-bold text-foreground mb-6">📚 Articles liés</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { title: "Préparation ECOS 2026", path: ROUTE_PATHS.seoPreparationEcos },
+                { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
                 { title: "Fiches ECOS interactives", path: ROUTE_PATHS.seoFichesEcos },
                 { title: "Cas cliniques EDN", path: ROUTE_PATHS.seoCasCliniqueEdn },
                 { title: "Réussir l'EDN", path: ROUTE_PATHS.seoReussirEdn },

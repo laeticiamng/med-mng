@@ -44,7 +44,7 @@ const CGV = () => {
                 <CreditCard className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">MED MNG - CGV</h2>
               </div>
-              <p className="text-sm opacity-90">Dernière mise à jour : 11 février 2026</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
               <p className="text-sm opacity-90">Version 1.0 - Conforme au droit français de la consommation</p>
             </div>
           </Card>
@@ -92,9 +92,10 @@ const CGV = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>MED MNG propose des abonnements donnant accès à :</p>
               <ul className="space-y-1 text-sm">
-                <li>- Génération de l'audio de chansons pédagogiques par IA (paroles : OpenAI ; audio : Suno AI), selon le quota de la formule</li>
-                <li>- Les contenus accessibles gratuitement restent inclus : 367 items EDN (fiche, compétences rang A et rang B, quiz, paroles), situations ECOS</li>
+                <li>- Contenu immersif des 367 items EDN : paroles de chanson (rang A, rang B, A+B), récit, planches et quiz</li>
+                <li>- Génération de l'audio de chansons pédagogiques par IA (paroles : OpenAI ; audio : Suno AI), dans la limite de 30 générations par mois</li>
                 <li>- Bibliothèque personnelle des chansons générées</li>
+                <li>- Restent accessibles sans abonnement : les fiches officielles des 367 items (compétences rang A et rang B), le contenu immersif complet de 10 items d'essai et les situations ECOS</li>
               </ul>
               <p className="text-sm italic">
                 Les contenus sont générés par intelligence artificielle et ne constituent en aucun cas un avis médical.
@@ -110,13 +111,15 @@ const CGV = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <div className="bg-primary/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Formules disponibles :</h4>
+                <h4 className="font-semibold text-foreground mb-2">Offre MED MNG Premium :</h4>
                 <ul className="text-sm space-y-1">
-                  <li><strong>Gratuit</strong> : 3 générations audio offertes - 0 euro</li>
-                  <li><strong>Standard</strong> : 30 générations audio par mois - 19 euros/mois</li>
-                  <li><strong>Pro</strong> : 300 générations audio par mois - 29 euros/mois</li>
-                  <li><strong>Premium</strong> : 3 000 générations audio par mois - 39 euros/mois</li>
+                  <li><strong>Formule annuelle</strong> : 69 euros TTC par an (soit environ 5,75 euros par mois)</li>
+                  <li><strong>Formule mensuelle</strong> : 9,90 euros TTC par mois</li>
                 </ul>
+                <p className="text-sm mt-2">
+                  Les deux formules donnent accès aux mêmes services. Aucune période d'essai n'est proposée ;
+                  l'usage gratuit (fiches officielles et 10 items d'essai) est ouvert à tout compte.
+                </p>
               </div>
               <p className="text-sm">
                 Les prix sont indiqués en euros TTC. EmotionsCare se réserve le droit de modifier ses tarifs
@@ -140,8 +143,8 @@ const CGV = () => {
               <h4 className="font-semibold text-foreground">4.1 Processus de commande</h4>
               <ol className="text-sm space-y-1">
                 <li>1. Création d'un compte sur MED MNG</li>
-                <li>2. Sélection de la formule d'abonnement</li>
-                <li>3. Acceptation des CGV et CGU</li>
+                <li>2. Sélection de la formule d'abonnement (annuelle ou mensuelle)</li>
+                <li>3. Acceptation des CGV et CGU, et demande expresse d'accès immédiat au contenu (case à cocher, voir article 5)</li>
                 <li>4. Paiement sécurisé via Stripe</li>
                 <li>5. Confirmation par email</li>
               </ol>
@@ -154,9 +157,11 @@ const CGV = () => {
 
               <h4 className="font-semibold text-foreground mt-4">4.3 Renouvellement automatique</h4>
               <p className="text-sm">
-                Les abonnements sont renouvelés automatiquement chaque mois à la date anniversaire de
-                souscription. Le Client peut désactiver le renouvellement automatique à tout moment depuis
-                son espace Profil &gt; Gérer l'abonnement.
+                Les abonnements sont renouvelés automatiquement, au même prix, à la date anniversaire de
+                souscription : chaque année pour la formule annuelle, chaque mois pour la formule mensuelle.
+                Le Client peut résilier à tout moment depuis son espace Profil &gt; « Gérer / résilier mon
+                abonnement » ; la résiliation arrête le renouvellement et l'accès est conservé jusqu'à la fin
+                de la période déjà payée.
               </p>
             </div>
           </Card>
@@ -177,12 +182,14 @@ const CGV = () => {
               </div>
 
               <div className="bg-destructive/10 p-4 rounded-lg border-l-4 border-destructive">
-                <h4 className="font-semibold text-destructive mb-2">Exception importante :</h4>
+                <h4 className="font-semibold text-destructive mb-2">Exception : contenu numérique fourni immédiatement</h4>
                 <p className="text-sm">
-                  Conformément à l'article L221-28 du Code de la consommation, le droit de rétractation ne peut
-                  être exercé si vous avez utilisé vos crédits de génération (génération audio de chansons).
-                  L'utilisation de ces crédits vaut renonciation expresse au droit de rétractation pour la prestation
-                  de service pleinement exécutée.
+                  Conformément à l'article L221-28, 13° du Code de la consommation, le droit de rétractation ne peut
+                  être exercé pour la fourniture d'un contenu numérique non fourni sur un support matériel dont
+                  l'exécution a commencé après accord préalable exprès du consommateur et renoncement exprès à son
+                  droit de rétractation. Avant le paiement, le Client coche la case : « Je demande l'accès immédiat
+                  au contenu et reconnais perdre mon droit de rétractation dès cet accès ». Le paiement n'est pas
+                  possible sans cette case ; la confirmation de la commande en conserve la trace.
                 </p>
               </div>
 
@@ -294,12 +301,14 @@ const CGV = () => {
                 <h4 className="font-semibold text-foreground mb-2">En cas de litige :</h4>
                 <ol className="text-sm space-y-2">
                   <li>
-                    <strong>1. Médiation :</strong> Médiateur de la consommation : en cours de désignation ;
-                    contactez-nous à contact@emotionscare.com en cas de litige.
+                    <strong>1. Médiation :</strong> Le nom et les coordonnées du médiateur de la consommation seront indiqués ici dès son adhésion finalisée. En attendant, contactez-nous à contact@emotionscare.com en cas de litige.
                   </li>
                   <li>
-                    <strong>2. Juridiction compétente :</strong> À défaut d'accord amiable, les tribunaux
-                    du ressort de la <strong>Cour d'Appel d'Amiens</strong> sont compétents.
+                    <strong>2. Juridiction compétente :</strong> À défaut de résolution amiable, le Client
+                    consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la
+                    conclusion du contrat ou de la survenance du fait dommageable, ou toute autre juridiction
+                    compétente en application du Code de procédure civile (article R631-3 du Code de la consommation).
+                    Le recours à la médiation n'est pas obligatoire.
                   </li>
                 </ol>
               </div>

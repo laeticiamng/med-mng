@@ -110,7 +110,7 @@ const PUBLIC_ROUTES: string[] = [
   '/chat',
   '/library',
   // Pillar pages SEO
-  '/preparation-ecos-2026',
+  '/preparation-ecos-2027',
   '/reussir-edn',
   '/fiches-ecos-interactives',
   '/simulation-examen-edn',

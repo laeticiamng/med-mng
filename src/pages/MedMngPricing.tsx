@@ -13,14 +13,23 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useSubscription } from '@/hooks/useSubscription';
 import { ArrowLeft, Shield, CreditCard } from 'lucide-react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { trackConversionEvent } from '@/lib/conversionTracking';
 
 export const MedMngPricing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { isSubscriptionActive } = useSubscription();
+  const estAbonne = isSubscriptionActive();
   const { logActivity } = useActivityTracking();
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('checkout') === 'cancel') {
+      toast.info("Paiement annulé : aucun montant n'a été débité.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     logActivity({ activity_type: 'study', metadata: { action: 'view_pricing' } });
@@ -30,8 +39,8 @@ export const MedMngPricing = () => {
   return (
     <>
       <SEOHead
-        title="Tarifs – Gratuit, Standard 19€, Pro 29€, Premium 39€ | MED-MNG"
-        description="MED-MNG : 367 items EDN gratuits (fiches, rang A, rang B, quiz, paroles). Formules payantes pour générer l'audio des chansons : Standard 19€, Pro 29€, Premium 39€ par mois."
+        title="Tarifs – MED MNG Premium 69 €/an | MED-MNG"
+        description="MED MNG : fiches officielles des 367 items EDN gratuites et 10 items d'essai en immersion. MED MNG Premium : contenu immersif des 367 items et génération audio, 69 €/an ou 9,90 €/mois."
         keywords="tarifs EDN, abonnement ECOS, préparation médecine, prix"
         canonical="/med-mng/pricing"
       />
@@ -53,17 +62,18 @@ export const MedMngPricing = () => {
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Un seul objectif : réussir l'EDN
+              Une offre simple pour préparer les EDN 2027
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
-              Les 367 items EDN sont accessibles gratuitement. Les formules payantes augmentent le nombre de chansons audio que vous pouvez générer chaque mois.
+              Les fiches officielles des 367 items sont gratuites, et 10 items d'essai sont ouverts en immersion complète.
+              MED MNG Premium ouvre le contenu immersif des 367 items et la génération audio.
             </p>
             
             {/* Trust badges */}
             <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
               <Badge variant="secondary" className="px-3 py-1.5 gap-1.5">
                 <Shield className="h-3.5 w-3.5" />
-                Sans engagement
+                Paiement sécurisé par Stripe
               </Badge>
               <Badge variant="secondary" className="px-3 py-1.5 gap-1.5">
                 <CreditCard className="h-3.5 w-3.5" />
@@ -72,30 +82,28 @@ export const MedMngPricing = () => {
             </div>
           </div>
 
-          {/* Current subscription */}
-          {subscription && (
+          {estAbonne && (
             <PremiumCard variant="glass" className="mb-8 p-6 max-w-2xl mx-auto">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Votre abonnement actuel</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Plan {subscription.plan_name} — {subscription.monthly_quota} générations/mois
-                  </p>
+                  <h3 className="text-lg font-bold text-foreground">Votre abonnement MED MNG Premium est actif</h3>
+                  <p className="text-muted-foreground text-sm">Vous pouvez le gérer ou le résilier depuis votre profil.</p>
                 </div>
                 <Badge variant="default" className="bg-success text-success-foreground">Actif</Badge>
               </div>
             </PremiumCard>
           )}
 
-          {/* Pricing Plans - 3 tiers */}
-          <PricingPlans 
-            currentPlan={subscription?.plan_name?.toLowerCase()}
-            onSelectPlan={(planId) => {
+          <PricingPlans
+            estAbonne={estAbonne}
+            onSelectPlan={(formule) => {
+              const cible = `/med-mng/subscribe/${formule}`;
               if (!user) {
-                navigate(ROUTE_PATHS.medMngSignup);
+                // Le choix est conservé : retour vers la page d'abonnement après inscription.
+                navigate(`${ROUTE_PATHS.medMngSignup}?next=${encodeURIComponent(cible)}`);
                 return;
               }
-              navigate(`/med-mng/subscribe/${planId}`);
+              navigate(cible);
             }}
           />
 
@@ -109,7 +117,7 @@ export const MedMngPricing = () => {
             <PremiumCard variant="gradient" className="p-8 max-w-2xl mx-auto">
               <h3 className="text-2xl font-bold mb-3">Envie d'essayer ?</h3>
               <p className="text-base mb-6 opacity-90">
-                Créez votre compte gratuit et testez la méthode sur vos items.
+                Créez votre compte gratuit et testez la méthode sur les 10 items d'essai.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <PremiumButton onClick={() => navigate(ROUTE_PATHS.ednComplete)} variant="primary" size="lg">

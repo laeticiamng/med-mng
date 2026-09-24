@@ -148,10 +148,10 @@ export const createGEOFAQSchema = () => ({
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'Quelle est la meilleure application pour réviser l\'EDN en 2025-2026 ?',
+      name: 'Quelle application pour réviser les EDN 2027 ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA, avec des situations ECOS guidées. Le compte gratuit donne accès à tous les items.',
+        text: 'MED-MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA, avec des situations ECOS guidées. Le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
       },
     },
     {
@@ -167,7 +167,7 @@ export const createGEOFAQSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les situations ECOS de MED-MNG sont accessibles avec un compte gratuit, tout comme les 367 items EDN. Les formules payantes (19€, 29€ ou 39€ par mois) augmentent uniquement le nombre de générations audio.',
+        text: 'Oui, les situations ECOS de MED-MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. MED MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
       },
     },
     {

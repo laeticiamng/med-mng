@@ -13,17 +13,17 @@ const ClassementEdnExplique = () => {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "Comment fonctionne le classement EDN ? Guide complet 2026",
+    "headline": "Comment fonctionne le classement EDN ? Guide complet EDN 2027",
     "description": "Comprendre le classement national EDN : épreuves, rangs A et B, choix de spécialité.",
     "author": { "@type": "Organization", "name": "MED-MNG" },
     "datePublished": "2026-02-28",
-    "dateModified": "2026-02-28"
+    "dateModified": "2026-09-24"
   };
 
   return (
     <>
       <SEOHead
-        title="Comment fonctionne le classement EDN 2026 | MED-MNG"
+        title="Comment fonctionne le classement EDN 2027 | MED-MNG"
         description="Comprendre le classement national EDN : épreuves, rangs A/B, ECOS et choix de spécialité."
         keywords="classement EDN, score EDN, rang A rang B, classement national médecine, choix spécialité"
         canonical="/classement-edn-explique"
@@ -36,7 +36,7 @@ const ClassementEdnExplique = () => {
           <header className="mb-12">
             <Badge variant="secondary" className="mb-4">Classement EDN</Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              Comment fonctionne le classement EDN ? Guide complet 2026
+              Comment fonctionne le classement EDN ? Guide complet EDN 2027
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
               Le classement national détermine votre choix de spécialité et de ville. Comprendre son fonctionnement 
@@ -44,7 +44,7 @@ const ClassementEdnExplique = () => {
             </p>
             <div className="flex flex-wrap gap-3">
               <Badge variant="outline" className="gap-1"><BookOpen className="h-3 w-3" /> 18 min de lecture</Badge>
-              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> Février 2026</Badge>
+              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> Septembre 2026</Badge>
             </div>
           </header>
 
@@ -145,7 +145,7 @@ const ClassementEdnExplique = () => {
                 { title: "Réussir l'EDN : guide complet", path: ROUTE_PATHS.seoReussirEdn },
                 { title: "Rang A vs Rang B", path: "/rang-a-vs-rang-b" },
                 { title: "Simulation examen EDN", path: ROUTE_PATHS.seoSimulationEdn },
-                { title: "Préparation ECOS 2026", path: ROUTE_PATHS.seoPreparationEcos },
+                { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
               ].map((article) => (
                 <Link key={article.path} to={article.path}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">

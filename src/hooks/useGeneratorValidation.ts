@@ -157,7 +157,7 @@ export const useGeneratorValidation = ({
     // Vérification des quotas
     if (!user) {
       if (remainingFree <= 0) {
-        errors.push('Plus de générations gratuites. Connectez-vous pour continuer.');
+        errors.push('Connectez-vous : la génération audio est incluse dans MED MNG Premium.');
       } else if (remainingFree <= 2) {
         warnings.push(`${remainingFree} génération(s) gratuite(s) restante(s)`);
       }

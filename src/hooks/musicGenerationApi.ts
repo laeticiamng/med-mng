@@ -55,7 +55,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
         errorMessage = '🚫 Service en maintenance. Réessayez dans quelques minutes.';
         shouldRetry = true; retryAfter = 120000;
       } else if (errorMessage.includes('429') || errorMessage.includes('402')) {
-        errorMessage = '💳 Crédits Suno insuffisants.';
+        errorMessage = 'Service momentanément indisponible, réessayez plus tard.';
       } else if (errorMessage.includes('430')) {
         errorMessage = '⏳ Trop de requêtes. Réessai automatique...';
         shouldRetry = true; retryAfter = 10000;

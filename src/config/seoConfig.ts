@@ -18,7 +18,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === HOME ===
   '/': {
     title: 'MED MNG - Apprends la médecine en musique | EDN & ECOS',
-    description: 'Les 367 items EDN avec leurs compétences rang A et rang B, un quiz et des paroles de chanson générées par IA, plus des situations ECOS guidées. Gratuit.',
+    description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium. Situations ECOS guidées.',
     keywords: `${BASE_KEYWORDS}, révisions, mémorisation, étudiants médecine`,
     canonical: '/',
   },
@@ -165,7 +165,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === STORE ===
   '/store': {
     title: 'Boutique MED-MNG',
-    description: 'Abonnements MED-MNG : Standard 19 €, Pro 29 €, Premium 39 € par mois pour générer 30, 300 ou 3 000 chansons audio.',
+    description: 'MED MNG Premium : contenu immersif des 367 items EDN et génération audio, 69 €/an ou 9,90 €/mois.',
     keywords: `${BASE_KEYWORDS}, boutique, premium, abonnement, achats`,
     canonical: '/store',
   },
@@ -179,13 +179,13 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/signup': {
     title: 'Inscription Gratuite',
-    description: 'Créez votre compte MED-MNG gratuit et commencez à apprendre la médecine en musique. Accès immédiat aux items EDN.',
+    description: 'Créez votre compte MED-MNG gratuit : fiches officielles des 367 items EDN et 10 items d\'essai en immersion complète.',
     keywords: `${BASE_KEYWORDS}, inscription, créer compte, gratuit, démarrer`,
     canonical: '/med-mng/signup',
   },
   '/med-mng/pricing': {
     title: 'Tarifs & Abonnements',
-    description: 'Formules MED-MNG : Gratuit, Standard (19€/mois), Pro (29€/mois) ou Premium (39€/mois). Les 367 items EDN sont gratuits ; les formules payantes augmentent les générations audio.',
+    description: 'MED MNG : fiches officielles des 367 items gratuites et 10 items d\'essai en immersion. MED MNG Premium : tous les items en immersion et génération audio, 69 €/an ou 9,90 €/mois.',
     keywords: `${BASE_KEYWORDS}, tarifs, prix, abonnement, premium, pro`,
     canonical: '/med-mng/pricing',
   },
@@ -439,16 +439,16 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
 
   // === PILLAR PAGES SEO (contenu long-form, acquisition organique) ===
-  '/preparation-ecos-2026': {
-    title: 'Préparation ECOS 2026 - Guide Complet',
-    description: 'Guide complet pour préparer les ECOS 2026. Méthodologie, simulations interactives, grilles d\'évaluation et conseils par spécialité.',
-    keywords: `${BASE_KEYWORDS}, ECOS 2026, préparation, guide, simulation, grille évaluation`,
-    canonical: '/preparation-ecos-2026',
+  '/preparation-ecos-2027': {
+    title: 'Préparation ECOS 2027 - Guide Complet',
+    description: 'Guide complet pour préparer les ECOS 2027. Méthodologie, simulations interactives, grilles d\'évaluation et conseils par spécialité.',
+    keywords: `${BASE_KEYWORDS}, ECOS 2027, préparation, guide, simulation, grille évaluation`,
+    canonical: '/preparation-ecos-2027',
     ogType: 'article',
   },
   '/reussir-edn': {
-    title: 'Réussir l\'EDN 2026 - Stratégies & Méthodes',
-    description: 'Stratégies éprouvées pour réussir l\'EDN. Planning de révision, priorisation des items, méthodes de mémorisation et erreurs à éviter.',
+    title: 'Réussir les EDN 2027 - Stratégies & Méthodes',
+    description: 'Stratégies pour réussir les EDN 2027 (session d\'octobre 2026). Planning de révision, priorisation des items, méthodes de mémorisation et erreurs à éviter.',
     keywords: `${BASE_KEYWORDS}, réussir EDN, stratégie, planning révision, méthodes`,
     canonical: '/reussir-edn',
     ogType: 'article',

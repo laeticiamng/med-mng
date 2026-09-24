@@ -10,14 +10,14 @@ import { Link } from 'react-router-dom';
 import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 import { TranslatedText } from '@/components/TranslatedText';
 
-const PreparationEcos2026 = () => {
+const PreparationEcos2027 = () => {
   return (
     <>
       <SEOHead
-        title="Comment préparer les ECOS 2026 – Guide complet | MED-MNG"
-        description="Guide complet pour réussir les ECOS 2026. Stratégies, planning, fiches interactives et simulation. Préparez-vous efficacement avec MED-MNG."
-        keywords="ECOS 2026, préparation ECOS, réussir ECOS, examen clinique objectif structuré, médecine, étudiant"
-        canonical="/preparation-ecos-2026"
+        title="Comment préparer les ECOS 2027 – Guide complet | MED-MNG"
+        description="Guide complet pour réussir les ECOS 2027 (promotion qui passe les EDN en octobre 2026). Stratégies, planning, fiches interactives et simulation. Préparez-vous efficacement avec MED-MNG."
+        keywords="ECOS 2027, préparation ECOS, réussir ECOS, examen clinique objectif structuré, médecine, étudiant"
+        canonical="/preparation-ecos-2027"
       />
 
       <div className="min-h-screen bg-background">
@@ -25,16 +25,16 @@ const PreparationEcos2026 = () => {
           
           {/* Hero */}
           <header className="mb-12">
-            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide 2026" /></Badge>
+            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide 2027" /></Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              <TranslatedText text="Comment préparer les ECOS 2026 : le guide complet pour réussir" />
+              <TranslatedText text="Comment préparer les ECOS 2027 : le guide complet pour réussir" />
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
               <TranslatedText text="Les ECOS (Examens Cliniques Objectifs Structurés) sont l'épreuve décisive du 2e cycle des études médicales. Ce guide vous donne toutes les clés pour vous y préparer efficacement, avec un planning structuré et des outils interactifs." />
             </p>
             <div className="flex flex-wrap gap-3">
               <Badge variant="outline" className="gap-1"><Clock className="h-3 w-3" /> <TranslatedText text="15 min de lecture" /></Badge>
-              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour février 2026" /></Badge>
+              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour septembre 2026" /></Badge>
             </div>
           </header>
 
@@ -273,9 +273,9 @@ const PreparationEcos2026 = () => {
 
           {/* CTA */}
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
-            <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à préparer les ECOS 2026 ?" /></h2>
+            <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à préparer les ECOS 2027 ?" /></h2>
             <p className="text-muted-foreground mb-6">
-              <TranslatedText text="Créez un compte gratuit : situations ECOS guidées, 367 items EDN, quiz et paroles de chanson." />
+              <TranslatedText text="Créez un compte gratuit : situations ECOS guidées, fiches officielles des 367 items et 10 items d'essai en immersion complète." />
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
@@ -296,7 +296,7 @@ const PreparationEcos2026 = () => {
               { "@type": "Question", "name": "Les ECOS comptent-ils pour le classement ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. L'EDN et les ECOS comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte." }},
             ]
           })}} />
-          <SeeAlsoLinks currentPath="/preparation-ecos-2026" />
+          <SeeAlsoLinks currentPath="/preparation-ecos-2027" />
         </article>
         <AppFooter />
       </div>
@@ -304,4 +304,4 @@ const PreparationEcos2026 = () => {
   );
 };
 
-export default PreparationEcos2026;
+export default PreparationEcos2027;

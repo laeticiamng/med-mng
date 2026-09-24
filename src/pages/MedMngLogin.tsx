@@ -9,7 +9,8 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { RateLimitPresets, useRateLimiting } from '@/hooks/useRateLimiting';
 import { AlertTriangle, ArrowLeft, Clock, Music } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
 import { toast } from 'sonner';
 
 export const MedMngLogin = () => {
@@ -24,6 +25,9 @@ export const MedMngLogin = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const { logActivity } = useActivityTracking();
+  const [searchParams] = useSearchParams();
+  // Chemin interne où revenir après connexion (ex. page d'abonnement).
+  const suivant = cheminInterneSur(searchParams.get('next'));
 
   // Rate limiting pour les tentatives de connexion
   const {
@@ -49,7 +53,7 @@ export const MedMngLogin = () => {
   }, [isBlocked, formatBlockTime]);
 
   if (user) {
-    return <Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />;
+    return <Navigate to={suivant ?? ROUTE_PATHS.ednComplete} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,7 +98,7 @@ export const MedMngLogin = () => {
 
   const handleOAuthSignIn = async (provider: 'google') => {
     setError('');
-    const result = await signInWithGoogle();
+    const result = await signInWithGoogle(suivant);
     
     if (result.error) {
       setError(result.error.message);
@@ -247,7 +251,7 @@ export const MedMngLogin = () => {
 
           <div className="text-center text-sm">
             Pas encore de compte ?{' '}
-            <Link to={ROUTE_PATHS.medMngSignup} className="text-primary hover:underline">
+            <Link to={avecSuivant(ROUTE_PATHS.medMngSignup, suivant)} className="text-primary hover:underline">
               Créer un compte
             </Link>
           </div>

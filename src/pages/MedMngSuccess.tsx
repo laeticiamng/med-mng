@@ -2,71 +2,68 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
+import { NOM_OFFRE_PREMIUM, NOMBRE_ITEMS_TOTAL, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { useSubscription } from '@/hooks/useSubscription';
-import { supabase } from '@/integrations/supabase/client';
-import { ArrowRight, CheckCircle, Home, Music, Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowRight, BookOpen, CheckCircle, Clock, Home, Settings } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trackConversionEvent } from '@/lib/conversionTracking';
-import { toast } from 'sonner';
+
+/** Sondage de l'activation : le webhook Stripe peut arriver après le retour. */
+const NOMBRE_SONDAGES = 5;
+const INTERVALLE_SONDAGE_MS = 1500;
+
+type Etat = 'verification' | 'active' | 'en_attente';
 
 export const MedMngSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const { user } = useAuth();
-  const { fetchSubscription, subscription } = useSubscription();
-  const [loading, setLoading] = useState(true);
+  const { refresh, openCustomerPortal } = useSubscription();
+  const [etat, setEtat] = useState<Etat>('verification');
+  const lanceRef = useRef(false);
 
   useEffect(() => {
-    const refreshData = async () => {
-      if (sessionId && user) {
-        trackConversionEvent('checkout_complete', { sessionId });
-        // Wait for webhook to process
-        setTimeout(async () => {
-          await fetchSubscription();
-          setLoading(false);
-        }, 3000);
-      } else {
-        setLoading(false);
+    if (!user || lanceRef.current) return;
+    lanceRef.current = true;
+    let annule = false;
+
+    if (sessionId) trackConversionEvent('checkout_complete', { sessionId });
+
+    const sonder = async () => {
+      for (let i = 0; i < NOMBRE_SONDAGES && !annule; i++) {
+        const abo = await refresh();
+        if (annule) return;
+        if (abo && (abo.status === 'active' || abo.status === 'trialing')) {
+          setEtat('active');
+          return;
+        }
+        if (i < NOMBRE_SONDAGES - 1) {
+          await new Promise((r) => setTimeout(r, INTERVALLE_SONDAGE_MS));
+        }
       }
+      if (!annule) setEtat('en_attente');
     };
+    sonder();
 
-    refreshData();
-  }, [sessionId, user, fetchSubscription]);
+    return () => {
+      annule = true;
+    };
+  }, [user, sessionId, refresh]);
 
-  const handleManageSubscription = async () => {
-    if (!user) {
-      toast.error('Vous devez être connecté');
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('mm-customer-portal', {
-        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error opening customer portal:', error);
-      toast.error('Erreur lors de l\'ouverture du portail client');
-    }
-  };
-
-  if (loading) {
+  if (etat === 'verification') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-success/5 to-success/10 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-success border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-lg text-muted-foreground">Vérification de votre abonnement...</p>
+      <div className="min-h-screen bg-gradient-to-br from-success/5 to-success/10 flex items-center justify-center px-4">
+        <div className="text-center" role="status" aria-live="polite">
+          <div className="animate-spin h-12 w-12 border-4 border-success border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-lg text-muted-foreground">Vérification de votre abonnement…</p>
         </div>
       </div>
     );
   }
+
+  const active = etat === 'active';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-success/5 to-success/10 px-4 py-8">
@@ -75,86 +72,70 @@ export const MedMngSuccess = () => {
           <CardHeader className="text-center bg-gradient-to-r from-success to-success/80 text-success-foreground rounded-t-lg">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-background/20 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-success-foreground" />
+                {active
+                  ? <CheckCircle className="h-10 w-10 text-success-foreground" />
+                  : <Clock className="h-10 w-10 text-success-foreground" />}
               </div>
             </div>
-            <CardTitle className="text-2xl">Paiement réussi !</CardTitle>
+            <CardTitle className="text-2xl" aria-live="polite">
+              {active ? 'Abonnement activé' : 'Paiement reçu, activation en cours…'}
+            </CardTitle>
             <CardDescription className="text-success-foreground/80">
-              Votre abonnement MED-MNG est maintenant actif
+              {active
+                ? `Bienvenue dans ${NOM_OFFRE_PREMIUM}.`
+                : "La confirmation de Stripe peut prendre quelques instants. Actualisez cette page dans une minute ; si l'accès n'est toujours pas ouvert, contactez-nous."}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="p-8">
-            {subscription && (
+            {active && (
               <div className="bg-success/10 rounded-lg p-6 mb-6">
-                <h3 className="font-semibold text-success mb-4">✨ Votre plan {subscription.plan_name} est actif !</h3>
                 <ul className="space-y-2 text-success/90">
                   <li className="flex items-center gap-2">
-                    <Music className="h-4 w-4 text-success" />
-                    <span>{subscription.monthly_quota} générations musicales par mois</span>
+                    <CheckCircle className="h-4 w-4 text-success" />
+                    <span>Paroles, récits, planches et quiz des {NOMBRE_ITEMS_TOTAL} items</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-success" />
-                    <span>Sauvegarde dans votre bibliothèque</span>
+                    <span>{QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois</span>
                   </li>
-                  {subscription.features.tableaux && (
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Accès aux tableaux Rang A et B</span>
-                    </li>
-                  )}
-                  {subscription.features.quiz && (
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Quiz complets disponibles</span>
-                    </li>
-                  )}
-                  {subscription.features.bande_dessinee && (
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Bandes dessinées éducatives</span>
-                    </li>
-                  )}
                 </ul>
               </div>
             )}
 
             <div className="space-y-4">
               <Button
-                onClick={() => navigate(ROUTE_PATHS.generator)}
+                onClick={() => navigate(ROUTE_PATHS.ednComplete)}
                 className="w-full bg-success hover:bg-success/90 text-success-foreground py-3"
                 size="lg"
               >
-                <Music className="h-5 w-5 mr-2" />
-                Commencer à générer de la musique
+                <BookOpen className="h-5 w-5 mr-2" />
+                Réviser les items
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
 
-              <Button
-                onClick={handleManageSubscription}
-                variant="outline"
-                className="w-full py-3"
-                size="lg"
-              >
-                <Settings className="h-5 w-5 mr-2" />
-                Gérer mon abonnement
-              </Button>
+              {!active && (
+                <Button onClick={() => window.location.reload()} variant="outline" className="w-full py-3" size="lg">
+                  Actualiser
+                </Button>
+              )}
 
-              <Button
-                onClick={() => navigate(ROUTE_PATHS.home)}
-                variant="ghost"
-                className="w-full py-3"
-                size="lg"
-              >
+              {active && (
+                <Button onClick={() => openCustomerPortal()} variant="outline" className="w-full py-3" size="lg">
+                  <Settings className="h-5 w-5 mr-2" />
+                  Gérer mon abonnement
+                </Button>
+              )}
+
+              <Button onClick={() => navigate(ROUTE_PATHS.home)} variant="ghost" className="w-full py-3" size="lg">
                 <Home className="h-5 w-5 mr-2" />
                 Retour à l'accueil
               </Button>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground mt-6">
-              <p>📧 Vous recevrez un email de confirmation sous peu</p>
-              <p>❓ Questions ? Contactez notre support</p>
-            </div>
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Vos factures sont disponibles depuis « Gérer mon abonnement » (profil).
+            </p>
           </CardContent>
         </Card>
       </div>

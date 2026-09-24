@@ -10,6 +10,46 @@
 
 const SITE_URL = 'https://medmng.com';
 
+/** Offre unique (source : src/config/offre.ts). */
+const OFFRES_JSONLD = [
+  {
+    '@type': 'Offer',
+    name: 'Gratuit',
+    price: '0',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    description: "Fiches officielles des 367 items EDN (compétences rang A et rang B, référentiel LiSA 2026) et contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai.",
+  },
+  {
+    '@type': 'Offer',
+    name: 'MED MNG Premium — annuel',
+    price: '69',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    description: 'Contenu immersif des 367 items EDN et 30 générations audio par mois. 69 € par an (environ 5,75 € par mois).',
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: '69',
+      priceCurrency: 'EUR',
+      billingDuration: 'P1Y',
+    },
+  },
+  {
+    '@type': 'Offer',
+    name: 'MED MNG Premium — mensuel',
+    price: '9.90',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    description: 'Contenu immersif des 367 items EDN et 30 générations audio par mois. 9,90 € par mois.',
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: '9.90',
+      priceCurrency: 'EUR',
+      billingDuration: 'P1M',
+    },
+  },
+];
+
 export const createSoftwareApplicationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': ['SoftwareApplication', 'EducationalApplication'],
@@ -17,47 +57,10 @@ export const createSoftwareApplicationSchema = () => ({
   applicationCategory: 'EducationalApplication',
   applicationSubCategory: 'Medical Education',
   operatingSystem: 'Web, iOS, Android (PWA)',
-  offers: [
-    {
-      '@type': 'Offer',
-      name: 'Gratuit',
-      price: '0',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: '367 items EDN (fiche, rang A, rang B, quiz, paroles de chanson), situations ECOS, 3 générations audio offertes',
-      priceValidUntil: '2027-12-31',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Standard',
-      price: '19',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: 'Mêmes contenus que le plan gratuit + 30 générations audio de chansons par mois',
-      priceValidUntil: '2027-12-31',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Pro',
-      price: '29',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: 'Mêmes contenus que le plan gratuit + 300 générations audio de chansons par mois',
-      priceValidUntil: '2027-12-31',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Premium',
-      price: '39',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: 'Mêmes contenus que le plan gratuit + 3 000 générations audio de chansons par mois',
-      priceValidUntil: '2027-12-31',
-    },
-  ],
+  offers: OFFRES_JSONLD,
   url: SITE_URL,
   screenshot: `${SITE_URL}/og-image.png`,
-  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, quiz, paroles de chanson générées par IA et situations ECOS.',
+  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium ; situations ECOS.',
   inLanguage: 'fr',
 });
 
@@ -106,7 +109,7 @@ export const createOrganizationSchemaFull = () => ({
   alternateName: 'MED MNG par EmotionsCare',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
-  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, quiz, paroles de chanson générées par IA et situations ECOS.',
+  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium ; situations ECOS.',
   foundingDate: '2024',
   founder: {
     '@type': 'Organization',
@@ -142,50 +145,13 @@ export const createProductSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: 'MED-MNG Premium',
-  description: 'Abonnements MED-MNG : Standard 19€, Pro 29€, Premium 39€ par mois, pour générer 30, 300 ou 3 000 chansons audio par mois.',
+  description: 'MED MNG Premium : contenu immersif des 367 items EDN (paroles, récit, planches, quiz) et génération audio. 69 € par an ou 9,90 € par mois.',
   brand: {
     '@type': 'Organization',
     name: 'MED-MNG par EmotionsCare',
   },
   category: 'Educational Software',
-  offers: [
-    {
-      '@type': 'Offer',
-      name: 'Gratuit',
-      price: '0',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: '367 items EDN (fiche, rang A, rang B, quiz, paroles de chanson), situations ECOS, 3 générations audio offertes',
-      priceValidUntil: '2027-12-31',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Standard',
-      price: '19',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: 'Mêmes contenus que le plan gratuit + 30 générations audio de chansons par mois',
-      priceValidUntil: '2027-12-31',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Pro',
-      price: '29',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: 'Mêmes contenus que le plan gratuit + 300 générations audio de chansons par mois',
-      priceValidUntil: '2027-12-31',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Premium',
-      price: '39',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      description: 'Mêmes contenus que le plan gratuit + 3 000 générations audio de chansons par mois',
-      priceValidUntil: '2027-12-31',
-    },
-  ],
+  offers: OFFRES_JSONLD,
 });
 
 export const createFAQPageSchema = () => ({
@@ -198,7 +164,7 @@ export const createFAQPageSchema = () => ({
       name: 'Qu\'est-ce que MED-MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche, les compétences rang A et rang B du référentiel public UNESS/LiSA, un quiz et des paroles de chanson générées par IA, que vous pouvez mettre en musique.',
+        text: 'MED-MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel public UNESS/LiSA, ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
       },
     },
     {
@@ -214,7 +180,7 @@ export const createFAQPageSchema = () => ({
       name: 'MED-MNG est-il gratuit ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui. Les 367 items EDN (fiche, rang A, rang B, quiz, paroles) et les situations ECOS sont accessibles gratuitement, avec 3 générations audio offertes. Les formules Standard (19€), Pro (29€) et Premium (39€) par mois augmentent le nombre de générations audio (30, 300 ou 3 000 par mois).',
+        text: 'En partie. Les fiches officielles des 367 items (compétences rang A et rang B) et les situations ECOS sont gratuites, ainsi que le contenu immersif complet de 10 items d\'essai. MED MNG Premium (69 € par an ou 9,90 € par mois) ouvre le contenu immersif des 367 items et la génération audio (30 par mois).',
       },
     },
     {
@@ -222,7 +188,7 @@ export const createFAQPageSchema = () => ({
       name: 'MED-MNG couvre-t-il tous les items EDN ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B, un quiz et des paroles de chanson. L\'audio des chansons se génère à la demande.',
+        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans MED MNG Premium, et offert pour 10 items d\'essai ; l\'audio des chansons se génère à la demande.',
       },
     },
     {
@@ -244,10 +210,10 @@ export const createFAQPageSchema = () => ({
     // GEO - Questions conversationnelles IA
     {
       '@type': 'Question',
-      name: 'Quelle est la meilleure application pour réviser l\'EDN en 2025-2026 ?',
+      name: 'Quelle application pour réviser les EDN 2027 ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA à partir des compétences de chaque item, avec des situations ECOS guidées. À vous de juger si la méthode vous convient : le compte gratuit donne accès à tous les items.',
+        text: 'MED-MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA à partir des compétences de chaque item, avec des situations ECOS guidées. À vous de juger si la méthode vous convient : le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
       },
     },
     {
@@ -263,7 +229,7 @@ export const createFAQPageSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les situations ECOS de MED-MNG sont accessibles avec un compte gratuit, tout comme les 367 items EDN. Les formules payantes (19€, 29€ ou 39€ par mois) augmentent uniquement le nombre de générations audio.',
+        text: 'Oui, les situations ECOS de MED-MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. MED MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
       },
     },
     {

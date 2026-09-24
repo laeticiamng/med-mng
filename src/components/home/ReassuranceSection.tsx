@@ -13,7 +13,7 @@ export const ReassuranceSection: React.FC = () => {
     {
       icon: Headphones,
       title: '🎧 Réécoute',
-      description: 'Réécouter tes chansons complète le quiz et tes cours.',
+      description: 'Réécouter vos chansons complète le quiz et vos cours.',
       color: 'text-primary',
       bg: 'bg-primary/10'
     },

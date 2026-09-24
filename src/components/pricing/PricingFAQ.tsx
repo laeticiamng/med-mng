@@ -5,19 +5,19 @@ import { HelpCircle } from "lucide-react";
 const faqs = [
   {
     question: "Qu'est-ce qui est gratuit ?",
-    answer: "Les 367 items EDN (fiche, rang A, rang B, quiz), les paroles de chanson de chaque item et les situations ECOS sont accessibles avec un compte gratuit. Le compte gratuit inclut aussi 3 générations audio offertes."
+    answer: "Avec un compte gratuit : les fiches officielles des 367 items (compétences rang A et rang B, référentiel LiSA 2026), le contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai, et les situations ECOS."
   },
   {
-    question: "Quelle est la différence entre Standard, Pro et Premium ?",
-    answer: "Les trois formules donnent accès aux mêmes contenus. Elles diffèrent par le nombre de chansons audio que vous pouvez générer chaque mois : 30 (Standard, 19€), 300 (Pro, 29€) ou 3 000 (Premium, 39€)."
+    question: "Que contient MED MNG Premium ?",
+    answer: "Le contenu immersif des 367 items (paroles rang A, rang B et A+B, récit, planches, quiz) et 30 générations audio de chansons par mois. Deux formules : 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il n'y a pas de période d'essai payante : les 10 items d'essai sont ouverts à tous."
   },
   {
     question: "Comment fonctionne le droit de rétractation ?",
-    answer: "Vous disposez de 14 jours pour vous rétracter, sauf si vous avez utilisé des crédits de génération. Dans ce cas, le service est considéré comme consommé. Voir les CGV."
+    answer: "Le contenu est accessible dès le paiement. Avant de payer, vous demandez expressément cet accès immédiat et reconnaissez perdre votre droit de rétractation dès cet accès (case à cocher). Voir les CGV."
   },
   {
-    question: "Puis-je annuler mon abonnement ?",
-    answer: "Oui, depuis votre profil. Vous conservez l'accès jusqu'à la fin de la période payée. Aucun engagement."
+    question: "Puis-je résilier mon abonnement ?",
+    answer: "Oui, à tout moment depuis votre profil (« Gérer / résilier mon abonnement »). La résiliation arrête le renouvellement : vous conservez l'accès jusqu'à la fin de la période déjà payée (l'année ou le mois en cours)."
   },
   {
     question: "Sur quoi repose le contenu ?",
@@ -29,7 +29,7 @@ const faqs = [
   },
   {
     question: "Comment fonctionne la musique IA pour réviser ?",
-    answer: "Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. Vous pouvez ensuite générer l'audio de la chanson depuis votre compte, dans la limite de vos crédits."
+    answer: "Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. Avec MED MNG Premium, vous pouvez ensuite générer l'audio de la chanson (30 générations par mois)."
   },
   {
     question: "Mes données sont-elles sécurisées ?",

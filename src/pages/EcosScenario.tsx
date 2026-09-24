@@ -369,8 +369,8 @@ const EcosScenario = () => {
           ) : (
             <div className="space-y-4">
             <p className="text-sm text-muted-foreground max-w-3xl mx-auto bg-card/80 rounded-lg p-4 border border-border">
-              Auto-évaluation : compare ta démarche à la grille ci-dessous et coche honnêtement
-              ce que tu as fait. Ces critères sont génériques ; ils ne remplacent pas la grille
+              Auto-évaluation : comparez votre démarche à la grille ci-dessous et cochez honnêtement
+              ce que vous avez fait. Ces critères sont génériques ; ils ne remplacent pas la grille
               officielle de la station.
             </p>
             <EcosEvaluationGrid

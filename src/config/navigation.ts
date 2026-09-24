@@ -7,7 +7,6 @@ import {
   Home,
   Info,
   Library,
-  MessageSquare,
   Music,
   ShoppingBag,
   Users,
@@ -38,12 +37,11 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// Navigation principale MVP (7 liens uniquement)
+// Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre)
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
   { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Target },
-  { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 
@@ -108,7 +106,6 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
 export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
-  { path: ROUTE_PATHS.chat, label: 'Chat IA', icon: MessageSquare },
   { path: ROUTE_PATHS.generator, label: 'Générateur Musique', icon: Music },
   { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },

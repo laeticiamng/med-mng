@@ -14,7 +14,7 @@ const features = [
   {
     id: 'passive', icon: Headphones,
     title: 'Réécoute', subtitle: 'Réviser en mobilité',
-    description: "Dans le métro, en cuisinant : réécouter les chansons de tes items t'aide à revoir les notions, en complément du quiz et de tes cours.",
+    description: "Dans le métro, en cuisinant : réécouter les chansons de vos items vous aide à revoir les notions, en complément du quiz et de vos cours.",
     gradient: 'from-primary to-primary/60', bgGradient: 'from-primary/20 via-primary/5 to-transparent',
     colSpan: 2 as const,
   },
@@ -28,7 +28,7 @@ const features = [
   {
     id: 'refrain', icon: Repeat,
     title: 'Refrain = Essentiel', subtitle: 'Les clés en boucle',
-    description: "Le refrain reprend les points clés de l'item, pour que tu les entendes plusieurs fois.",
+    description: "Le refrain reprend les points clés de l'item, pour que vous les entendiez plusieurs fois.",
     gradient: 'from-success to-success/60', bgGradient: 'from-success/20 via-success/5 to-transparent',
     colSpan: 1 as const,
   },

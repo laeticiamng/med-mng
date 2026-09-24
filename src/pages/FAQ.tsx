@@ -172,13 +172,14 @@ const FAQ = () => {
             <Accordion type="single" collapsible className="space-y-2">
               <AccordionItem value="price-1" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  Est-ce que MED MNG est gratuit ?
+                  Qu'est-ce qui est gratuit, qu'est-ce qui est Premium ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Oui. Avec un compte gratuit, sans carte bancaire, vous accédez aux 367 items (fiche, rang A,
-                  rang B, quiz, paroles) et aux situations ECOS, avec 3 générations audio offertes. Les
-                  formules Standard (19 €/mois, 30 générations audio), Pro (29 €/mois, 300) et Premium
-                  (39 €/mois, 3 000) augmentent le nombre de générations audio. Consultez nos{' '}
+                  Avec un compte gratuit, sans carte bancaire, vous accédez aux fiches officielles des 367 items
+                  (compétences rang A et rang B, référentiel LiSA 2026), au contenu immersif complet (paroles,
+                  récit, planches, quiz) de 10 items d'essai et aux situations ECOS. MED MNG Premium ouvre le
+                  contenu immersif des 367 items et 30 générations audio par mois, pour 69 € par an (environ
+                  5,75 € par mois) ou 9,90 € par mois. Consultez nos{' '}
                   <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline">tarifs</Link>.
                 </AccordionContent>
               </AccordionItem>
@@ -188,9 +189,9 @@ const FAQ = () => {
                   Puis-je annuler mon abonnement à tout moment ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Oui, depuis votre espace Profil &gt; Gérer l'abonnement. L'annulation prend effet à la fin
-                  de la période en cours : vous conservez votre quota de générations jusqu'à la date de fin
-                  de votre abonnement.
+                  Oui, depuis votre espace Profil &gt; « Gérer / résilier mon abonnement ». La résiliation arrête
+                  le renouvellement et prend effet à la fin de la période déjà payée (l'année ou le mois en cours) :
+                  vous conservez l'accès Premium jusqu'à cette date.
                 </AccordionContent>
               </AccordionItem>
 
@@ -199,10 +200,10 @@ const FAQ = () => {
                   Comment fonctionne le droit de rétractation ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Vous disposez de 14 jours pour exercer votre droit de rétractation après la souscription.
-                  Cependant, si vous avez utilisé vos crédits de génération pendant cette période, le droit
-                  de rétractation ne s'applique plus (conformément à l'article L221-28 du Code de la
-                  consommation). Pour plus de détails, consultez nos{' '}
+                  Le contenu Premium est accessible dès le paiement. Avant de payer, vous cochez une case
+                  par laquelle vous demandez cet accès immédiat et reconnaissez perdre votre droit de
+                  rétractation dès cet accès (article L221-28, 13° du Code de la consommation). Pour plus
+                  de détails, consultez nos{' '}
                   <Link to={ROUTE_PATHS.cgv} className="text-primary hover:underline">CGV</Link>.
                 </AccordionContent>
               </AccordionItem>

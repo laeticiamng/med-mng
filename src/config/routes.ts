@@ -128,7 +128,9 @@ export const ROUTE_PATHS = {
   // Raccourcis publics
   createShortcut: '/create',
   // 📈 SEO Pillar Pages
-  seoPreparationEcos: '/preparation-ecos-2026',
+  seoPreparationEcos: '/preparation-ecos-2027',
+  /** Ancienne URL, redirigée vers seoPreparationEcos. */
+  seoPreparationEcosLegacy: '/preparation-ecos-2026',
   seoReussirEdn: '/reussir-edn',
   seoFichesEcos: '/fiches-ecos-interactives',
   seoSimulationEdn: '/simulation-examen-edn',

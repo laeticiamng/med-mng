@@ -663,7 +663,7 @@ export default function Demo() {
             <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto text-left">
               {[
                 { icon: BookOpen, title: '367 items EDN', desc: 'Fiche, compétences rang A et rang B, quiz' },
-                { icon: Music, title: 'Paroles de chanson par item', desc: 'Audio généré à la demande (3 générations offertes, puis selon votre formule)' },
+                { icon: Music, title: 'Paroles de chanson par item', desc: 'Paroles offertes pour 10 items d\'essai ; tous les items et l\'audio avec MED MNG Premium' },
                 { icon: Stethoscope, title: 'Cas cliniques', desc: 'Générés par IA à partir des items, à vérifier avec vos sources' },
                 { icon: Brain, title: 'Flashcards', desc: 'Avec répétition espacée' },
                 { icon: GraduationCap, title: 'Examens blancs', desc: 'Jusqu\'à 120 questions chronométrées' },

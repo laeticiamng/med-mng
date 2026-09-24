@@ -8,6 +8,20 @@ import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ContexteFicheItemEdn, type ValeurFicheItemEdn } from './EdnItemContext';
+import { useAccesPremium } from '@/hooks/useAccesPremium';
+import { EncartPremium } from '@/components/offre/EncartPremium';
+
+/**
+ * Sous-pages de contenu immersif, réservées aux items d'essai et à
+ * MED MNG Premium. Aperçu, Rang A, Rang B (fiches officielles) et Stats
+ * restent accessibles à tous.
+ */
+const SEGMENTS_PREMIUM: Record<string, string> = {
+  quiz: 'Le quiz de cet item',
+  musique: 'Les paroles de cet item',
+  planches: 'Les planches de cet item',
+  recit: 'Le récit de cet item',
+};
 import { ONGLETS_ITEM_EDN, SEGMENT_PAR_DEFAUT, cheminItemEdn } from './ednItemTabs';
 
 /**
@@ -28,6 +42,7 @@ export default function EdnItemLayout() {
   const isMobile = useIsMobile();
 
   const { item, contenu, loading, error, introuvable } = useEdnItemComplet(slug);
+  const { peutVoirItem, chargement: chargementAcces } = useAccesPremium();
 
   // Un seul chargement des compétences OIC pour les neuf sous-pages.
   const { competences: competencesRangA, loading: chargementRangA } = useOicCompetences(item?.item_code || '', 'A');
@@ -212,7 +227,15 @@ export default function EdnItemLayout() {
         </nav>
 
         <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 flex-1">
-          <Outlet />
+          {SEGMENTS_PREMIUM[segmentCourant] && !peutVoirItem(item.item_code) ? (
+            chargementAcces ? (
+              <div className="h-64 bg-muted rounded-xl animate-pulse" aria-busy="true" />
+            ) : (
+              <EncartPremium contenu={SEGMENTS_PREMIUM[segmentCourant]} />
+            )
+          ) : (
+            <Outlet />
+          )}
         </main>
       </div>
     </ContexteFicheItemEdn.Provider>

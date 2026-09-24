@@ -6,7 +6,6 @@ import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { EdnItemSkeletonGrid } from "@/components/edn/EdnItemSkeleton";
 import { MVPFooter } from "@/components/layout/MVPFooter";
-import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
@@ -24,7 +23,7 @@ import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
 import { useEdnOffline } from "@/hooks/useEdnOffline";
 import { useGamification } from "@/hooks/useGamification";
 import { useIAQuota } from "@/hooks/useIAQuota";
-import { useSubscription } from "@/hooks/useSubscription";
+import { ProfileSubscription } from "@/components/med-mng/profile/ProfileSubscription";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -84,7 +83,6 @@ export default function EdnComplete() {
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
   const [activeTab, setActiveTab] = useState('immersive');
-  const [showPricing, setShowPricing] = useState(false);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   
@@ -95,7 +93,6 @@ export default function EdnComplete() {
   // Hooks qui font des appels Supabase
   const { stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
-  const { subscription } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
   const { isAvailableOffline, isDownloading, downloadItem, removeItem, downloadedCount, syncProgress } = useEdnOffline();
   const { isOnline, pendingCount } = useOfflineSync();
@@ -468,13 +465,12 @@ export default function EdnComplete() {
         <Alert className="mb-4 bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
           <Sparkles className="h-4 w-4 text-primary" />
           <AlertDescription className="text-sm text-foreground">
-            <strong className="font-semibold">Révisions EDN gratuites</strong>
+            <strong className="font-semibold">Ce qui est inclus</strong>
             <div className="mt-1 space-y-1">
-              <div>✅ Réviser les 367 items EDN : <strong>gratuit</strong></div>
-              <div>✅ Lire les compétences rang A et rang B, et les paroles : <strong>gratuit</strong></div>
-              <div>✅ Faire les quiz : <strong>gratuit</strong></div>
+              <div>✅ Fiches officielles des 367 items (compétences rang A et rang B) : <strong>gratuit</strong></div>
+              <div>✅ Paroles, récit, planches et quiz des items IC-1 à IC-10 : <strong>gratuit</strong></div>
               <div className="mt-2 pt-2 border-t border-primary/20 dark:border-primary/30">
-                🎵 Les crédits servent uniquement à <strong>générer l'audio des chansons</strong> (voir votre solde une fois connecté)
+                ⭐ <strong>MED MNG Premium</strong> (69 €/an ou 9,90 €/mois) : contenu immersif des 367 items et génération audio
               </div>
             </div>
           </AlertDescription>
@@ -715,59 +711,8 @@ export default function EdnComplete() {
 
           <TabsContent value="subscription">
             <div className="space-y-6">
-              {/* Quota Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <QuotaIndicator showDetails />
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Plan actuel</CardTitle>
-                    <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">
-                          {subscription?.plan_name || 'Plan Gratuit'}
-                        </span>
-                        <Badge variant={subscription ? 'default' : 'secondary'}>
-                          {subscription ? 'Actif' : 'Gratuit'}
-                        </Badge>
-                      </div>
-                      {subscription && (
-                        <div className="text-sm text-muted-foreground">
-                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
-                          <p>Statut: {subscription.status}</p>
-                        </div>
-                      )}
-                      {!subscription && (
-                        <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground">
-                            Vous utilisez le plan gratuit avec des fonctionnalités limitées.
-                          </p>
-                          <Button 
-                            onClick={() => setShowPricing(true)}
-                            className="w-full"
-                          >
-                            Découvrir nos plans
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Pricing Plans */}
-              {showPricing && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Choisissez votre plan</h3>
-                  <PricingPlans 
-                    onSelectPlan={(planId) => {
-                      navigate(`/med-mng/subscribe/${planId}`);
-                    }}
-                  />
-                </div>
-              )}
+              {/* Abonnement : même source et même vue que le profil */}
+              <ProfileSubscription />
 
               {/* Usage Stats */}
               <Card>

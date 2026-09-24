@@ -226,7 +226,7 @@ const ExempleCasClinique = () => {
                 { title: "Travailler les cas cliniques", path: "/travailler-cas-cliniques" },
                 { title: "Erreurs fréquentes ECOS", path: "/erreurs-frequentes-ecos" },
                 { title: "Cas cliniques EDN", path: ROUTE_PATHS.seoCasCliniqueEdn },
-                { title: "Préparation ECOS 2026", path: ROUTE_PATHS.seoPreparationEcos },
+                { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
               ].map((article) => (
                 <Link key={article.path} to={article.path}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">

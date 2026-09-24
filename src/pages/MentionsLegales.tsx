@@ -73,8 +73,8 @@ const MentionsLegales = () => {
             <div className="space-y-3 text-muted-foreground">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-success/10 p-4 rounded-lg">
-                  <p><strong className="text-foreground">Hébergeur des données :</strong></p>
-                  <p>Supabase (serveurs sécurisés et scalables)</p>
+                  <p><strong className="text-foreground">Hébergeurs :</strong></p>
+                  <p>Hébergement de l'application : Lovable ; base de données : Supabase Inc., région Francfort (UE)</p>
                 </div>
                 <div className="bg-accent/10 p-4 rounded-lg">
                   <p><strong className="text-foreground">Prototypage UX/UI :</strong></p>
@@ -168,7 +168,10 @@ const MentionsLegales = () => {
                 <div className="bg-success/10 p-3 rounded text-center">Préférences musicales et pédagogiques</div>
               </div>
               <p className="text-success font-medium">Aucune revente ou partage des données à des tiers.</p>
-              <p className="text-sm">Politique de confidentialité complète disponible [sur demande ou lien externe].</p>
+              <p className="text-sm">
+                Consultez notre{' '}
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">politique de confidentialité</Link>.
+              </p>
             </div>
           </Card>
 
@@ -222,7 +225,7 @@ const MentionsLegales = () => {
                     <tr className="border-b border-border/50">
                       <td className="p-2 font-semibold">Supabase Inc.</td>
                       <td className="p-2">Hébergement BDD, authentification</td>
-                      <td className="p-2">USA (AWS EU-West)</td>
+                      <td className="p-2">Société américaine ; données hébergées dans l'UE (Francfort)</td>
                       <td className="p-2">DPA signé, SCC, DPF certifié</td>
                     </tr>
                     <tr className="border-b border-border/50">

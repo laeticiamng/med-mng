@@ -1,200 +1,177 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
-import { Crown, CreditCard, Calendar, Zap, Star, ArrowRight } from 'lucide-react';
+import { Crown, CreditCard, ArrowRight, Loader2, Settings } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
+import {
+  FORMULES_PREMIUM,
+  NOM_OFFRE_PREMIUM,
+  NOMBRE_ITEMS_GRATUITS,
+  NOMBRE_ITEMS_TOTAL,
+  QUOTA_GENERATIONS_AUDIO_PREMIUM,
+} from '@/config/offre';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProfileSubscriptionProps {
-  profile: any;
+  /** Conservé pour compatibilité : l'abonnement n'est plus lu dans le profil. */
+  profile?: unknown;
+  /** Masque le lien vers /med-mng/billing (quand on y est déjà). */
+  afficherLienFacturation?: boolean;
 }
 
-export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profile }) => {
+/**
+ * Abonnement de l'utilisateur. Même source que le reste de l'application :
+ * RPC get_user_subscription via useSubscription (et non plus
+ * profile.subscription_plan, qui n'était jamais mis à jour par Stripe).
+ */
+export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ afficherLienFacturation = true }) => {
   const navigate = useNavigate();
+  const {
+    subscription,
+    musicQuota,
+    loading,
+    isSubscriptionActive,
+    getStatusDisplay,
+    openCustomerPortal,
+  } = useSubscription();
+  const [ouverturePortail, setOuverturePortail] = useState(false);
 
-  const getSubscriptionDetails = (plan: string) => {
-    switch (plan) {
-      case 'premium':
-        return {
-          name: 'Premium',
-          icon: <Crown className="h-5 w-5 text-warning" />,
-          color: 'bg-warning/10 text-warning',
-          features: ['3 000 générations audio/mois', '367 items EDN, quiz, paroles', 'Sauvegarde bibliothèque'],
-          price: '39€/mois',
-          totalCredits: 3000
-        };
-      case 'pro':
-        return {
-          name: 'Pro',
-          icon: <Star className="h-5 w-5 text-accent" />,
-          color: 'bg-accent/10 text-accent-foreground',
-          features: ['300 générations audio/mois', '367 items EDN, quiz, paroles', 'Sauvegarde bibliothèque'],
-          price: '29€/mois',
-          totalCredits: 300
-        };
-      case 'standard':
-        return {
-          name: 'Standard',
-          icon: <Zap className="h-5 w-5 text-primary" />,
-          color: 'bg-primary/10 text-primary',
-          features: ['30 générations audio/mois', '367 items EDN, quiz, paroles', 'Sauvegarde bibliothèque'],
-          price: '19€/mois',
-          totalCredits: 30
-        };
-      default:
-        return {
-          name: 'Gratuit',
-          icon: <Zap className="h-5 w-5 text-muted-foreground" />,
-          color: 'bg-muted text-muted-foreground',
-          features: ['3 générations audio offertes', '367 items EDN, quiz, paroles'],
-          price: 'Gratuit',
-          totalCredits: 3
-        };
-    }
+  const actif = isSubscriptionActive();
+  const statut = subscription?.status;
+  // Un abonné en retard de paiement ou résilié peut aussi passer par le portail.
+  const peutGerer = actif || statut === 'past_due' || statut === 'unpaid' || statut === 'canceled';
+
+  const gererAbonnement = async () => {
+    setOuverturePortail(true);
+    await openCustomerPortal();
+    setOuverturePortail(false);
   };
 
-  const subscriptionDetails = getSubscriptionDetails(profile?.subscription_plan || 'free');
-  const totalCredits = subscriptionDetails.totalCredits;
-  const creditsUsed = totalCredits - (profile?.credits_left || 0);
-  const creditsProgress = (creditsUsed / totalCredits) * 100;
+  const fin = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).toLocaleDateString('fr-FR')
+    : null;
+
+  const utilise = musicQuota?.current_usage ?? 0;
+  const pourcentage = actif && QUOTA_GENERATIONS_AUDIO_PREMIUM > 0
+    ? Math.min(100, Math.round((utilise / QUOTA_GENERATIONS_AUDIO_PREMIUM) * 100))
+    : 0;
+
+  if (loading) {
+    return (
+      <Card className="border-0 shadow-lg">
+        <CardContent className="p-8 flex items-center justify-center text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin mr-2" />
+          Chargement de votre abonnement…
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Current Plan */}
       <Card className="border-0 shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {subscriptionDetails.icon}
-            Plan actuel
+            <Crown className={`h-5 w-5 ${actif ? 'text-warning' : 'text-muted-foreground'}`} />
+            Votre abonnement
           </CardTitle>
-          <CardDescription>
-            Gérez votre abonnement et consultez votre utilisation
-          </CardDescription>
+          <CardDescription>Consultez et gérez votre abonnement MED MNG.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-2xl font-bold">{subscriptionDetails.name}</h3>
-                <Badge className={subscriptionDetails.color}>
-                  {subscriptionDetails.name}
-                </Badge>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-2xl font-bold">{actif ? NOM_OFFRE_PREMIUM : 'Gratuit'}</h3>
+                <Badge variant={actif ? 'default' : 'secondary'}>{getStatusDisplay()}</Badge>
               </div>
-              <p className="text-muted-foreground">{subscriptionDetails.price}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground mb-1">Prochain renouvellement</p>
-              <p className="font-semibold">
-                {profile?.subscription_plan !== 'free' 
-                  ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')
-                  : 'N/A'
-                }
-              </p>
+              {actif && fin && (
+                <p className="text-sm text-muted-foreground">Période en cours jusqu'au {fin}</p>
+              )}
+              {statut === 'past_due' && (
+                <p className="text-sm text-warning">
+                  Le dernier paiement n'a pas abouti. Mettez à jour votre moyen de paiement pour conserver l'accès.
+                </p>
+              )}
             </div>
           </div>
 
           <Separator />
 
-          <div>
-            <h4 className="font-semibold mb-3">Fonctionnalités incluses</h4>
-            <ul className="space-y-2">
-              {subscriptionDetails.features.map((feature, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <div className="h-2 w-2 bg-success rounded-full" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
+          <ul className="space-y-2 text-sm">
+            <li className="flex items-center gap-2">
+              <span className="h-2 w-2 bg-success rounded-full" />
+              Fiches officielles (rang A et rang B) des {NOMBRE_ITEMS_TOTAL} items
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="h-2 w-2 bg-success rounded-full" />
+              {actif
+                ? `Paroles, récits, planches et quiz des ${NOMBRE_ITEMS_TOTAL} items`
+                : `Paroles, récits, planches et quiz de ${NOMBRE_ITEMS_GRATUITS} items d'essai`}
+            </li>
+            {actif && (
+              <li className="flex items-center gap-2">
+                <span className="h-2 w-2 bg-success rounded-full" />
+                {QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois
+              </li>
+            )}
+          </ul>
+
+          {actif && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Générations audio ce mois-ci</span>
+                <span className="font-semibold">{utilise} / {QUOTA_GENERATIONS_AUDIO_PREMIUM}</span>
+              </div>
+              <Progress value={pourcentage} className="h-2" />
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            {peutGerer && (
+              <Button onClick={gererAbonnement} disabled={ouverturePortail} variant="outline">
+                {ouverturePortail ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Settings className="h-4 w-4 mr-2" />}
+                Gérer / résilier mon abonnement
+              </Button>
+            )}
+            {!actif && (
+              <Button onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
+                Passer à {NOM_OFFRE_PREMIUM} — {FORMULES_PREMIUM.annuel.prixAffiche}
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            )}
           </div>
+          {peutGerer && (
+            <p className="text-xs text-muted-foreground">
+              La résiliation prend effet à la fin de la période déjà payée. Vos factures sont disponibles
+              dans le même espace de gestion.
+            </p>
+          )}
         </CardContent>
       </Card>
 
-      {/* Usage Statistics */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle>Utilisation des crédits</CardTitle>
-          <CardDescription>
-            Suivez votre consommation de crédits ce mois-ci
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between text-sm">
-            <span>Crédits utilisés</span>
-            <span className="font-semibold">{creditsUsed} / {totalCredits}</span>
-          </div>
-          <Progress value={creditsProgress} className="h-3" />
-          <div className="grid grid-cols-2 gap-4 pt-4">
-            <div className="text-center p-4 bg-primary/10 rounded-lg">
-              <p className="text-2xl font-bold text-primary">{profile?.credits_left || 0}</p>
-              <p className="text-sm text-muted-foreground">Crédits restants</p>
-            </div>
-            <div className="text-center p-4 bg-success/10 rounded-lg">
-              <p className="text-2xl font-bold text-success">{creditsUsed}</p>
-              <p className="text-sm text-muted-foreground">Crédits utilisés</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Upgrade Options */}
-      {profile?.subscription_plan === 'free' && (
-        <Card className="border-0 shadow-lg bg-gradient-to-r from-primary/5 to-accent/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-warning" />
-              Améliorez votre plan
-            </CardTitle>
-            <CardDescription>
-              Débloquez plus de fonctionnalités avec nos plans premium
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-card rounded-lg border">
-                <h4 className="font-semibold text-primary mb-2">Standard</h4>
-                <p className="text-sm text-muted-foreground mb-3">30 chansons/mois + tableaux EDN</p>
-                <p className="text-xl font-bold mb-3">19€/mois</p>
-                <Button className="w-full" onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
-                  Choisir Standard
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-              <div className="p-4 bg-card rounded-lg border">
-                <h4 className="font-semibold text-accent-foreground mb-2">Pro</h4>
-                <p className="text-sm text-muted-foreground mb-3">300 chansons/mois + QCM entraînement</p>
-                <p className="text-xl font-bold mb-3">29€/mois</p>
-                <Button variant="outline" className="w-full" onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
-                  Choisir Pro
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Billing History */}
+      {afficherLienFacturation && (
       <Card className="border-0 shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Historique de facturation
+            Facturation
           </CardTitle>
           <CardDescription>
-            Consultez vos factures et paiements
+            Paiement et factures sont gérés par Stripe.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Aucune facture disponible</p>
-            <p className="text-sm">Vos factures apparaîtront ici après votre premier paiement</p>
-          </div>
+          <Button variant="link" className="px-0" onClick={() => navigate(ROUTE_PATHS.medMngBilling)}>
+            Voir la page facturation
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 };

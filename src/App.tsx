@@ -183,7 +183,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const About = lazy(() => import("./pages/About"));
 
 // 📈 SEO PILLAR PAGES
-const PreparationEcos2026 = lazy(() => import("./pages/seo/PreparationEcos2026"));
+const PreparationEcos2027 = lazy(() => import("./pages/seo/PreparationEcos2027"));
 const ReussirEdn = lazy(() => import("./pages/seo/ReussirEdn"));
 const FichesEcosInteractives = lazy(() => import("./pages/seo/FichesEcosInteractives"));
 const SimulationExamenEdn = lazy(() => import("./pages/seo/SimulationExamenEdn"));
@@ -331,7 +331,8 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.about} element={<S><About /></S>} />
 
                                     {/* SEO Pillar Pages */}
-                                    <Route path={ROUTE_PATHS.seoPreparationEcos} element={<S><PreparationEcos2026 /></S>} />
+                                    <Route path={ROUTE_PATHS.seoPreparationEcos} element={<S><PreparationEcos2027 /></S>} />
+                                    <Route path={ROUTE_PATHS.seoPreparationEcosLegacy} element={<Navigate to={ROUTE_PATHS.seoPreparationEcos} replace />} />
                                     <Route path={ROUTE_PATHS.seoReussirEdn} element={<S><ReussirEdn /></S>} />
                                     <Route path={ROUTE_PATHS.seoFichesEcos} element={<S><FichesEcosInteractives /></S>} />
                                     <Route path={ROUTE_PATHS.seoSimulationEdn} element={<S><SimulationExamenEdn /></S>} />

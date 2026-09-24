@@ -33,6 +33,7 @@ import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
 import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
+import { useAccesPremium } from '@/hooks/useAccesPremium';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
@@ -143,9 +144,12 @@ const Generator = () => {
   // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
   
-  const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
+  const { lyrics: ednLyricsBrutes, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
     contentType === 'edn' ? selectedItem : null
   );
+  // Paroles hors items d'essai : réservées à MED MNG Premium.
+  const { aAccesPremium, peutVoirItem } = useAccesPremium();
+  const ednLyrics = selectedItem && !peutVoirItem(selectedItem) ? null : ednLyricsBrutes;
   
   // Hook pour les paroles ECOS
   const { lyrics: ecosLyrics, loading: ecosLyricsLoading, error: ecosLyricsError } = useEcosLyrics(
@@ -187,7 +191,7 @@ const Generator = () => {
   const handleGenerate = useCallback(async (advancedParams?: Partial<AdvancedSunoParams>) => {
     // ✅ Vérifier d'abord si l'utilisateur est connecté (obligatoire même pour les essais gratuits)
     if (!user) {
-      toast.error('Connectez-vous pour utiliser le générateur de musique (3 essais gratuits inclus !)', {
+      toast.error('Connectez-vous pour utiliser le générateur audio (inclus dans MED MNG Premium).', {
         action: { label: 'Se connecter', onClick: () => navigate(ROUTE_PATHS.medMngLogin) },
         duration: 5000
       });
@@ -199,17 +203,15 @@ const Generator = () => {
       return;
     }
 
-    // ✅ Vérifier le quota (gratuit ou abonnement)
+    // ✅ Génération audio réservée à MED MNG Premium (contrôle définitif côté serveur)
+    if (!aAccesPremium) {
+      toast.error('La génération audio est incluse dans MED MNG Premium (69 €/an ou 9,90 €/mois).', {
+        action: { label: "Voir l'offre", onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
+      });
+      return;
+    }
     if (musicQuota && !musicQuota.can_generate) {
-      if (remainingFree <= 0) {
-        toast.error('Vous avez utilisé vos 3 générations gratuites. Passez à un abonnement pour continuer.', {
-          action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
-        });
-      } else {
-        toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.', {
-          action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
-        });
-      }
+      toast.error('Vous avez utilisé vos générations audio de ce mois. Le compteur repart le 1er du mois prochain.');
       return;
     }
 
@@ -314,7 +316,7 @@ const Generator = () => {
       const message = error instanceof Error ? error.message : String(error);
       toast.error(`Échec de la génération musicale : ${message}`);
     }
-  }, [canGenerate, user, remainingFree, musicQuota?.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
+  }, [canGenerate, user, aAccesPremium, musicQuota?.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;

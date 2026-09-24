@@ -14,9 +14,9 @@ const ReussirEdn = () => {
   return (
     <>
       <SEOHead
-        title="Guide complet pour réussir l'EDN 2026 | MED-MNG"
-        description="Réussir l'EDN : stratégies, planning, méthodes de révision et outils. 367 items, QCM, cas cliniques. Le guide ultime pour les étudiants en médecine."
-        keywords="réussir EDN, EDN 2026, examen dématérialisé national, révision médecine, classement national"
+        title="Guide complet pour réussir les EDN 2027 | MED-MNG"
+        description="Réussir les EDN 2027 (session d'octobre 2026) : stratégies, planning, méthodes de révision et outils. 367 items, QCM, cas cliniques."
+        keywords="réussir EDN, EDN 2027, examen dématérialisé national, révision médecine, classement national"
         canonical="/reussir-edn"
       />
 
@@ -24,16 +24,19 @@ const ReussirEdn = () => {
         <article className="container mx-auto px-4 py-20 max-w-4xl">
           
           <header className="mb-12">
-            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide EDN 2026" /></Badge>
+            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide EDN 2027" /></Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
               <TranslatedText text="Guide complet pour réussir l'EDN : stratégie, planning et outils" />
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              <TranslatedText text="L'Examen Dématérialisé National (EDN) remplace l'ancien ECN. Avec 367 items à maîtriser et un classement national, la préparation doit être méthodique et intelligente. Ce guide vous donne la feuille de route complète." />
+              <TranslatedText text="Les Épreuves Dématérialisées Nationales (EDN) remplacent l'ancien ECN. Avec 367 items à maîtriser et un classement national, la préparation doit être méthodique. Ce guide vous donne une feuille de route complète." />
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              <TranslatedText text="EDN 2027 : première session du 12 au 15 octobre 2026 (dates officielles publiées par le CNG ; vérifiez-les sur cng.sante.fr)." />
             </p>
             <div className="flex flex-wrap gap-3">
               <Badge variant="outline" className="gap-1"><BookOpen className="h-3 w-3" /> <TranslatedText text="20 min de lecture" /></Badge>
-              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour février 2026" /></Badge>
+              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour septembre 2026" /></Badge>
             </div>
           </header>
 
@@ -237,7 +240,7 @@ const ReussirEdn = () => {
 
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à réussir l'EDN ?" /></h2>
-            <p className="text-muted-foreground mb-6"><TranslatedText text="367 items EDN avec fiche, rang A, rang B, quiz et paroles de chanson, accessibles gratuitement." /></p>
+            <p className="text-muted-foreground mb-6"><TranslatedText text="Fiches officielles des 367 items (rang A, rang B) gratuites ; paroles, récit, planches et quiz de tous les items avec MED MNG Premium." /></p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}><Button size="lg" className="gap-2"><TranslatedText text="Commencer" /> <ArrowRight className="h-4 w-4" /></Button></Link>
               <Link to={ROUTE_PATHS.medMngPricing}><Button variant="outline" size="lg"><TranslatedText text="Voir les tarifs" /></Button></Link>

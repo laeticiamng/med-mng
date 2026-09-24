@@ -10,6 +10,7 @@ import { sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
 import { BookOpen, Brain } from 'lucide-react';
 import { useFicheItemEdn } from './EdnItemContext';
 import { EdnItemSeo } from './EdnItemSeo';
+import { useAccesPremium } from '@/hooks/useAccesPremium';
 
 /** `/edn-complete/:slug/apercu` — ancien onglet « Aperçu » de la modale. */
 export default function EdnItemApercu() {
@@ -21,6 +22,7 @@ export default function EdnItemApercu() {
     chargementRangA,
     chargementRangB,
   } = useFicheItemEdn();
+  const { peutVoirItem } = useAccesPremium();
 
   return (
     <>
@@ -163,8 +165,8 @@ export default function EdnItemApercu() {
           itemTitle={item.title}
           tableauRangA={contenu.tableau_rang_a}
           tableauRangB={contenu.tableau_rang_b}
-          parolesRangA={contenu.paroles_rang_a}
-          parolesRangB={contenu.paroles_rang_b}
+          parolesRangA={peutVoirItem(item.item_code) ? contenu.paroles_rang_a : undefined}
+          parolesRangB={peutVoirItem(item.item_code) ? contenu.paroles_rang_b : undefined}
         />
 
         {/* Notes personnelles */}

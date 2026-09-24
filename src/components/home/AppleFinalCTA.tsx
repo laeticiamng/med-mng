@@ -32,9 +32,9 @@ export const AppleFinalCTA = () => {
         </motion.h2>
 
         <motion.p initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.4 }} className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
-          <TranslatedText text="Arrête de t'épuiser sur des fiches." />
+          <TranslatedText text="Ne vous épuisez plus sur des fiches." />
           <br />
-          <span className="text-foreground font-semibold"><TranslatedText text="Écoute. Retiens. Réussis." /></span>
+          <span className="text-foreground font-semibold"><TranslatedText text="Écoutez. Retenez. Réussissez." /></span>
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -48,7 +48,7 @@ export const AppleFinalCTA = () => {
         <motion.div initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ duration: 0.8, delay: 0.8 }}>
           <button onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group">
             <BookOpen className="h-5 w-5" />
-            <span><TranslatedText text="Ou explore les items EDN d'abord" /></span>
+            <span><TranslatedText text="Ou explorez d'abord les items EDN" /></span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </motion.div>

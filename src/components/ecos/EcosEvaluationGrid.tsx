@@ -231,7 +231,7 @@ export const EcosEvaluationGrid = ({
             </p>
             {saveState === 'anonymous' && (
               <p className="text-sm text-warning mt-2">
-                Score non enregistré : connecte-toi pour suivre ta progression ECOS.
+                Score non enregistré : connectez-vous pour suivre votre progression ECOS.
               </p>
             )}
             {saveState === 'error' && (

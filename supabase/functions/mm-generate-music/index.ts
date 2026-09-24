@@ -94,6 +94,92 @@ interface MusicGenerationResponse {
   error?: string;
 }
 
+/** Modèle Suno unique, imposé côté serveur (le client ne choisit pas). */
+const MODELE_IMPOSE: SunoModel = 'V4_5ALL';
+
+/** Générations audio par mois incluses dans MED MNG Premium (= src/config/offre.ts). */
+const QUOTA_MENSUEL_PREMIUM = 30;
+
+interface RefusGeneration { status: number; code: string; message: string }
+
+/**
+ * Vérifie qu'un utilisateur peut lancer une génération :
+ *  - connecté ;
+ *  - abonnement MED MNG Premium actif (user_subscriptions, status active/trialing,
+ *    période non échue) — les administrateurs (user_roles) sont exemptés ;
+ *  - moins de QUOTA_MENSUEL_PREMIUM générations ce mois-ci.
+ *
+ * Le décompte lit generated_music_tracks, la table réellement écrite par
+ * cette fonction (insertMusicTrack) puis mise à jour par mm-suno-callback :
+ * une ligne « principale » par génération (suno_track_id = task_id) ; le
+ * callback ajoute des lignes par piste (suno_track_id ≠ task_id) qui ne sont
+ * pas comptées. Les générations échouées ne sont pas décomptées.
+ * (med_mng_songs n'est alimentée qu'à la fin par le callback : inutilisable
+ * pour un quota, une génération en cours n'y figurant pas.)
+ */
+async function verifierDroitGeneration(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  userId: string | null,
+): Promise<RefusGeneration | null> {
+  if (!userId) {
+    return { status: 401, code: 'AUTH_REQUISE', message: 'Veuillez vous connecter pour générer une chanson.' };
+  }
+
+  const { data: role } = await supabase
+    .from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle();
+  if (role) return null;
+
+  const { data: abonnements, error: errAbo } = await supabase
+    .from('user_subscriptions')
+    .select('status, current_period_end')
+    .eq('user_id', userId)
+    .in('status', ['active', 'trialing']);
+  if (errAbo) {
+    console.error('❌ Lecture abonnement impossible:', errAbo.message);
+    return { status: 503, code: 'VERIFICATION_IMPOSSIBLE', message: 'Service momentanément indisponible, réessayez plus tard.' };
+  }
+  const actif = (abonnements ?? []).some(
+    (a: { current_period_end: string | null }) =>
+      !a.current_period_end || new Date(a.current_period_end).getTime() > Date.now(),
+  );
+  if (!actif) {
+    return {
+      status: 402,
+      code: 'PREMIUM_REQUIS',
+      message: 'La génération audio est incluse dans MED MNG Premium (69 €/an ou 9,90 €/mois).',
+    };
+  }
+
+  const maintenant = new Date();
+  const debutMois = new Date(Date.UTC(maintenant.getUTCFullYear(), maintenant.getUTCMonth(), 1)).toISOString();
+  const { data: pistes, error: errPistes } = await supabase
+    .from('generated_music_tracks')
+    .select('task_id, suno_track_id, generation_status')
+    .eq('user_id', userId)
+    .gte('created_at', debutMois)
+    .limit(1000);
+  if (errPistes) {
+    console.error('❌ Lecture du quota impossible:', errPistes.message);
+    return { status: 503, code: 'VERIFICATION_IMPOSSIBLE', message: 'Service momentanément indisponible, réessayez plus tard.' };
+  }
+  const utilisees = new Set(
+    (pistes ?? [])
+      .filter((p: { task_id: string | null; suno_track_id: string | null; generation_status: string | null }) =>
+        p.task_id && p.suno_track_id === p.task_id && p.generation_status !== 'failed')
+      .map((p: { task_id: string }) => p.task_id),
+  ).size;
+
+  if (utilisees >= QUOTA_MENSUEL_PREMIUM) {
+    return {
+      status: 429,
+      code: 'QUOTA_ATTEINT',
+      message: `Vous avez utilisé vos ${QUOTA_MENSUEL_PREMIUM} générations audio de ce mois. Le compteur repart le 1er du mois prochain.`,
+    };
+  }
+  return null;
+}
+
 /**
  * Handler principal
  */
@@ -134,7 +220,17 @@ serve(async (req) => {
 
     // Get authenticated user
     const authHeader = req.headers.get('authorization');
-    const { userId, isAuthenticated } = await getAuthenticatedUser(supabase, authHeader);
+    const { userId } = await getAuthenticatedUser(supabase, authHeader);
+
+    // Contrôle serveur : abonnement MED MNG Premium actif + quota mensuel.
+    // (Le front ne fait pas foi : ce contrôle est le seul qui compte.)
+    const refus = await verifierDroitGeneration(supabase, userId);
+    if (refus) {
+      return new Response(JSON.stringify({ success: false, error: refus.message, code: refus.code }), {
+        status: refus.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Extract and validate parameters with defaults
     const {
@@ -146,7 +242,6 @@ serve(async (req) => {
       itemCode = 'EDN',
       customMode = true,
       instrumental = false,
-      model = 'V4_5ALL',
       title,
       // Nouveaux paramètres V4.5+
       personaId,
@@ -157,8 +252,11 @@ serve(async (req) => {
       audioWeight
     } = body;
 
-    // Sélectionner le bon modèle
-    const correctModel = getCorrectSunoModel(model);
+    // Modèle imposé côté serveur : la valeur envoyée par le client est ignorée.
+    if (body.model && body.model !== MODELE_IMPOSE) {
+      console.log(`ℹ️ Modèle demandé ${body.model} ignoré, modèle imposé ${MODELE_IMPOSE}`);
+    }
+    const correctModel = getCorrectSunoModel(MODELE_IMPOSE);
     const modelLimits = getModelLimits(correctModel);
 
     // Build enhanced components (avec respect des limites)
@@ -352,9 +450,10 @@ serve(async (req) => {
       cause: error.cause
     });
     
+    // Jamais de message technique brut côté utilisateur.
     const errorResponse: MusicGenerationResponse = {
       success: false,
-      error: error.message
+      error: 'Service momentanément indisponible, réessayez plus tard.'
     };
 
     return new Response(JSON.stringify(errorResponse), {

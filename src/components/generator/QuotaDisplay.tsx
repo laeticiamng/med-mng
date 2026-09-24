@@ -66,11 +66,11 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
 
   // Calculer le pourcentage utilisé
   const getUsagePercentage = () => {
-    if (!user && remainingFree >= 0) {
+    if (!user && maxFreeGenerations > 0 && remainingFree >= 0) {
       return ((maxFreeGenerations - remainingFree) / maxFreeGenerations) * 100;
     }
     if (musicQuota) {
-      return (musicQuota.used / musicQuota.limit) * 100;
+      return musicQuota.limit > 0 ? (musicQuota.used / musicQuota.limit) * 100 : 0;
     }
     return 0;
   };

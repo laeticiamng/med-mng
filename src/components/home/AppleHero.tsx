@@ -78,7 +78,7 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6"
         >
-          <span className="text-foreground"><TranslatedText text="Apprends la médecine" /></span>
+          <span className="text-foreground"><TranslatedText text="Apprenez la médecine" /></span>
           <br />
           <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
             <TranslatedText text="en musique." />
@@ -92,7 +92,7 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          <TranslatedText text="Les 367 items EDN, avec leurs compétences rang A et rang B." />{' '}
+          <TranslatedText text="Les 367 items EDN, avec leurs compétences officielles rang A et rang B." />{' '}
           <br className="hidden sm:block" />
           <TranslatedText text="Chaque item peut être mis en" /> <span className="text-foreground font-semibold"><TranslatedText text="chanson à la demande" /></span>.
         </motion.p>

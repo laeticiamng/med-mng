@@ -3,14 +3,17 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 import { TEST_MODE_ENABLED, TEST_USER } from '@/config/testMode';
+import { cheminInterneSur } from '@/lib/cheminSuivant';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
+  /** `suivant` : chemin interne où revenir après confirmation de l'e-mail. */
+  signUp: (email: string, password: string, name: string, suivant?: string | null) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<{ error: any }>;
+  /** `suivant` : chemin interne où revenir après la connexion Google. */
+  signInWithGoogle: (suivant?: string | null) => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
 }
@@ -102,13 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setTimeout(async () => {
           // Log activity
           try {
+            // Colonnes réelles : user_id, activity_type, count, duration_seconds,
+            // metadata (pas de « action » ni de « duration »).
             await supabase.from('user_activity_log').insert({
               user_id: session.user.id,
               activity_type: 'study',
-              action: 'user_signed_in',
-              duration: 0,
               count: 1,
-              metadata: { event: 'signed_in' }
+              duration_seconds: 0,
+              metadata: { event: 'signed_in', action: 'user_signed_in' }
             });
           } catch (e) {
             if (import.meta.env.DEV) console.warn('Could not log sign in activity:', e);
@@ -171,13 +175,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string, suivant?: string | null) => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/med-mng/music-library`,
+          emailRedirectTo: `${window.location.origin}${cheminInterneSur(suivant) ?? '/edn-complete'}`,
           data: {
             name,
           },
@@ -199,12 +203,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (suivant?: string | null) => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/med-mng/music-library`,
+          redirectTo: `${window.location.origin}${cheminInterneSur(suivant) ?? '/edn-complete'}`,
         },
       });
       return { error };

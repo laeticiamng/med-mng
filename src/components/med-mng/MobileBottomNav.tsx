@@ -4,7 +4,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { CreditCard, Flame, Heart, Home, Library, Plus, User } from 'lucide-react';
+import { BookOpen, CreditCard, Flame, Home, Target, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -66,7 +66,8 @@ export const MobileBottomNav: React.FC = () => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
   }, []);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    path === ROUTE_PATHS.home ? location.pathname === path : location.pathname.startsWith(path);
 
   const navItems = [
     {
@@ -75,27 +76,22 @@ export const MobileBottomNav: React.FC = () => {
       path: ROUTE_PATHS.home,
       onClick: () => navigate(ROUTE_PATHS.home)
     },
+    // Entrées cœur : l'ancien « Créer » / « Bibliothèque » menait à un catalogue vide.
     {
-      icon: <Library className="h-5 w-5" />,
-      label: "Bibliothèque", 
-      path: ROUTE_PATHS.medMngItemsLibrary,
-      onClick: () => navigate(ROUTE_PATHS.medMngItemsLibrary)
+      icon: <BookOpen className="h-5 w-5" />,
+      label: "Items",
+      path: ROUTE_PATHS.ednComplete,
+      onClick: () => navigate(ROUTE_PATHS.ednComplete)
     },
     {
-      icon: <Heart className="h-5 w-5" />,
-      label: "Favoris",
-      path: ROUTE_PATHS.medMngFavorites,
-      onClick: () => navigate(ROUTE_PATHS.medMngFavorites)
-    },
-    {
-      icon: <Plus className="h-5 w-5" />,
-      label: "Créer",
-      path: ROUTE_PATHS.medMngCreate, 
-      onClick: () => navigate(ROUTE_PATHS.medMngCreate)
+      icon: <Target className="h-5 w-5" />,
+      label: "ECOS",
+      path: ROUTE_PATHS.ecosIndex,
+      onClick: () => navigate(ROUTE_PATHS.ecosIndex)
     },
     {
       icon: <CreditCard className="h-5 w-5" />,
-      label: "Abonnements",
+      label: "Tarifs",
       path: ROUTE_PATHS.medMngPricing,
       onClick: () => navigate(ROUTE_PATHS.medMngPricing)
     },

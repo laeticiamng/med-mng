@@ -87,7 +87,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     id: '5',
     question: 'Comment fonctionne l\'abonnement Premium ?',
-    answer: 'Les formules Standard (19 €), Pro (29 €) et Premium (39 €) par mois augmentent le nombre de générations audio de chansons (30, 300 ou 3 000 par mois). Les items EDN, quiz, paroles et situations ECOS restent accessibles gratuitement. Facturation mensuelle via Stripe, annulation possible à tout moment.',
+    answer: 'MED MNG Premium coûte 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il ouvre le contenu immersif des 367 items (paroles, récit, planches, quiz) et 30 générations audio par mois. Sans abonnement, vous gardez les fiches officielles des 367 items, 10 items d\'essai en immersion complète et les situations ECOS. Paiement via Stripe ; résiliation à tout moment depuis votre profil, avec effet à la fin de la période payée.',
     category: 'Compte',
     helpful: 145
   },

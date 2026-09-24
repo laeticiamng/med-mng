@@ -34,7 +34,7 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
       <div className="text-center mb-8 md:mb-12 px-2 sm:px-4">
         {/* Headline studieux - Direct et rassurant */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 text-foreground leading-tight tracking-tight break-word">
-          Qu'est-ce que tu veux réviser aujourd'hui ?
+          Que souhaitez-vous réviser aujourd'hui ?
         </h1>
         
         {/* Sous-texte émotionnel */}
