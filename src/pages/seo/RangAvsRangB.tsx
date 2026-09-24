@@ -14,9 +14,9 @@ const RangAvsRangB = () => {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Qu'est-ce que le Rang A en médecine ?", "acceptedAnswer": { "@type": "Answer", "text": "Le Rang A regroupe les connaissances indispensables que tout médecin doit maîtriser, quel que soit sa spécialité. Ce sont les items prioritaires de l'EDN." }},
+      { "@type": "Question", "name": "Qu'est-ce que le Rang A en médecine ?", "acceptedAnswer": { "@type": "Answer", "text": "Le Rang A regroupe les connaissances indispensables que tout médecin doit maîtriser, quel que soit sa spécialité. Au sein de chaque item, ce sont les connaissances à maîtriser en priorité." }},
       { "@type": "Question", "name": "Quelle est la différence entre Rang A et Rang B ?", "acceptedAnswer": { "@type": "Answer", "text": "Le Rang A contient les savoirs essentiels (priorité absolue), le Rang B les connaissances approfondies qui départagent les étudiants dans le classement national." }},
-      { "@type": "Question", "name": "Faut-il apprendre le Rang B ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, si vous visez une spécialité compétitive (top 20%). Si vous visez le top 40%, concentrez-vous d'abord sur une maîtrise parfaite du Rang A." }},
+      { "@type": "Question", "name": "Faut-il apprendre le Rang B ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, le rang B fait partie du programme. Commencez par le rang A de chaque item, puis travaillez son rang B." }},
     ]
   };
 
@@ -52,7 +52,7 @@ const RangAvsRangB = () => {
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
               <Scale className="h-6 w-6 text-primary" />
-              Définitions officielles
+              Définitions
             </h2>
             <div className="grid sm:grid-cols-2 gap-6">
               <Card className="border-t-4 border-t-primary">
@@ -67,9 +67,7 @@ const RangAvsRangB = () => {
                   </p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-primary flex-shrink-0" /> Priorité absolue de révision</li>
-                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-primary flex-shrink-0" /> Coefficient élevé au classement</li>
-                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-primary flex-shrink-0" /> Erreur = forte pénalité</li>
-                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-primary flex-shrink-0" /> ~60% des items EDN</li>
+                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-primary flex-shrink-0" /> Présent dans la plupart des items</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -85,33 +83,30 @@ const RangAvsRangB = () => {
                   </p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-accent-foreground flex-shrink-0" /> À travailler après le Rang A</li>
-                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-accent-foreground flex-shrink-0" /> Départage les meilleurs</li>
-                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-accent-foreground flex-shrink-0" /> Essentiel pour le top 20%</li>
-                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-accent-foreground flex-shrink-0" /> ~40% des items EDN</li>
+                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-accent-foreground flex-shrink-0" /> Aide à départager les candidats</li>
+                    <li className="flex gap-2"><CheckCircle className="h-4 w-4 text-accent-foreground flex-shrink-0" /> Coexiste avec le rang A dans un même item</li>
                   </ul>
                 </CardContent>
               </Card>
             </div>
           </section>
 
-          {/* Stratégie */}
+          {/* Rang = propriété de chaque connaissance, pas de l'item */}
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-6">🎯 Stratégie de révision par objectif</h2>
-            <div className="space-y-4">
-              {[
-                { objectif: "Top 60% — Médecine générale, Psychiatrie", strategie: "Maîtrisez 95% du Rang A. Survolez le Rang B pour les spécialités qui vous intéressent. Concentrez-vous sur les ECOS." },
-                { objectif: "Top 40% — Pédiatrie, Neurologie, Urgences", strategie: "100% du Rang A + 60% du Rang B. Entraînement QCM quotidien. Cas cliniques 2×/semaine." },
-                { objectif: "Top 20% — Cardiologie, Radiologie, Anesthésie", strategie: "100% Rang A + 80% Rang B. Examens blancs hebdomadaires. Analyse systématique des erreurs." },
-                { objectif: "Top 10% — Chirurgie, Dermato, Ophtalmo", strategie: "Maîtrise totale A + B. Entraînement intensif QCM + ECOS. Groupes de travail. Analyse percentile." },
-              ].map((item, i) => (
-                <Card key={i}>
-                  <CardContent className="pt-6">
-                    <h3 className="font-bold text-foreground mb-2">{item.objectif}</h3>
-                    <p className="text-sm text-muted-foreground">{item.strategie}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-6">🎯 Le rang s'applique à chaque connaissance, pas à l'item</h2>
+            <Card>
+              <CardContent className="pt-6 space-y-3 text-sm text-muted-foreground">
+                <p>
+                  Un item EDN n'est pas « de rang A » ou « de rang B » : il contient des connaissances des deux rangs.
+                  Par exemple, l'item 1 (relation médecin-malade) compte 15 connaissances de rang A et 10 de rang B
+                  dans le référentiel.
+                </p>
+                <p>
+                  Stratégie simple : pour chaque item, commencez par ses connaissances de rang A, puis passez au rang B.
+                  Le poids exact de chaque rang dans la validation et le classement est fixé par les textes officiels en vigueur.
+                </p>
+              </CardContent>
+            </Card>
           </section>
 
           {/* Planning */}
@@ -167,9 +162,9 @@ const RangAvsRangB = () => {
             <Accordion type="single" collapsible>
               {[
                 { q: "Qu'est-ce que le Rang A en médecine ?", a: "Le Rang A regroupe les connaissances indispensables que tout médecin doit maîtriser, quel que soit sa spécialité." },
-                { q: "Faut-il apprendre le Rang B ?", a: "Oui si vous visez une spécialité compétitive. Non si vous visez la médecine générale et maîtrisez parfaitement le Rang A." },
-                { q: "Combien d'items sont en Rang A ?", a: "Environ 60% des 367 items EDN sont classés en Rang A, soit environ 220 items." },
-                { q: "MED-MNG différencie-t-il Rang A et Rang B ?", a: "Oui, chaque item est étiqueté Rang A ou Rang B. Vous pouvez filtrer vos révisions et examens par rang." },
+                { q: "Faut-il apprendre le Rang B ?", a: "Oui, le rang B fait partie du programme. Commencez par le rang A de chaque item, puis travaillez son rang B." },
+                { q: "Combien d'items sont en Rang A ?", a: "La question ne se pose pas ainsi : le rang s'applique à chaque connaissance, pas à l'item. Un même item contient des connaissances de rang A et de rang B." },
+                { q: "MED-MNG différencie-t-il Rang A et Rang B ?", a: "Oui, pour chaque item, MED-MNG affiche séparément les connaissances de rang A et de rang B (onglets Rang A et Rang B)." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
                   <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>
@@ -182,10 +177,10 @@ const RangAvsRangB = () => {
           {/* CTA */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3">Révisez les 367 items par rang</h2>
-            <p className="text-muted-foreground mb-6">Filtrez Rang A / Rang B, suivez votre progression par spécialité.</p>
+            <p className="text-muted-foreground mb-6">Pour chaque item, les connaissances de rang A et de rang B sont affichées séparément.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to={ROUTE_PATHS.ednComplete}>
                 <Button variant="outline" size="lg">Voir les 367 items</Button>

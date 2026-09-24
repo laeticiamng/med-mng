@@ -37,7 +37,7 @@ const CGU = () => {
                 <FileText className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">MED MNG - CGU</h2>
               </div>
-              <p className="text-sm opacity-90">Dernière mise à jour : 04 novembre 2025</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
               <p className="text-sm opacity-90">Version 1.0 - Conforme RGPD et droit français</p>
             </div>
           </Card>
@@ -88,16 +88,15 @@ const CGU = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>
                 MED MNG est une plateforme numérique d'apprentissage médical utilisant la méthode 
-                <strong> MNG – Music Neuro Learning Generator</strong> (brevet en cours de dépôt INPI).
+                <strong> MNG – Music Neuro Learning Generator</strong>.
               </p>
               <div className="bg-accent/10 p-4 rounded-lg">
                 <p className="font-semibold text-foreground mb-2">Services proposés :</p>
                 <ul className="space-y-1 text-sm">
-                  <li>• Génération de chansons pédagogiques via IA (OpenAI, Suno AI)</li>
-                  <li>• Tableaux récapitulatifs conformes aux programmes EDN</li>
-                  <li>• Quiz d'entraînement (QCM, QRU, QROC)</li>
-                  <li>• Bandes dessinées pédagogiques générées par IA</li>
-                  <li>• Simulations cliniques ECOS</li>
+                  <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel public UNESS/LiSA), quiz</li>
+                  <li>• Paroles de chansons pédagogiques générées par IA (OpenAI) et génération audio à la demande (Suno AI)</li>
+                  <li>• Récits et planches illustrées générés par IA (en cours de génération)</li>
+                  <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
                   <li>• Bibliothèque personnelle de contenus</li>
                 </ul>
               </div>
@@ -148,26 +147,25 @@ const CGU = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <div className="bg-primary/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Plans disponibles :</h4>
+                <h4 className="font-semibold text-foreground mb-2">Offre :</h4>
                 <ul className="text-sm space-y-1">
-                  <li>• <strong>Gratuit</strong> : 3 générations/mois (gratuit)</li>
-                  <li>• <strong>Standard</strong> : 30 générations/mois (19€/mois)</li>
-                  <li>• <strong>Pro</strong> : 300 générations/mois + QCM entraînement (29€/mois)</li>
-                  <li>• <strong>Premium</strong> : 3 000 générations/mois + bande dessinée + support VIP (39€/mois)</li>
+                  <li>• <strong>Gratuit</strong> : fiches officielles des 367 items (compétences rang A et rang B) et contenu immersif complet de 10 items d'essai</li>
+                  <li>• <strong>MED MNG Premium</strong> : contenu immersif des 367 items et 30 générations audio par mois — 69 €/an ou 9,90 €/mois</li>
                 </ul>
               </div>
 
               <div className="bg-destructive/10 p-4 rounded-lg border-l-4 border-destructive">
                 <h4 className="font-semibold text-destructive mb-2">💳 Politique de remboursement :</h4>
                 <p className="text-sm text-muted-foreground">
-                  Conformément au droit de rétractation européen (Article L221-18 du Code de la consommation), 
-                  vous disposez de <strong>14 jours calendaires</strong> à compter de la souscription pour demander 
-                  un remboursement intégral, SAUF si vous avez utilisé des crédits de génération.
+                  Le délai légal de rétractation est de <strong>14 jours calendaires</strong> (article L221-18 du
+                  Code de la consommation). MED MNG Premium étant un contenu numérique accessible immédiatement,
+                  ce droit ne s'applique pas lorsque vous avez demandé l'accès immédiat et reconnu perdre votre droit
+                  de rétractation avant le paiement (article L221-28, 13°). Détails dans les CGV.
                 </p>
                 <p className="text-sm mt-2 text-muted-foreground">
-                  <strong>Attention :</strong> En utilisant vos crédits de génération, vous renoncez expressément 
-                  à votre droit de rétractation (Article L221-28 du Code de la consommation - prestation de service 
-                  pleinement exécutée).
+                  <strong>Attention :</strong> la case « Je demande l'accès immédiat au contenu et reconnais perdre
+                  mon droit de rétractation dès cet accès », obligatoire avant le paiement, vaut renonciation
+                  expresse à ce droit.
                 </p>
                 <p className="text-sm mt-2 text-muted-foreground">
                   Pour toute demande de remboursement : <strong>contact@emotionscare.com</strong> avec objet "Remboursement - [Numéro de commande]"
@@ -176,8 +174,9 @@ const CGU = () => {
 
               <p className="text-sm">
                 Les paiements sont sécurisés via <strong>Stripe</strong>. Nous ne conservons aucune donnée bancaire. 
-                Les abonnements sont <strong>renouvelés automatiquement</strong> chaque mois. Vous pouvez annuler à tout moment 
-                depuis votre Profil &gt; Gérer l'abonnement.
+                Les abonnements sont <strong>renouvelés automatiquement</strong> (chaque année ou chaque mois selon la formule).
+                Vous pouvez résilier à tout moment depuis votre Profil &gt; « Gérer / résilier mon abonnement » ; l'accès
+                est conservé jusqu'à la fin de la période payée.
               </p>
             </div>
           </Card>
@@ -325,7 +324,7 @@ const CGU = () => {
                     clinique basée sur notre contenu.
                   </li>
                   <li>
-                    • <strong>Disponibilité du service :</strong> Nous nous efforçons d'assurer une disponibilité de 99,9% 
+                    • <strong>Disponibilité du service :</strong> Nous nous efforçons d'assurer une bonne disponibilité 
                     mais ne pouvons garantir un accès ininterrompu (maintenance, pannes, attaques DDoS).
                   </li>
                   <li>
@@ -361,7 +360,7 @@ const CGU = () => {
                   l'Article 9 du RGPD. Elles bénéficient de mesures de protection renforcées :
                 </p>
                 <ul className="text-sm space-y-1 mt-2">
-                  <li>• Chiffrement AES-256 en transit et au repos</li>
+                  <li>• Chiffrement en transit (TLS) et au repos</li>
                   <li>• Accès restreint aux seules personnes habilitées</li>
                   <li>• Anonymisation après 5 ans d'inactivité</li>
                   <li>• Aucun partage avec des tiers (sauf obligation légale)</li>
@@ -456,15 +455,17 @@ const CGU = () => {
                 <h4 className="font-semibold text-foreground mb-2">En cas de litige :</h4>
                 <ol className="text-sm space-y-2">
                   <li>
-                    <strong>1. Médiation amiable :</strong> Vous pouvez contacter notre médiateur de la consommation :
-                    <br />
-                    <span className="ml-4">📧 Email : contact@emotionscare.com</span>
-                    <br />
-                    <span className="ml-4">🔗 Plateforme européenne : https://ec.europa.eu/consumers/odr</span>
+                    <strong>1. Médiation amiable :</strong> Le nom et les coordonnées du médiateur de la consommation seront indiqués ici dès son adhésion finalisée. En attendant, contactez-nous à contact@emotionscare.com en cas de litige. Conformément à l'article L612-1
+                    du Code de la consommation, tout consommateur peut recourir gratuitement à un médiateur de la
+                    consommation en vue de la résolution amiable d'un litige.
                   </li>
                   <li>
-                    <strong>2. Juridiction compétente :</strong> En l'absence d'accord amiable, les tribunaux 
-                    compétents sont ceux du ressort de la <strong>Cour d'Appel d'Amiens</strong>.
+                    <strong>2. Juridiction compétente :</strong> En l'absence d'accord amiable, l'utilisateur
+                    consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la
+                    conclusion du contrat ou de la survenance du fait dommageable, ou toute autre juridiction
+                    compétente selon le Code de procédure civile (article R631-3 du Code de la consommation).
+                    Aucune clause des présentes ne prive le consommateur de la protection des dispositions
+                    impératives du droit de son pays de résidence.
                   </li>
                 </ol>
               </div>
@@ -478,7 +479,7 @@ const CGU = () => {
               <p><strong>EmotionsCare SASU</strong></p>
               <p>Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               <p>Email : contact@emotionscare.com</p>
-              <p>SIRET : 944 505 445 00011</p>
+              <p>SIRET : 944 505 445 00014</p>
             </div>
           </Card>
 

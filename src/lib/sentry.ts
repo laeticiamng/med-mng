@@ -9,8 +9,11 @@ const getEnvironment = (): string => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') return 'development';
+    // La production d'abord : le test `lovable.app` attrapait tout avant, si
+    // bien que la ligne « production » ne s'exécutait jamais — et medmng.com
+    // tombait dans le repli import.meta.env.MODE.
+    if (hostname === 'medmng.com' || hostname === 'www.medmng.com') return 'production';
     if (hostname.includes('preview') || hostname.includes('lovable.app')) return 'staging';
-    if (hostname === 'med-mng.lovable.app') return 'production';
   }
   return import.meta.env.MODE || 'production';
 };

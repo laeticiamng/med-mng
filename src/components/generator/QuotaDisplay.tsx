@@ -66,11 +66,11 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
 
   // Calculer le pourcentage utilisé
   const getUsagePercentage = () => {
-    if (!user && remainingFree >= 0) {
+    if (!user && maxFreeGenerations > 0 && remainingFree >= 0) {
       return ((maxFreeGenerations - remainingFree) / maxFreeGenerations) * 100;
     }
     if (musicQuota) {
-      return (musicQuota.used / musicQuota.limit) * 100;
+      return musicQuota.limit > 0 ? (musicQuota.used / musicQuota.limit) * 100 : 0;
     }
     return 0;
   };
@@ -95,7 +95,7 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
               </div>
               <div className="min-w-0">
                 <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">
-                  <TranslatedText text="Essai gratuit" />
+                  <TranslatedText text="Générations offertes" />
                 </h4>
                 <span className="text-success font-bold text-base sm:text-lg">
                   {remainingFree}/{maxFreeGenerations}

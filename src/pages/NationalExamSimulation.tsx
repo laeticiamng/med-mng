@@ -14,8 +14,8 @@ import { Helmet } from 'react-helmet-async';
 import confetti from 'canvas-confetti';
 import {
   Play, Clock, AlertTriangle, CheckCircle, XCircle,
-  Shield, Trophy, Target, Brain, Loader2, ArrowLeft,
-  Timer, BarChart3, TrendingUp, Award, Users,
+  Shield, Target, Brain, Loader2, ArrowLeft,
+  Timer, BarChart3, TrendingUp, Award,
   Zap, Medal, Crown, ChevronRight, Lock,
 } from 'lucide-react';
 
@@ -41,9 +41,6 @@ interface ExamAnswer {
 type ExamPhase = 'intro' | 'generating' | 'active' | 'results';
 
 interface NationalRanking {
-  percentile: number;
-  rank: number;
-  totalCandidates: number;
   medal: 'gold' | 'silver' | 'bronze' | 'none';
   scoreWeighted: number;
   rangAScore: number;
@@ -235,27 +232,13 @@ const NationalExamSimulation: React.FC = () => {
       return allAnswers[qIdx]?.isCorrect;
     }).length;
 
-    // Simulate national ranking (Gaussian distribution simulation)
-    const simulatePercentile = (score: number): number => {
-      // EDN averages ~55-65%, with std dev ~12%
-      const mean = 58;
-      const stdDev = 12;
-      const z = (score - mean) / stdDev;
-      // Approximate CDF of normal distribution
-      const t = 1 / (1 + 0.2316419 * Math.abs(z));
-      const d = 0.3989422804 * Math.exp(-z * z / 2);
-      const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-      return Math.round((z > 0 ? 1 - p : p) * 100);
-    };
-
-    const percentile = simulatePercentile(weightedScore);
-    const totalCandidates = 9847; // Simulated cohort size
-    const rank = Math.max(1, Math.round((1 - percentile / 100) * totalCandidates));
-
+    // CONSTAT (audit allégations) : un « percentile national » et un rang parmi
+    // 9 847 candidats étaient inventés à partir d'une loi normale arbitraire.
+    // Supprimés : aucune donnée de cohorte réelle. La médaille dépend du seul score.
     let medal: 'gold' | 'silver' | 'bronze' | 'none';
-    if (percentile >= 95) medal = 'gold';
-    else if (percentile >= 80) medal = 'silver';
-    else if (percentile >= 60) medal = 'bronze';
+    if (weightedScore >= 85) medal = 'gold';
+    else if (weightedScore >= 70) medal = 'silver';
+    else if (weightedScore >= 55) medal = 'bronze';
     else medal = 'none';
 
     const specialtyBreakdown = Array.from(specialtyMap.entries()).map(([specialty, stats]) => ({
@@ -265,9 +248,6 @@ const NationalExamSimulation: React.FC = () => {
     })).sort((a, b) => b.total - a.total);
 
     const rankingResult: NationalRanking = {
-      percentile,
-      rank,
-      totalCandidates,
       medal,
       scoreWeighted: weightedScore,
       rangAScore: rangAQs.length > 0 ? Math.round((rangACorrect / rangAQs.length) * 100) : 0,
@@ -294,20 +274,17 @@ const NationalExamSimulation: React.FC = () => {
         await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
         await unlockBadge(user.id, 'perfect_exam');
       }
-      if (percentile >= 95) {
-        await unlockBadge(user.id, 'top_5_national');
-      }
       await logActivity({
         activity_type: 'exam',
         count: 1,
         score: weightedScore,
         duration_seconds: Math.round((180 * 60 * 1000 - timeRemaining) / 1000),
-        metadata: { exam_type: 'national_simulation', percentile, rank, questions: questions.length },
+        metadata: { exam_type: 'national_simulation', questions: questions.length },
       });
     }
 
     // Confetti for good results
-    if (percentile >= 60) {
+    if (weightedScore >= 55) {
       confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
   };
@@ -319,8 +296,8 @@ const NationalExamSimulation: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Examen Blanc National EDN | MED-MNG</title>
-        <meta name="description" content="Simulation d'examen blanc EDN en conditions réelles : 120 questions, 3 heures, classement national simulé." />
+        <title>Examen blanc EDN | MED-MNG</title>
+        <meta name="description" content="Simulation d'examen blanc EDN en conditions réelles : 120 questions générées par IA, 3 heures, score par rang et par spécialité." />
       </Helmet>
 
       {/* INTRO PHASE */}
@@ -335,11 +312,11 @@ const NationalExamSimulation: React.FC = () => {
               <Shield className="w-12 h-12 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">
-              Examen Blanc National EDN
+              Examen blanc EDN
             </h1>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Conditions réelles de l'examen. Pas de retour en arrière.
-              Ton score sera comparé à une cohorte nationale simulée.
+              120 questions chronométrées (3 h). Pas de retour en arrière.
+              Tu obtiens un score par rang (A et B) et par spécialité, sans comparaison avec d'autres candidats.
             </p>
           </div>
 
@@ -352,10 +329,9 @@ const NationalExamSimulation: React.FC = () => {
               </h2>
               <div className="grid gap-3 text-sm">
                 {[
-                  { icon: Brain, label: '120 questions QCM', desc: '70% Rang A • 30% Rang B • Toutes spécialités' },
+                  { icon: Brain, label: '120 questions QCM', desc: 'Questions générées par IA à partir des items • 70% Rang A • 30% Rang B' },
                   { icon: Timer, label: '3 heures chronométrées', desc: 'Timer strict, soumission auto à expiration' },
                   { icon: Lock, label: 'Pas de retour arrière', desc: 'Chaque réponse est définitive, comme au vrai examen' },
-                  { icon: Trophy, label: 'Classement national simulé', desc: 'Percentile et rang parmi ~10 000 candidats simulés' },
                   { icon: BarChart3, label: 'Score pondéré', desc: 'Coefficient ×1.0 Rang A • ×0.5 Rang B' },
                 ].map(({ icon: Icon, label, desc }) => (
                   <div key={label} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
@@ -532,7 +508,7 @@ const NationalExamSimulation: React.FC = () => {
             {ranking.medal === 'none' && <Target className="w-16 h-16 text-muted-foreground mx-auto" />}
 
             <h1 className="text-3xl font-bold text-foreground">Résultats de l'examen</h1>
-            <p className="text-muted-foreground">Examen blanc national EDN • {questions.length} questions</p>
+            <p className="text-muted-foreground">Examen blanc EDN • {questions.length} questions</p>
           </div>
 
           {/* Main Score Card */}
@@ -554,50 +530,9 @@ const NationalExamSimulation: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* National Ranking Card */}
+          {/* Médaille (basée uniquement sur votre score, sans comparaison avec d'autres candidats) */}
           <Card className="border-border/50">
             <CardContent className="p-6 space-y-4">
-              <h2 className="font-semibold text-foreground flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                Classement national simulé
-              </h2>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-3xl font-bold text-foreground">{ranking.rank}</p>
-                  <p className="text-xs text-muted-foreground">Rang</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-primary">{ranking.percentile}e</p>
-                  <p className="text-xs text-muted-foreground">Percentile</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-muted-foreground">{ranking.totalCandidates.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">Candidats</p>
-                </div>
-              </div>
-
-              {/* Percentile bar */}
-              <div className="space-y-1">
-                <div className="relative h-4 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${ranking.percentile}%` }}
-                    transition={{ delay: 0.5, duration: 1.5, ease: 'easeOut' }}
-                    className={cn(
-                      'absolute inset-y-0 left-0 rounded-full',
-                      ranking.percentile >= 90 ? 'bg-yellow-400' :
-                      ranking.percentile >= 70 ? 'bg-emerald-400' :
-                      ranking.percentile >= 50 ? 'bg-blue-400' : 'bg-orange-400'
-                    )}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-muted-foreground">
-                  <span>0%</span>
-                  <span>Top {100 - ranking.percentile}%</span>
-                  <span>100%</span>
-                </div>
-              </div>
-
               {ranking.medal !== 'none' && (
                 <div className={cn(
                   'p-3 rounded-xl text-center text-sm font-medium',

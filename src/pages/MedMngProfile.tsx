@@ -88,9 +88,12 @@ const MedMngProfileComponent = () => {
           medMngApi.getRemainingQuota(),
         ]);
         
-        // Récupérer le nombre de favoris via RPC ou table directe
+        // CONSTAT : la table 'favorites' n'existe pas dans le schéma Supabase.
+        // La vraie table des favoris chansons MED MNG est 'med_mng_user_favorites'
+        // (colonnes : id, user_id, song_id, created_at). Le compteur affichait donc
+        // toujours 0 favoris sur /med-mng/profile.
         const { count: favoritesCount } = await (supabase as any)
-          .from('favorites')
+          .from('med_mng_user_favorites')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user?.id);
         

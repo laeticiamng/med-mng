@@ -2,14 +2,24 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
+import {
+  FORMULES_PREMIUM,
+  NOM_OFFRE_PREMIUM,
+  QUOTA_GENERATIONS_AUDIO_PREMIUM,
+  type FormulePremium,
+} from '@/config/offre';
 
-// Plans MED-MNG avec prix et limites Stripe
-export const SUBSCRIPTION_TIERS = {
-  free: { name: 'Gratuit', price: 0, generations: 3, price_id: null },
-  standard: { name: 'Standard', price: 19, generations: 30, price_id: 'price_1RqGSeDFa5Y9NR1IbOwa1TGy' },
-  pro: { name: 'Pro', price: 29, generations: 300, price_id: 'price_1RqGT0DFa5Y9NR1IegoELBi8' },
-  premium: { name: 'Premium', price: 39, generations: 3000, price_id: 'price_1RqGTHDFa5Y9NR1IcGxsiIP8' },
-} as const;
+/**
+ * Abonnement MED MNG de l'utilisateur connecté.
+ *
+ * Source unique : RPC `get_user_subscription` (alimentée par le webhook
+ * Stripe mm-stripe-webhook), recoupée avec la ligne de `user_subscriptions`
+ * (statut + fin de période) pour ne jamais considérer comme actif un
+ * abonnement résilié ou échu — y compris tant que la migration
+ * 20260924120000_mm_abonnement_statut n'est pas appliquée.
+ */
+
+export type StatutAbonnement = 'active' | 'trialing' | 'canceled' | 'past_due' | 'unpaid' | 'inactive';
 
 interface SubscriptionPlan {
   plan_id: string;
@@ -21,8 +31,9 @@ interface SubscriptionPlan {
     bande_dessinee: boolean;
     save_music: boolean;
   };
-  status: 'active' | 'trialing' | 'canceled' | 'past_due' | 'unpaid';
-  is_trialing?: boolean;
+  status: StatutAbonnement;
+  /** Fin de la période en cours (renouvellement ou fin d'accès), si connue. */
+  current_period_end?: string | null;
 }
 
 interface MusicQuota {
@@ -35,38 +46,29 @@ interface MusicQuota {
 interface UseSubscriptionError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
-// Type guards pour validation
-const isValidSubscriptionPlan = (data: any): data is SubscriptionPlan => {
-  return data && 
-         typeof data.plan_id === 'string' &&
-         typeof data.plan_name === 'string' &&
-         typeof data.monthly_quota === 'number' &&
-         data.features &&
-         typeof data.features.tableaux === 'boolean' &&
-         typeof data.features.quiz === 'boolean' &&
-         typeof data.features.bande_dessinee === 'boolean' &&
-          typeof data.features.save_music === 'boolean' &&
-         ['active', 'trialing', 'canceled', 'past_due', 'unpaid'].includes(data.status);
+const STATUTS_CONNUS: StatutAbonnement[] = ['active', 'trialing', 'canceled', 'past_due', 'unpaid', 'inactive'];
+
+/** Valeur inconnue (« free », « cancelled », vide…) → 'inactive', jamais 'active'. */
+export const normalizeStatus = (status: string | null | undefined): StatutAbonnement => {
+  const s = (status || '').toLowerCase();
+  if (s === 'cancelled') return 'canceled';
+  return STATUTS_CONNUS.includes(s as StatutAbonnement) ? (s as StatutAbonnement) : 'inactive';
 };
 
-const isValidMusicQuota = (data: any): data is MusicQuota => {
-  return data &&
-         typeof data.can_generate === 'boolean' &&
-         typeof data.current_usage === 'number' &&
-         typeof data.quota_limit === 'number' &&
-         typeof data.plan_name === 'string';
+const FEATURES_PAR_DEFAUT: SubscriptionPlan['features'] = {
+  tableaux: true,
+  quiz: false,
+  bande_dessinee: false,
+  save_music: false,
 };
 
-// Helper pour normaliser le status
-const normalizeStatus = (status: string): SubscriptionPlan['status'] => {
-  const validStatuses: SubscriptionPlan['status'][] = ['active', 'trialing', 'canceled', 'past_due', 'unpaid'];
-  return validStatuses.includes(status as SubscriptionPlan['status']) 
-    ? status as SubscriptionPlan['status']
-    : 'active';
-};
+const estStatutActif = (s: StatutAbonnement | undefined) => s === 'active' || s === 'trialing';
+
+const periodeEnCours = (fin: string | null | undefined) =>
+  !fin || new Date(fin).getTime() > Date.now();
 
 export const useSubscription = () => {
   const { user } = useAuth();
@@ -74,216 +76,137 @@ export const useSubscription = () => {
   const [musicQuota, setMusicQuota] = useState<MusicQuota | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<UseSubscriptionError | null>(null);
-  
-  // Use ref pour éviter les re-renders inutiles
+
   const fetchingRef = useRef(false);
   const userIdRef = useRef<string | null>(null);
 
-  const fetchSubscription = useCallback(async () => {
-    if (!user || fetchingRef.current || userIdRef.current === user.id) {
-      if (!user) {
-        setSubscription(null);
-        setMusicQuota(null);
-        setLoading(false);
-      }
-      return;
+  /**
+   * Charge l'abonnement. `force` ignore le cache par utilisateur : à utiliser
+   * après un paiement (page de succès) ou une résiliation. Renvoie
+   * l'abonnement lu (ou null), pour permettre un sondage.
+   */
+  const fetchSubscription = useCallback(async (force = false): Promise<SubscriptionPlan | null> => {
+    if (!user) {
+      setSubscription(null);
+      setMusicQuota(null);
+      setLoading(false);
+      return null;
     }
+    if (fetchingRef.current) return null;
+    if (!force && userIdRef.current === user.id) return null;
 
     fetchingRef.current = true;
     userIdRef.current = user.id;
     setError(null);
 
     try {
-      // Get user subscription avec retry logic
-      const { data: subData, error: subError } = await supabase
-        .rpc('get_user_subscription', { user_uuid: user.id });
+      const [{ data: subData, error: subError }, { data: lignes }] = await Promise.all([
+        supabase.rpc('get_user_subscription', { user_uuid: user.id }),
+        supabase
+          .from('user_subscriptions')
+          .select('status, current_period_end')
+          .eq('user_id', user.id)
+          .order('current_period_end', { ascending: false, nullsFirst: false })
+          .limit(5),
+      ]);
 
       if (subError) {
-        const errorObj: UseSubscriptionError = {
-          code: 'SUBSCRIPTION_FETCH_ERROR',
-          message: 'Erreur lors de la récupération de l\'abonnement',
-          details: subError
-        };
-        setError(errorObj);
+        setError({ code: 'SUBSCRIPTION_FETCH_ERROR', message: "Erreur lors de la récupération de l'abonnement", details: subError });
         if (import.meta.env.DEV) console.error('Error fetching subscription:', subError);
-        toast.error('Erreur lors de la récupération de l\'abonnement');
-        return;
+        return null;
       }
 
-      if (subData && subData.length > 0) {
-        const subInfo = subData[0];
-        const normalizedSubscription: SubscriptionPlan = {
-          plan_id: subInfo.plan_id,
-          plan_name: subInfo.plan_name,
-          monthly_quota: subInfo.monthly_quota,
-          features: subInfo.features as SubscriptionPlan['features'],
-          status: normalizeStatus(subInfo.status)
-        };
-        
-        if (isValidSubscriptionPlan(normalizedSubscription)) {
-          setSubscription(normalizedSubscription);
-        } else {
-          const errorObj: UseSubscriptionError = {
-            code: 'INVALID_SUBSCRIPTION_DATA',
-            message: 'Données d\'abonnement invalides',
-            details: subInfo
-          };
-          setError(errorObj);
-          if (import.meta.env.DEV) console.error('Invalid subscription data received:', subInfo);
-          toast.error('Erreur de validation des données d\'abonnement');
-        }
-      }
+      // Ligne réellement active (statut + période) dans user_subscriptions.
+      const ligneActive = (lignes ?? []).find(
+        (l) => estStatutActif(normalizeStatus(l.status)) && periodeEnCours(l.current_period_end)
+      );
 
-      // Get music quota depuis la nouvelle table user_quotas (musique uniquement)
+      const info = subData?.[0];
+      let statut = normalizeStatus(info?.status);
+      // Garde-fou : la RPC (avant migration) peut renvoyer « active » pour un
+      // abonnement échu ; sans ligne réellement active, on rétrograde.
+      if (estStatutActif(statut) && !ligneActive) statut = 'inactive';
+
+      const resultat: SubscriptionPlan = {
+        plan_id: info?.plan_id ?? 'free',
+        plan_name: estStatutActif(statut) ? NOM_OFFRE_PREMIUM : (info?.plan_name ?? 'Gratuit'),
+        monthly_quota: estStatutActif(statut) ? QUOTA_GENERATIONS_AUDIO_PREMIUM : 0,
+        features: (info?.features as SubscriptionPlan['features']) ?? FEATURES_PAR_DEFAUT,
+        status: statut,
+        current_period_end: ligneActive?.current_period_end ?? null,
+      };
+      setSubscription(resultat);
+
+      // Quota audio (indicatif : le contrôle qui fait foi est dans mm-generate-music).
       const { data: quotaData, error: quotaError } = await supabase
         .rpc('get_music_quota', { p_user_id: user.id });
-
-      if (quotaError) {
-        // Log mais ne pas bloquer - utiliser quota par défaut basé sur le plan
-        if (import.meta.env.DEV) console.warn('Quota check failed, using plan defaults:', quotaError);
-        
-        // Créer un quota par défaut basé sur l'abonnement
-        const defaultQuota: MusicQuota = {
-          can_generate: true, // Permettre la génération par défaut
-          current_usage: 0,
-          quota_limit: subscription?.monthly_quota || 3, // Utiliser le quota du plan
-          plan_name: subscription?.plan_name || 'Gratuit'
-        };
-        setMusicQuota(defaultQuota);
-      } else if (quotaData && quotaData.length > 0) {
-        const quotaInfo = quotaData[0];
-        
-        // Adapter le format de get_user_quota au format MusicQuota
-        const adaptedQuota: MusicQuota = {
-          can_generate: quotaInfo.can_generate || false,
-          current_usage: quotaInfo.credits_used_this_period || 0,
-          quota_limit: quotaInfo.total_credits || 0,
-          plan_name: subscription?.plan_name || 'Standard'
-        };
-        
-        if (import.meta.env.DEV) console.log('📊 Quota synchronized:', adaptedQuota);
-        
-        if (isValidMusicQuota(adaptedQuota)) {
-          setMusicQuota(adaptedQuota);
-        } else {
-          if (import.meta.env.DEV) console.warn('Invalid adapted quota data, using defaults:', adaptedQuota);
-          // Utiliser quota par défaut si données invalides
-          const defaultQuota: MusicQuota = {
-            can_generate: true,
-            current_usage: 0,
-            quota_limit: subscription?.monthly_quota || 3,
-            plan_name: subscription?.plan_name || 'Gratuit'
-          };
-          setMusicQuota(defaultQuota);
-        }
+      const limite = resultat.monthly_quota;
+      if (!quotaError && quotaData && quotaData.length > 0) {
+        const q = quotaData[0];
+        const utilise = q.credits_used_this_period || 0;
+        setMusicQuota({
+          can_generate: estStatutActif(statut) && utilise < limite,
+          current_usage: utilise,
+          quota_limit: limite,
+          plan_name: resultat.plan_name,
+        });
       } else {
-        // Aucune donnée retournée - utiliser quota par défaut
-        const defaultQuota: MusicQuota = {
-          can_generate: true,
+        setMusicQuota({
+          can_generate: estStatutActif(statut),
           current_usage: 0,
-          quota_limit: subscription?.monthly_quota || 3,
-          plan_name: subscription?.plan_name || 'Gratuit'
-        };
-        setMusicQuota(defaultQuota);
+          quota_limit: limite,
+          plan_name: resultat.plan_name,
+        });
       }
-    } catch (error) {
-      const errorObj: UseSubscriptionError = {
-        code: 'UNKNOWN_ERROR',
-        message: 'Erreur inconnue lors de la récupération des données',
-        details: error
-      };
-      setError(errorObj);
-      if (import.meta.env.DEV) console.error('Error in fetchSubscription:', error);
-      toast.error('Erreur inattendue lors de la récupération des données');
+
+      return resultat;
+    } catch (err) {
+      setError({ code: 'UNKNOWN_ERROR', message: 'Erreur inconnue lors de la récupération des données', details: err });
+      if (import.meta.env.DEV) console.error('Error in fetchSubscription:', err);
+      return null;
     } finally {
       setLoading(false);
       fetchingRef.current = false;
     }
   }, [user]);
 
+  /** Recharge sans tenir compte du cache (après paiement, résiliation…). */
+  const refresh = useCallback(() => fetchSubscription(true), [fetchSubscription]);
+
   const incrementMusicUsage = useCallback(async (): Promise<boolean> => {
-    if (!user) {
-      if (import.meta.env.DEV) console.warn('Tentative d\'incrément de quota sans utilisateur connecté');
-      return false;
-    }
-
+    if (!user) return false;
     try {
-      const { data, error } = await supabase
-        .rpc('increment_music_usage', { user_uuid: user.id });
-
-      if (error) {
-        if (import.meta.env.DEV) console.error('Error incrementing music usage:', error);
-        toast.error('Erreur lors de la mise à jour du quota');
+      const { data, error: rpcError } = await supabase.rpc('increment_music_usage', { user_uuid: user.id });
+      if (rpcError) {
+        if (import.meta.env.DEV) console.error('Error incrementing music usage:', rpcError);
         return false;
       }
-
-      // Refresh quota après incrémentation (musique uniquement)
-      const { data: quotaData, error: quotaError } = await supabase
-        .rpc('get_music_quota', { p_user_id: user.id });
-
-      if (!quotaError && quotaData && quotaData.length > 0) {
-        const quotaInfo = quotaData[0];
-
-        const adaptedQuota: MusicQuota = {
-          can_generate: quotaInfo.can_generate || false,
-          current_usage: quotaInfo.credits_used_this_period || 0,
-          quota_limit: quotaInfo.total_credits || 0,
-          plan_name: subscription?.plan_name || 'Standard'
-        };
-
-        if (isValidMusicQuota(adaptedQuota)) {
-          setMusicQuota(adaptedQuota);
-        }
-      }
-
-      return data;
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error in incrementMusicUsage:', error);
-      toast.error('Erreur lors de l\'incrément du quota');
+      return Boolean(data);
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Error in incrementMusicUsage:', err);
       return false;
     }
   }, [user]);
 
+  const isSubscriptionActive = useCallback((): boolean => estStatutActif(subscription?.status), [subscription]);
+
   const hasFeatureAccess = useCallback((feature: keyof SubscriptionPlan['features']): boolean => {
-    if (!subscription) return false;
+    if (isSubscriptionActive()) return true;
+    if (!subscription) return feature === 'tableaux';
     return subscription.features[feature] || false;
-  }, [subscription]);
-  const canSaveMusic = useCallback((): boolean => {
-    return hasFeatureAccess('save_music');
-  }, [hasFeatureAccess]);
+  }, [subscription, isSubscriptionActive]);
+
+  const canSaveMusic = useCallback((): boolean => isSubscriptionActive(), [isSubscriptionActive]);
 
   const getUsageDisplay = useCallback((): string => {
     if (!musicQuota) return '';
-    if (musicQuota.quota_limit === 0) return 'Plan gratuit';
+    if (musicQuota.quota_limit === 0) return 'Génération audio incluse dans MED MNG Premium';
     return `${musicQuota.current_usage}/${musicQuota.quota_limit} générations ce mois`;
   }, [musicQuota]);
 
-  const getSunoModel = useCallback((): "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" => {
-    if (!subscription) return "V4_5ALL"; // Plan gratuit = modèle premium pour découverte
-    
-    switch (subscription.plan_name) {
-      case 'Plan Standard':
-      case 'Basic':
-      case 'basic':
-        return "V4"; // 19€ = V4
-      case 'Plan Pro':
-      case 'Pro':
-      case 'pro':
-        return "V4_5"; // 29€ = V4.5
-      case 'Plan Premium':
-      case 'Premium':
-      case 'premium':
-        return "V4_5ALL"; // 39€ = V4.5 ALL
-      case 'Plan Elite':
-      case 'Elite':
-      case 'elite':
-        return "V5"; // Premium max = V5
-      default:
-        return "V4";
-    }
-  }, [subscription]);
+  /** Le modèle est imposé côté serveur (mm-generate-music) ; valeur indicative. */
+  const getSunoModel = useCallback((): "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" => 'V4_5ALL', []);
 
-  // Reset state when user changes
   useEffect(() => {
     if (!user) {
       setSubscription(null);
@@ -297,230 +220,137 @@ export const useSubscription = () => {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // Get quota usage percentage
   const getQuotaPercentage = useCallback((): number => {
     if (!musicQuota || musicQuota.quota_limit === 0) return 0;
     return Math.round((musicQuota.current_usage / musicQuota.quota_limit) * 100);
   }, [musicQuota]);
 
-  // Check if quota is critical (> 90%)
-  const isQuotaCritical = useCallback((): boolean => {
-    return getQuotaPercentage() >= 90;
-  }, [getQuotaPercentage]);
+  const isQuotaCritical = useCallback((): boolean => getQuotaPercentage() >= 90, [getQuotaPercentage]);
+  const isQuotaLow = useCallback((): boolean => getQuotaPercentage() >= 75, [getQuotaPercentage]);
 
-  // Check if quota is low (> 75%)
-  const isQuotaLow = useCallback((): boolean => {
-    return getQuotaPercentage() >= 75;
-  }, [getQuotaPercentage]);
-
-  // Get remaining generations
   const getRemainingGenerations = useCallback((): number => {
     if (!musicQuota) return 0;
     return Math.max(0, musicQuota.quota_limit - musicQuota.current_usage);
   }, [musicQuota]);
 
-  // Get subscription status display
   const getStatusDisplay = useCallback((): string => {
-    if (!subscription) return 'Non abonné';
-
-    switch (subscription.status) {
+    switch (subscription?.status) {
       case 'active': return 'Actif';
-      case 'trialing': return 'Essai en cours';
-      case 'canceled': return 'Annulé';
-      case 'past_due': return 'Paiement en retard';
+      case 'trialing': return 'Actif';
+      case 'canceled': return 'Résilié';
+      case 'past_due': return 'Paiement en attente';
       case 'unpaid': return 'Impayé';
-      default: return 'Inconnu';
+      default: return 'Non abonné';
     }
   }, [subscription]);
 
-  // Get status color class
   const getStatusColor = useCallback((): string => {
-    if (!subscription) return 'text-gray-500';
-
-    switch (subscription.status) {
-      case 'active': return 'text-green-500';
-      case 'trialing': return 'text-blue-500';
-      case 'canceled': return 'text-yellow-500';
-      case 'past_due': return 'text-orange-500';
-      case 'unpaid': return 'text-red-500';
-      default: return 'text-gray-500';
+    switch (subscription?.status) {
+      case 'active':
+      case 'trialing': return 'text-success';
+      case 'past_due': return 'text-warning';
+      case 'unpaid': return 'text-destructive';
+      default: return 'text-muted-foreground';
     }
   }, [subscription]);
 
-  // Check if subscription is active
-  const isSubscriptionActive = useCallback((): boolean => {
-    return subscription?.status === 'active' || subscription?.status === 'trialing';
-  }, [subscription]);
+  const getPlanTier = useCallback((): 'free' | 'premium' => (isSubscriptionActive() ? 'premium' : 'free'), [isSubscriptionActive]);
 
-  // Get available upgrade options
-  const getUpgradeOptions = useCallback((): {
-    planId: string;
-    planName: string;
-    monthlyQuota: number;
-    price: number;
-  }[] => {
-    const allPlans = [
-      { planId: 'standard', planName: 'Plan Standard', monthlyQuota: SUBSCRIPTION_TIERS.standard.generations, price: SUBSCRIPTION_TIERS.standard.price },
-      { planId: 'pro', planName: 'Plan Pro', monthlyQuota: SUBSCRIPTION_TIERS.pro.generations, price: SUBSCRIPTION_TIERS.pro.price },
-      { planId: 'premium', planName: 'Plan Premium', monthlyQuota: SUBSCRIPTION_TIERS.premium.generations, price: SUBSCRIPTION_TIERS.premium.price }
-    ];
+  const canUpgrade = useCallback((): boolean => !isSubscriptionActive(), [isSubscriptionActive]);
 
-    const currentQuota = subscription?.monthly_quota || 0;
-    return allPlans.filter(p => p.monthlyQuota > currentQuota);
-  }, [subscription]);
-
-  // Get plan features comparison
-  const getPlanFeatures = useCallback((planName: string): {
-    feature: string;
-    included: boolean;
-  }[] => {
-    const features = [
-      { feature: 'Tableaux de révision', basic: true, pro: true, premium: true },
-      { feature: 'Quiz interactifs', basic: true, pro: true, premium: true },
-      { feature: 'Bande dessinée EDN', basic: false, pro: true, premium: true },
-      { feature: 'Sauvegarde musique', basic: false, pro: true, premium: true },
-      { feature: 'Support prioritaire', basic: false, pro: false, premium: true },
-      { feature: 'Accès anticipé', basic: false, pro: false, premium: true }
-    ];
-
-    const planKey = planName.toLowerCase().includes('standard') ? 'basic'
-      : planName.toLowerCase().includes('pro') ? 'pro'
-      : 'premium';
-
-    return features.map(f => ({
-      feature: f.feature,
-      included: f[planKey as keyof typeof f] as boolean
-    }));
-  }, []);
-
-  // Estimate when quota will run out
-  const estimateQuotaExhaustion = useCallback((): string | null => {
-    if (!musicQuota || musicQuota.quota_limit === 0) return null;
-
-    const remaining = getRemainingGenerations();
-    if (remaining <= 0) return 'Quota épuisé';
-
-    // Estimate based on current usage rate (assume 1 month period)
-    const daysRemaining = Math.round((remaining / Math.max(1, musicQuota.current_usage)) * 30);
-
-    if (daysRemaining > 30) return 'Plus d\'un mois';
-    if (daysRemaining > 7) return `Environ ${Math.round(daysRemaining / 7)} semaines`;
-    if (daysRemaining > 1) return `Environ ${daysRemaining} jours`;
-    return 'Moins d\'un jour';
-  }, [musicQuota, getRemainingGenerations]);
-
-  // Get quota reset date
   const getQuotaResetDate = useCallback((): Date => {
-    // Quota resets on 1st of each month
     const now = new Date();
-    const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    return resetDate;
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1);
   }, []);
 
-  // Get days until quota reset
   const getDaysUntilReset = useCallback((): number => {
-    const resetDate = getQuotaResetDate();
-    const now = new Date();
-    const diff = resetDate.getTime() - now.getTime();
+    const diff = getQuotaResetDate().getTime() - Date.now();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }, [getQuotaResetDate]);
 
-  // Format quota for display
-  const formatQuotaDisplay = useCallback((): {
-    used: string;
-    total: string;
-    percentage: string;
-    status: 'ok' | 'warning' | 'critical';
-  } => {
-    if (!musicQuota) {
-      return { used: '0', total: '0', percentage: '0%', status: 'ok' };
-    }
-
+  const formatQuotaDisplay = useCallback(() => {
+    if (!musicQuota) return { used: '0', total: '0', percentage: '0%', status: 'ok' as const };
     const percentage = getQuotaPercentage();
-    let status: 'ok' | 'warning' | 'critical' = 'ok';
-    if (percentage >= 90) status = 'critical';
-    else if (percentage >= 75) status = 'warning';
-
+    const status: 'ok' | 'warning' | 'critical' = percentage >= 90 ? 'critical' : percentage >= 75 ? 'warning' : 'ok';
     return {
       used: musicQuota.current_usage.toString(),
       total: musicQuota.quota_limit.toString(),
       percentage: `${percentage}%`,
-      status
+      status,
     };
   }, [musicQuota, getQuotaPercentage]);
 
-  // Check if can upgrade
-  const canUpgrade = useCallback((): boolean => {
-    return getUpgradeOptions().length > 0;
-  }, [getUpgradeOptions]);
-
-  // Get current plan tier
-  const getPlanTier = useCallback((): 'free' | 'basic' | 'pro' | 'premium' => {
-    if (!subscription) return 'free';
-
-    const planName = subscription.plan_name.toLowerCase();
-    if (planName.includes('premium')) return 'premium';
-    if (planName.includes('pro')) return 'pro';
-    if (planName.includes('standard') || planName.includes('basic')) return 'basic';
-    return 'free';
-  }, [subscription]);
-
-  // Créer une session de checkout Stripe
-  const createCheckout = useCallback(async (plan: 'standard' | 'pro' | 'premium'): Promise<string | null> => {
+  /**
+   * Ouvre le paiement Stripe de MED MNG Premium (redirection dans l'onglet).
+   * `renonciation` : case cochée « accès immédiat / perte du droit de
+   * rétractation », exigée par mm-create-checkout.
+   */
+  const createCheckout = useCallback(async (formule: FormulePremium, renonciation: boolean): Promise<string | null> => {
     if (!user) {
-      toast.error('Veuillez vous connecter pour souscrire à un abonnement');
+      toast.error('Veuillez vous connecter pour vous abonner.');
       return null;
     }
-
     try {
-      // Track checkout_start for conversion funnel analytics
       const { trackConversionEvent } = await import('@/lib/conversionTracking');
-      trackConversionEvent('checkout_start', { plan });
+      trackConversionEvent('checkout_start', { plan: formule });
 
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan },
+      const { data, error: fnError } = await supabase.functions.invoke('mm-create-checkout', {
+        body: { plan: FORMULES_PREMIUM[formule].planCheckout, renonciation_retractation: renonciation },
       });
 
-      if (error) {
-        toast.error(error.message || 'Impossible de créer la session de paiement');
+      if (fnError) {
+        let message = 'Le paiement est momentanément indisponible. Réessayez plus tard.';
+        const contexte = (fnError as { context?: Response }).context;
+        if (contexte && typeof contexte.json === 'function') {
+          try {
+            const corps = await contexte.clone().json();
+            if (typeof corps?.error === 'string') message = corps.error;
+          } catch { /* corps non JSON */ }
+        }
+        toast.error(message);
         return null;
       }
-
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
         return data.url;
       }
+      toast.error('Le paiement est momentanément indisponible. Réessayez plus tard.');
       return null;
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error creating checkout:', error);
-      toast.error('Une erreur est survenue lors de la création du paiement');
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Error creating checkout:', err);
+      toast.error('Le paiement est momentanément indisponible. Réessayez plus tard.');
       return null;
     }
   }, [user]);
 
-  // Ouvrir le portail client Stripe
+  /** Portail Stripe : gérer / résilier l'abonnement, factures. */
   const openCustomerPortal = useCallback(async (): Promise<string | null> => {
     if (!user) {
-      toast.error('Veuillez vous connecter pour gérer votre abonnement');
+      toast.error('Veuillez vous connecter pour gérer votre abonnement.');
       return null;
     }
-
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-
-      if (error) {
-        toast.error(error.message || 'Impossible d\'ouvrir le portail client');
+      const { data, error: fnError } = await supabase.functions.invoke('mm-customer-portal');
+      if (fnError) {
+        let message = "Le portail de gestion est momentanément indisponible. Réessayez plus tard.";
+        const contexte = (fnError as { context?: Response }).context;
+        if (contexte && typeof contexte.json === 'function') {
+          try {
+            const corps = await contexte.clone().json();
+            if (typeof corps?.error === 'string') message = corps.error;
+          } catch { /* corps non JSON */ }
+        }
+        toast.error(message);
         return null;
       }
-
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
         return data.url;
       }
       return null;
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error opening customer portal:', error);
-      toast.error('Une erreur est survenue');
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Error opening customer portal:', err);
+      toast.error('Une erreur est survenue. Réessayez plus tard.');
       return null;
     }
   }, [user]);
@@ -531,6 +361,7 @@ export const useSubscription = () => {
     loading,
     error,
     fetchSubscription,
+    refresh,
     incrementMusicUsage,
     hasFeatureAccess,
     canSaveMusic,
@@ -543,9 +374,6 @@ export const useSubscription = () => {
     getStatusDisplay,
     getStatusColor,
     isSubscriptionActive,
-    getUpgradeOptions,
-    getPlanFeatures,
-    estimateQuotaExhaustion,
     getQuotaResetDate,
     getDaysUntilReset,
     formatQuotaDisplay,

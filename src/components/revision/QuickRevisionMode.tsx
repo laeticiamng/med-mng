@@ -163,10 +163,10 @@ export const QuickRevisionMode = () => {
                 <div className="bg-muted/50 rounded-lg p-6 text-center space-y-3">
                   <Music className="h-10 w-10 text-primary mx-auto" />
                   <p className="text-sm text-muted-foreground">
-                    🎵 La chanson associée à cet item sera jouée ici.
+                    🎵 Les paroles et l'audio de la chanson de cet item sont disponibles sur sa fiche (onglet Musique).
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Connectez-vous pour écouter les chansons médicales générées par IA.
+                    L'audio se génère à la demande depuis votre compte (crédits).
                   </p>
                 </div>
 

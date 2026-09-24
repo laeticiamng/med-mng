@@ -10,5 +10,4 @@ export { useCommunityPosts } from '../useCommunityPosts';
 export { useDirectMessages } from '../useDirectMessages';
 export { useEnhancedChat } from '../useEnhancedChat';
 export { useForumThreads } from '../useForumThreads';
-export { useMentorshipMatching } from '../useMentorshipMatching';
 export { useSharedResources } from '../useSharedResources';

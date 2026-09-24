@@ -5,7 +5,7 @@
  * par des appels aux nouvelles fonctions routeurs consolidées.
  * 
  * MIGRATION: 
- * - Avant: supabase.functions.invoke('generate-music', { body: {...} })
+ * - Avant: supabase.functions.invoke('mm-generate-music', { body: {...} })
  * - Après: unifiedApi.audio.generateMusic({...})
  */
 
@@ -22,6 +22,28 @@ interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
+}
+
+const MESSAGE_SERVICE_INDISPONIBLE = 'Service momentanément indisponible, réessayez plus tard.';
+
+/**
+ * Message lisible d'une erreur d'Edge Function : on reprend le message métier
+ * renvoyé par la fonction (abonnement requis, quota atteint…), jamais le texte
+ * technique brut (« Edge Function returned a non-2xx status code »).
+ */
+async function messageErreurFonction(error: unknown): Promise<string> {
+  const contexte = (error as { context?: unknown })?.context;
+  if (contexte && typeof (contexte as Response).json === 'function') {
+    try {
+      const corps = await (contexte as Response).clone().json();
+      if (corps && typeof corps.error === 'string' && corps.error.trim()) {
+        return corps.error;
+      }
+    } catch {
+      // corps non JSON : message générique
+    }
+  }
+  return MESSAGE_SERVICE_INDISPONIBLE;
 }
 
 // ============================================================================
@@ -47,10 +69,18 @@ export const audioApi = {
     vocalGender?: VocalGender;
     styleWeight?: number;
   }): Promise<ApiResponse<{ trackId: string; metadata: any }>> {
-    const { data, error } = await supabase.functions.invoke('ai-audio', {
-      body: { action: 'generate_music', payload: params }
+    // Génération MED MNG : passe par mm-generate-music, qui vérifie côté
+    // serveur l'abonnement Premium, le quota mensuel et impose le modèle.
+    // (« ai-audio » est une fonction partagée avec EmotionsCare : non utilisée ici.)
+    const { data, error } = await supabase.functions.invoke('mm-generate-music', {
+      body: params
     });
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      return { success: false, error: await messageErreurFonction(error) };
+    }
+    if (data && data.success === false) {
+      return { success: false, error: data.error || MESSAGE_SERVICE_INDISPONIBLE };
+    }
     return { success: true, data };
   },
 

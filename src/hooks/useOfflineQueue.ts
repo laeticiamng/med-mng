@@ -9,7 +9,7 @@ import { audioApi } from '@/lib/unifiedApiClient';
 
 export interface QueuedRequest {
   id: string;
-  type: 'generate-music' | 'save-favorite' | 'delete-track';
+  type: 'mm-generate-music' | 'save-favorite' | 'delete-track';
   payload: any;
   createdAt: number;
   status: 'pending' | 'uploading' | 'completed' | 'failed';
@@ -101,7 +101,7 @@ export const useOfflineQueue = () => {
       id: typeof crypto !== 'undefined' && crypto.randomUUID 
         ? `gen_${crypto.randomUUID().slice(0, 8)}` 
         : `gen_${Date.now()}_${queue.length.toString(36).padStart(6, '0')}`,
-      type: 'generate-music',
+      type: 'mm-generate-music',
       payload,
       createdAt: Date.now(),
       status: 'pending',

@@ -1,0 +1,892 @@
+[
+ {
+  "id": "OIC-006-03-A",
+  "type": "transcription",
+  "texte": "## Schéma du parcours de soins (chemin menant du patient âgé à son domicile)\nPanneaux du côté « Une autonomie préservée », dans l'ordre du chemin :\n- Identification des besoins de la personne\n- Meilleure prise en charge\n- Transition ville-hôpital-EHPAD\n- Meilleur accompagnement\n- Plan personnalisé de santé\n- Meilleure coordination des professionnels\n- Autonomie respectée\nPanneaux du côté « Des outils spécifiques » :\n- Formations\n- Messagerie sécurisée\n- Annuaire des ressources\n- Coordination territoriale d'appui\n- Education thérapeutique"
+ },
+ {
+  "id": "OIC-026-04-B",
+  "type": "transcription",
+  "texte": "## Douleur abdominale de la femme enceinte\n| Causes | Diagnostic | Signes cliniques | Examens paracliniques | Conduite à tenir |\n| Obstétrique | HRP | Douleurs ; Contractions ; Métrorragies | Aucun : urgence vitale materno-fœtale | Césarienne |\n| Obstétrique | HELLP | Barre épigastrique | Bilan biologique vasculo-rénal ; Protéinurie ; Echographie hépatique | Provoquer Accouchement (césarienne le plus souvent) |\n| Obstétrique | MAP | Contraction utérine régulière ; Modifications cervicales | Echographie endo-vaginale cervicale | Hospitalisation ; Maturation pulmonaire fœtale ; Tocolyse |\n| Obstétrique | Chorioamniotite | Douleurs abdominopelvienne ; Contractions utérines | NFS, CRP, Hémocultures ; PV ECBU | Antibiothérapie ; Provoquer accouchement |\n| Gynécologique | Torsion d'annexe ; Rupture de kyste ; Hémorragie intra-kystique ; Nécrobiose aseptique de fibrome | Douleur brutale ; ± nausées vomissements ; ± défense | Echographie abdomino-pelvienne | Prise en charge chirurgicale (cœlioscopie ± laparotomie) |\n| Urologiques | Infection urinaire basse (cystite) ; Infection urinaire haute (pyélonéphrite) ; Colite néphrétique | Signes fonctionnels urinaire ; Douleurs lombaire unilatérale ; Contact lombaire ; Fièvre | BU ECBU ± hémocultures ; NFS, CRP ; Echographie vésico-rénale ; ± Uroscanner si doute diagnostic | Antibiothérapie ; ± prise en charge chirurgicale (Sonde double J) |\n| Digestives | Appendicite ; Péritonite ; Cholécystite ; Colique hépatique ; Pancréatite ; Occlusion intestinale aigue ; Ulcère gastroduodénal | Douleur abdominopelvienne ; ± Défense ; Nausée, vomissement ; Trouble du transit ; Ictère ; Fièvre | NFS, CRP ; Bilan hépatique ; Amylase, Lipase ; Echographie abdominopelvienne ; TDM abdominopelvien injecté ; FOGD | Prise en charge chirurgicale (cœlioscopie ou laparotomie) ; Endoscopie |"
+ },
+ {
+  "id": "OIC-036-14-B",
+  "type": "transcription",
+  "texte": "## Oubli de pilule\n- < 12 heures-pilule combinée ou désogestrel seul / < 3 h pilule microprogestative (lévonorgestrel) → Prendre le cp oublié ; Continuer la plaquette ; Pas de contraception d'urgence\n- >12 heures-pilule combinée ou désogestrel seul / >3 h pilule microprogestative (lévonorgestrel) →\n  - Oubli début ou milieu de plaquette → Prendre contraception d'urgence* ; Prendre le cp oublié ; Continuer plaquette ; Préservatif 7 jours\n  - Oubli fin de plaquette → Enchainer les plaquettes sans faire de phase d'arrêt ou en supprimant les cps placebo\n* Si rapport dans les 5 jours précédant l'oubli"
+ },
+ {
+  "id": "OIC-047-16-A",
+  "type": "transcription",
+  "texte": "## Dentition de l'enfant (schéma de l'arcade, vue de face : Droite à gauche du schéma, Gauche à droite)\n- Quadrants : 5 = haut droit ; 6 = haut gauche ; 7 = bas gauche ; 8 = bas droit\n- Dents numérotées sur le schéma : 51 et 61 (incisives centrales du haut), 55 et 65 (2ème molaires du haut), 85 et 75 (2ème molaires du bas), 81 et 71 (incisives centrales du bas)\n- Légende des dents de chaque quadrant, du centre vers l'arrière : Incisive centrale, Incisive latérale, Canine, 1ère molaire, 2ème molaire\n## Dentition adulte\n- Quadrants : 1 = haut droit ; 2 = haut gauche ; 3 = bas gauche ; 4 = bas droit\n- Dents numérotées sur le schéma : 11 et 21 (incisives centrales du haut), 18 et 28 (3ème molaires du haut), 48 et 38 (3ème molaires du bas), 41 et 31 (incisives centrales du bas)\n- Légende des dents de chaque quadrant, du centre vers l'arrière : Incisive centrale, Incisive latérale, Canine, 1ère prémolaire, 2ème prémolaire, 1ère molaire, 2ème molaire, 3ème molaire"
+ },
+ {
+  "id": "OIC-047-30-B",
+  "type": "transcription",
+  "texte": "## Radiographie du rachis en totalité de face (enfant, cliché « DROIT DEBOUT »)\n- Les clichés sont réalisés en position debout quand cela est possible (couché si enfant ne tenant pas debout)\n- Mesure sur l'agrandissement : Vertèbre limite sup. ; Vertèbre limite inf. ; Angle de Cobb (angle formé par les deux droites tracées sur les vertèbres limites)\n- Conclusion : Scoliose thoracique, à convexité gauche"
+ },
+ {
+  "id": "OIC-049-20-B",
+  "type": "transcription",
+  "texte": "## Courbe « Itinéraires staturo-pondéraux des Filles de la naissance à 22 ans »\n- Courbe de TAILLE en écarts types et courbe de POIDS en centiles, âge en ans (et mois) en abscisse\n- Mentions manuscrites : PN = 3600 g ; TN = 50 cm\n- Les points de taille de la patiente suivent un couloir jusque vers 7 ans puis s'infléchissent vers le haut, passant au-dessus de leur couloir antérieur (accélération de la vitesse de croissance)\n- Photographie associée : torse d'une fillette, de face, montrant un développement mammaire bilatéral"
+ },
+ {
+  "id": "OIC-049-22-B",
+  "type": "rien",
+  "texte": "Aucune figure ni document fourni pour cette compétence."
+ },
+ {
+  "id": "OIC-049-23-B",
+  "type": "photo",
+  "texte": "Photographie de face du torse d'une fillette montrant un développement mammaire bilatéral, présentée à côté de sa courbe staturo-pondérale (Itinéraires staturo-pondéraux des Filles) où la taille s'accélère vers 7 ans."
+ },
+ {
+  "id": "OIC-050-03-B",
+  "type": "photo",
+  "texte": "Photographie d'une bourse volumineuse éclairée par une source lumineuse placée en dessous : la lumière traverse la bourse, qui apparaît rouge et translucide (bourse transilluminable). Aucune photographie de bourse non transilluminable n'est fournie."
+ },
+ {
+  "id": "OIC-050-17-A",
+  "type": "photo",
+  "texte": "Première figure (phimosis) : deux photographies d'une verge dont le prépuce, tiré par les doigts de l'examinateur, reste étroit à son extrémité sans permettre de découvrir le gland. Seconde figure (paraphimosis) : prépuce rétracté formant un anneau œdématié et rouge en arrière du gland, lui-même gonflé."
+ },
+ {
+  "id": "OIC-054-05-A",
+  "type": "rien",
+  "texte": "Figure non concordante : l'image fournie (alt « Orientation diagnostique devant une boiterie de l'enfant ») est en réalité un arbre décisionnel devant un exanthème fébrile (purpura, décollement cutané, scarlatine, Kawasaki…), sans rapport avec la boiterie. Transcription non intégrée pour éviter une erreur de contenu."
+ },
+ {
+  "id": "OIC-057-08-B",
+  "type": "photo",
+  "texte": "Coupe axiale de scanner cérébral sans injection chez un nourrisson ; une tête de flèche noire désigne une hyperdensité le long de la scissure interhémisphérique en arrière, et une flèche blanche désigne une lame hypodense péricérébrale en avant, du côté gauche du patient (droite de l'image)."
+ },
+ {
+  "id": "OIC-057-15-B",
+  "type": "transcription",
+  "texte": "## Suspicion de traumatisme non accidentel chez un enfant de 4 mois\nRadiographie du membre supérieur droit :\n- Appositions périostées ulnaires\n- Appositions périostées humérales\n- Fracture métaphyso-diaphysaire proximale de l'ulna en cours de consolidation\nRadiographie de face et de profil du membre inférieur droit (même enfant) :\n- Décollement métaphysaire supérieur de la fibula\n- Décollement métaphysaire supérieur du tibia\nConclusion : Fractures multiples d'âges différents faisant suspecter un traumatisme non accidentel"
+ },
+ {
+  "id": "OIC-058-04-B",
+  "type": "rien",
+  "texte": "Aucune figure ni document fourni pour cette compétence."
+ },
+ {
+  "id": "OIC-082-04-A",
+  "type": "transcription",
+  "texte": "## Réflexe photomoteur (colonnes : Oeil droit | Oeil gauche ; lampe dirigée sur l'œil droit)\n| Situation | Oeil droit | Oeil gauche |\n| Mydriase physiologique (examen en semi-obscurité), sans éclairage | pupille large | pupille large |\n| Réflexe photomoteur direct (œil droit) et consensuel (œil gauche) présents | pupille en myosis | pupille en myosis |\n| Réflexe photomoteur direct présent et consensuel aboli | pupille en myosis | pupille restée large |\n| Réflexe photomoteur direct aboli et consensuel présent | pupille restée large | pupille en myosis |"
+ },
+ {
+  "id": "OIC-082-13-B",
+  "type": "photo",
+  "texte": "Photographie du fond d'œil (rétinophotographie couleur) centrée sur la papille : la papille apparaît blanchâtre et saillante, ses bords ne sont pas distincts, et de petites hémorragies en flammèches sont visibles sur son pourtour."
+ },
+ {
+  "id": "OIC-086-07-A",
+  "type": "photo",
+  "texte": "Première photographie : paupière inférieure éversée montrant, sur sa face conjonctivale, une lésion rouge, arrondie et bien limitée. Seconde photographie : paupière supérieure fermée portant un nodule rouge saillant près du bord libre, au-dessus des cils."
+ },
+ {
+  "id": "OIC-086-08-A",
+  "type": "photo",
+  "texte": "Photographie en gros plan du bord libre de la paupière inférieure : tuméfaction rouge et luisante centrée sur la base des cils."
+ },
+ {
+  "id": "OIC-095-19-B",
+  "type": "photo",
+  "texte": "Deux coupes d'IRM lombaire pondérées T2 (sagittale à gauche, axiale à droite) ; sur chacune, une flèche rouge désigne une saillie discale en arrière du dernier disque lombaire, venant au contact du canal rachidien."
+ },
+ {
+  "id": "OIC-102-07-A",
+  "type": "photo",
+  "texte": "Trois photographies du regard d'un même patient (A : regard de face, B : regard vers la gauche, C : regard vers la droite) ; en C, l'œil droit ne dépasse pas la ligne médiane vers l'extérieur alors que l'œil gauche se porte normalement en dedans."
+ },
+ {
+  "id": "OIC-102-08-A",
+  "type": "photo",
+  "texte": "Planche de photographies d'une même patiente (A à J) : ptosis complet de l'œil gauche (A), pupille gauche large aréactive comparée à la pupille droite (B, C), puis regard dans différentes directions, paupières soulevées par l'examinateur (D à J), montrant l'œil gauche en position basse et externe et limité dans l'adduction, l'élévation et l'abaissement."
+ },
+ {
+  "id": "OIC-104-15-B",
+  "type": "transcription",
+  "texte": "## Révision 2017 des critères de MacDonald\nAu moins une lésion T2 dans au moins 2 des 4 localisations suivantes :\n- périventriculaire\n- corticale /juxtacorticale\n- infratentorielle\n- moelle épinière\n(chaque localisation est illustrée par une coupe d'IRM montrant des hypersignaux)"
+ },
+ {
+  "id": "OIC-110-23-A",
+  "type": "photo",
+  "texte": "Photographie de la cavité buccale bouche grande ouverte : deux amygdales volumineuses, bosselées, se rejoignent presque sur la ligne médiane et obstruent l'oropharynx de part et d'autre de la luette."
+ },
+ {
+  "id": "OIC-111-06-B",
+  "type": "transcription",
+  "texte": "## Annotations des photographies\n- Acné nodulaire : joue et menton d'un homme ; flèche « Nodule » vers une lésion entourée en rouge\n- Acné papulo-pustuleuse : flèches « papules » et « pustules » vers des lésions entourées en rouge\n- Acné rétentionnelle : front ; flèches « Comédon ouvert » (point noir) et « Comédons fermés » (petites élevures blanchâtres)"
+ },
+ {
+  "id": "OIC-111-12-A",
+  "type": "photo",
+  "texte": "Rosacée vasculaire : aile du nez et joue rouges parcourues de fines télangiectasies. Rosacée papulo-pustuleuse : papules et pustules rouges sur le nez, les sillons et le pourtour de la bouche. Rhinophyma : nez très augmenté de volume, bosselé, aux pores dilatés."
+ },
+ {
+  "id": "OIC-111-15-A",
+  "type": "photo",
+  "texte": "Photographie de la région centro-faciale : rougeur des sillons nasogéniens et des ailes du nez recouverte de fines squames blanchâtres."
+ },
+ {
+  "id": "OIC-112-06-A",
+  "type": "photo",
+  "texte": "Photographie du dos du pied montrant une lésion unique ronde, surélevée, remplie de liquide jaune clair, bien limitée."
+ },
+ {
+  "id": "OIC-112-07-B",
+  "type": "photo",
+  "texte": "Photographie du bras : multiples bulles de tailles variables, claires ou sombres (hémorragiques), et croûtes, sur des plaques rouges œdémateuses."
+ },
+ {
+  "id": "OIC-112-08-B",
+  "type": "photo",
+  "texte": "Photographie du dos : nombreuses petites bulles claires et plusieurs érosions rouges arrondies à bords irréguliers, certaines entourées de peau pigmentée."
+ },
+ {
+  "id": "OIC-114-18-B",
+  "type": "photo",
+  "texte": "Photographie d'un enfant tirant la langue : langue rouge vif, parsemée de petits points saillants, avec des lèvres rouges."
+ },
+ {
+  "id": "OIC-114-19-A",
+  "type": "photo",
+  "texte": "Deux photographies d'exanthème morbilliforme : dos d'un patient couvert d'une éruption faite de petites macules/papules érythémateuses diffuses, et vue rapprochée de la peau montrant ces lésions rouges confluant en plaques séparées par des intervalles de peau saine."
+ },
+ {
+  "id": "OIC-114-20-A",
+  "type": "photo",
+  "texte": "Trois photographies d'exanthème scarlatiniforme : érythème diffus en nappe du dos (deux photos, dont une chez un enfant), et dos présentant un érythème avec zones de desquamation."
+ },
+ {
+  "id": "OIC-114-21-A",
+  "type": "photo",
+  "texte": "Deux photographies d'érythrodermie : érythème rouge vif diffus, étendu à la quasi-totalité du tégument, visible sur le dos et sur la face antérieure du tronc."
+ },
+ {
+  "id": "OIC-114-22-B",
+  "type": "photo",
+  "texte": "Trois photographies de mégalérythème : érythème des paumes des deux mains, érythème d'aspect réticulé (en dentelle) sur un bras, et érythème de la joue chez un enfant (vue de profil)."
+ },
+ {
+  "id": "OIC-116-04-B",
+  "type": "photo",
+  "texte": "Photographie de lésions de prurigo nodulaire : multiples papulo-nodules violacés, certains excoriés/croûteux, regroupés sur la face antérieure du genou et de la jambe."
+ },
+ {
+  "id": "OIC-116-05-B",
+  "type": "photo",
+  "texte": "Photographie de lichénification : plaque de peau épaissie, grisâtre, au quadrillage cutané accentué, sur le dos du pied et la cheville."
+ },
+ {
+  "id": "OIC-116-07-A",
+  "type": "transcription",
+  "texte": "## Diagnostic étiologique du prurit\nPrurit → Lésions cutanées spécifiques?\n- oui → Cause dermatologique :\n  - Psoriasis\n  - Dermatite atopique\n  - Gale\n  - Urticaire\n  - Lichen plan…..\n- non → Cause non dermatologique :\n  - Cholestase\n  - Insuffisance rénale chronique\n  - Hémopathies\n  - Dysthyroïdies\n  - Carence martiale\n  - Médicaments"
+ },
+ {
+  "id": "OIC-128-10-A",
+  "type": "transcription",
+  "texte": "## Radiographies du rachis lombaire, incidences de face et de profil\n- Profil : Perte de hauteur du corps vertébral de L1 par fracture tassement de son plateau supérieur. Pas de lyse osseuse\n- Profil : repère « Corps vertébral de L5 »\n- Face : Fractures tassements des plateaux supérieurs de T11 (non visible de profil) et de L1\nConclusion : Fractures ostéoporotiques de T11 et L1"
+ },
+ {
+  "id": "OIC-128-11-B",
+  "type": "transcription",
+  "texte": "## IRM du rachis lombaire, coupes sagittales (Séquence T1 et Séquence T2 Fat Sat)\n- Repère : Corps vertébral de T12\n- Perte de hauteur du corps vertébral de L1.\n- Œdème osseux en hyposignal T1 et hypersignal T2 Fat Sat (flèches).\n- Recul du coin postéro supérieur de la vertèbre\nConclusion : Fracture tassement d'allure ostéoporotique du corps de L1\nFat Sat : saturation du signal de la graisse"
+ },
+ {
+  "id": "OIC-129-11-A",
+  "type": "transcription",
+  "texte": "## Radiographies : Bassin de face et Faux-profil de Lequesne gauche\n- Repères anatomiques : Tête fémorale, Col fémoral, Grand trochanter, Petit trochanter, Tubérosité ischiatique, Acétabulum\n- Signes (hanche gauche) :\n  - Ostéocondensation sous-chondrale\n  - Géodes sous chondrales\n  - Pincement articulaire\n  - Ostéophytose\nConclusion : Coxarthose gauche"
+ },
+ {
+  "id": "OIC-129-12-A",
+  "type": "transcription",
+  "texte": "## Radiographie du genou de face — Incidence du « schuss »\n- Sémiologie générale de l'arthrose :\n  - Géodes sous-chondrales\n  - Ostéophytose\n  - Pincement articulaire\n  - Ostéocondensation sous-chondrale\n- Repères anatomiques : Condyle fémoral latéral, Condyle fémoral médial, Tubercule intercondylaire médial, Condyle tibial médial, Tête de la fibula\nConclusion : Gonarthrose prédominant sur le compartiment médial"
+ },
+ {
+  "id": "OIC-129-13-A",
+  "type": "transcription",
+  "texte": "## Radiographies des doigts de face (deux patients différents)\n- Repères anatomiques : Phalange proximale, Phalange moyenne, Phalange distale\n- Patient 1 : Pincement articulaire ; Ostéocondensation sous-chondrale\n- Patient 2 : Géodes sous-chondrales ; Pincement articulaire ; Ostéophytose ; Ostéocondensation sous-chondrale\n- Arthrose digitale érosive : forme particulière d'arthrose particulièrement sévère, destructrice et déformante\nConclusion : Arthrose digitale des articulations interphalangiennes distales"
+ },
+ {
+  "id": "OIC-132-16-B",
+  "type": "transcription",
+  "texte": "## TDM cérébrale sans injection, coupes axiales (deux patients distincts)\nHSD : hématome sous-dural\n- Patient 1 → HSD gauche chronique avec effet de masse :\n  - Collection péricérébrale gauche en croissant, dépassant les sutures osseuses (donc sous-durale), hypodense, avec densité proche de celle des ventricules (donc chronique sans resaignement)\n  - Effacement partiel du ventricule latéral gauche et discrète déviation de la ligne médiane à droite (représentée en pointillé) témoignant d'un effet de masse et d'un engagement sous-falcoriel débutant\n- Patient 2 → HSD bilatéral chronique avec resaignement et effet de masse :\n  - Collections sous-durales bilatérales à la fois hypodenses (flèches bleues) et hyperdenses (flèches grises) : saignement aigu (hyperdense) déclive sur hématome chronique (hypodense)\n  - Effacement partiel des deux ventricules latéraux prédominant à droite et déviation de la ligne médiane à gauche : engagement sous-falcoriel débutant"
+ },
+ {
+  "id": "OIC-148-12-A",
+  "type": "photo",
+  "texte": "Deux images : à gauche, photographie d'un enfant avec œdème inflammatoire rouge de la paupière supérieure et de l'angle interne de l'œil droit (flèche noire) ; à droite, coupe scanographique axiale des orbites avec deux flèches numérotées « 1 » et « 2 » pointant la région ethmoïdale et la paroi interne de l'orbite (sans légende explicative des numéros)."
+ },
+ {
+  "id": "OIC-149-03-A",
+  "type": "photo",
+  "texte": "Photographie en niveaux de gris de l'oropharynx, bouche ouverte, illustrant une angine érythématopultacée (légende) : amygdales recouvertes d'un enduit blanchâtre."
+ },
+ {
+  "id": "OIC-155-04-A",
+  "type": "photo",
+  "texte": "Dix photographies de mycoses (légendées) : perlèche candidosique (commissure labiale), muguet candidosique (enduit blanchâtre sur la langue), vulvo-vaginite candidosique, intertrigo candidosique des grands plis (avec pustules satellites), péri-onyxis candidosique (bourrelet rouge autour de l'ongle), dermatophytie de la peau glabre (lésions annulaires à bordure érythémateuse), teignes microsporiques (plaques d'alopécie squameuses du cuir chevelu), intertrigo dermatophytique des grands plis (inguinal), intertrigo dermatophytique inter-orteil, onychomycoses (ongles des orteils épaissis et jaunâtres)."
+ },
+ {
+  "id": "OIC-155-17-A",
+  "type": "photo",
+  "texte": "Deux photographies de dermohypodermite bactérienne non nécrosante : placard érythémateux et œdémateux de la jambe chez un adulte, et placard rouge, œdémateux de la jambe/cheville chez un enfant."
+ },
+ {
+  "id": "OIC-155-23-A",
+  "type": "photo",
+  "texte": "Photographie de furoncles : plusieurs nodules inflammatoires érythémateux centrés par une zone nécrotique/croûteuse, sur la jambe."
+ },
+ {
+  "id": "OIC-155-29-A",
+  "type": "photo",
+  "texte": "Deux photographies d'impétigo : lésions multiples bulleuses et croûteuses (croûtes jaunâtres/mélicériques) sur le membre et l'épaule d'un enfant, et lésion unique croûteuse de la joue."
+ },
+ {
+  "id": "OIC-155-35-A",
+  "type": "photo",
+  "texte": "Photographie de folliculite : petites papulo-pustules érythémateuses centrées sur les follicules pileux."
+ },
+ {
+  "id": "OIC-156-18-B",
+  "type": "photo",
+  "texte": "Photographie d'une infection de l'orteil : pied présentant des ulcérations sur le dos du pied et une lésion inflammatoire/ulcérée d'un orteil avec atteinte péri-unguéale."
+ },
+ {
+  "id": "OIC-162-06-A",
+  "type": "photo",
+  "texte": "Photographie d'herpès génital : petites lésions érosives post-vésiculeuses à bordure inflammatoire sur le gland."
+ },
+ {
+  "id": "OIC-162-07-A",
+  "type": "photo",
+  "texte": "Photographie d'un chancre syphilitique : ulcération de la région du frein de la verge, à fond fibrineux."
+ },
+ {
+  "id": "OIC-162-26-B",
+  "type": "photo",
+  "texte": "Photographie de syphilides palmaires : macules/papules érythémateuses discrètes de la paume de la main."
+ },
+ {
+  "id": "OIC-162-37-B",
+  "type": "photo",
+  "texte": "Photographie de condylomes acuminés : petites excroissances papuleuses/verruqueuses sur les grandes lèvres."
+ },
+ {
+  "id": "OIC-168-10-A",
+  "type": "photo",
+  "texte": "Photographie de varicelle : lésions éparses d'âges différents sur la peau (papules érythémateuses, vésicules, lésions croûteuses)."
+ },
+ {
+  "id": "OIC-168-11-A",
+  "type": "photo",
+  "texte": "Quatre photographies de primo-infection génitale herpétique : balanite herpétique avec plaques érythémateuses ulcérées (deux photos, dont une avec œdème et érosions extensives du gland et du prépuce), lésions génitales herpétiques chez la femme, et ulcérations douloureuses multiples de la vulve."
+ },
+ {
+  "id": "OIC-168-12-A",
+  "type": "photo",
+  "texte": "Photographie d'herpès labial : bouquet de petites vésicules/croûtes sur une base érythémateuse au niveau de la lèvre inférieure."
+ },
+ {
+  "id": "OIC-168-13-A",
+  "type": "photo",
+  "texte": "Deux photographies de zona : éruption vésiculeuse en bande unilatérale sur le thorax (zona thoracique), et lésions vésiculo-croûteuses du front et de la région péri-orbitaire d'un côté du visage (zona facial)."
+ },
+ {
+  "id": "OIC-169-13-B",
+  "type": "transcription",
+  "texte": "## Cinétique des marqueurs d'infection par le VIH\nAxe des abscisses : Temps (jours), repères 11-12, 14-15, 20-21, 28-29, depuis l'Exposition au virus lors d'un rapport sexuel\n- Fenêtre sérologique (période initiale avant détection)\n- ARN plasmatique : dépasse le Seuil de détection vers J11-12, pic vers J20-21, puis décroissance et plateau au-dessus du seuil\n- Ag p24 : dépasse le seuil vers J14-15, pic vers J20-21, puis décroît sous le seuil de détection\n- Anticorps : ascension à partir d'environ J20-21 puis plateau durable\n- Risque de contamination +++ : encadré en pointillé autour des pics d'ARN plasmatique et d'Ag p24 (de J11-12 jusqu'entre J20-21 et J28-29), prolongé par une flèche vers la droite\n## Tests et période de positivité\n- ARN VIH plasmatique : à partir de J11-12 → Charge virale (suivi)\n- Ag p24 : de J14-15 jusqu'avant J28-29 (transitoire)\n- Détection des Ac par ELISA : à partir d'un point situé entre J20-21 et J28-29 → Sérologie (diagnostic)\n- ELISA combinés : à partir de J14-15 (composante Ag p24 puis anticorps) → Sérologie (diagnostic)\n- Western-Blot : à partir d'un peu après J28-29 → Sérologie (diagnostic)\n- Test Rapide : à partir de J28-29 environ → Sérologie (diagnostic)"
+ },
+ {
+  "id": "OIC-171-06-A",
+  "type": "photo",
+  "texte": "Cinq photographies cliniques de gale : sillons scabieux interdigito-palmaires et au poignet (pointes de flèche noires désignant les sillons), nodules du fourreau de la verge, lésions papulo-vésiculeuses de la plante du pied d'un nourrisson, et dos de main couvert d'une hyperkératose squameuse (gale hyperkératosique). Crédits visibles : « Service de Dermatologie, CHU Grenoble Alpes, 2021 (F Khidher, MT Leccia) » et « ANOFEL »."
+ },
+ {
+  "id": "OIC-171-07-A",
+  "type": "photo",
+  "texte": "Trois photographies de pédiculose du cuir chevelu : lentes blanchâtres accrochées le long des cheveux, cuir chevelu massivement infesté (très nombreuses lentes), et vue agrandie d'un pou (Pediculus capitis) et d'une lente fixés sur un cheveu. Crédit visible : « ANOFEL »."
+ },
+ {
+  "id": "OIC-172-14-B",
+  "type": "photo",
+  "texte": "Photographie de plusieurs vers blancs filiformes (oxyures adultes) dans une boîte de Petri, posée à côté d'une réglette graduée en centimètres permettant d'apprécier leur taille."
+ },
+ {
+  "id": "OIC-173-07-B",
+  "type": "transcription",
+  "texte": "## T-173-1 : Borréliose de Lyme : évolution en 3 phases (voir T-173-2 et T-173-3 pour les phases disséminées précoces et tardives)\n| Phase | Incubation | Clinique | Physiopathologie |\n| Phase localisée précoce | 3-30 jours | Erythème migrant ± signes généraux | Multiplication de la bactérie dans le derme ± dissémination hématogène précoce |\n| Phase disséminée précoce (< 6 mois) | Semaines à 6 mois | Atteinte neurologique, cardiaque, articulaire, cutanée (lymphocytome borrélien) et oculaire (rarissime) | Dissémination par voie hématogène |\n| Phase disséminée tardive (> 6 mois) | Mois à années | Manifestations chroniques cutanées, neurologiques ou articulaires | Mécanisme immunologique probable (dépôt de complexes immuns) |"
+ },
+ {
+  "id": "OIC-187-04-A",
+  "type": "photo",
+  "texte": "Photographie cutanée montrant des plaques rosées œdémateuses, arrondies, à contours polycycliques, confluentes au centre, avec quelques petites papules isolées autour (urticaire)."
+ },
+ {
+  "id": "OIC-187-10-A",
+  "type": "photo",
+  "texte": "Deux photographies du visage de nourrissons montrant un érythème des joues et du menton, suintant et croûteux, respectant la région médio-faciale (dermatite atopique du nourrisson en poussée)."
+ },
+ {
+  "id": "OIC-188-11-B",
+  "type": "transcription",
+  "texte": "## Radiographie de thorax de face (nouveau-né de 21 jours avec bronchiolite)\n- Hyperclarté des bases pulmonaires\n- Élargissement des espaces intercostaux\n- Plus de 6 arcs costaux antérieurs (flèches grises) visibles au-dessus de la coupole diaphragmatique\n- Aplatissement des coupoles diaphragmatiques\n- À côté, pour comparaison : Radiographie normale chez un enfant d'âge similaire\n## Conclusion : Distension thoracique"
+ },
+ {
+  "id": "OIC-193-07-B",
+  "type": "photo",
+  "texte": "Photographie des deux membres inférieurs (repère « A ») couverts de nombreuses lésions purpuriques rouge violacé, de taille variable, prédominant aux jambes et aux pieds (purpura vasculaire au diagnostic de granulomatose avec polyangéite)."
+ },
+ {
+  "id": "OIC-194-08-A",
+  "type": "photo",
+  "texte": "Photographie du visage d'une femme (yeux masqués) montrant une plaque érythémateuse et squameuse de la joue et de l'aile du nez (vespertilio)."
+ },
+ {
+  "id": "OIC-194-09-B",
+  "type": "photo",
+  "texte": "Photographie de la cuisse montrant un réseau livédoïde violacé à mailles ouvertes, irrégulières et interrompues (livedo racemosa)."
+ },
+ {
+  "id": "OIC-196-09-A",
+  "type": "photo",
+  "texte": "Photographie du dos des deux mains posées à plat montrant une tuméfaction des articulations métacarpo-phalangiennes et interphalangiennes proximales (polyarthrite rhumatoïde)."
+ },
+ {
+  "id": "OIC-196-10-B",
+  "type": "photo",
+  "texte": "Radiographies des deux pieds de face ; des flèches blanches désignent la 5e articulation métatarso-phalangienne de chaque côté (pincement et érosions des MTP5 droite et gauche)."
+ },
+ {
+  "id": "OIC-196-11-A",
+  "type": "photo",
+  "texte": "Photographie de la face postérieure du coude et de l'avant-bras montrant une tuméfaction sous-cutanée ferme en saillie au niveau du coude (nodule rhumatoïde). Crédit visible : « Cofer – www.lecofer.org »."
+ },
+ {
+  "id": "OIC-197-09-A",
+  "type": "photo",
+  "texte": "Photographie de l'avant-pied montrant un 2e orteil tuméfié en totalité, « en saucisse », de coloration rouge violacé (dactylite)."
+ },
+ {
+  "id": "OIC-197-10-A",
+  "type": "transcription",
+  "texte": "## Radiographies du rachis lombaire\n- Incidence de face (flèches)\n- Incidence de profil (flèches)\n- Fines opacités linéaires joignant les corps vertébraux : syndesmophytes (flèches)\n## Conclusion : Spondylarthrite ankylosante"
+ },
+ {
+  "id": "OIC-198-04-B",
+  "type": "transcription",
+  "texte": "## Radiographie du poignet de face\n- Calcification du ligament triangulaire du carpe\n- Pincement articulaire : rhizarthrose et arthrose scapho-trapézoïdienne associées\n## Conclusion : Rhumatisme à cristaux de pyrophosphate de calcium (chondrocalcinose articulaire)"
+ },
+ {
+  "id": "OIC-198-05-B",
+  "type": "transcription",
+  "texte": "## Radiographie du genou gauche de face\n- Calcifications des interlignes articulaires fémoro-tibiaux = calcifications méniscales\n## Conclusion : Rhumatisme à cristaux de pyrophosphate de calcium (chondrocalcinose articulaire)"
+ },
+ {
+  "id": "OIC-198-06-B",
+  "type": "photo",
+  "texte": "Radiographies du bassin de face : sur la première, deux flèches blanches désignent les interlignes coxo-fémoraux (calcifications des cartilages fémoraux) ; sur la seconde (bassin de face et agrandissement), une flèche blanche désigne la symphyse pubienne (calcification de la symphyse pubienne)."
+ },
+ {
+  "id": "OIC-198-14-A",
+  "type": "photo",
+  "texte": "Trois photographies de tophus goutteux : paumes et pulpes des doigts parsemées de dépôts nodulaires blanc-jaunâtre, et pieds déformés avec volumineuses tuméfactions nodulaires des orteils, notamment du gros orteil."
+ },
+ {
+  "id": "OIC-206-07-A",
+  "type": "transcription",
+  "texte": "## Radiographies de thorax de face\n| Signe radiographique (flèche) | Conclusion |\n| Emoussement du récessus pleural latéral droit | Épanchement pleural droit de faible abondance |\n| Opacité dense, homogène, effaçant la coupole diaphragmatique gauche, à bord supérieur concave | Épanchement pleural gauche de moyenne abondance |\n| Opacité dense, homogène, effaçant la coupole diaphragmatique gauche et occupant tout l'hémithorax gauche + déviation médiastinale controlatérale | Épanchement pleural gauche de grande abondance, compressif |\n- Seconde figure : coupe axiale de TDM thoracique injectée (sans annotation), montrant un épanchement pleural droit."
+ },
+ {
+  "id": "OIC-209-08-B",
+  "type": "photo",
+  "texte": "Radiographie thoracique de face, debout, d'un adulte, montrant des champs pulmonaires hyperclairs, des coupoles diaphragmatiques aplaties et des côtes horizontalisées (distension thoracique de BPCO)."
+ },
+ {
+  "id": "OIC-210-06-B",
+  "type": "transcription",
+  "texte": "## TDM thoracique, coupe axiale, fenêtre parenchymateuse / TDM thoracique, coupe coronale, fenêtre parenchymateuse\n- Lésions en rayon de miel (formations kystiques jointives, accolades), prédominant dans les régions sous-pleurales et des bases : tableau TDM de PIC\n## Conclusion : Aspect TDM de pneumopathie interstitielle commune (PIC), évoquant une fibrose pulmonaire idiopathique (FPI) en l'absence de cause retrouvée"
+ },
+ {
+  "id": "OIC-211-08-A",
+  "type": "photo",
+  "texte": "Photographie des deux jambes montrant des nouures (placards) érythémateuses, mal limitées, sur la face antérieure des jambes et autour des genoux (érythème noueux)."
+ },
+ {
+  "id": "OIC-213-09-A",
+  "type": "transcription",
+  "texte": "## Arbre diagnostique de l'anémie\nHb < 12 g/dL (F) / Hb < 13 g/dL (H) → VGM\n- VGM < 80 fl →\n  - Carence martiale\n  - Inflammation\n  - Thalassémies\n- 80 < VGM < 98 fl →\n  - Inflammation\n  - Insuffisance rénale chronique\n  - Hypothyroïdie\n  - Insuffisance médullaire\n  - Hémolyse\n- VGM > 98 fl →\n  - Hémolyse\n  - Carence en B9\n  - Carence en B12\n  - Hypothyroïdie\n  - Myélodysplasies"
+ },
+ {
+  "id": "OIC-214-05-B",
+  "type": "photo",
+  "texte": "Photographie d'une jambe montrant de très nombreuses petites macules purpuriques rouge sombre, punctiformes, disséminées sur la face antérieure (purpura thrombopénique pétéchial)."
+ },
+ {
+  "id": "OIC-214-06-A",
+  "type": "photo",
+  "texte": "Photographie de la cavité buccale ouverte ; des flèches blanches désignent des bulles hémorragiques noirâtres de la muqueuse jugale et gingivale (bulles intrabuccales chez un patient thrombopénique)."
+ },
+ {
+  "id": "OIC-219-08-B",
+  "type": "photo",
+  "texte": "Photographie de l'extrémité de trois doigts vus de profil, montrant des ongles minces, blanchâtres, à bord libre relevé (anomalies unguéales liées à la carence en fer, selon l'intitulé)."
+ },
+ {
+  "id": "OIC-219-09-B",
+  "type": "photo",
+  "texte": "Deux photographies de mélanodermie : dos des deux mains et avant-bras de teinte brun foncé diffuse, et visage d'un homme (yeux masqués) à la peau pigmentée."
+ },
+ {
+  "id": "OIC-228-04-A",
+  "type": "photo",
+  "texte": "Montage de trois photographies d'ulcères de jambe dans la région malléolaire : ulcérations étendues, superficielles, à bords irréguliers, à fond fibrineux jaunâtre ou bourgeonnant rouge ; la troisième montre une petite ulcération au sein d'une peau pigmentée brun-violacé de la cheville."
+ },
+ {
+  "id": "OIC-229-01-A",
+  "type": "transcription",
+  "texte": "## Définitions\nAbord veineux superficiel →\n  - Cathéter périphérique court\n  - Cathéter central à insertion périphérique « Picc line »\nAbord veineux profond (Jugulaire interne, subclavier, fémoral) →\n  - Cathéter central « classique »\n  - Cathéter central à chambre\nCathéter central à insertion périphérique « Picc line » + Cathéter central « classique » + Cathéter central à chambre → Voies centrales\n## Indications\n- Cathéter périphérique court :\n  - Perfusion de soluté de remplissage\n  - Administration intraveineuse de médicament peu veinotoxique\n- Voies centrales :\n  - Abords veineux périphérique difficile ou longue durée (par ex : antibiothérapie longue durée)\n  - Administration de produits veinotoxiques (nutrition parentérale, chimiothérapie, solutés hypertoniques, recharge potassique...)\n  - Administration de catécholamines (noradrénaline, adrénaline, etc...)\n  - Epuration extrarénale sans abord vasculaire\n  - Monitorage hémodynamique*\n- Remplissage massif et rapide, choc hémorragique : nécessité d'un abord veineux de gros calibre (périphérique ou central)\n*la voie veineuse centrale dans le territoire cave supérieur permet d'effectuer des mesures et des prélèvements utiles au monitorage des patients en état de choc"
+ },
+ {
+  "id": "OIC-229-02-A",
+  "type": "transcription",
+  "texte": "| COMPLICATIONS | Cathéter périphérique | Cathéter central |\n| Lors de la pose | Echec ; Plaie veineuse ; Hématome ; Diffusion extra-veineuse | Echec, plaie veineuse ; Plaie artérielle ; Pneumothorax, hemothorax* ; Embolie gazeuse ; Fausse route ; Arythmie. Pour limiter ces risques on recommande la pose écho-guidée |\n| A distance | Thrombose superficielle ; Veinite, lymphangite ; Diffusion extra-veineuse ; Plus rarement : bactériémie | Thrombose veineuse profonde ; Obstruction ; Diffusion extraveineuse (cathéter à chambre) ; Infection, septicémie, endocardite |\n*pneumothorax et hémothorax sont des complications de la pose d'une voie veineuse centrale dans le territoire cave supérieur (abord jugulaire interne ou sous-clavier)"
+ },
+ {
+  "id": "OIC-232-09-B",
+  "type": "transcription",
+  "texte": "## FdR CV\n- Hypertension artérielle\n- Diabète\n- Dyslipidémie\n- Obésité\n- Tabagisme\n- Alcoolisme\n- Sédentarité\n## Pathologies cardiovasculaires\n- Valvulopathies : mitrales +++\n- Cardiopathie ischémique\n- Insuffisance cardiaque\n- Artériopathie périphérique (AOMI, TSA)\n## Pathologies respiratoires\n- Syndrome d'apnée-hypopnée obstructive du sommeil +++\n- Broncho-pneumopathie chronique obstructive"
+ },
+ {
+  "id": "OIC-232-11-A",
+  "type": "transcription",
+  "texte": "## Bilan étiologique\n- Facteurs déclenchants\n  - Fonction thyroïdienne : TSHus\n  - Ionogramme sang : kaliémie\n  - Radio thorax\n- Bilan des facteurs de risque\n  - FdR CV : dont polygraphie nocturne (SAHOS)\n  - Cardiopathie : ETT\n## Bilan pré-thérapeutique\n- Fonction rénale\n- Fonction hépatique"
+ },
+ {
+  "id": "OIC-232-13-A",
+  "type": "transcription",
+  "texte": "Schéma centré sur « FA », relié aux facteurs de risque à corriger :\n- HTA\n- Dyslipidémie\n- Diabète\n- Obésité et sédentarité\n- Alcool et tabac\n- SAHOS"
+ },
+ {
+  "id": "OIC-234-15-A",
+  "type": "transcription",
+  "texte": "## Œdème aigu du poumon\n- Radiographie de thorax de face (au lit) : opacités peu denses, confluentes, à limites floues, de répartition périhilaire bilatérale (« aile de papillon »)\n- Zoom sur une radio de thorax de face debout (autre patient) : opacités linéaires périphériques (flèches) : lignes de Kerley\n- Signes supplémentaires si radio faite en position debout (rarement) : lignes de Kerley (voir encadré), redistribution vasculaire vers les sommets, cardiomégalie (ne s'apprécie pas sur une radio faite en position couchée), épanchement pleural"
+ },
+ {
+  "id": "OIC-235-07-A",
+  "type": "photo",
+  "texte": "Tracé ECG 12 dérivations (I, II, III, aVR, aVL, aVF, V1 à V6) avec longs tracés de D II et V1, illustrant une péricardite aiguë ; aucune annotation en dehors des noms de dérivations."
+ },
+ {
+  "id": "OIC-239-06-A",
+  "type": "photo",
+  "texte": "Photographie de la face palmaire d'une main : les parties distales de plusieurs doigts sont blanches, exsangues, avec une limite nette avec la peau rose en amont."
+ },
+ {
+  "id": "OIC-239-07-B",
+  "type": "photo",
+  "texte": "Photographie des orteils d'un pied : orteils rouges, légèrement tuméfiés, en particulier à leur extrémité distale."
+ },
+ {
+  "id": "OIC-241-01-A",
+  "type": "transcription",
+  "texte": "## Définition d'un goitre\n- clinique : > 1ère phalange pouce patient\n- échographique :\n  - Adolescent > 16 ml\n  - Femme > 18 ml\n  - Homme > 20 ml"
+ },
+ {
+  "id": "OIC-242-08-B",
+  "type": "transcription",
+  "texte": "TSH basse ou effondrée + Hormones thyroïdiennes normales ou élevées\n→ Signes oculaires pathognomoniques ?\n  - oui → Diagnostic de maladie de Basedow\n  - non → Anticorps anti-récepteurs de la TSH\n    - oui → Diagnostic de maladie de Basedow\n    - non → 2 examens clés\n## Diagnostic de maladie de Basedow\n- Échographie thyroïdienne :\n  - inutile pour faire le diagnostic étiologique\n  - utile pour apprécier volume goitre, hypervascularisation et présence nodules\n- Scintigraphie thyroïdienne :\n  - inutile pour diagnostic étiologique\n  - utile si irathérapie envisagée\n## 2 examens clés =\n- Echographie thyroïdienne\n  - Volume glande, nodule(s), échogénicité parenchyme, vascularisation\n- Scintigraphie thyroïdienne (sauf grossesse, allaitement)\n  - Fixation (Goitre multinodulaire toxique ou adénome toxique ou Basedow à TRAK négatif)\n  - Blanche (thyroïdite: par surcharge en iode de type 2, silencieuse/post-partum, de De Quervain; thyrotoxicose factice)"
+ },
+ {
+  "id": "OIC-246-06-B",
+  "type": "transcription",
+  "texte": "## Hormones et anti-hormones\n- Œstrogènes\n- Androgènes et anabolisants stéroïdiens\n- Gonadotrophines chorioniques\n- Antiandrogènes : acétate de cyprotérone (Androcur®), flutamide (Eulexine®)\n- Agonistes du GnRH (médicaments utilisés dans le traitement du cancer de la prostate)\n- Inhibiteurs de la 5α-réductase dont finastéride (Chibroprocar®)\n- Spironolactone (Aldactone®) : inhibiteur du récepteur de l'aldostérone et des androgènes\n## Médicaments psychoactifs\n- Neuroleptiques : rispéridone (Risperdal®), halopéridol (Haldol®), amisulpride (Solian®), olanzapine (Zyprexa®)\n- Phénothiazines : chlorpromazine (Largactil®)\n- Antidépresseurs tricycliques : amitriptyline (Largatil®), imipramine (Tofranil®), clomipramine (Anafranil®)\n## Chimiothérapie anticancéreuse\n- Agents alkylants\n## Antibiotiques et antirétroviraux\n- Isoniazide (Rimifon®)\n- Kétoconazole (Nizoral®)\n- Antirétroviraux : didanosine (Videx®), éfavirenz (Sustiva®), indinavir (Crixivan®), névirapine (Viramune®)\n## Antiulcéreux et antiacide\n- Cimétidine (Tagamet®)\n- Oméprazole (Mopral®, Zoltum®)\n- Ranitidine (Azantac®, Raniplex®)"
+ },
+ {
+  "id": "OIC-250-04-A",
+  "type": "transcription",
+  "texte": "| Organe/tissu | Modifications physiopathologiques | Conséquences cliniques |\n| Global : La dénutrition est un facteur de risque de morbidité et de mortalité | Différencier : Carence d'apport pure : marasme ; Carence d'apport + stress métabolique : hypercatabolisme protéique (aggrave le pronostic) | Marasme : Amaigrissement sans œdèmes ; Hypercatabolisme protéique avec ou sans inflammation : amaigrissement sous-estimé par les œdèmes favorisés par l'hypoalbuminémie ; Cassure staturo-pondérale chez l'enfant |\n| Muscles squelettiques | Diminution de la masse et de la force ou de la fonction musculaires | Aggravation de sarcopénie ; Altération de la vitesse marche et de la force de préhension ; Alitement, risque de chute (donc de fracture) |\n| Muscles respiratoires | Diminution de la masse et de la force ou de la fonction musculaires | Prédisposition aux infections pulmonaires ; Aggravation insuffisance respiratoire ; Prédisposition à la ventilation et difficulté de sevrage |\n| Muscle cardiaque | Diminution de la masse et contractilité | Apparition ou aggravation d'une insuffisance cardiaque |\n| Muscles digestifs | Diminution de la fonction motrice | RGO et retard de vidange gastrique ; Constipation |\n| Muqueuses | Altération du renouvellement entérocytaire ; Atrophie des muqueuses ; Augmentation de la perméabilité de la muqueuse intestinale ; Translocation bactérienne intestinale | Atrophie muqueuse ; Glossite, stomatite, œsophagite ; Malabsorption ; Infections à BGN (translocation) ; Fistule sur lâchage de suture |\n| Système immunitaire | Altération de l'immunité innée (non spécifique) ; Altération de l'immunité adaptative cellulaire (lymphocytes T) et humorale (lymphocytes B : anticorps) | Lymphopénie, neutropénie ; Augmentation du risque d'infections en particulier nosocomiales |\n| Peau | Diminution des synthèses protéiques | Escarres (favorisées aussi par l'alitement) ; Retard de cicatrisation ; Lâchage de suture |\n| Tissu adipeux sous-cutané | Diminution de la masse ; Perte de l'effet « matelas » | Prédisposition aux escarres et aux fractures en cas de chute |\n| Cerveau | Altérations des différentes fonctions cérébrales | Troubles de l'humeur, apathie, dépression, perte de l'élan vital, syndrome de glissement ; Troubles de la mémoire ; Troubles cognitifs ; Difficultés de concentration ; Chez l'enfant : retard des acquisitions |\n| Tissu osseux | Altération du métabolisme | Ostéopénie/ostéoporose ; Fracture ; Chez l'enfant : retard de croissance staturale |\n| Thermorégulation | Perte tissulaire et hypométabolisme | Prédisposition à l'hypothermie |\n| Fonctions sexuelles | Diminution des synthèses hormonales | Retard pubertaire ; Hypogonadisme ; Aménorrhée ; Diminution de la libido ; Diminution de la fertilité |\n| Programmation fœtale |  | Prédisposition à l'obésité, au diabète et à leurs complications et comorbidités à l'âge adulte |"
+ },
+ {
+  "id": "OIC-257-04-A",
+  "type": "photo",
+  "texte": "Photographie des deux jambes vues de face : plusieurs dépressions cutanées arrondies persistantes sur la face antérieure des jambes, correspondant aux godets laissés par la pression digitale."
+ },
+ {
+  "id": "OIC-260-06-B",
+  "type": "transcription",
+  "texte": "## Tumeur vésicale\n- TDM pelvienne, coupes axiales, sans injection puis après injection au temps néphrographique : épaississement nodulaire de la paroi de la vessie rehaussé par le produit de contraste (flèches)\n## Tumeur rénale gauche\n- TDM abdominale avec injection au temps cortical, coupe axiale : lésion tumorale rénale gauche (flèche) siège d'un hyper-rehaussement à la phase artérielle\n## Calcul obstructif de l'uretère gauche\n- Echographie rénale (gauche) : dilatation des cavités pyélocalicielles gauches (flèche), rein droit normal\n- TDM abdomino-pelvienne sans injection, coupes axiales : dilatation des cavités pyélocalicielles gauches (flèche), rein droit normal\n- TDM abdomino-pelvienne sans injection, coupes axiales et coupe coronale : calcul urétéral gauche hyperdense spontanément"
+ },
+ {
+  "id": "OIC-260-07-A",
+  "type": "photo",
+  "texte": "Photographie d'une poche collectrice d'urines graduée (jusqu'à 2000 mL) fixée au lit, contenant environ 2 litres d'urines rouge foncé, avec une tubulure également remplie d'urines rouges."
+ },
+ {
+  "id": "OIC-260-08-A",
+  "type": "photo",
+  "texte": "Deux photographies d'une bandelette urinaire posée à côté de son flacon, dont l'étiquette porte l'échelle colorimétrique de lecture (LEU, NIT, PRO, pH, BLO, SG, KET).\n- Figure 4 (témoin) : plages réactives de la bandelette de couleurs claires.\n- Figure 5 : plages annotées à la main LEU, NIT, PRO, pH, BLO, SG, KET, GLU ; la plage BLO, vert très foncé, est annotée « +++ », correspondant sur l'échelle du flacon à la teinte « 200 / +++ » (Ery/µL, hémolysé)."
+ },
+ {
+  "id": "OIC-260-11-A",
+  "type": "transcription",
+  "texte": "Hématurie macroscopique ou microscopique\n→ Examen clinique : BU, TR/TV, OGE, fosse lombaire, abdomen OMI, HTA, T° ; Signes de gravité ? (FC, PA, état général) ; - ECBU : confirmation de l'hématurie ; - NFS, TP TCA, urée, créatininémie\n  → Fausses hématuries (médicaments, myoglobinurie, hémoglobinurie, urétrorragies, métrorragies…)\n  → Infection urinaire : recontrôler l'hématurie à distance\n  → Signes d'alerte ou d'urgence : hospitalisation\n    - Déglobulisation, insuffisance rénale, sepsis, état de choc\n    - Globe vésical sur caillotage => sondage\n    - Colique néphrétique sur caillotage\n    - Traumatisme ouvert ou fermé du flanc ou de la fosse lombaire (discuter artériographie en urgence)\n    - Signes rénaux et/ou extra-rénaux évoquant une urgence glomérulaire (discuter PBR en urgence si GNRP)\n→ Hématurie sans signes de gravité ou d'urgence : bilan en externe\n  Recherches de signes d'orientation :\n    - Symptômes urologiques : SBAU, douleur lombaire, caillots\n    - Symptômes néphrologiques : HTA, OMI, insuffisance rénale\n→ Bilan minimal de 1ère intention\n    - Imagerie par échographie réno-vésicale de débrouillage\n    - Complétée par un uro-scanner\n  → Pathologie évidente à l'imagerie → Consultation chez un urologue\n    - Tumeur rénale localement avancée\n    - Tumeur urothéliale (vessie ou voies excrétrices supérieures)\n    - Lithiase urinaire\n    - PKR, infarctus rénal, nécrose papillaire\n→ Bilan en cas d'imagerie normale\n    - Cytologie urinaire\n    - Protéinurie (24h ou échantillon)\n    - Recherche de cylindres hématiques\n  → Cytologie urinaire + ou cytologie urinaire - / protéinurie - → Consultation chez un urologue\n  → Protéinurie / Cylindres hématiques + → Consultation chez un néphrologue\n## Consultation chez un néphrologue\n- ⇨ Discuter Ponction-biopsie rénale\n- Contexte évocateur : jeune âge, post-infectieux, HTA, IRA, cylindres hématiques, protéinurie\n- Etiologies : GN aiguë, GN chronique, néphropathie à IgA, GNRP, néphropathie interstitielle\n## Consultation chez un urologue\n- ⇨ Discuter Fibroscopie urétro-vésicale AL\n- Contexte évocateur : cytologie positive / SBAU ou âge ≥ 50 ans, tabagisme\n- Etiologies : tumeur vésicale non polypoïde (carcinome in situ), cystite radique, tuberculose / bilharziose\n- ⇨ Discuter urétéroscopie sous AG : si fibroscopie - malgré facteurs de risque ou cytologie +"
+ },
+ {
+  "id": "OIC-273-08-B",
+  "type": "photo",
+  "texte": "Radiographie thoraco-abdominale de face : image radio-opaque en forme de montre projetée sur le rachis dorsal au niveau thoracique, et un second corps étranger radio-opaque allongé (briquet) projeté sous la coupole diaphragmatique gauche."
+ },
+ {
+  "id": "OIC-276-07-B",
+  "type": "transcription",
+  "texte": "## Carcinome hépatocellulaire\nTDM abdomino-pelvienne, coupes axiales (sans injection, temps artériel, temps portal, temps tardif) :\n- Lésion hypodense spontanément (1)\n- Hyper-rehaussée (2) (= prise de contraste au temps artériel supérieure au parenchyme hépatique)\n- Présentant un lavage aux temps veineux portal et tardif (3) (= apparaissant hypodense comparativement au parenchyme hépatique)"
+ },
+ {
+  "id": "OIC-276-08-B",
+  "type": "transcription",
+  "texte": "## Métastases hépatiques « classiques »\n- TDM abdomino-pelvienne, coupes axiales, avec injection au temps portal (2 patients distincts)\n- Lésions discrètement rehaussées, de façon hétérogène au temps portal, plutôt en périphérie, mais restant hypodenses par rapport au parenchyme hépatique\n## Métastases hépatiques hyper-réhaussées\n- TDM abdomino-pelvienne, coupe axiale, avec injection au temps artériel\n- Lésions rehaussées au temps artériel plus que le parenchyme hépatique (cas particuliers : cancer du rein, de la thyroïde, mélanome, tumeur neuro-endocrine)"
+ },
+ {
+  "id": "OIC-276-09-B",
+  "type": "transcription",
+  "texte": "## Kyste hépatique simple\nTDM abdomino-pelvienne, coupes axiales, sans injection et avec injection au temps portal :\n- Formation bien limitée, à bords nets, sphérique ou ovale, homogène\n- Hypodense, de densité liquidienne, sans cloison ni paroi, sans rehaussement\n- Pointe du foie droit (flèches grises)"
+ },
+ {
+  "id": "OIC-277-12-B",
+  "type": "transcription",
+  "texte": "## Empierrement cholédocien\nCholangiographie par IRM (=Bili-IRM) (2 patients distincts)\n- Repères anatomiques : conduit hépatique droit, conduit hépatique gauche, conduit cystique, conduit cholédoque\n- Calculs dans la voie biliaire principale = Images hypointenses en T2 au sein d'un conduit en hypersignal T2"
+ },
+ {
+  "id": "OIC-277-13-B",
+  "type": "transcription",
+  "texte": "## Cholécystite aigue lithiasique\nÉchographie hépato-biliaire (2 patients distincts)\n- Épaississement des parois vésiculaires (> 4 mm), avec aspect feuilleté\n- Distension vésiculaire (> 4 cm)\n- Calcul intra-vésiculaire (hyperéchogène, mobile, avec cône d'ombre postérieur)\nAutres signes (non indispensables au diagnostic) :\n- Signe de Murphy échographique\n- Sludge intra-vésiculaire\n- Épanchement péri-vésiculaire"
+ },
+ {
+  "id": "OIC-288-11-A",
+  "type": "photo",
+  "texte": "Photographie de la marge anale : tuméfaction arrondie, lisse, violacée/bleutée, avec une petite ulcération rouge à son sommet."
+ },
+ {
+  "id": "OIC-289-07-A",
+  "type": "photo",
+  "texte": "Photographie d'un nourrisson allongé sur le dos : tuméfaction de la région inguino-scrotale droite, la bourse droite apparaissant augmentée de volume."
+ },
+ {
+  "id": "OIC-298-06-B",
+  "type": "photo",
+  "texte": "Photographie de la cavité buccale bouche ouverte : lésion ulcéro-bourgeonnante à fond jaunâtre de la région amygdalienne droite, s'étendant au voile du palais."
+ },
+ {
+  "id": "OIC-298-07-A",
+  "type": "photo",
+  "texte": "Deux photographies endobuccales :\n- Lésion ulcérée à bords surélevés et fond jaunâtre, saignante, du bord libre de la langue (écarteurs en place).\n- Lésion ulcéro-bourgeonnante étendue, blanc-jaunâtre et rouge, du plancher buccal antérieur atteignant la face ventrale de la langue mobile."
+ },
+ {
+  "id": "OIC-298-08-B",
+  "type": "photo",
+  "texte": "Photographie endobuccale avec miroirs dentaires écartant la joue gauche : plage blanchâtre de la muqueuse de la face interne de la joue, en regard des dents postérieures."
+ },
+ {
+  "id": "OIC-302-14-B",
+  "type": "photo",
+  "texte": "Photographie du vertex d'un cuir chevelu dégarni, à la peau héliodermique : multiples petites lésions érythémateuses et squameuses/croûteuses disséminées, dont une plus kératosique (croûte jaunâtre)."
+ },
+ {
+  "id": "OIC-302-15-B",
+  "type": "photo",
+  "texte": "Deux photographies cutanées rapprochées :\n- Petit nodule rose, translucide, parcouru de fins vaisseaux (télangiectasies).\n- Plaque rosée érythémateuse, finement squameuse, bien limitée, à côté d'une réglette millimétrée."
+ },
+ {
+  "id": "OIC-302-16-B",
+  "type": "photo",
+  "texte": "Photographie clinique rapprochée d'une lésion cutanée tumorale unique, surélevée, recouverte de croûtes jaunâtres et brunâtres avec zones hémorragiques, entourée d'un liseré érythémateux ; illustre un carcinome épidermoïde typique (sans légende textuelle)."
+ },
+ {
+  "id": "OIC-302-17-A",
+  "type": "photo",
+  "texte": "Photographie clinique d'une lésion cutanée pigmentée noire à brune, asymétrique, à contours irréguliers, avec une partie centrale surélevée et un halo rosé-érythémateux ; illustre un mélanome typique (sans légende textuelle)."
+ },
+ {
+  "id": "OIC-304-06-B",
+  "type": "transcription",
+  "texte": "Tumeur(s) hépatique(s) suspecte(s) de métastase(s) hépatique(s) (données cliniques, biologiques et radiologiques)\n→ ATCD de cancer récent (< 2-3 ans) ou cancer récemment diagnostiqué ? (Possibilité de plusieurs cancers synchrones ou métachrones)\n- OUI → Métastase(s) hépatique(s) : synchrone(s) ou métachrone(s)\n- NON → Bilan complémentaire à la recherche d'un cancer primitif orienté par les données cliniques, biologiques et radiologiques → IDENTIFICATION D'UN CANCER PRIMITIF ?\n  - OUI → Métastase(s) hépatique(s)\n  - NON → Biopsie de la (ou d'une) lésion hépatique (en l'absence d'autre lésion suspecte de métastase plus facilement accessible à une biopsie)"
+ },
+ {
+  "id": "OIC-304-08-B",
+  "type": "transcription",
+  "texte": "## TDM abdomino-pelvienne, coupes axiales, avec injection au temps portal (2 patients distincts)\n- Métastases hépatiques « classiques » : Lésions discrètement rehaussées, de façon hétérogène au temps portal, plutôt en périphérie, mais restant hypodenses par rapport au parenchyme hépatique (flèches sur les lésions)\n## TDM abdomino-pelvienne, coupe axiale, Avec injection au temps artériel\n- Métastases hépatiques hyper-réhaussées : Lésions rehaussées au temps artériel plus que le parenchyme hépatique (cas particuliers : cancer du rein, de la thyroïde, mélanome, tumeur neuro-endocrine)"
+ },
+ {
+  "id": "OIC-311-06-B",
+  "type": "transcription",
+  "texte": "## Échographie rénale montrant un kyste du rein simple. (A) : image échographique. (B) : traduction schématique\n- (A) : image échographique (annotée « RG »), kyste mesuré par calipers\n- (B) : schéma légendé :\n  - Empreinte de la sonde d'échographie\n  - Plans sous-cutanés\n  - Kyste bénin cortical\n  - Empreinte du rein\n  - Renforcement postérieur"
+ },
+ {
+  "id": "OIC-312-07-B",
+  "type": "photo",
+  "texte": "Deux photographies cliniques du sein, sans légende textuelle. 1) Vue de face des deux seins : asymétrie mammaire, sein gauche augmenté de volume avec aspect de peau d'orange. 2) Vue rapprochée d'un sein montrant une dépression cutanée (méplat/rétraction) de la peau."
+ },
+ {
+  "id": "OIC-320-10-A",
+  "type": "photo",
+  "texte": "Radiographie du crâne de profil montrant de multiples images lacunaires arrondies, de tailles variées, disséminées sur la voûte crânienne (illustration de lésions lytiques de myélome, figure « Myélome.png »), sans légende textuelle."
+ },
+ {
+  "id": "OIC-331-02-A",
+  "type": "rien",
+  "texte": "Aucune figure ni document fourni pour cette compétence."
+ },
+ {
+  "id": "OIC-331-07-A",
+  "type": "rien",
+  "texte": "Aucune figure ni document fourni pour cette compétence."
+ },
+ {
+  "id": "OIC-331-14-A",
+  "type": "rien",
+  "texte": "Aucune figure ni document fourni pour cette compétence."
+ },
+ {
+  "id": "OIC-332-05-A",
+  "type": "transcription",
+  "texte": "Etat de choc :\n- HypoTA : PAS<90 ou PAM<65\n- ET\n- Hypoperfusion : marbrures, oligurie, confusion, polypnée\n- Signe biologique majeur : Lactates > 2mmol/L\n→ Différentielle systolo-diastolique élargie : distributif\n  - Foyer infectieux patent, Fièvre, Immunodépression → Choc septique\n  - Exposition à un allergène/piqûres, Œdème face/cou/pharynx, Urticaire, Bronchospasme → Choc anaphylactique\n→ Différentielle systolo-diastolique pincée\n  - ATCD cardio-vasculaires, Signes d'IC gauche → Choc cardiogénique\n  - Signes d'IC droite → Choc obstructif → Recherche des signes en faveur de : Embolie pulmonaire, Pneumothorax, Tamponnade péricardique\n  - Hypovolémie, Histoire de : Hémorragie (pâleur), Diarrhées, Vomissements, Restriction des apports → Choc hypovolémique"
+ },
+ {
+  "id": "OIC-332-10-B",
+  "type": "transcription",
+  "texte": "## CHOC SEPTIQUE\n- Diagnostic : Hypotension systolique <90 mm Hg réfractaire au remplissage associée à une lactatémie > 2 mmol/L dans un contexte de sepsis\n→\n- Bilan de sévérité et de retentissement sur les organes : NFS, plaquettes, iono. sg, urée créat., bilan hépatique, calcémie ; RP – ECG – GDS\n- Bilan étiologique : Interrogatoire et examen clinique complet ; RP – Hémocultures – ECBU ; Prélèvement microbiologique guidé par la porte d'entrée suspecté\n## Traitement\n- Symptomatique :\n  - Remplissage vasculaire par cristalloïdes NaCl 0.9% entre 20 et 30 ml/Kg dans les 3 premières heures\n  - Noradrénaline sur VV périphérique puis centrale. Débuter à 0.1 µg/Kg/min et doubler la posologie toutes les 10' pour une cible de PAM à 65 mm Hg.\n  - Surveillance de la Fc, de la pression artérielle de la SpO2 et de la diurèse.\n  - Surveillance des signes d'hypoperfusion et monitoring GDS et lactates\n- Etiologique (par ordre de fréquence) :\n  - 1) La porte d'entrée est le plus souvent pulmonaire (50%), puis digestive et rénale\n  - 2) Ttt antibiotique : bi antibiothérapie IV (incluant en général une beta-lactamine) en tenant compte du caractère communautaire ou associé aux soins. Ne pas adapter les posologies pendant les 24 premières heures en cas d'insuffisance rénale.\n  - 3) Traitement chirurgical ou drainage s'il y a lieu\n- Pronostic : Mortalité entre 40 et 50 %\n- Transfert en Réanimation le plus rapidement possible"
+ },
+ {
+  "id": "OIC-333-04-A",
+  "type": "transcription",
+  "texte": "## Algorithme MARCHE de traitement des victimes\n| Étape | Traitements |\n| Massive Bleeding control | Garrots, compressifs, hémostatiques |\n| Airway | Subluxation, Guédel, crico-thyroïdotomie |\n| Respiration | Oxygénation, exsufflation, pansement 3 côtés |\n| Circulation | Abord vasculaire, remplissage |\n| Head, Hypothermie | Prévention hypothermie, évaluation neurologique |\n| Evacuation | Évacuation |"
+ },
+ {
+  "id": "OIC-333-05-B",
+  "type": "transcription",
+  "texte": "## Algorithme de triage START-ABC (Simple Triage And Rapid Treatment-Airway, Bleeding and blanching, Cognition)\nPeut se lever ?\n- oui → Impliqué\n- non → Respiration\n  - non → Libération des VAS → Respiration → non → DCD ; flèche sans libellé → UA\n  - flèche sans libellé → Fréquence respiratoire → > 30 → UA\n  → Pouls radial ou TRC → faible / > 2 sec → UA\n  → Conscience → altérée → UA ; normale → UR\n- VAS : voies aériennes supérieures\n- DCD : décédé\n- UA : Urgence Absolue\n- UR : Urgence Relative\n- TRC : temps de recoloration cutanée"
+ },
+ {
+  "id": "OIC-335-12-B",
+  "type": "transcription",
+  "texte": "## Diapositive 2 (TDM coupe axiale)\n- Fracture intra articulaire (ou capitale) du condyle mandibulaire droit, compliqué d'une fracture de l'os tympanal (flèche rouge)\n- Une otorragie est possiblement observée lors de l'examen clinique\n## Diapositive 1 (TDM coupes axiales)\n- Fracture bilatérale des condyles mandibulaires (sous condyliennes basses) (flèches rouges)\n- Fracture bifocale de la branche horizontale (parasymphysaires) (flèches rouges)"
+ },
+ {
+  "id": "OIC-335-21-B",
+  "type": "transcription",
+  "texte": "## Diapositive 3 (TDM coupes coronales)\n- Fractures effondrées du plancher de l'orbite (dites en « blow out ») (flèches rouges)\n## Diapositive 4\n- Fracture en trappe du plancher de l'orbite gauche, avec incarcération du muscle droit inférieur (à gauche scanner, à droite IRM orbitaire)"
+ },
+ {
+  "id": "OIC-336-02-B",
+  "type": "transcription",
+  "texte": "## Schéma (coupe sagittale du cerveau : voies d'activation depuis l'ARAS vers Thal, Hypo, Bfb et le cortex)\n- Une ampoule : Le cortex\n- Un réseau : 3 voies d'activation reliant la SRAA, directement ou indirectement au cortex\n- Un interrupteur : La substance réticulé activatrice ascendante (SRAA)\n## Un coma peut être du à :\n- Une lésion dans le tronc (atteinte de la SRAA, de l'« interrupteur »)\n- Une atteinte des voies de connections (du « réseau »)\n- Une atteinte diffuse du cortex (de l'« ampoule »)\n- Une atteinte diffuse de tout le cerveau donc de toutes ces structures"
+ },
+ {
+  "id": "OIC-336-12-B",
+  "type": "transcription",
+  "texte": "## TDM cérébrale sans injection, coupe axiale, fenêtre parenchymateuse\n- Déviation de la ligne médiane (pointillé rouge) témoignant d'un engagement sous-falcoriel\n- Hématome de forme biconvexe : hématome extra-dural\n- Effacement des sillons ; Refoulement de l'hémisphère droit\n- Aspect collabé du ventricule latéral droit\n- Dilatation du ventricule latéral gauche\n- Conclusion : Hématome extra-dural droit responsable d'un effet de masse"
+ },
+ {
+  "id": "OIC-337-01-B",
+  "type": "transcription",
+  "texte": "## Intox fig 2 (items 1, 2, 4, 15, 16, 17, 18) — Toxiques fonctionnels\n| Toxique | Clinique et complications | Antidote |\n| Benzodiazépines | Syndrome de myorelaxation | Flumazénil (item 12) |\n| Opioïdes | Syndrome opioïde | Naloxone (item 11) |\n| Neuroleptiques | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Bicarbonate molaire de sodium si ESM |\n| Tricycliques | Syndrome anticholinergique ; ESM | Bicarbonate molaire de sodium si ESM |\n| ISRS | Syndrome sérotoninergique | Cyproheptadine |\n(Ligne « Clinique et complications » renvoyant aux items 4 et 6)\n## Ethanol\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n## Cardiotropes\n| Toxique | Clinique et complications | Antidote |\n| Digoxine | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Anticorps neutralisants après dosage de la digoxinémie |\n| Beta-bloquants | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium |\n| Inhibiteurs calciques | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels : Paracétamol\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72)\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acétylcystéine (écrit « N-Acéttlcystéine » sur la figure), administration guidée par la paracétamolémie (item 14)"
+ },
+ {
+  "id": "OIC-337-02-B",
+  "type": "transcription",
+  "texte": "## Intox fig 2 (items 1, 2, 4, 15, 16, 17, 18) — Toxiques fonctionnels\n| Toxique | Clinique et complications | Antidote |\n| Benzodiazépines | Syndrome de myorelaxation | Flumazénil (item 12) |\n| Opioïdes | Syndrome opioïde | Naloxone (item 11) |\n| Neuroleptiques | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Bicarbonate molaire de sodium si ESM |\n| Tricycliques | Syndrome anticholinergique ; ESM | Bicarbonate molaire de sodium si ESM |\n| ISRS | Syndrome sérotoninergique | Cyproheptadine |\n(Ligne « Clinique et complications » renvoyant aux items 4 et 6)\n## Ethanol\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n## Cardiotropes\n| Toxique | Clinique et complications | Antidote |\n| Digoxine | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Anticorps neutralisants après dosage de la digoxinémie |\n| Beta-bloquants | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium |\n| Inhibiteurs calciques | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels : Paracétamol\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72)\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acétylcystéine (écrit « N-Acéttlcystéine » sur la figure), administration guidée par la paracétamolémie (item 14)"
+ },
+ {
+  "id": "OIC-337-03-B",
+  "type": "transcription",
+  "texte": "## Intox fig 1 (items 3, 5, 7, 8, 10, 20)\n## Epidémiologie\n- intoxications = motif fréquent\n- 90% intoxications à l'hôpital = médicaments\n- Intoxications Médicamenteuses Volontaires >>> Surdosage\n- Intoxications accidentelles chez enfant < 5ans +++\n- BZD > Autres psychotropes > Antalgique\n- Association à l'alcool dans 40% des cas)\n## Alerte\nCas groupés avec même présentation clinique + Période de temps réstreinte = SUSPICION D'ATTAQUE CHIMIQUE → Mesures spécifiques de protections\n## Algorithme\nIntoxication ? → Contexte clair = lettre, erreur thérapeutique … ET/OU Toxidrome d'emblée évocateur (→ item 21)\n→ 1ère ETAPE = DANS TOUS LES CAS EVALUATION DE LA GRAVITE CLINIQUE INITIALE :\n- Arrêt cardio-respiratoire ? → RCP immédiate ; Scope\n- Ventilation ? (FR, SpO2, VAS) → Oxygénothérapie - Guédel\n- Hémodynamique ? (Marbrures, FC, TA) → Voie veineuse ; ECG systématique\n- Conscience (Score de Glasgow) → Mise en PLS ; Glycémie systématique\n- Pour tous : Appel médecin référent ou réanimateur\n→ Patient asymptomatique / Patient symptomatique"
+ },
+ {
+  "id": "OIC-337-04-A",
+  "type": "transcription",
+  "texte": "## Intox fig 2 (items 1, 2, 4, 15, 16, 17, 18) — Toxiques fonctionnels\n| Toxique | Clinique et complications | Antidote |\n| Benzodiazépines | Syndrome de myorelaxation | Flumazénil (item 12) |\n| Opioïdes | Syndrome opioïde | Naloxone (item 11) |\n| Neuroleptiques | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Bicarbonate molaire de sodium si ESM |\n| Tricycliques | Syndrome anticholinergique ; ESM | Bicarbonate molaire de sodium si ESM |\n| ISRS | Syndrome sérotoninergique | Cyproheptadine |\n(Ligne « Clinique et complications » renvoyant aux items 4 et 6)\n## Ethanol\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n## Cardiotropes\n| Toxique | Clinique et complications | Antidote |\n| Digoxine | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Anticorps neutralisants après dosage de la digoxinémie |\n| Beta-bloquants | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium |\n| Inhibiteurs calciques | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels : Paracétamol\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72)\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acétylcystéine (écrit « N-Acéttlcystéine » sur la figure), administration guidée par la paracétamolémie (item 14)\n\n## Figure 4 toxidromes (items 4, 6, 8)\n| | Sd opioïde | Sd de myorelaxation | Sd anticholinergique | Sd sérotoninergique | Sd adrénergique | ESM |\n| Toxiques | Opioïdes : licites (morphine, codéine …), illicites (héroïne …) | Benzodiazépines et apparentées (zolpidem, zopiclone) | Antidépresseurs tricycliques ; Antipsychotiques ; Antihistaminiques - Atropine ; Antiparkinsoniens - Scopolamine ; Bronchodilatateurs ; Oxybutynine - Amanite phalloïde | Inhibiteur de la recapture de la sérotonine (ISRS) ; Antidépresseurs tricycliques ; Inhibiteurs de la monoamine oxydase (IMAO) ; Amphétamines (MDMA) | Cocaïne ; Amphétamine ; LSD | Anti arythmique de classe 1 ; Certains bétabloquants (propranolol, acébutolol) ; Antidépresseurs tricycliques ; Quinine, Chloroquine ; Cocaïne .. |\n| Température | | | Hyperthermie | Hyperthermie | Hyperthermie | |\n| Muqueuses | | | Sèches | Hypersudation | | |\n| Pupilles | Myosis | | Mydriase | Mydriase | Mydriase | |\n| Neurologique | Coma calme ; Bradypnée | Coma calme ; ROT parfois abolis | Confusion + Hallucinations puis Coma agité avec ROT vifs ; Convulsions possibles | Confusion + Hallucinations puis Coma agité avec ROT vifs et Myoclonie ; Convulsions possibles | Agitation ; Convulsions | |\n| Cardio-vasculaire | | | Tachycardie ; Possibilité d'un ESM avec certaines molécules | Tachycardie ; Hypo ou Hypertension artérielle | Tachycardie ; Hypertension artérielle → Choc cardiogénique | Allongement du QT → Allongement du QRS → Choc cardiogénique - ACR |\n| Uro Gastro | Iléus ; Rétention aiguë d'urine | | Iléus ; Rétention aiguë d'urine | Diarrhées | | |\n| Biologique | | | | Rhabdomyolyse ; CIVD | hyperglycémie ; hypokaliémie ; hyperlactatatémie | |\n| Antidote | Naloxone (item 11) | Flumazénil (item 12) | Bicarbonate molaire de sodium si ESM | Cyproheptadine | | Bicarbonate molaire de sodium |\nAbréviations : Sd = Syndrome ; ROT = Réflexes Ostéo Tendineux ; ESM = Effet Stabilisant de membrane ; ACR = Arrêt Cardio Respiratoire"
+ },
+ {
+  "id": "OIC-337-05-A",
+  "type": "transcription",
+  "texte": "## Intox fig 1 (items 3, 5, 7, 8, 10, 20)\n## Epidémiologie\n- intoxications = motif fréquent\n- 90% intoxications à l'hôpital = médicaments\n- Intoxications Médicamenteuses Volontaires >>> Surdosage\n- Intoxications accidentelles chez enfant < 5ans +++\n- BZD > Autres psychotropes > Antalgique\n- Association à l'alcool dans 40% des cas)\n## Alerte\nCas groupés avec même présentation clinique + Période de temps réstreinte = SUSPICION D'ATTAQUE CHIMIQUE → Mesures spécifiques de protections\n## Algorithme\nIntoxication ? → Contexte clair = lettre, erreur thérapeutique … ET/OU Toxidrome d'emblée évocateur (→ item 21)\n→ 1ère ETAPE = DANS TOUS LES CAS EVALUATION DE LA GRAVITE CLINIQUE INITIALE :\n- Arrêt cardio-respiratoire ? → RCP immédiate ; Scope\n- Ventilation ? (FR, SpO2, VAS) → Oxygénothérapie - Guédel\n- Hémodynamique ? (Marbrures, FC, TA) → Voie veineuse ; ECG systématique\n- Conscience (Score de Glasgow) → Mise en PLS ; Glycémie systématique\n- Pour tous : Appel médecin référent ou réanimateur\n→ Patient asymptomatique / Patient symptomatique\n\n## Intox fig 3 (items 5, 8, 10, 13, 15, 16) — Patient symptomatique\n- En cas de troubles de la conscience avec hypoglycémie = GLUCOSE\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient symptomatique → 3 situations pour lesquelles l'administration d'un antidote sur la seule recherche du toxidrome va immédiatement modifier la prise en charge :\n- Syndrome opioïde → Naloxone (item 11)\n- Syndrome de myorelaxation exclusivement lié à la prise de benzodiazépines → Flumazénil (item 12)\n- Effet stabilisant de membrane (item 6) → Bicarbonates molaires de sodium\n→ Dans tous les autres cas ou en cas d'échec de ces traitements la prise en charge est basée sur :\n- Admission dans un secteur de soin adapté pour les traitements et la surveillance : Réanimation, USC, UHCD …\n  - PROCESSUS DYNAMIQUE un patient peu symptomatique peut être intubé-ventilé quelques heures après son admission\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue\n- Evaluation des défaillances d'organe et recherche de complications : Clinique, Biologie, Imagerie … → Analyse toxicologique ? (item 9)\n- Traitement de support des défaillances d'organes et des complications : Choc = remplissage, vasopresseur ; Coma = intubation ; PNP d'inhalation = antibiotiques ; …\n- Discuter un traitement toxicologique : Décontamination digestive ? (item 21) ; Antidote ? (items 4, 6, 11, 12, 14, 15, 16, 17, 19) ; Epuration extra-rénale pour éliminer le toxique : certaines indications\n- Le diagnostic d'intoxication est parfois incertain ! => évoquer à tous les stades de la prise en charge des diagnostics différentiels\n- Chez l'enfant, une intoxication doit être évoquée devant toute modification de l'état de conscience non expliquée\n\n## Intox fig 6 (items 5, 10, 13, 15, 16) — Patient asymptomatique\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient asymptomatique → Compléter l'anamnèse :\n- type de substance précise\n- dose supposée ingérée\n- T0 i.e. date et heure de l'exposition\n- contexte (festif, suicidaire, accidentel)\n- antécédents médicaux pouvant aggraver le pronostic\n- profession (accès à des produits spécifiques)\n→\n- Se poser la question d'une décontamination digestive → item 21\n- Evaluer le risque lié à la substance :\n  - Benzodiazépines, Opioïdes, Neuroleptiques, Antidépresseurs tricycliques et non tricycliques → item 1\n  - Ethanol\n  - Paracétamol\n  - Bétabloquants, Inhibiteurs calciques, Digoxine → item 2\n  - Amphétamines, Cannabis, Cocaïne, NPS → item 22\n- Examens complémentaires :\n  - Bilan des défaillances d'organes : Toxiques lésionnels = OUI ; Toxiques non lésionnels = SELON LE TOXIQUE ET LE TERRAIN\n  - Analyse toxicologique ? → item 9\n- Surveillance Clinique +/- ECG +/- répétition ex. complémentaires :\n  - PROCESSUS DYNAMIQUES un patient asymptomatique peut être intubé-ventilé quelques heures après son admission\n  - Surveillance si nécessaire dans un secteur de soin adapté en fonction du risque toxique\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue"
+ },
+ {
+  "id": "OIC-337-06-B",
+  "type": "transcription",
+  "texte": "## Figure 4 toxidromes (items 4, 6, 8)\n| | Sd opioïde | Sd de myorelaxation | Sd anticholinergique | Sd sérotoninergique | Sd adrénergique | ESM |\n| Toxiques | Opioïdes : licites (morphine, codéine …), illicites (héroïne …) | Benzodiazépines et apparentées (zolpidem, zopiclone) | Antidépresseurs tricycliques ; Antipsychotiques ; Antihistaminiques - Atropine ; Antiparkinsoniens - Scopolamine ; Bronchodilatateurs ; Oxybutynine - Amanite phalloïde | Inhibiteur de la recapture de la sérotonine (ISRS) ; Antidépresseurs tricycliques ; Inhibiteurs de la monoamine oxydase (IMAO) ; Amphétamines (MDMA) | Cocaïne ; Amphétamine ; LSD | Anti arythmique de classe 1 ; Certains bétabloquants (propranolol, acébutolol) ; Antidépresseurs tricycliques ; Quinine, Chloroquine ; Cocaïne .. |\n| Température | | | Hyperthermie | Hyperthermie | Hyperthermie | |\n| Muqueuses | | | Sèches | Hypersudation | | |\n| Pupilles | Myosis | | Mydriase | Mydriase | Mydriase | |\n| Neurologique | Coma calme ; Bradypnée | Coma calme ; ROT parfois abolis | Confusion + Hallucinations puis Coma agité avec ROT vifs ; Convulsions possibles | Confusion + Hallucinations puis Coma agité avec ROT vifs et Myoclonie ; Convulsions possibles | Agitation ; Convulsions | |\n| Cardio-vasculaire | | | Tachycardie ; Possibilité d'un ESM avec certaines molécules | Tachycardie ; Hypo ou Hypertension artérielle | Tachycardie ; Hypertension artérielle → Choc cardiogénique | Allongement du QT → Allongement du QRS → Choc cardiogénique - ACR |\n| Uro Gastro | Iléus ; Rétention aiguë d'urine | | Iléus ; Rétention aiguë d'urine | Diarrhées | | |\n| Biologique | | | | Rhabdomyolyse ; CIVD | hyperglycémie ; hypokaliémie ; hyperlactatatémie | |\n| Antidote | Naloxone (item 11) | Flumazénil (item 12) | Bicarbonate molaire de sodium si ESM | Cyproheptadine | | Bicarbonate molaire de sodium |\nAbréviations : Sd = Syndrome ; ROT = Réflexes Ostéo Tendineux ; ESM = Effet Stabilisant de membrane ; ACR = Arrêt Cardio Respiratoire"
+ },
+ {
+  "id": "OIC-337-07-A",
+  "type": "transcription",
+  "texte": "## Intox fig 1 (items 3, 5, 7, 8, 10, 20)\n## Epidémiologie\n- intoxications = motif fréquent\n- 90% intoxications à l'hôpital = médicaments\n- Intoxications Médicamenteuses Volontaires >>> Surdosage\n- Intoxications accidentelles chez enfant < 5ans +++\n- BZD > Autres psychotropes > Antalgique\n- Association à l'alcool dans 40% des cas)\n## Alerte\nCas groupés avec même présentation clinique + Période de temps réstreinte = SUSPICION D'ATTAQUE CHIMIQUE → Mesures spécifiques de protections\n## Algorithme\nIntoxication ? → Contexte clair = lettre, erreur thérapeutique … ET/OU Toxidrome d'emblée évocateur (→ item 21)\n→ 1ère ETAPE = DANS TOUS LES CAS EVALUATION DE LA GRAVITE CLINIQUE INITIALE :\n- Arrêt cardio-respiratoire ? → RCP immédiate ; Scope\n- Ventilation ? (FR, SpO2, VAS) → Oxygénothérapie - Guédel\n- Hémodynamique ? (Marbrures, FC, TA) → Voie veineuse ; ECG systématique\n- Conscience (Score de Glasgow) → Mise en PLS ; Glycémie systématique\n- Pour tous : Appel médecin référent ou réanimateur\n→ Patient asymptomatique / Patient symptomatique\n\n## Intox fig 2 (items 1, 2, 4, 15, 16, 17, 18) — Toxiques fonctionnels\n| Toxique | Clinique et complications | Antidote |\n| Benzodiazépines | Syndrome de myorelaxation | Flumazénil (item 12) |\n| Opioïdes | Syndrome opioïde | Naloxone (item 11) |\n| Neuroleptiques | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Bicarbonate molaire de sodium si ESM |\n| Tricycliques | Syndrome anticholinergique ; ESM | Bicarbonate molaire de sodium si ESM |\n| ISRS | Syndrome sérotoninergique | Cyproheptadine |\n(Ligne « Clinique et complications » renvoyant aux items 4 et 6)\n## Ethanol\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n## Cardiotropes\n| Toxique | Clinique et complications | Antidote |\n| Digoxine | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Anticorps neutralisants après dosage de la digoxinémie |\n| Beta-bloquants | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium |\n| Inhibiteurs calciques | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels : Paracétamol\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72)\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acétylcystéine (écrit « N-Acéttlcystéine » sur la figure), administration guidée par la paracétamolémie (item 14)"
+ },
+ {
+  "id": "OIC-337-08-B",
+  "type": "transcription",
+  "texte": "## Intox fig 1 (items 3, 5, 7, 8, 10, 20)\n## Epidémiologie\n- intoxications = motif fréquent\n- 90% intoxications à l'hôpital = médicaments\n- Intoxications Médicamenteuses Volontaires >>> Surdosage\n- Intoxications accidentelles chez enfant < 5ans +++\n- BZD > Autres psychotropes > Antalgique\n- Association à l'alcool dans 40% des cas)\n## Alerte\nCas groupés avec même présentation clinique + Période de temps réstreinte = SUSPICION D'ATTAQUE CHIMIQUE → Mesures spécifiques de protections\n## Algorithme\nIntoxication ? → Contexte clair = lettre, erreur thérapeutique … ET/OU Toxidrome d'emblée évocateur (→ item 21)\n→ 1ère ETAPE = DANS TOUS LES CAS EVALUATION DE LA GRAVITE CLINIQUE INITIALE :\n- Arrêt cardio-respiratoire ? → RCP immédiate ; Scope\n- Ventilation ? (FR, SpO2, VAS) → Oxygénothérapie - Guédel\n- Hémodynamique ? (Marbrures, FC, TA) → Voie veineuse ; ECG systématique\n- Conscience (Score de Glasgow) → Mise en PLS ; Glycémie systématique\n- Pour tous : Appel médecin référent ou réanimateur\n→ Patient asymptomatique / Patient symptomatique\n\n## Intox fig 3 (items 5, 8, 10, 13, 15, 16) — Patient symptomatique\n- En cas de troubles de la conscience avec hypoglycémie = GLUCOSE\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient symptomatique → 3 situations pour lesquelles l'administration d'un antidote sur la seule recherche du toxidrome va immédiatement modifier la prise en charge :\n- Syndrome opioïde → Naloxone (item 11)\n- Syndrome de myorelaxation exclusivement lié à la prise de benzodiazépines → Flumazénil (item 12)\n- Effet stabilisant de membrane (item 6) → Bicarbonates molaires de sodium\n→ Dans tous les autres cas ou en cas d'échec de ces traitements la prise en charge est basée sur :\n- Admission dans un secteur de soin adapté pour les traitements et la surveillance : Réanimation, USC, UHCD …\n  - PROCESSUS DYNAMIQUE un patient peu symptomatique peut être intubé-ventilé quelques heures après son admission\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue\n- Evaluation des défaillances d'organe et recherche de complications : Clinique, Biologie, Imagerie … → Analyse toxicologique ? (item 9)\n- Traitement de support des défaillances d'organes et des complications : Choc = remplissage, vasopresseur ; Coma = intubation ; PNP d'inhalation = antibiotiques ; …\n- Discuter un traitement toxicologique : Décontamination digestive ? (item 21) ; Antidote ? (items 4, 6, 11, 12, 14, 15, 16, 17, 19) ; Epuration extra-rénale pour éliminer le toxique : certaines indications\n- Le diagnostic d'intoxication est parfois incertain ! => évoquer à tous les stades de la prise en charge des diagnostics différentiels\n- Chez l'enfant, une intoxication doit être évoquée devant toute modification de l'état de conscience non expliquée\n\n## Figure 4 toxidromes (items 4, 6, 8)\n| | Sd opioïde | Sd de myorelaxation | Sd anticholinergique | Sd sérotoninergique | Sd adrénergique | ESM |\n| Toxiques | Opioïdes : licites (morphine, codéine …), illicites (héroïne …) | Benzodiazépines et apparentées (zolpidem, zopiclone) | Antidépresseurs tricycliques ; Antipsychotiques ; Antihistaminiques - Atropine ; Antiparkinsoniens - Scopolamine ; Bronchodilatateurs ; Oxybutynine - Amanite phalloïde | Inhibiteur de la recapture de la sérotonine (ISRS) ; Antidépresseurs tricycliques ; Inhibiteurs de la monoamine oxydase (IMAO) ; Amphétamines (MDMA) | Cocaïne ; Amphétamine ; LSD | Anti arythmique de classe 1 ; Certains bétabloquants (propranolol, acébutolol) ; Antidépresseurs tricycliques ; Quinine, Chloroquine ; Cocaïne .. |\n| Température | | | Hyperthermie | Hyperthermie | Hyperthermie | |\n| Muqueuses | | | Sèches | Hypersudation | | |\n| Pupilles | Myosis | | Mydriase | Mydriase | Mydriase | |\n| Neurologique | Coma calme ; Bradypnée | Coma calme ; ROT parfois abolis | Confusion + Hallucinations puis Coma agité avec ROT vifs ; Convulsions possibles | Confusion + Hallucinations puis Coma agité avec ROT vifs et Myoclonie ; Convulsions possibles | Agitation ; Convulsions | |\n| Cardio-vasculaire | | | Tachycardie ; Possibilité d'un ESM avec certaines molécules | Tachycardie ; Hypo ou Hypertension artérielle | Tachycardie ; Hypertension artérielle → Choc cardiogénique | Allongement du QT → Allongement du QRS → Choc cardiogénique - ACR |\n| Uro Gastro | Iléus ; Rétention aiguë d'urine | | Iléus ; Rétention aiguë d'urine | Diarrhées | | |\n| Biologique | | | | Rhabdomyolyse ; CIVD | hyperglycémie ; hypokaliémie ; hyperlactatatémie | |\n| Antidote | Naloxone (item 11) | Flumazénil (item 12) | Bicarbonate molaire de sodium si ESM | Cyproheptadine | | Bicarbonate molaire de sodium |\nAbréviations : Sd = Syndrome ; ROT = Réflexes Ostéo Tendineux ; ESM = Effet Stabilisant de membrane ; ACR = Arrêt Cardio Respiratoire"
+ },
+ {
+  "id": "OIC-337-09-B",
+  "type": "transcription",
+  "texte": "## Intox fig 7 (item 9) — Dosages toxicologiques\nDosages toxicologiques → Non systématique - 3 situations :\n- SYSTEMATIQUE : Doser systématiquement les substances suivantes en cas d'exposition AVÉRÉE OU MÊME SUSPECTÉE :\n  - paracétamol\n  - digoxine\n  - lithium\n  - carbamazépine\n  - valproate de sodium\n  - salicylés\n  - phénobarbital\n  - fer\n  - théophylline\n- Criblage toxicologique : En absence d'orientation sur les produits ingérés ou En cas de doute chez un patient présentant des signes de gravité (hors coma expliqué par un toxique fonctionnel) → UN « criblage ou screening toxicologique » peut se justifier\n- Dans le doute : Chez tout patient bénéficiant d'un bilan biologique dans le cadre de l'évaluation des défaillances d'organe, Un prélèvement CONSERVATOIRE (sang et urine) est réalisé et conservé au réfrigérateur → Peut être envoyé au laboratoire de toxicologie si évolution clinique défavorable ou inattendue ou nouvelles informations"
+ },
+ {
+  "id": "OIC-337-10-A",
+  "type": "transcription",
+  "texte": "## Intox fig 1 (items 3, 5, 7, 8, 10, 20)\n## Epidémiologie\n- intoxications = motif fréquent\n- 90% intoxications à l'hôpital = médicaments\n- Intoxications Médicamenteuses Volontaires >>> Surdosage\n- Intoxications accidentelles chez enfant < 5ans +++\n- BZD > Autres psychotropes > Antalgique\n- Association à l'alcool dans 40% des cas)\n## Alerte\nCas groupés avec même présentation clinique + Période de temps réstreinte = SUSPICION D'ATTAQUE CHIMIQUE → Mesures spécifiques de protections\n## Algorithme\nIntoxication ? → Contexte clair = lettre, erreur thérapeutique … ET/OU Toxidrome d'emblée évocateur (→ item 21)\n→ 1ère ETAPE = DANS TOUS LES CAS EVALUATION DE LA GRAVITE CLINIQUE INITIALE :\n- Arrêt cardio-respiratoire ? → RCP immédiate ; Scope\n- Ventilation ? (FR, SpO2, VAS) → Oxygénothérapie - Guédel\n- Hémodynamique ? (Marbrures, FC, TA) → Voie veineuse ; ECG systématique\n- Conscience (Score de Glasgow) → Mise en PLS ; Glycémie systématique\n- Pour tous : Appel médecin référent ou réanimateur\n→ Patient asymptomatique / Patient symptomatique\n\n## Intox fig 3 (items 5, 8, 10, 13, 15, 16) — Patient symptomatique\n- En cas de troubles de la conscience avec hypoglycémie = GLUCOSE\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient symptomatique → 3 situations pour lesquelles l'administration d'un antidote sur la seule recherche du toxidrome va immédiatement modifier la prise en charge :\n- Syndrome opioïde → Naloxone (item 11)\n- Syndrome de myorelaxation exclusivement lié à la prise de benzodiazépines → Flumazénil (item 12)\n- Effet stabilisant de membrane (item 6) → Bicarbonates molaires de sodium\n→ Dans tous les autres cas ou en cas d'échec de ces traitements la prise en charge est basée sur :\n- Admission dans un secteur de soin adapté pour les traitements et la surveillance : Réanimation, USC, UHCD …\n  - PROCESSUS DYNAMIQUE un patient peu symptomatique peut être intubé-ventilé quelques heures après son admission\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue\n- Evaluation des défaillances d'organe et recherche de complications : Clinique, Biologie, Imagerie … → Analyse toxicologique ? (item 9)\n- Traitement de support des défaillances d'organes et des complications : Choc = remplissage, vasopresseur ; Coma = intubation ; PNP d'inhalation = antibiotiques ; …\n- Discuter un traitement toxicologique : Décontamination digestive ? (item 21) ; Antidote ? (items 4, 6, 11, 12, 14, 15, 16, 17, 19) ; Epuration extra-rénale pour éliminer le toxique : certaines indications\n- Le diagnostic d'intoxication est parfois incertain ! => évoquer à tous les stades de la prise en charge des diagnostics différentiels\n- Chez l'enfant, une intoxication doit être évoquée devant toute modification de l'état de conscience non expliquée"
+ },
+ {
+  "id": "OIC-337-11-B",
+  "type": "transcription",
+  "texte": "## Intox fig 5 (items 11, 12, 14) — Antidote dont les modalités d'administration sont à connaître\n## Benzodiazépines → Flumazénil\n- Contre-indication :\n  - antécédent d'épilepsie\n  - co-intoxication avec un toxique pro convulsivant (antidépresseurs, neuroleptique).\n  - => RISQUE DE CONVULSIONS\n- Administration :\n  - par voie intraveineuse\n  - en bolus de 0,2 mg puis 0,1 mg toutes les 2 minutes jusqu'à 2 mg maximum\n  - si efficace = relai par perfusion continue = dose horaire : moitié de la dose utilisée en titration.\n- Objectif :\n  - réveil suffisant permettant la protection des voies aériennes supérieures pour éviter une intubation\n  - PAS le réveil complet = risque de syndrome de sevrage = agitation, violence ou fugue.\n## Opioïdes → Naloxone\n- Contre-indication = 0\n- Administration :\n  - par voie intraveineuse\n  - en bolus de 0,04 à 0,08 mg toutes les 2 minutes jusqu'à 2 mg maximum\n  - si efficace = relai par perfusion continue = dose horaire : moitié de la dose utilisée en titration.\n- Objectif :\n  - Fréquence respiratoire ≥ 15 cycles par minute permettant de sursoir à une intubation orotrachéale\n  - PAS le réveil complet = risque de syndrome de sevrage = agitation, violence ou fugue.\n## Paracétamol → N-acétylcystéine\n- Mécanisme = régénération du glutathion, nécessaire à la neutralisation des métabolites toxiques du paracétamol\n- Indication = en l'absence de gravité immédiate ou d'ingestion de dose massive elle est basée sur la paracétamolémie, à H+4 d'une ingestion aiguë UNIQUE, interprétée sur le nomogramme de Rumack et Matthews\n- Efficacité maximale dans les 8-12 heures suivant l'ingestion donc sauf tableau sévère d'emblée ou dose massive = attendre si possible la paracétamolémie"
+ },
+ {
+  "id": "OIC-337-12-B",
+  "type": "transcription",
+  "texte": "## Intox fig 5 (items 11, 12, 14) — Antidote dont les modalités d'administration sont à connaître\n## Benzodiazépines → Flumazénil\n- Contre-indication :\n  - antécédent d'épilepsie\n  - co-intoxication avec un toxique pro convulsivant (antidépresseurs, neuroleptique).\n  - => RISQUE DE CONVULSIONS\n- Administration :\n  - par voie intraveineuse\n  - en bolus de 0,2 mg puis 0,1 mg toutes les 2 minutes jusqu'à 2 mg maximum\n  - si efficace = relai par perfusion continue = dose horaire : moitié de la dose utilisée en titration.\n- Objectif :\n  - réveil suffisant permettant la protection des voies aériennes supérieures pour éviter une intubation\n  - PAS le réveil complet = risque de syndrome de sevrage = agitation, violence ou fugue.\n## Opioïdes → Naloxone\n- Contre-indication = 0\n- Administration :\n  - par voie intraveineuse\n  - en bolus de 0,04 à 0,08 mg toutes les 2 minutes jusqu'à 2 mg maximum\n  - si efficace = relai par perfusion continue = dose horaire : moitié de la dose utilisée en titration.\n- Objectif :\n  - Fréquence respiratoire ≥ 15 cycles par minute permettant de sursoir à une intubation orotrachéale\n  - PAS le réveil complet = risque de syndrome de sevrage = agitation, violence ou fugue.\n## Paracétamol → N-acétylcystéine\n- Mécanisme = régénération du glutathion, nécessaire à la neutralisation des métabolites toxiques du paracétamol\n- Indication = en l'absence de gravité immédiate ou d'ingestion de dose massive elle est basée sur la paracétamolémie, à H+4 d'une ingestion aiguë UNIQUE, interprétée sur le nomogramme de Rumack et Matthews\n- Efficacité maximale dans les 8-12 heures suivant l'ingestion donc sauf tableau sévère d'emblée ou dose massive = attendre si possible la paracétamolémie"
+ },
+ {
+  "id": "OIC-337-13-A",
+  "type": "transcription",
+  "texte": "## Intox fig 3 — Patient symptomatique (items de connaissance renvoyés : 5, 8, 10, 13, 15, 16)\n- En cas de troubles de la conscience avec hypoglycémie = GLUCOSE\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient symptomatique → 3 situations pour lesquelles l'administration d'un antidote sur la seule recherche du toxidrome va immédiatement modifier la prise en charge :\n- Syndrome opioïde → Naloxone (→ item 11)\n- Syndrome de myorelaxation exclusivement lié à la prise de benzodiazépines → Flumazénil (→ item 12)\n- Effet stabilisant de membrane (→ item 6) → Bicarbonates molaires de sodium\nDans tous les autres cas ou en cas d'échec de ces traitements la prise en charge est basée sur :\n- Admission dans un secteur de soin adapté pour les traitements et la surveillance : Réanimation, USC, UHCD …\n  - PROCESSUS DYNAMIQUE un patient peu symptomatique peut être intubé-ventilé quelques heures après son admission\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue\n- Evaluation des défaillances d'organe et recherche de complications : Clinique, Biologie, Imagerie …\n  - → Analyse toxicologique ? (→ item 9)\n- Traitement de support des défaillances d'organes et des complications :\n  - Choc = remplissage, vasopresseur\n  - Coma = intubation\n  - PNP d'inhalation = antibiotiques\n  - …\n- Discuter un traitement toxicologique :\n  - Décontamination digestive ? (→ item 21)\n  - Antidote ? (→ items 4, 6, 11, 12, 14, 15, 16, 17, 19)\n  - Epuration extra-rénale pour éliminer le toxique : certaines indications\n- Le diagnostic d'intoxication est parfois incertain ! => évoquer à tous les stades de la prise en charge des diagnostics différentiels\n- Chez l'enfant, une intoxication doit être évoquée devant toute modification de l'état de conscience non expliquée\n\n## Intox fig 6 — Patient asymptomatique (items de connaissance renvoyés : 5, 10, 13, 15, 16)\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient asymptomatique → Compléter l'anamnèse :\n- type de substance précise\n- dose supposée ingérée\n- T0 i.e. date et heure de l'exposition\n- contexte (festif, suicidaire, accidentel)\n- antécédents médicaux pouvant aggraver le pronostic\n- profession (accès à des produits spécifiques)\n→ 4 axes :\n- Se poser la question d'une décontamination digestive → item 21\n- Evaluer le risque lié à la substance :\n  - Benzodiazépines, Opioïdes, Neuroleptiques, Antidépresseurs tricycliques et non tricycliques → item 1\n  - Ethanol\n  - Paracétamol\n  - Bétabloquants, Inhibiteurs calciques, Digoxine → item 2\n  - Amphétamines, Cannabis, Cocaïne, NPS → item 22\n- Examens complémentaires :\n  - → Bilan des défaillances d'organes : Toxiques lésionnels = OUI ; Toxiques non lésionnels = SELON LE TOXIQUE ET LE TERRAIN\n  - → Analyse toxicologique ? → item 9\n- Surveillance Clinique +/- ECG +/- répétition ex. complémentaires :\n  - PROCESSUS DYNAMIQUES un patient asymptomatique peut être intubé-ventilé quelques heures après son admission\n  - Surveillance si nécessaire dans un secteur de soin adapté en fonction du risque toxique\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue"
+ },
+ {
+  "id": "OIC-337-14-B",
+  "type": "transcription",
+  "texte": "## Intox fig 5 — Antidote dont les modalités d'administration sont à connaître (items de connaissance renvoyés : 11, 12, 14)\n| Toxique | Benzodiazépines | Opioïdes | Paracétamol |\n| Antidote | Flumazénil | Naloxone | N-acétylcystéine |\n| Contre-indication | antécédent d'épilepsie ; co-intoxication avec un toxique pro convulsivant (antidépresseurs, neuroleptique). => RISQUE DE CONVULSIONS | Contre-indication = 0 | |\n| Administration | par voie intraveineuse ; en bolus de 0,2 mg puis 0,1 mg toutes les 2 minutes jusqu'à 2 mg maximum ; si efficace = relai par perfusion continue = dose horaire : moitié de la dose utilisée en titration. | par voie intraveineuse ; en bolus de 0,04 à 0,08 mg toutes les 2 minutes jusqu'à 2 mg maximum ; si efficace = relai par perfusion continue = dose horaire : moitié de la dose utilisée en titration. | |\n| Objectif | réveil suffisant permettant la protection des voies aériennes supérieures pour éviter une intubation ; PAS le réveil complet = risque de syndrome de sevrage = agitation, violence ou fugue. | Fréquence respiratoire ≥ 15 cycles par minute permettant de sursoir à une intubation orotrachéale ; PAS le réveil complet = risque de syndrome de sevrage = agitation, violence ou fugue. | |\nN-acétylcystéine (Paracétamol) :\n- Mécanisme = régénération du glutathion, nécessaire à la neutralisation des métabolites toxiques du paracétamol\n- Indication = en l'absence de gravité immédiate ou d'ingestion de dose massive elle est basée sur la paracétamolémie, à H+4 d'une ingestion aiguë UNIQUE, interprétée sur le nomogramme de Rumack et Matthews\n- Efficacité maximale dans les 8-12 heures suivant l'ingestion donc sauf tableau sévère d'emblée ou dose massive = attendre si possible la paracétamolémie"
+ },
+ {
+  "id": "OIC-337-15-B",
+  "type": "transcription",
+  "texte": "## Intox fig 2 — Toxiques fonctionnels et lésionnels (items de connaissance renvoyés : 1, 2, 4, 15, 16, 17, 18)\n## Toxiques fonctionnels\n| | Benzodiazépines | Opioïdes | Neuroleptiques | Tricycliques | ISRS |\n| Clinique et complications | Syndrome de myorelaxation | Syndrome opioïde | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Syndrome anticholinergique ; ESM | Syndrome sérotoninergique |\n| Antidote | Flumazénil (→ item 12) | Naloxone (→ item 11) | Bicarbonate molaire de sodium si ESM | Bicarbonate molaire de sodium si ESM | Cyproheptadine |\n(ces 5 colonnes renvoient aux items 4 et 6)\nEthanol :\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n| | Digoxine | Beta-bloquants | Inhibiteurs calciques |\n| Clinique et complications | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique |\n| Antidote | Anticorps neutralisants après dosage de la digoxinémie | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels\nParacétamol :\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72) ;\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acéttlcystéine, administration guidée par la paracétamolémie (→ item 14)\n\n## Intox fig 3 — Patient symptomatique (items de connaissance renvoyés : 5, 8, 10, 13, 15, 16)\n- En cas de troubles de la conscience avec hypoglycémie = GLUCOSE\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient symptomatique → 3 situations pour lesquelles l'administration d'un antidote sur la seule recherche du toxidrome va immédiatement modifier la prise en charge :\n- Syndrome opioïde → Naloxone (→ item 11)\n- Syndrome de myorelaxation exclusivement lié à la prise de benzodiazépines → Flumazénil (→ item 12)\n- Effet stabilisant de membrane (→ item 6) → Bicarbonates molaires de sodium\nDans tous les autres cas ou en cas d'échec de ces traitements la prise en charge est basée sur :\n- Admission dans un secteur de soin adapté pour les traitements et la surveillance : Réanimation, USC, UHCD …\n  - PROCESSUS DYNAMIQUE un patient peu symptomatique peut être intubé-ventilé quelques heures après son admission\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue\n- Evaluation des défaillances d'organe et recherche de complications : Clinique, Biologie, Imagerie …\n  - → Analyse toxicologique ? (→ item 9)\n- Traitement de support des défaillances d'organes et des complications :\n  - Choc = remplissage, vasopresseur\n  - Coma = intubation\n  - PNP d'inhalation = antibiotiques\n  - …\n- Discuter un traitement toxicologique :\n  - Décontamination digestive ? (→ item 21)\n  - Antidote ? (→ items 4, 6, 11, 12, 14, 15, 16, 17, 19)\n  - Epuration extra-rénale pour éliminer le toxique : certaines indications\n- Le diagnostic d'intoxication est parfois incertain ! => évoquer à tous les stades de la prise en charge des diagnostics différentiels\n- Chez l'enfant, une intoxication doit être évoquée devant toute modification de l'état de conscience non expliquée\n\n## Intox fig 6 — Patient asymptomatique (items de connaissance renvoyés : 5, 10, 13, 15, 16)\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient asymptomatique → Compléter l'anamnèse :\n- type de substance précise\n- dose supposée ingérée\n- T0 i.e. date et heure de l'exposition\n- contexte (festif, suicidaire, accidentel)\n- antécédents médicaux pouvant aggraver le pronostic\n- profession (accès à des produits spécifiques)\n→ 4 axes :\n- Se poser la question d'une décontamination digestive → item 21\n- Evaluer le risque lié à la substance :\n  - Benzodiazépines, Opioïdes, Neuroleptiques, Antidépresseurs tricycliques et non tricycliques → item 1\n  - Ethanol\n  - Paracétamol\n  - Bétabloquants, Inhibiteurs calciques, Digoxine → item 2\n  - Amphétamines, Cannabis, Cocaïne, NPS → item 22\n- Examens complémentaires :\n  - → Bilan des défaillances d'organes : Toxiques lésionnels = OUI ; Toxiques non lésionnels = SELON LE TOXIQUE ET LE TERRAIN\n  - → Analyse toxicologique ? → item 9\n- Surveillance Clinique +/- ECG +/- répétition ex. complémentaires :\n  - PROCESSUS DYNAMIQUES un patient asymptomatique peut être intubé-ventilé quelques heures après son admission\n  - Surveillance si nécessaire dans un secteur de soin adapté en fonction du risque toxique\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue"
+ },
+ {
+  "id": "OIC-337-16-B",
+  "type": "transcription",
+  "texte": "## Intox fig 2 — Toxiques fonctionnels et lésionnels (items de connaissance renvoyés : 1, 2, 4, 15, 16, 17, 18)\n## Toxiques fonctionnels\n| | Benzodiazépines | Opioïdes | Neuroleptiques | Tricycliques | ISRS |\n| Clinique et complications | Syndrome de myorelaxation | Syndrome opioïde | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Syndrome anticholinergique ; ESM | Syndrome sérotoninergique |\n| Antidote | Flumazénil (→ item 12) | Naloxone (→ item 11) | Bicarbonate molaire de sodium si ESM | Bicarbonate molaire de sodium si ESM | Cyproheptadine |\n(ces 5 colonnes renvoient aux items 4 et 6)\nEthanol :\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n| | Digoxine | Beta-bloquants | Inhibiteurs calciques |\n| Clinique et complications | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique |\n| Antidote | Anticorps neutralisants après dosage de la digoxinémie | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels\nParacétamol :\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72) ;\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acéttlcystéine, administration guidée par la paracétamolémie (→ item 14)\n\n## Intox fig 3 — Patient symptomatique (items de connaissance renvoyés : 5, 8, 10, 13, 15, 16)\n- En cas de troubles de la conscience avec hypoglycémie = GLUCOSE\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient symptomatique → 3 situations pour lesquelles l'administration d'un antidote sur la seule recherche du toxidrome va immédiatement modifier la prise en charge :\n- Syndrome opioïde → Naloxone (→ item 11)\n- Syndrome de myorelaxation exclusivement lié à la prise de benzodiazépines → Flumazénil (→ item 12)\n- Effet stabilisant de membrane (→ item 6) → Bicarbonates molaires de sodium\nDans tous les autres cas ou en cas d'échec de ces traitements la prise en charge est basée sur :\n- Admission dans un secteur de soin adapté pour les traitements et la surveillance : Réanimation, USC, UHCD …\n  - PROCESSUS DYNAMIQUE un patient peu symptomatique peut être intubé-ventilé quelques heures après son admission\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue\n- Evaluation des défaillances d'organe et recherche de complications : Clinique, Biologie, Imagerie …\n  - → Analyse toxicologique ? (→ item 9)\n- Traitement de support des défaillances d'organes et des complications :\n  - Choc = remplissage, vasopresseur\n  - Coma = intubation\n  - PNP d'inhalation = antibiotiques\n  - …\n- Discuter un traitement toxicologique :\n  - Décontamination digestive ? (→ item 21)\n  - Antidote ? (→ items 4, 6, 11, 12, 14, 15, 16, 17, 19)\n  - Epuration extra-rénale pour éliminer le toxique : certaines indications\n- Le diagnostic d'intoxication est parfois incertain ! => évoquer à tous les stades de la prise en charge des diagnostics différentiels\n- Chez l'enfant, une intoxication doit être évoquée devant toute modification de l'état de conscience non expliquée\n\n## Intox fig 6 — Patient asymptomatique (items de connaissance renvoyés : 5, 10, 13, 15, 16)\n- À tout moment l'appel d'un Centre AntiPoison peut vous aider dans la prise en charge\nPatient asymptomatique → Compléter l'anamnèse :\n- type de substance précise\n- dose supposée ingérée\n- T0 i.e. date et heure de l'exposition\n- contexte (festif, suicidaire, accidentel)\n- antécédents médicaux pouvant aggraver le pronostic\n- profession (accès à des produits spécifiques)\n→ 4 axes :\n- Se poser la question d'une décontamination digestive → item 21\n- Evaluer le risque lié à la substance :\n  - Benzodiazépines, Opioïdes, Neuroleptiques, Antidépresseurs tricycliques et non tricycliques → item 1\n  - Ethanol\n  - Paracétamol\n  - Bétabloquants, Inhibiteurs calciques, Digoxine → item 2\n  - Amphétamines, Cannabis, Cocaïne, NPS → item 22\n- Examens complémentaires :\n  - → Bilan des défaillances d'organes : Toxiques lésionnels = OUI ; Toxiques non lésionnels = SELON LE TOXIQUE ET LE TERRAIN\n  - → Analyse toxicologique ? → item 9\n- Surveillance Clinique +/- ECG +/- répétition ex. complémentaires :\n  - PROCESSUS DYNAMIQUES un patient asymptomatique peut être intubé-ventilé quelques heures après son admission\n  - Surveillance si nécessaire dans un secteur de soin adapté en fonction du risque toxique\n  - En cas de prise en charge suicidaire => consultation psychiatrique obligatoire au décours de la PEC aigue"
+ },
+ {
+  "id": "OIC-337-17-A",
+  "type": "transcription",
+  "texte": "## Intox fig 2 — Toxiques fonctionnels et lésionnels (items de connaissance renvoyés : 1, 2, 4, 15, 16, 17, 18)\n## Toxiques fonctionnels\n| | Benzodiazépines | Opioïdes | Neuroleptiques | Tricycliques | ISRS |\n| Clinique et complications | Syndrome de myorelaxation | Syndrome opioïde | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Syndrome anticholinergique ; ESM | Syndrome sérotoninergique |\n| Antidote | Flumazénil (→ item 12) | Naloxone (→ item 11) | Bicarbonate molaire de sodium si ESM | Bicarbonate molaire de sodium si ESM | Cyproheptadine |\n(ces 5 colonnes renvoient aux items 4 et 6)\nEthanol :\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n| | Digoxine | Beta-bloquants | Inhibiteurs calciques |\n| Clinique et complications | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique |\n| Antidote | Anticorps neutralisants après dosage de la digoxinémie | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels\nParacétamol :\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72) ;\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acéttlcystéine, administration guidée par la paracétamolémie (→ item 14)\n\n## Intox fig 10 — Monoxyde de carbone et fumée d'incendie (items de connaissance renvoyés : 17, 19)\n## Monoxyde de carbone\n- Toxiques : CO - gaz inodore, invisible, insipide et non irritant\n  - provient de la combustion incomplète de matières carbonées (chaudière …)\n  - fixation sur l'hémoglobine (Hb) >>>>> à celle de l'O2 = bloque le transport de l'O2 vers les tissus = toxicité cérébrale + cardiaque +++\n  - passe la barrière placentaire = risque fœtal\n- Clinique et complications : ASPECIFIQUE +++\n  - Aigue (gravité croissante) : asthénie, céphalées → nausées/vomissements → faiblesse musculaire, palpitations, tachycardie, perte de connaissance, confusion → coma hypertonique, convulsions, SCA, angor, trouble du rythme choc, OAP\n  - ECG toujours - ⚠ à l'interprétation de l'HbCO\n  - Chronique : Syndrome post-intervallaire = troubles neurocognitifs chroniques\n- Traitement :\n  - Eviction de l'exposition à la source de CO\n  - Oxygénothérapie haut débit normobare au moins 12 heures et débuté dès la prise en charge\n  - Formes les plus graves et/ou femme enceinte = oxygénothérapie hyperbare.\n  - Signalement obligatoire auprès de ARS + Centre Antipoison\n## Fumée d'incendie (hors brulure) = 3 toxicités\n- CO → (voir Monoxyde de carbone)\n- Cyanure : bloque la chaine respiratoire des mitochondries → Choc, Coma, Acidose lactique → ANTIDOTE : hydroxocobalamine (vitamine B12) contenu dans le Cyanokit®.\n- Irritants : agression des muqueuses = œdème → SUIE DANS LES VAS, œdème laryngé, SDRA → Voir item brulure"
+ },
+ {
+  "id": "OIC-337-18-A",
+  "type": "transcription",
+  "texte": "## Intox fig 2 — Toxiques fonctionnels et lésionnels (items de connaissance renvoyés : 1, 2, 4, 15, 16, 17, 18)\n## Toxiques fonctionnels\n| | Benzodiazépines | Opioïdes | Neuroleptiques | Tricycliques | ISRS |\n| Clinique et complications | Syndrome de myorelaxation | Syndrome opioïde | Syndrome anticholinergique ; Possible ESM ; Allongement du QT | Syndrome anticholinergique ; ESM | Syndrome sérotoninergique |\n| Antidote | Flumazénil (→ item 12) | Naloxone (→ item 11) | Bicarbonate molaire de sodium si ESM | Bicarbonate molaire de sodium si ESM | Cyproheptadine |\n(ces 5 colonnes renvoient aux items 4 et 6)\nEthanol :\n- Clinique et complications :\n  - Ivresse aiguë simple : agitation initiale avec troubles de l'équilibre puis phase hypo-réactive => coma calme et hypotonique\n  - Possibles présentations neuropsychiatriques = ivresse aiguë pathologique = agressivité, symptômes d'allure maniaque ou dépressif ou délirant, hallucinations possibles.\n  - ATTENTION AUX COMPLICATIONS : Hypothermie ; Coma, Convulsions, Traumatisme cranien ; Fibrillation ; Hépatite alcoolique aigue ; Hypoglycémie - Acidocétose alcoolique - Rhabdomyolyse\n- Traitement = symptomatique pas d'antidote :\n  - Agitation = benzodiazépine\n  - Hydratation IV = NaCl 0,9 %\n  - Prévention de l'encéphalopathie de Gayet-Wernicke si dénutrition/alcoolisme chronique = B1 et B6\n  - Prise en charge addictologique\n| | Digoxine | Beta-bloquants | Inhibiteurs calciques |\n| Clinique et complications | Dyschromatopsie jaune/vert, Agitation, Délire, Coma ; Bradycardie sinusale, Bloc auriculo-ventriculaire, Troubles du rythme ventriculaire, Asystolie ; Douleurs, Nausées, Vomissements ; Hyperkaliémie | Bradycardie => hypotension artérielle => choc cardiogénique ; ESM POSSIBLE +++ | 2 types : non dihydropyridinique = bradycardie + inotropes négatifs = troubles de conduction, choc cardiogénique = mortalité +++ ; dihydropyridinique = vasodiladation = choc vasoplégique. Présentation : choc cardiogénique et/ou vasoplégique |\n| Antidote | Anticorps neutralisants après dosage de la digoxinémie | Catécholamines beta + Glucagon ; ESM = Bicarbonates molaires de sodium | Calcium ; Insuline-Glucose |\n## Toxiques lésionnels\nParacétamol :\n- Clinique et complications : Surdose → Métabolite toxique au départ détoxifié grâce au gluthation → Déplétion en gluthation = TOXICITE HEPATIQUE →\n  - phase 1 : pré-lésionnelle, asymptomatique clinique et biologique (H0–H24)\n  - phase 2 : hépatite aiguë toxique avec cytolyse (H24–H72) ;\n  - phase 3 : insuffisance hépatocellulaire, insuffisance rénale aiguë et CIVD (H24–J5)\n  - phase 4 : régénération hépatique ou décès dans les formes les plus graves et en l'absence de transplantation hépatique.\n- Antidote : N-Acéttlcystéine, administration guidée par la paracétamolémie (→ item 14)"
+ },
+ {
+  "id": "OIC-337-19-B",
+  "type": "transcription",
+  "texte": "## Intox fig 10 — Monoxyde de carbone et fumée d'incendie (items de connaissance renvoyés : 17, 19)\n## Monoxyde de carbone\n- Toxiques : CO - gaz inodore, invisible, insipide et non irritant\n  - provient de la combustion incomplète de matières carbonées (chaudière …)\n  - fixation sur l'hémoglobine (Hb) >>>>> à celle de l'O2 = bloque le transport de l'O2 vers les tissus = toxicité cérébrale + cardiaque +++\n  - passe la barrière placentaire = risque fœtal\n- Clinique et complications : ASPECIFIQUE +++\n  - Aigue (gravité croissante) : asthénie, céphalées → nausées/vomissements → faiblesse musculaire, palpitations, tachycardie, perte de connaissance, confusion → coma hypertonique, convulsions, SCA, angor, trouble du rythme choc, OAP\n  - ECG toujours - ⚠ à l'interprétation de l'HbCO\n  - Chronique : Syndrome post-intervallaire = troubles neurocognitifs chroniques\n- Traitement :\n  - Eviction de l'exposition à la source de CO\n  - Oxygénothérapie haut débit normobare au moins 12 heures et débuté dès la prise en charge\n  - Formes les plus graves et/ou femme enceinte = oxygénothérapie hyperbare.\n  - Signalement obligatoire auprès de ARS + Centre Antipoison\n## Fumée d'incendie (hors brulure) = 3 toxicités\n- CO → (voir Monoxyde de carbone)\n- Cyanure : bloque la chaine respiratoire des mitochondries → Choc, Coma, Acidose lactique → ANTIDOTE : hydroxocobalamine (vitamine B12) contenu dans le Cyanokit®.\n- Irritants : agression des muqueuses = œdème → SUIE DANS LES VAS, œdème laryngé, SDRA → Voir item brulure"
+ },
+ {
+  "id": "OIC-337-20-A",
+  "type": "transcription",
+  "texte": "## Intox fig 1 — Intoxication ? Évaluation initiale (items de connaissance renvoyés : 3, 5, 7, 8, 10, 20)\nEpidémiologie :\n- intoxications = motif fréquent\n- 90% intoxications à l'hôpital = médicaments\n- Intoxications Médicamenteuses Volontaires >>> Surdosage\n- Intoxications accidentelles chez enfant < 5ans +++\n- BZD > Autres psychotropes > Antalgique\n- Association à l'alcool dans 40% des cas)\n⚠ Cas groupés avec même présentation clinique + Période de temps réstreinte = SUSPICION D'ATTAQUE CHIMIQUE → Mesures spécifiques de protections\nIntoxication ? → Contexte clair = lettre, erreur thérapeutique … ET/OU Toxidrome d'emblée évocateur (→ item 21)\n→ 1ère ETAPE = DANS TOUS LES CAS EVALUATION DE LA GRAVITE CLINIQUE INITIALE :\n- Arrêt cardio-respiratoire ? → RCP immédiate ; Scope\n- Ventilation ? (FR, SpO2, VAS) → Oxygénothérapie - Guédel\n- Hémodynamique ? (Marbrures, FC, TA) → Voie veineuse ; ECG systématique\n- Conscience (Score de Glasgow) → Mise en PLS ; Glycémie systématique\n- Appel médecin référent ou réanimateur\n→ Patient asymptomatique / Patient symptomatique"
+ },
+ {
+  "id": "OIC-337-21-B",
+  "type": "transcription",
+  "texte": "## Intox fig 8 — Décontamination digestive (item de connaissance renvoyé : 21)\nDécontamination digestive → Repose essentiellement sur le charbon activé → BUT : chélateur gastrique des substances carbo-adsorbables => diminuer absorption digestive des toxiques\n→ A N'ADMINISTRER QUE DANS LES CONDITIONS SUIVANTES :\n- délai maximum de 2 heures entre l'ingestion du toxique et la décontamination (hors médicaments à libération prolongée ou elle peut être répétée et le délai allongé)\n- pas de troubles de conscience/vigilance et pas de trouble de déglutition\n- pas de prise de toxiques moussants, pétrole, métaux lourds, potassium.\nAu moindre doute, il ne faut pas administrer le produit. Sa faible efficacité NE JUSTIFIE AUCUNE PRISE DE RISQUE."
+ },
+ {
+  "id": "OIC-337-22-B",
+  "type": "transcription",
+  "texte": "## Intox fig 9 — Drogues festives (item de connaissance renvoyé : 22)\n| Clinique et complications | Nouvelles drogues de synthèse (NPS) : Dépression du SNC | NPS : Psychostimulant | NPS : Hallucinogène | Cocaïne (sniffée, inhalée …) |\n| Produits / clinique | GHB, opioïdes … | Cathinones … | Cannabinoïdes de synthèses | Psychostimulant ; Puis phase de descente (dépression irritabilité) ; Puis craving (manque intense) |\n| Complications | Coma | Actes auto/hétéro agressifs | Actes auto/hétéro agressifs | HTA, SCA, AVC … |\n| Clinique et complications | Cannabis | Amphétamines (MDMA +++) |\n| Clinique | Psychostimulant + Euphorisant ; Désinhibition + Modification de la perception sensorielle et de l'appréciation temps/espace + Hyperphagie. | Psychostimulant + Euphorisant + Anorexigène ; Hallucinations - Crises d'angoisses - Deshydratation |\n| Complications | Tachycardie, HTA, mydriase, sècheresse des muqueuses | Syndrome sérotoninergique |"
+ },
+ {
+  "id": "OIC-340-14-B",
+  "type": "photo",
+  "texte": "Coupe axiale de TDM cérébrale sans texte ni annotation, montrant une hyperdensité spontanée profonde de l'hémisphère gauche (région capsulothalamique gauche selon la légende)."
+ },
+ {
+  "id": "OIC-341-07-A",
+  "type": "transcription",
+  "texte": "## TDM cérébrale sans injection, coupes axiales (même patient) — Hémorragie sous-arachnoïdienne (HSA)\n- HSA : hyperdensités spontanées (TDM sans injection) dans les espaces sous-arachnoïdiens et citernes de la base\n- Annotations de la coupe de gauche : Hyperdensités spontanées au sein des vallées sylviennes ; Hyperdensité spontanée de la citerne inter-pédonculaire ; Hémorragie intraventriculaire gauche ; Calcification banale du plexus choroïde\n- Annotation de la coupe de droite : Hyperdensité spontanée interhémisphérique"
+ },
+ {
+  "id": "OIC-341-10-A",
+  "type": "transcription",
+  "texte": "## Traitement symptomatique initial de l'hémorragie sous-arachnoïdienne\n- Hospitalisation en unité de soins intensifs\n- Position proclive 30° ; Repos au lit strict ; Isolement neurosensoriel ; Maintien à jeun\n- Analgésie intraveineuse : contre-indication aspirine et AINS\n- Contrôle tensionnel strict\n- Arrêt et antagonisation immédiate de tout anticoagulant et antiagrégants plaquettaires\n- Transfert dans les meilleurs délais vers un centre spécialisé en neurochirurgie et neuroradiologie interventionelle"
+ },
+ {
+  "id": "OIC-342-04-A",
+  "type": "transcription",
+  "texte": "## Figure 1. Stratégie diagnostique face à un malaise. Recommandations de la Haute Autorité de Santé, 2008.\nPerte de connaissance transitoire → Évaluation intiale : interrogatoire, examen physique, PA en décubitus et en position debout, EGCt → Syncope ? → Oui / Autres troubles de conscience\nOui →\n- Diagnostic certain → Prise en charge adaptée\n- Diagnostic suspecté →\n  - Causes cardiaques ? → Examens cardiaques → + : Prise en charge adaptée ; - : Réévaluation : Examens cardiaques, Biologie, autres, …\n  - Orthostatique ? → +/- Test d'inclinaison → + : Prise en charge adaptée ; - : Réévaluation : Examens cardiaques, Biologie, autres, …\n  - Réflexes ? → (voir ci-dessous)\n- Syncope inexpliquée → (voir ci-dessous)\nRéflexes ? / Syncope inexpliquée →\n- Fréquentes, sévères, Situations à risque → Massage sinus carotidien +/- Test d'inclinaison → + : Prise en charge adaptée\n- Unique → arrêt des explorations"
+ },
+ {
+  "id": "OIC-342-07-A",
+  "type": "rien",
+  "texte": ""
+ },
+ {
+  "id": "OIC-342-11-A",
+  "type": "transcription",
+  "texte": "## Tableau I. LISTE DES PRINCIPALES ANOMALIES À RECHERCHER À L'ECG APRÈS UN MALAISE\n| Anomalies diagnostiques | Anomalies orientant vers une étiologie cardiaque |\n| Dysfonction sinusale avec pauses | Bradycardie sinusale |\n| Tachycardie ventriculaire | Syndrome de Wolf Parkinson White |\n| Tachycardie supraventriculaire | Allongement de l'intervalle QT |\n| Bloc auriculoventriculaire de haut degré (BAV 2 Mobitz II ou BAV 3) | Bloc auriculoventriculaire de haut degré (BAV 2 Mobitz I ou BAV 1) |\n| Dysfonction de stimulateur cardiaque | Bloc bi-fasciculaire |\n| | Troubles de la repolarisation |\n| | Extrasystoles ventriculaires multiples et/ou polymorphes +/- phénomène R/T |\n| | Hypertrophie ventriculaire |"
+ },
+ {
+  "id": "OIC-344-08-B",
+  "type": "transcription",
+  "texte": "## Pré éclampsie\n## 1 J'en fais le Diagnostic\n- HTA ≥140/90 > 20 SA + protéinurie ≥ 300mg/24h\n## 2. J'en évalue la gravité clinique\n- HTA >160/110\n- OAP, oligoanurie\n- Hématome rétroplacentaire ou hématome sous capsulaire du foie : douleur en barre épigastrique persistante\n- Éclampsie (crise convulsive annoncée par troubles visuels, céphalées, réflexes ostéotendineux vifs et polycinétiques)\n## 3 J'en évalue la gravité Biologique\n- Insuffisance rénale aiguë, protéinurie>3g/24h\n- HELLP syndrome (anémie hémolytique mécanique avec schyzocytes, élévation enzymes hépatiques, thrombopénie)\n- CIVD\n## CAT en urgence\n- Hospitalisation en milieu spécialisé\n- Bilan clinique complet dont examen neurologique\n- Bilan Biologique rénal protéinurie, hépatique, CIVD, hémolyse\n- Évaluation retentissement fœtal : écho-doppler et enregistrement cardio-tocographique\n- Groupe ABO+RAI\n- Avis de l'obstétricien et de l'anesthésiste-réanimateur\n- Si forme sévère : surveillance en soins intensifs après extraction\n- Organiser le transfert in utero en fonction du terme et de la gravité de la pré-éclampsie\n## Stratégie de PeC\n- Surveillance clinique (examen neurologique et cardio respiratoire) et paraclinique maternelle et fœtale pluriquotidienne\n- En conventionnel pour les formes peu sévères, en soins intensifs pour les formes sévères\n- Monitoring FC, PA, SpO2, diurèse, protéinurie, cardiotocographie, échographie obstétricale\n- Bilan sanguin : BH, Urée, créatinine, iono, NFS, TP, TCA, Fibrinogène, D-Dimères, protéinurie/24h\n- Accélérer maturation pulmonaire fœtale par corticoïdes entre 24 et 34 SA : Béthametasone IV 12mg à 12 h d'intervalle.\n- Contrôle tensionnel strict par la prescription de, en 1, nicardipine ou labétalol. Si résistance alors clonidine. IV si formes sévères\n- Objectif PAS 140 et < 160 et PAD 85 -110 si poursuite de la grossesse pour maintenir perfusion placentaire. PAS < 140 et PAD < 80 en post-partum\n- MgSO4si éclampsie avec surveillance rénale, FR et ROT. Extraction fœtale en urgence si éclampsie + IRM cérébrale PRES Sd ?\n- Poursuivre surveillance en milieu spécialisé en post partum si extraction fœtale"
+ },
+ {
+  "id": "OIC-350-06-A",
+  "type": "photo",
+  "texte": "Photographie clinique d'une jambe montrant un placard érythémateux, luisant et œdématié de la face antérieure de jambe, sans texte (légende : érysipèle)."
+ },
+ {
+  "id": "OIC-354-06-A",
+  "type": "transcription",
+  "texte": "## Étiologies du syndrome occlusif\n| Type | Mécanisme | Intestin grêle | Côlon |\n| Occlusion organique | Strangulation | Occlusion sur bride ; Hernie/éventration ; Volvulus (invagination) | Volvulus ; Hernie |\n| Occlusion organique | Obstruction | Extraluminale (carcinose, masse) ; Intraluminale (tumeur, iléus biliaire, CE, parasites) ; Intrapariétale (hématome, tumeur, sténose Crohn/radique) | Extraluminale (carcinose, masse) ; Intraluminale (adénocarcinome, fécalome, CE) ; Intrapariétale (sténose sur diverticulite, post-ischémique/radique |\n| Occlusion fonctionnelle | | Post-opératoire ; Irritation intra/rétro-péritonéale ; Médicale ; Médicamenteuse | Terrain délibité ; Polytraumatisé ; Post-opératoire ; Médicamenteuse |"
+ },
+ {
+  "id": "OIC-358-12-B",
+  "type": "transcription",
+  "texte": "## Prise en charge des pancréatites aiguës en fonction de la sévérité\n| PA non sévère | PA sévère d'emblée ou aggravation secondaire avec critères de sévérité (2C-358-IU-B01) |\n| Hospitalisation en secteur conventionnel | Hospitalisation en unité de soins intensifs (absence de défaillance d'organes) ou en réanimation (1 ou plusieurs défaillances d'organes) |\nCommun aux deux formes :\n- Traitement étiologique\n- Oxygénothérapie à la phase initiale\n- Analgésie multimodale adaptée à l'intensité douloureuse\n- Prophylaxie thromboembolique ou anticoagulation efficace si thrombose documentée\n- Équilibration hydro-électrolytique : correction de l'hypovolémie\n- Pas d'indication à une antibiothérapie préventive de l'infection de coulée de nécrose\n- Maintien à jeun jusqu'à diminution des douleurs abdominales\n- Sonde naso-gastrique en aspiration en cas de vomissements importants et incoercibles\n| PA non sévère | PA sévère |\n| Alimentation orale dès diminution de la douleur (dans les 48-72 h généralement) | Nutrition artificielle précoce, de préférence entérale, dès les 48 premières heures pour prévenir l'infection des coulées de nécrose |\n| Surveillance clinique quotidienne | Mesures spécifiques de réanimation en cas de défaillance d'organes ; Surveillance clinique et biologique pluriquotidienne |"
+ },
+ {
+  "id": "OIC-359-13-A",
+  "type": "transcription",
+  "texte": "## Œdème aigu du poumon — Radiographie de thorax de face (au lit)\n- Opacités peu denses, confluentes, à limites floues, de répartition périhilaire bilatérale (« aile de papillon ») (flèches sur le cliché)\n- Signes supplémentaires si radio faite en position debout (rarement) : lignes de Kerley (voir encadré), redistribution vasculaire vers les sommets, cardiomégalie (ne s'apprécie pas sur une radio faite en position couchée), épanchement pleural\n- Encadré — Zoom sur une radio de thorax de face debout (autre patient) : Opacités linéaires périphériques (flèches) : lignes de Kerley"
+ },
+ {
+  "id": "OIC-359-16-A",
+  "type": "transcription",
+  "texte": "## Algorithme des principales causes de dyspnée aiguë\nExiste-t-il un obstacle sur les voies aériennes ? (Inhalation d'un corps étranger ; Œdème de Quincke ; …)\n- Oui → Libérez les voies aériennes si obstacle complet ; Prise en charge spécialisée en urgence\n- Non → Existe-t-il des anomalies auscultatoires pulmonaires ou à la radiographie pulmonaire\n  - Oui → Anomalies bilatérales et symétriques : OAP ; Crise d'asthme ; Exacerbation de BPCO\n  - Oui → Anomalies unilatérales : Pneumonie ; Atélectasie ; Épanchement pleural (liquide ou gazeux)\n  - Non → Dyspnée sine materia : Embolie pulmonaire ; État de choc ; Détresse respiratoire d'origine neuromusculaire"
+ },
+ {
+  "id": "OIC-360-02-B",
+  "type": "transcription",
+  "texte": "## Physiopathologie des pneumothorax\nPneumothorax → Traumatisme ?\n- Non →\n  - Poumon sain → Pneumothorax primitif\n  - Poumon pathologique → Pneumothorax secondaire\n  - (Pneumothorax primitif + Pneumothorax secondaire = Pneumothorax spontané)\n- Oui →\n  - Traumatisme direct : plaie ; fracture de côte\n  - Iatrogène : ponction pleurale ; pose de voie veineuse centrale ; biopsie trans-bronchique\n  - Ventilation mécanique : pneumothorax barotraumatique"
+ },
+ {
+  "id": "OIC-360-05-A",
+  "type": "transcription",
+  "texte": "## Radiographie de thorax de face — Pneumothorax droit de moyenne abondance\n- Croissant clair avasculaire périphérique (flèche)\n- Ligne bordante pleurale correspondant à la plèvre viscérale décollée de la plèvre pariétale (flèche)"
+ },
+ {
+  "id": "OIC-360-06-A",
+  "type": "transcription",
+  "texte": "## Radiographie de thorax de face — Pneumothorax droit complet compressif\n- Hyperclarté diffuse de l'hémithorax droit (flèche)\n- Poumon droit entièrement décollé, rétracté au hile (flèche)\n- Déviation médiastinale controlatérale signant le caractère compressif (flèche)"
+ },
+ {
+  "id": "OIC-361-19-B",
+  "type": "transcription",
+  "texte": "## Luxation antéro-interne épaule droite — radiographies (face et profil), repères annotés\n- Face : flèches désignant Acromion ; Processus Coracoïde ; Glène ; Tête humérale\n- Profil : flèches désignant Acromion ; Processus Coracoïde ; Glène ; Tête humérale"
+ },
+ {
+  "id": "OIC-363-05-A",
+  "type": "photo",
+  "texte": "Radiographie de bassin de face (les deux hanches) sans annotation pédagogique, illustrant selon la légende une fracture de l'extrémité proximale du fémur droit de type cervicale vraie."
+ },
+ {
+  "id": "OIC-363-16-A",
+  "type": "transcription",
+  "texte": "## Radiographies de poignet gauche (incidence de face et incidence de profil) — Fracture de Pouteau-Colles\n- Fracture de l'extrémité inférieure du radius (flèches)\n  - Extra-articulaire\n  - Avec déplacement dorsal du fragment distal\n  - Et horizontalisation de la ligne bistyloïdienne"
+ }
+]

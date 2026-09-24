@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -104,12 +105,14 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
     if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
       features.push({ icon: Music, text: 'Musique', color: 'text-success' });
     }
-    if (finalItem.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
+    if (!sceneImmersiveEstGenerique(finalItem.scene_immersive)) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
     if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-destructive' });
     if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-primary' });
-    // BD et Roman sont toujours disponibles (367/367 items les ont)
-    features.push({ icon: Image, text: 'BD', color: 'text-pink-500' });
-    features.push({ icon: FileText, text: 'Roman', color: 'text-indigo-500' });
+    // Présents sur les 367 items, mais ce ne sont ni une BD ni un roman :
+    // diaporama des compétences (photos génériques) et mise en situation
+    // construite à partir de phrases types. Libellés corrigés en conséquence.
+    features.push({ icon: Image, text: 'Planches', color: 'text-pink-500' });
+    features.push({ icon: FileText, text: 'Récit', color: 'text-indigo-500' });
     return features;
   };
 
@@ -176,7 +179,6 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
             </Button>
           )}
-          {getCompletionBadge()}
         </div>
         </div>
         
@@ -192,20 +194,10 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
       </div>
 
       <CardContent className={`${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'}`}>
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-muted-foreground">Complétude</span>
-            <span className={`text-sm font-bold ${getCompletionColor()}`}>
-              {completionPercentage}%
-            </span>
-          </div>
-          <Progress 
-            value={completionPercentage} 
-            className="h-2"
-          />
-        </div>
-
+        {/* CONSTAT (audit allégations) : un pourcentage « Complétude » (50 %, 70 %…) était
+            calculé à partir du NOMBRE de compétences. Un item qui compte peu de compétences
+            dans le référentiel apparaissait « incomplet » alors que ses données sont complètes.
+            Indicateur retiré ; on affiche seulement les compteurs rang A / rang B plus bas. */}
         {/* Features Grid */}
         <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
           {features.slice(0, isMobile ? 4 : features.length).map((feature, index) => {
@@ -225,7 +217,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         {/* Badges de compétences - version simplifiée pour les cartes */}
         {!isMobile && (
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-foreground">Compétences UNESS:</h4>
+            <h4 className="text-sm font-semibold text-foreground">Compétences du référentiel (source UNESS) :</h4>
             <div className="flex gap-2 flex-wrap">
               <Badge variant="outline" className="text-primary border-primary/30">
                 Rang A: {finalItem.competences_count_rang_a || 0}

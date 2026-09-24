@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { completionIA } from '../_shared/ia-resiliente.ts';
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -22,19 +23,12 @@ serve(async (req) => {
 
     console.log('Making Lovable AI chat request:', { model, messageCount: messages.length });
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const response = await completionIA({
         model,
         messages,
         temperature: 0.7,
         max_tokens: 2000,
-      }),
-    });
+      });
 
     if (!response.ok) {
       if (response.status === 429) {

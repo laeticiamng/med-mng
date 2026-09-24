@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, FileText, Save } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileText, Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
 
 interface EvaluationCriteria {
@@ -14,13 +14,23 @@ interface EvaluationCriteria {
   isRequired: boolean;
 }
 
+// CONSTAT : la grille annonçait « Évaluation enregistrée ! » alors qu’elle n’écrivait
+// rien nulle part et que la page appelante se contentait d’un console.log. Le parent
+// enregistre désormais le score et renvoie ce qui s’est réellement passé, pour que le
+// message affiché corresponde à la réalité.
+export type EcosSaveOutcome = 'saved' | 'anonymous' | 'error';
+
 interface EcosEvaluationGridProps {
   scenarioId: string;
   scenarioTitle: string;
-  onComplete?: (score: number, totalPoints: number, checkedItems: string[]) => void;
+  onComplete?: (
+    score: number,
+    totalPoints: number,
+    checkedItems: string[]
+  ) => void | Promise<EcosSaveOutcome | void>;
 }
 
-// Grille d'évaluation ECOS officielle UNESS - critères génériques
+// Grille d'auto-évaluation ECOS - critères génériques (ce n'est PAS une grille officielle)
 const defaultCriteria: EvaluationCriteria[] = [
   // Communication
   { id: 'comm-1', category: 'Communication', description: 'Se présente au patient', points: 1, isRequired: true },
@@ -65,6 +75,7 @@ export const EcosEvaluationGrid = ({
 }: EcosEvaluationGridProps) => {
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'done' | EcosSaveOutcome>('idle');
 
   const categories = [...new Set(defaultCriteria.map(c => c.category))];
   const totalPoints = defaultCriteria.reduce((sum, c) => sum + c.points, 0);
@@ -83,9 +94,17 @@ export const EcosEvaluationGrid = ({
     setCheckedItems(newChecked);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitted(true);
-    onComplete?.(earnedPoints, totalPoints, Array.from(checkedItems));
+    setSaveState('saving');
+    try {
+      const outcome = await onComplete?.(earnedPoints, totalPoints, Array.from(checkedItems));
+      setSaveState(
+        outcome === 'saved' || outcome === 'anonymous' || outcome === 'error' ? outcome : 'done'
+      );
+    } catch {
+      setSaveState('error');
+    }
   };
 
   const getScoreColor = (percent: number) => {
@@ -109,7 +128,7 @@ export const EcosEvaluationGrid = ({
           <div className="flex items-center gap-3">
             <FileText className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle>Grille d'évaluation ECOS</CardTitle>
+              <CardTitle>Grille d'auto-évaluation ECOS (critères génériques)</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">{scenarioTitle}</p>
             </div>
           </div>
@@ -121,15 +140,15 @@ export const EcosEvaluationGrid = ({
         {/* Score progress */}
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Score actuel</span>
+            <span className="text-sm text-muted-foreground">Critères cochés</span>
             <span className={`text-2xl font-bold ${getScoreColor(progressPercent)}`}>
               {earnedPoints}/{totalPoints} pts ({Math.round(progressPercent)}%)
             </span>
           </div>
           <Progress value={progressPercent} className="h-3" />
           {isSubmitted && (
-            <Badge className="mt-2" variant={progressPercent >= 60 ? 'default' : 'destructive'}>
-              Note: {getScoreGrade(progressPercent)} - {progressPercent >= 60 ? 'Validé' : 'Non validé'}
+            <Badge className="mt-2" variant="outline">
+              Auto-évaluation : {getScoreGrade(progressPercent)} (indicatif, sans valeur officielle)
             </Badge>
           )}
         </div>
@@ -193,11 +212,33 @@ export const EcosEvaluationGrid = ({
           </Button>
         ) : (
           <div className="p-4 bg-primary/5 rounded-lg text-center">
-            <CheckCircle2 className="h-12 w-12 mx-auto mb-2 text-success" />
-            <p className="font-semibold">Évaluation enregistrée !</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Score final: {earnedPoints}/{totalPoints} points ({Math.round(progressPercent)}%)
+            {saveState === 'saving' ? (
+              <Loader2 className="h-12 w-12 mx-auto mb-2 text-muted-foreground animate-spin" />
+            ) : saveState === 'anonymous' || saveState === 'error' ? (
+              <AlertCircle className="h-12 w-12 mx-auto mb-2 text-warning" />
+            ) : (
+              <CheckCircle2 className="h-12 w-12 mx-auto mb-2 text-success" />
+            )}
+            <p className="font-semibold">
+              {saveState === 'saving'
+                ? 'Enregistrement en cours…'
+                : saveState === 'saved'
+                  ? 'Évaluation enregistrée'
+                  : 'Évaluation terminée'}
             </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Auto-évaluation : {earnedPoints}/{totalPoints} points ({Math.round(progressPercent)}%)
+            </p>
+            {saveState === 'anonymous' && (
+              <p className="text-sm text-warning mt-2">
+                Score non enregistré : connectez-vous pour suivre votre progression ECOS.
+              </p>
+            )}
+            {saveState === 'error' && (
+              <p className="text-sm text-warning mt-2">
+                Score non enregistré : l’enregistrement a échoué. Réessaie plus tard.
+              </p>
+            )}
           </div>
         )}
       </CardContent>

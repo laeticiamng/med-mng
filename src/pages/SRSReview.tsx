@@ -263,15 +263,24 @@ export default function SRSReview() {
     
     const competences: string[] = [];
     
+    // Dans `edn_items_complete`, les compétences clés portent la clé
+    // `competence` — aucune des 1114 lignes n'a de `intitule`. Lire `intitule`
+    // renvoyait donc systématiquement une liste vide, et l'encadré
+    // « Compétences clés » de la révision restait vide sur les 367 items.
+    const libelle = (c: any): string =>
+      c?.competence || c?.intitule || c?.titre || '';
+
     if (itemDetails.tableau_rang_a?.competences_cles) {
       itemDetails.tableau_rang_a.competences_cles.forEach((c: any) => {
-        if (c.intitule) competences.push(c.intitule);
+        const texte = libelle(c);
+        if (texte) competences.push(texte);
       });
     }
     
     if (itemDetails.tableau_rang_b?.competences_cles) {
       itemDetails.tableau_rang_b.competences_cles.slice(0, 3).forEach((c: any) => {
-        if (c.intitule) competences.push(c.intitule);
+        const texte = libelle(c);
+        if (texte) competences.push(texte);
       });
     }
     

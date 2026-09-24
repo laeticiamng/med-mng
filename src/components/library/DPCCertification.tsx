@@ -1,3 +1,17 @@
+// ⛔ COMPOSANT HORS SERVICE — NE PAS REMETTRE EN LIGNE EN L’ÉTAT
+//
+// CONSTAT : ce composant alimentait l’onglet « DPC » de /library. Il affichait
+// 6 modules de formation écrits en dur (heures et dates fictives, aucune table
+// Supabase derrière) et, au clic, fabriquait un numéro d’attestation tiré au hasard
+// avec Math.random() avant d’en produire un PDF ayant l’apparence d’une attestation
+// de formation. Le DPC est un dispositif réglementé (Agence nationale du DPC) :
+// une attestation qui n’est pas adossée à un organisme enregistré est un faux.
+//
+// DÉCISION : l’onglet et son point d’entrée ont été retirés de src/pages/LibraryPage.tsx.
+// Le fichier est conservé pour mémoire mais n’est plus importé nulle part et ne doit
+// pas être remonté tant qu’il n’est pas adossé à un vrai back-office de formation
+// (modules réels, progression réelle, numéros d’attestation délivrés par l’organisme).
+
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +36,7 @@ interface DPCModule {
   objectives: string[];
 }
 
-// Static modules — will be replaced by Supabase table when DPC backend is ready
+// Données fictives — voir l’avertissement en tête de fichier.
 const DPC_MODULES: DPCModule[] = [
   {
     id: 'dpc-1',

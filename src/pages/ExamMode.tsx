@@ -1,7 +1,5 @@
 import { ExamResultsPDF } from '@/components/exam/ExamResultsPDF';
-import { ExamPercentile } from '@/components/exam/ExamPercentile';
 import { ExamCompetencyRadar } from '@/components/exam/ExamCompetencyRadar';
-import { ExamRanking } from '@/components/exam/ExamRanking';
 import { QuizResultsCard } from '@/components/quiz/QuizResultsCard';
 import { MedicalDisclaimerFooter } from '@/components/legal';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +31,6 @@ import {
     Timer,
     TrendingUp,
     Trophy,
-    Users,
     XCircle
 } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
@@ -295,7 +292,7 @@ export default function ExamMode() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-6 h-auto">
+          <TabsList className="grid grid-cols-3 w-full max-w-2xl mb-6 h-auto">
             <TabsTrigger value="exam" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
               <Brain className="h-4 w-4" />
               <span className="text-[10px] sm:text-xs">Examen</span>
@@ -307,10 +304,6 @@ export default function ExamMode() {
             <TabsTrigger value="history" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
               <Clock className="h-4 w-4" />
               <span className="text-[10px] sm:text-xs">Historique</span>
-            </TabsTrigger>
-            <TabsTrigger value="ranking" className="gap-1 sm:gap-2 flex-col sm:flex-row py-2 sm:py-1.5">
-              <Users className="h-4 w-4" />
-              <span className="text-[10px] sm:text-xs">Classement</span>
             </TabsTrigger>
           </TabsList>
 
@@ -585,7 +578,6 @@ export default function ExamMode() {
                   onRestart={handleNewExam}
                   onViewStats={() => setActiveTab('stats')}
                 />
-                <ExamPercentile score={currentSession.score ?? 0} examType="standard" />
                 <ExamCompetencyRadar answers={currentSession.answers} questions={questions} />
                 <ExamResultsPDF
                   result={{
@@ -615,7 +607,6 @@ export default function ExamMode() {
                   onRestart={handleNewExam}
                   onViewStats={() => setActiveTab('stats')}
                 />
-                <ExamPercentile score={aiSession.score ?? 0} examType="ai" />
                 <ExamCompetencyRadar 
                   answers={aiSession.answers} 
                   questions={aiSession.questions.map(q => ({ ...q, item_code: q.item_code || q.id }))} 
@@ -717,11 +708,6 @@ export default function ExamMode() {
             <Suspense fallback={<div className="animate-pulse space-y-4"><div className="h-48 bg-muted rounded-lg" /><div className="h-64 bg-muted rounded-lg" /></div>}>
               {user && <ExamHistory />}
             </Suspense>
-          </TabsContent>
-
-          {/* Ranking Tab */}
-          <TabsContent value="ranking">
-            {user && <ExamRanking userId={user.id} />}
           </TabsContent>
         </Tabs>
 

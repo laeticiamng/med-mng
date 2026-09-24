@@ -89,7 +89,7 @@ const MedMngProgressComponent = () => {
             </span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Une vision claire de ce que tu as déjà vu. La régularité fait la différence.
+            Une vision claire de ce que vous avez déjà vu. La régularité fait la différence.
           </p>
         </motion.div>
 
@@ -175,7 +175,7 @@ const MedMngProgressComponent = () => {
                       <div className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-warning" />
                         <p className="text-lg font-semibold text-foreground">
-                          Tu avances à ton rythme — bravo !
+                          Vous avancez à votre rythme — bravo !
                         </p>
                       </div>
                       <p className="text-sm text-muted-foreground">

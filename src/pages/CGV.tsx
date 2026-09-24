@@ -32,20 +32,20 @@ const CGV = () => {
               <span>Retour</span>
             </Link>
             <div className="h-6 border-l border-border" />
-            <h1 className="text-3xl font-bold text-foreground">Conditions Generales de Vente</h1>
+            <h1 className="text-3xl font-bold text-foreground">Conditions Générales de Vente</h1>
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* En-tete */}
+          {/* En-tête */}
           <Card className="p-6 bg-gradient-to-r from-primary to-accent text-primary-foreground">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <CreditCard className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">MED MNG - CGV</h2>
               </div>
-              <p className="text-sm opacity-90">Derniere mise a jour : 11 fevrier 2026</p>
-              <p className="text-sm opacity-90">Version 1.0 - Conforme au droit francais de la consommation</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
+              <p className="text-sm opacity-90">Version 1.0 - Conforme au droit français de la consommation</p>
             </div>
           </Card>
 
@@ -57,7 +57,7 @@ const CGV = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                Les presentes Conditions Generales de Vente (CGV) regissent les relations contractuelles entre :
+                Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre :
               </p>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="text-sm"><strong>Le vendeur :</strong> EmotionsCare SASU</p>
@@ -65,43 +65,40 @@ const CGV = () => {
                   <li>Capital social : 100 euros</li>
                   <li>Siège social : Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
                   <li>RCS Amiens : 944 505 445 (inscrit le 21/05/2025)</li>
-                  <li>SIRET : 944 505 445 00011</li>
+                  <li>SIRET : 944 505 445 00014</li>
                   <li>TVA intracommunautaire : FR89944505445</li>
                   <li>Email : contact@emotionscare.com</li>
-                  <li>Presidente : Laeticia Motongane</li>
+                  <li>Présidente : Laeticia Motongane</li>
                 </ul>
               </div>
               <p className="text-sm">
-                Et tout utilisateur souhaitant souscrire a un abonnement payant sur la plateforme MED MNG
-                (ci-apres "le Client").
+                Et tout utilisateur souhaitant souscrire à un abonnement payant sur la plateforme MED MNG
+                (ci-après "le Client").
               </p>
               <p className="text-sm font-semibold text-foreground">
-                Toute souscription a un abonnement implique l'acceptation sans reserve des presentes CGV,
+                Toute souscription à un abonnement implique l'acceptation sans réserve des présentes CGV,
                 des <Link to={ROUTE_PATHS.cgu} className="text-primary hover:underline">CGU</Link> et de
-                la <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de Confidentialite</Link>.
+                la <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de confidentialité</Link>.
               </p>
             </div>
           </Card>
 
-          {/* 2. Services proposes */}
+          {/* 2. Services proposés */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Shield className="h-5 w-5 text-accent" />
-              <h3 className="text-xl font-semibold text-foreground">2. SERVICES PROPOSES</h3>
+              <h3 className="text-xl font-semibold text-foreground">2. SERVICES PROPOSÉS</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>MED MNG propose des abonnements donnant acces a :</p>
+              <p>MED MNG propose des abonnements donnant accès à :</p>
               <ul className="space-y-1 text-sm">
-                <li>- Generation de chansons pedagogiques medicales par IA (OpenAI, Suno AI)</li>
-                <li>- Tableaux recapitulatifs conformes aux programmes EDN (Rang A et B)</li>
-                <li>- Quiz d'entrainement (QCM, QRU, QROC)</li>
-                <li>- Bandes dessinees pedagogiques generees par IA</li>
-                <li>- Simulations cliniques ECOS</li>
-                <li>- Bibliotheque personnelle de contenus</li>
-                <li>- Copilote medical intelligent (Chat IA)</li>
+                <li>- Contenu immersif des 367 items EDN : paroles de chanson (rang A, rang B, A+B), récit, planches et quiz</li>
+                <li>- Génération de l'audio de chansons pédagogiques par IA (paroles : OpenAI ; audio : Suno AI), dans la limite de 30 générations par mois</li>
+                <li>- Bibliothèque personnelle des chansons générées</li>
+                <li>- Restent accessibles sans abonnement : les fiches officielles des 367 items (compétences rang A et rang B), le contenu immersif complet de 10 items d'essai et les situations ECOS</li>
               </ul>
               <p className="text-sm italic">
-                Les contenus sont generes par intelligence artificielle et ne constituent en aucun cas un avis medical.
+                Les contenus sont générés par intelligence artificielle et ne constituent en aucun cas un avis médical.
               </p>
             </div>
           </Card>
@@ -114,18 +111,20 @@ const CGV = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <div className="bg-primary/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Formules disponibles :</h4>
+                <h4 className="font-semibold text-foreground mb-2">Offre MED MNG Premium :</h4>
                 <ul className="text-sm space-y-1">
-                  <li><strong>Gratuit (Free)</strong> : 3 generations/mois - 0 euros/mois</li>
-                  <li><strong>Standard (Basic)</strong> : 30 generations/mois - 19 euros/mois</li>
-                  <li><strong>Pro (Premium)</strong> : 300 generations/mois + QCM - 29 euros/mois</li>
-                  <li><strong>Premium (Enterprise)</strong> : 3 000 generations/mois + BD + support VIP - 39 euros/mois</li>
+                  <li><strong>Formule annuelle</strong> : 69 euros TTC par an (soit environ 5,75 euros par mois)</li>
+                  <li><strong>Formule mensuelle</strong> : 9,90 euros TTC par mois</li>
                 </ul>
+                <p className="text-sm mt-2">
+                  Les deux formules donnent accès aux mêmes services. Aucune période d'essai n'est proposée ;
+                  l'usage gratuit (fiches officielles et 10 items d'essai) est ouvert à tout compte.
+                </p>
               </div>
               <p className="text-sm">
-                Les prix sont indiques en euros TTC. EmotionsCare se reserve le droit de modifier ses tarifs
-                a tout moment. Les modifications tarifaires prendront effet au prochain renouvellement de l'abonnement
-                et seront notifiees <strong>30 jours</strong> a l'avance par email.
+                Les prix sont indiqués en euros TTC. EmotionsCare se réserve le droit de modifier ses tarifs
+                à tout moment. Les modifications tarifaires prendront effet au prochain renouvellement de l'abonnement
+                et seront notifiées <strong>30 jours</strong> à l'avance par email.
               </p>
               <p className="text-sm">
                 Consultez la page <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline font-semibold">Tarifs</Link> pour
@@ -143,143 +142,147 @@ const CGV = () => {
             <div className="space-y-3 text-muted-foreground">
               <h4 className="font-semibold text-foreground">4.1 Processus de commande</h4>
               <ol className="text-sm space-y-1">
-                <li>1. Creation d'un compte sur MED MNG</li>
-                <li>2. Selection de la formule d'abonnement</li>
-                <li>3. Acceptation des CGV et CGU</li>
-                <li>4. Paiement securise via Stripe</li>
+                <li>1. Création d'un compte sur MED MNG</li>
+                <li>2. Sélection de la formule d'abonnement (annuelle ou mensuelle)</li>
+                <li>3. Acceptation des CGV et CGU, et demande expresse d'accès immédiat au contenu (case à cocher, voir article 5)</li>
+                <li>4. Paiement sécurisé via Stripe</li>
                 <li>5. Confirmation par email</li>
               </ol>
 
               <h4 className="font-semibold text-foreground mt-4">4.2 Moyens de paiement</h4>
               <p className="text-sm">
-                Les paiements sont securises par <strong>Stripe</strong>. EmotionsCare ne conserve aucune donnee
-                bancaire. Les moyens acceptes sont : carte bancaire (Visa, Mastercard, American Express).
+                Les paiements sont sécurisés par <strong>Stripe</strong>. EmotionsCare ne conserve aucune donnée
+                bancaire. Les moyens acceptés sont : carte bancaire (Visa, Mastercard, American Express).
               </p>
 
               <h4 className="font-semibold text-foreground mt-4">4.3 Renouvellement automatique</h4>
               <p className="text-sm">
-                Les abonnements sont renouveles automatiquement chaque mois a la date anniversaire de
-                souscription. Le Client peut desactiver le renouvellement automatique a tout moment depuis
-                son espace Profil &gt; Gerer l'abonnement.
+                Les abonnements sont renouvelés automatiquement, au même prix, à la date anniversaire de
+                souscription : chaque année pour la formule annuelle, chaque mois pour la formule mensuelle.
+                Le Client peut résilier à tout moment depuis son espace Profil &gt; « Gérer / résilier mon
+                abonnement » ; la résiliation arrête le renouvellement et l'accès est conservé jusqu'à la fin
+                de la période déjà payée.
               </p>
             </div>
           </Card>
 
-          {/* 5. Droit de retractation */}
+          {/* 5. Droit de rétractation */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <RefreshCw className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">5. DROIT DE RETRACTATION</h3>
+              <h3 className="text-xl font-semibold text-foreground">5. DROIT DE RÉTRACTATION</h3>
             </div>
             <div className="space-y-4 text-muted-foreground">
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="text-sm">
-                  Conformement a l'article L221-18 du Code de la consommation, vous disposez d'un delai de
-                  <strong> 14 jours calendaires</strong> a compter de la souscription pour exercer votre droit
-                  de retractation, sans avoir a justifier de motifs.
+                  Conformément à l'article L221-18 du Code de la consommation, vous disposez d'un délai de
+                  <strong> 14 jours calendaires</strong> à compter de la souscription pour exercer votre droit
+                  de rétractation, sans avoir à justifier de motifs.
                 </p>
               </div>
 
               <div className="bg-destructive/10 p-4 rounded-lg border-l-4 border-destructive">
-                <h4 className="font-semibold text-destructive mb-2">Exception importante :</h4>
+                <h4 className="font-semibold text-destructive mb-2">Exception : contenu numérique fourni immédiatement</h4>
                 <p className="text-sm">
-                  Conformement a l'article L221-28 du Code de la consommation, le droit de retractation ne peut
-                  etre exerce si vous avez utilise vos credits de generation (chansons, bandes dessinees, quiz).
-                  L'utilisation de ces credits vaut renonciation expresse au droit de retractation pour la prestation
-                  de service pleinement executee.
+                  Conformément à l'article L221-28, 13° du Code de la consommation, le droit de rétractation ne peut
+                  être exercé pour la fourniture d'un contenu numérique non fourni sur un support matériel dont
+                  l'exécution a commencé après accord préalable exprès du consommateur et renoncement exprès à son
+                  droit de rétractation. Avant le paiement, le Client coche la case : « Je demande l'accès immédiat
+                  au contenu et reconnais perdre mon droit de rétractation dès cet accès ». Le paiement n'est pas
+                  possible sans cette case ; la confirmation de la commande en conserve la trace.
                 </p>
               </div>
 
               <div className="bg-card p-4 rounded-lg border border-border">
-                <h4 className="font-semibold text-foreground mb-2">Formulaire de retractation :</h4>
+                <h4 className="font-semibold text-foreground mb-2">Formulaire de rétractation :</h4>
                 <p className="text-sm">
-                  Pour exercer votre droit de retractation, envoyez un email a <strong>contact@emotionscare.com</strong> avec
-                  l'objet "Retractation - [Votre nom] - [Numero de commande]" contenant :
+                  Pour exercer votre droit de rétractation, envoyez un email à <strong>contact@emotionscare.com</strong> avec
+                  l'objet "Rétractation - [Votre nom] - [Numéro de commande]" contenant :
                 </p>
                 <ul className="text-sm space-y-1 mt-2">
-                  <li>- Votre nom et prenom</li>
-                  <li>- L'email associe a votre compte</li>
+                  <li>- Votre nom et prénom</li>
+                  <li>- L'email associé à votre compte</li>
                   <li>- La date de souscription</li>
-                  <li>- La formule concernee</li>
+                  <li>- La formule concernée</li>
                 </ul>
                 <p className="text-sm mt-2">
-                  Le remboursement sera effectue sous <strong>14 jours</strong> par le meme moyen de paiement.
+                  Le remboursement sera effectué sous <strong>14 jours</strong> par le même moyen de paiement.
                 </p>
               </div>
             </div>
           </Card>
 
-          {/* 6. Garanties legales */}
+          {/* 6. Garanties légales */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Scale className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">6. GARANTIES LEGALES</h3>
+              <h3 className="text-xl font-semibold text-foreground">6. GARANTIES LÉGALES</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="font-semibold text-foreground">
-                Conformement aux articles L217-4 et suivants du Code de la consommation :
+                Conformément aux articles L217-4 et suivants du Code de la consommation :
               </p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-3">
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Garantie legale de conformite (2 ans)</h4>
+                  <h4 className="font-semibold text-foreground mb-2">Garantie légale de conformité (2 ans)</h4>
                   <p className="text-sm">
-                    Le contenu numerique et les services numeriques doivent etre conformes au contrat.
-                    En cas de defaut de conformite, vous avez droit a la mise en conformite ou, a defaut,
-                    a une reduction du prix ou a la resolution du contrat.
+                    Le contenu numérique et les services numériques doivent être conformes au contrat.
+                    En cas de défaut de conformité, vous avez droit à la mise en conformité ou, à défaut,
+                    à une réduction du prix ou à la résolution du contrat.
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Garantie des vices caches</h4>
+                  <h4 className="font-semibold text-foreground mb-2">Garantie des vices cachés</h4>
                   <p className="text-sm">
-                    Vous pouvez invoquer la garantie des vices caches (Articles 1641 et suivants du Code civil)
-                    dans un delai de 2 ans a compter de la decouverte du vice.
+                    Vous pouvez invoquer la garantie des vices cachés (Articles 1641 et suivants du Code civil)
+                    dans un délai de 2 ans à compter de la découverte du vice.
                   </p>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* 7. Limitation de responsabilite */}
+          {/* 7. Limitation de responsabilité */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-semibold text-foreground">7. LIMITATION DE RESPONSABILITE</h3>
+              <h3 className="text-xl font-semibold text-foreground">7. LIMITATION DE RESPONSABILITÉ</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
-                La responsabilite d'EmotionsCare est limitee au montant de l'abonnement paye par le Client
-                au cours des 12 derniers mois. EmotionsCare ne saurait etre tenue responsable :
+                La responsabilité d'EmotionsCare est limitée au montant de l'abonnement payé par le Client
+                au cours des 12 derniers mois. EmotionsCare ne saurait être tenue responsable :
               </p>
               <ul className="text-sm space-y-1">
-                <li>- Des erreurs factuelles dans les contenus generes par IA</li>
-                <li>- Des echecs a un examen medical</li>
-                <li>- Des interruptions de service dues a des cas de force majeure</li>
-                <li>- Des dommages indirects ou consequents</li>
+                <li>- Des erreurs factuelles dans les contenus générés par IA</li>
+                <li>- Des échecs à un examen médical</li>
+                <li>- Des interruptions de service dues à des cas de force majeure</li>
+                <li>- Des dommages indirects ou consécutifs</li>
               </ul>
             </div>
           </Card>
 
-          {/* 8. Resiliation */}
+          {/* 8. Résiliation */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Ban className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-semibold text-foreground">8. RESILIATION</h3>
+              <h3 className="text-xl font-semibold text-foreground">8. RÉSILIATION</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg">
                   <h4 className="font-semibold text-foreground mb-2">Par le Client :</h4>
                   <p className="text-sm">
-                    Vous pouvez resilier votre abonnement a tout moment depuis votre espace Profil.
-                    La resiliation prend effet a la fin de la periode en cours. Aucun remboursement
-                    au prorata n'est effectue.
+                    Vous pouvez résilier votre abonnement à tout moment depuis votre espace Profil.
+                    La résiliation prend effet à la fin de la période en cours. Aucun remboursement
+                    au prorata n'est effectué.
                   </p>
                 </div>
                 <div className="bg-destructive/10 p-4 rounded-lg">
                   <h4 className="font-semibold text-destructive mb-2">Par EmotionsCare :</h4>
                   <p className="text-sm">
-                    En cas de violation des CGU/CGV, d'usage frauduleux ou d'impaye, EmotionsCare
-                    peut suspendre ou resilier l'abonnement sans preavis ni remboursement.
+                    En cas de violation des CGU/CGV, d'usage frauduleux ou d'impayé, EmotionsCare
+                    peut suspendre ou résilier l'abonnement sans préavis ni remboursement.
                   </p>
                 </div>
               </div>
@@ -293,19 +296,19 @@ const CGV = () => {
               <h3 className="text-xl font-semibold text-foreground">9. LOI APPLICABLE ET LITIGES</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>Les presentes CGV sont regies par le <strong>droit francais</strong>.</p>
+              <p>Les présentes CGV sont régies par le <strong>droit français</strong>.</p>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">En cas de litige :</h4>
                 <ol className="text-sm space-y-2">
                   <li>
-                    <strong>1. Mediation :</strong> Conformement aux articles L611-1 et suivants du Code de la
-                    consommation, vous pouvez recourir gratuitement a un mediateur de la consommation.
-                    <br />
-                    <span className="ml-4">Plateforme europeenne : https://ec.europa.eu/consumers/odr</span>
+                    <strong>1. Médiation :</strong> Le nom et les coordonnées du médiateur de la consommation seront indiqués ici dès son adhésion finalisée. En attendant, contactez-nous à contact@emotionscare.com en cas de litige.
                   </li>
                   <li>
-                    <strong>2. Juridiction competente :</strong> A defaut d'accord amiable, les tribunaux
-                    du ressort de la <strong>Cour d'Appel d'Amiens</strong> sont competents.
+                    <strong>2. Juridiction compétente :</strong> À défaut de résolution amiable, le Client
+                    consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la
+                    conclusion du contrat ou de la survenance du fait dommageable, ou toute autre juridiction
+                    compétente en application du Code de procédure civile (article R631-3 du Code de la consommation).
+                    Le recours à la médiation n'est pas obligatoire.
                   </li>
                 </ol>
               </div>
@@ -319,7 +322,7 @@ const CGV = () => {
               <p><strong>EmotionsCare SASU</strong></p>
               <p>Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               <p>Email : contact@emotionscare.com</p>
-              <p>SIRET : 944 505 445 00011</p>
+              <p>SIRET : 944 505 445 00014</p>
             </div>
           </Card>
 
@@ -328,7 +331,7 @@ const CGV = () => {
             <Link to={ROUTE_PATHS.home}>
               <Button className="flex items-center space-x-2">
                 <ArrowLeft className="h-4 w-4" />
-                <span>Retour a l'accueil</span>
+                <span>Retour à l'accueil</span>
               </Button>
             </Link>
           </div>

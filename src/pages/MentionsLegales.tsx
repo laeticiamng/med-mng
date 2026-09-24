@@ -53,7 +53,7 @@ const MentionsLegales = () => {
                 <p><strong className="text-foreground">EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
                 <p>Siège social : <strong className="text-foreground">Appartement 1, 5 rue Caudron, 80000 Amiens, France</strong></p>
                 <p>Immatriculée au Registre du Commerce et des Sociétés (RCS) d'Amiens sous le numéro <strong className="text-foreground">944 505 445</strong> (inscrit le 21/05/2025)</p>
-                <p>N° SIRET : <strong className="text-foreground">944 505 445 00011</strong></p>
+                <p>N° SIRET : <strong className="text-foreground">944 505 445 00014</strong></p>
                 <p>TVA intracommunautaire : <strong className="text-foreground">FR89944505445</strong></p>
                 <div className="flex items-center space-x-1 pt-2">
                   <Mail className="h-4 w-4 text-primary" />
@@ -73,8 +73,8 @@ const MentionsLegales = () => {
             <div className="space-y-3 text-muted-foreground">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-success/10 p-4 rounded-lg">
-                  <p><strong className="text-foreground">Hébergeur des données :</strong></p>
-                  <p>Supabase (serveurs sécurisés et scalables)</p>
+                  <p><strong className="text-foreground">Hébergeurs :</strong></p>
+                  <p>Hébergement de l'application : Lovable ; base de données : Supabase Inc., région Francfort (UE)</p>
                 </div>
                 <div className="bg-accent/10 p-4 rounded-lg">
                   <p><strong className="text-foreground">Prototypage UX/UI :</strong></p>
@@ -148,10 +148,6 @@ const MentionsLegales = () => {
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Fiches pédagogiques</div>
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Noms, concepts, logos</div>
               </div>
-              <div className="bg-warning/20 p-4 rounded-lg border-l-4 border-warning">
-                <p className="font-semibold text-foreground">La méthode MNG – Music Neuro Learning Generator est protégée par dépôt de brevet en cours auprès de l'INPI.</p>
-                <p className="text-sm mt-2">Le suffixe "MNG" désigne tout format pédagogique utilisant la génération musicale pour la mémorisation cognitive, dans tous les domaines de formation post-bac diplômante.</p>
-              </div>
               <p className="text-destructive font-medium">Tout usage, reproduction ou adaptation sans autorisation expresse est interdit.</p>
               <p>La créatrice Laëticia Motongane reste l'unique titulaire des droits d'auteur.</p>
             </div>
@@ -172,7 +168,10 @@ const MentionsLegales = () => {
                 <div className="bg-success/10 p-3 rounded text-center">Préférences musicales et pédagogiques</div>
               </div>
               <p className="text-success font-medium">Aucune revente ou partage des données à des tiers.</p>
-              <p className="text-sm">Politique de confidentialité complète disponible [sur demande ou lien externe].</p>
+              <p className="text-sm">
+                Consultez notre{' '}
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">politique de confidentialité</Link>.
+              </p>
             </div>
           </Card>
 
@@ -226,7 +225,7 @@ const MentionsLegales = () => {
                     <tr className="border-b border-border/50">
                       <td className="p-2 font-semibold">Supabase Inc.</td>
                       <td className="p-2">Hébergement BDD, authentification</td>
-                      <td className="p-2">USA (AWS EU-West)</td>
+                      <td className="p-2">Société américaine ; données hébergées dans l'UE (Francfort)</td>
                       <td className="p-2">DPA signé, SCC, DPF certifié</td>
                     </tr>
                     <tr className="border-b border-border/50">
@@ -267,11 +266,8 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">7. MÉDIATEUR DE LA CONSOMMATION</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>Conformément à l'article L.612-1 du Code de la consommation, en cas de litige vous pouvez recourir à un médiateur :</p>
               <div className="bg-primary/10 p-4 rounded-lg">
-                <p><strong className="text-foreground">Médiateur :</strong> Plateforme européenne de règlement des litiges en ligne</p>
-                <p className="text-sm mt-2">🔗 <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" className="text-primary hover:underline">https://ec.europa.eu/consumers/odr</a></p>
-                <p className="text-sm mt-2">📧 Email : contact@emotionscare.com</p>
+                <p>Médiateur de la consommation : en cours de désignation ; contactez-nous à contact@emotionscare.com en cas de litige.</p>
               </div>
             </div>
           </Card>

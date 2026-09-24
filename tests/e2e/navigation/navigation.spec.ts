@@ -77,11 +77,8 @@ test.describe('Navigation E2E Tests', () => {
       await expect(page.locator('body')).toContainText(/Bibliothèque|Library/i);
     });
 
-    test('should navigate to store', async ({ page }) => {
-      await page.goto('/store');
-      await expect(page).toHaveURL('/store');
-      await expect(page.locator('body')).toContainText(/Boutique|Store|Produit/i);
-    });
+    // CONSTAT : ce test attendait une page /store qui a été supprimée (commit ca5d38cb) :
+    // il échouait sur une 404. Test retiré en même temps que la route.
 
     test('should navigate to statistics', async ({ page }) => {
       await page.goto('/statistics');

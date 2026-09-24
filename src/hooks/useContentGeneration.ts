@@ -47,7 +47,7 @@ export const useContentGeneration = () => {
       // Sélectionner la bonne Edge Function
       switch (request.type) {
         case 'music':
-          functionName = 'generate-music';
+          functionName = 'mm-generate-music';
           payload = {
             prompt: request.prompt,
             style: request.options?.style || 'ambient',

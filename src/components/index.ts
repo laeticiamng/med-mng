@@ -174,7 +174,6 @@ export {
 // Advanced (correct exports - avoiding SocialShare conflict)
 export { 
   AnalyticsTracker,
-  BookmarkSystem,
   DragDropManager,
   NotificationSystem,
   OfflineMode,

@@ -130,28 +130,9 @@ test.describe('Platform Status Page', () => {
   });
 });
 
-test.describe('Community Hub', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/community');
-  });
-
-  test('should display community page', async ({ page }) => {
-    await expect(page.locator('body')).toBeVisible();
-  });
-
-  test('should show community features', async ({ page }) => {
-    const communityFeatures = page.locator('text=/communauté|groupe|discussion/i');
-    if (await communityFeatures.first().isVisible().catch(() => false)) {
-      await expect(communityFeatures.first()).toBeVisible();
-    }
-  });
-
-  test('should be responsive on mobile', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 });
-    
-    await expect(page.locator('body')).toBeVisible();
-  });
-});
+// CONSTAT : la suite « Community Hub » visait /community, page supprimée (commit
+// ca5d38cb). Elle ne testait plus qu’une 404 qui répondait « body visible » : suite
+// retirée en même temps que la route.
 
 test.describe('Study Planner', () => {
   test.beforeEach(async ({ page }) => {

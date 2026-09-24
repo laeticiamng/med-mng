@@ -23,6 +23,10 @@ interface CompetenceOIC {
   causes_echec?: string;
   contributeurs?: string;
   ordre_affichage?: number;
+  html?: string;
+  url_source?: string;
+  maj_lisa?: string;
+  corrections?: { avant: string; apres: string; motif: string }[];
 }
 
 interface TableauCompetencesOICOptimizedProps {
@@ -72,41 +76,13 @@ const CompetenceCompactCard: React.FC<{
             </div>
           </div>
           
-          {/* Description complète */}
+          {competence.sommaire && (
+            <p className="text-sm italic text-muted-foreground">{competence.sommaire}</p>
+          )}
           {competence.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed pl-13">
+            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line line-clamp-4">
               {competence.description}
             </p>
-          )}
-          
-          {/* Détails supplémentaires si disponibles */}
-          {(competence.sommaire || competence.mecanismes || competence.indications) && (
-            <div className="mt-2 pl-13 space-y-2 border-l-2 border-primary/20 ml-5">
-              {competence.sommaire && (
-                <div className="pl-3">
-                  <span className="text-xs font-semibold text-primary">Sommaire:</span>
-                  <p className="text-xs text-muted-foreground">{competence.sommaire}</p>
-                </div>
-              )}
-              {competence.mecanismes && (
-                <div className="pl-3">
-                  <span className="text-xs font-semibold text-primary">Mécanismes:</span>
-                  <p className="text-xs text-muted-foreground">{competence.mecanismes}</p>
-                </div>
-              )}
-              {competence.indications && (
-                <div className="pl-3">
-                  <span className="text-xs font-semibold text-primary">Indications:</span>
-                  <p className="text-xs text-muted-foreground">{competence.indications}</p>
-                </div>
-              )}
-              {competence.effets_indesirables && (
-                <div className="pl-3">
-                  <span className="text-xs font-semibold text-warning">Effets indésirables:</span>
-                  <p className="text-xs text-muted-foreground">{competence.effets_indesirables}</p>
-                </div>
-              )}
-            </div>
           )}
         </div>
       </CardContent>
@@ -129,7 +105,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
           <CardTitle className={`${rang === 'A' ? 'text-primary' : 'text-accent-foreground'} flex items-center justify-between`}>
             <span>{itemCode} Rang {rang} - Compétences OIC</span>
             <Badge variant="outline" className="ml-2 text-muted-foreground">
-              En attente
+              Aucune
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -139,11 +115,10 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
               <Book className={`w-8 h-8 ${rang === 'A' ? 'text-primary' : 'text-accent-foreground'}`} />
             </div>
             <h4 className="font-semibold text-foreground">
-              Compétences en cours d'extraction
+              Aucune compétence de rang {rang}
             </h4>
             <p className="text-muted-foreground text-sm max-w-md mx-auto">
-              Les compétences OIC officielles pour le rang {rang} de cet item sont en cours d'extraction depuis UNESS.
-              Consultez les autres formats disponibles en attendant.
+              Le référentiel national LiSA (UNESS) ne contient aucune compétence de rang {rang} pour cet item.
             </p>
           </div>
         </CardContent>
@@ -180,7 +155,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
             </div>
             <div className="flex items-center gap-4">
               <Badge variant="secondary" className="text-sm font-bold px-4 py-2 bg-primary/10 text-primary border-primary/20">
-                {count} compétence{count > 1 ? 's' : ''} authentique{count > 1 ? 's' : ''}
+                {count} compétence{count > 1 ? 's' : ''} officielle{count > 1 ? 's' : ''}
               </Badge>
               <div className="flex rounded-xl border border-border bg-background shadow-sm">
                 <Button
@@ -219,7 +194,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
 
       {/* Flashcard Dialog */}
       <Dialog open={showFlashcards} onOpenChange={setShowFlashcards}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Flashcards - {itemCode} Rang {rang}</DialogTitle>
           </DialogHeader>
@@ -260,8 +235,8 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
         <CardContent className="p-4">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4 text-muted-foreground font-medium">
-              <span>📊 {count} compétences OIC authentiques analysées</span>
-              <span>🎯 Données officielles UNESS</span>
+              <span>{count} compétence{count > 1 ? 's' : ''} OIC</span>
+              <span>Contenu complet du référentiel national LiSA 2026 (UNESS)</span>
             </div>
             <Badge variant="outline" className="font-medium">
               Rang {rang} - {rang === 'A' ? 'Fondamental' : 'Avancé'}

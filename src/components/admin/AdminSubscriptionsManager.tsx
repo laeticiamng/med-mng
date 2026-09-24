@@ -82,11 +82,13 @@ export const AdminSubscriptionsManager = () => {
         const totalQuota = (quota.monthly_music_quota || 0) + (quota.monthly_qcm_quota || 0) + (quota.monthly_chat_quota || 0);
         const usedCredits = (quota.monthly_music_used || 0) + (quota.monthly_qcm_used || 0) + (quota.monthly_chat_used || 0);
         
-        // Calcul approximatif du revenu basé sur le type d'abonnement
+        // Revenu mensuel approximatif. Offre actuelle : MED MNG Premium à 69 €/an
+        // (≈ 5,75 €/mois) ou 9,90 €/mois — on retient l'équivalent mensuel de
+        // l'annuel faute de connaître la formule ici. Anciennes formules : tarif historique.
         const planPrices = {
           'standard': 19,
           'pro': 29,
-          'premium': 39
+          'premium': 5.75
         };
         
         const monthlyPrice = planPrices[quota.subscription_type as keyof typeof planPrices] || 0;

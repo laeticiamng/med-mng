@@ -17,13 +17,13 @@ const erreurs = [
   },
   {
     titre: "Oublier le consentement et l'empathie",
-    description: "Les compétences relationnelles sont notées explicitement dans les grilles UNESS. Se présenter, expliquer la démarche et recueillir le consentement sont des points souvent oubliés.",
+    description: "Les compétences relationnelles sont notées explicitement dans les grilles officielles. Se présenter, expliquer la démarche et recueillir le consentement sont des points souvent oubliés.",
     conseil: "Commencez chaque station par : 'Bonjour, je suis [nom], [fonction]. Je vais vous expliquer ce que nous allons faire ensemble.'"
   },
   {
-    titre: "Gérer mal le temps (15 minutes par station)",
-    description: "Chaque station dure exactement 15 minutes. Trop d'étudiants passent 10 minutes sur l'anamnèse et n'ont plus le temps pour l'examen clinique ou l'annonce diagnostique.",
-    conseil: "Divisez mentalement : 5 min anamnèse, 5 min examen/raisonnement, 5 min plan de prise en charge et communication."
+    titre: "Mal gérer le temps de la station",
+    description: "Chaque station a une durée fixe (voir les textes officiels). Passer trop de temps sur l'anamnèse laisse peu de temps pour l'examen clinique ou l'annonce diagnostique.",
+    conseil: "Divisez mentalement la station en trois temps : interrogatoire, examen et raisonnement, plan de prise en charge et communication."
   },
   {
     titre: "Ne pas annoncer ses gestes à voix haute",
@@ -55,15 +55,15 @@ const erreurs = [
 const faqs = [
   {
     question: "Combien de stations comporte l'épreuve ECOS ?",
-    answer: "L'épreuve ECOS comporte 10 stations de 15 minutes chacune, couvrant différentes compétences cliniques : communication, examen clinique, raisonnement diagnostique, gestes techniques et annonce."
+    answer: "Le nombre et la durée des stations sont fixés par les textes officiels en vigueur. Les stations couvrent différentes compétences cliniques : communication, examen clinique, raisonnement diagnostique, gestes techniques et annonce."
   },
   {
     question: "Comment sont notées les ECOS ?",
-    answer: "Chaque station est évaluée selon une grille UNESS standardisée avec des items pondérés. Les compétences évaluées incluent : communication, examen clinique, raisonnement, éthique et professionnalisme."
+    answer: "Chaque station est évaluée selon une grille officielle avec des items pondérés. Les compétences évaluées incluent : communication, examen clinique, raisonnement, éthique et professionnalisme."
   },
   {
     question: "Peut-on s'entraîner seul aux ECOS ?",
-    answer: "Oui, avec des outils comme MED-MNG qui proposent des cas cliniques interactifs avec correction par compétence. L'entraînement entre pairs est aussi très efficace pour les aspects communication."
+    answer: "En partie, avec des situations guidées et une grille d'auto-évaluation comme sur MED-MNG. L'entraînement entre pairs reste très utile pour les aspects communication."
   },
   {
     question: "Quelle est la différence entre ECOS et ECN ?",
@@ -144,12 +144,12 @@ const ErreursFrquentesEcos = () => {
                   {[
                     "Je me suis entraîné sur au moins 20 cas cliniques",
                     "Je connais le protocole SPIKES pour l'annonce",
-                    "Je sais structurer une consultation en 3×5 minutes",
+                    "Je sais structurer une consultation en trois temps",
                     "Je verbalise mes gestes d'examen clinique",
                     "Je commence toujours par me présenter et recueillir le consentement",
                     "Je conclus par un résumé + vérification de compréhension",
                     "J'ai fait au moins 3 simulations chronométrées",
-                    "Je connais les grilles UNESS par compétence"
+                    "Je connais les grilles d'évaluation officielles"
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-3">
                       <Target className="h-4 w-4 text-primary flex-shrink-0" />
@@ -166,7 +166,7 @@ const ErreursFrquentesEcos = () => {
             <h2 className="text-2xl font-bold text-foreground mb-6">📚 Articles liés</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { title: "Préparation ECOS 2026", path: ROUTE_PATHS.seoPreparationEcos },
+                { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
                 { title: "Fiches ECOS interactives", path: ROUTE_PATHS.seoFichesEcos },
                 { title: "Cas cliniques EDN", path: ROUTE_PATHS.seoCasCliniqueEdn },
                 { title: "Réussir l'EDN", path: ROUTE_PATHS.seoReussirEdn },
@@ -199,10 +199,10 @@ const ErreursFrquentesEcos = () => {
           {/* CTA */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3">Prêt à vous entraîner aux ECOS ?</h2>
-            <p className="text-muted-foreground mb-6">Cas cliniques interactifs avec correction par compétence UNESS.</p>
+            <p className="text-muted-foreground mb-6">Situations ECOS guidées avec grille d'auto-évaluation.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to={ROUTE_PATHS.seoPreparationEcos}>
                 <Button variant="outline" size="lg">Guide préparation ECOS</Button>

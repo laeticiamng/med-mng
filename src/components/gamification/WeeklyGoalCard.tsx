@@ -156,7 +156,7 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
           </Badge>
         </div>
         <CardDescription>
-          Atteins tes objectifs hebdomadaires pour des bonus XP
+          Atteignez vos objectifs hebdomadaires pour des bonus XP
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -237,7 +237,7 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             {overallProgress >= 100 
-              ? 'Bravo ! Tu as gagné 500 XP bonus cette semaine !'
+              ? 'Bravo ! Vous avez gagné 500 XP bonus cette semaine !'
               : `Atteins 100% pour gagner 500 XP bonus`
             }
           </p>
@@ -247,8 +247,8 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
         {overallProgress < 100 && (
           <div className="text-center text-sm text-muted-foreground">
             {daysRemaining === 0 
-              ? "⏰ Dernier jour pour atteindre tes objectifs !"
-              : `💪 Continue comme ça, tu peux le faire !`
+              ? "⏰ Dernier jour pour atteindre vos objectifs !"
+              : `💪 Continuez ainsi, vous pouvez y arriver !`
             }
           </div>
         )}

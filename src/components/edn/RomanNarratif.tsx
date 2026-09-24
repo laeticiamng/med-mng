@@ -314,10 +314,21 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
     return chapters;
   };
 
-  // Utiliser les chapitres stockés en priorité, sinon générer dynamiquement
-  const chapters = storedRomanStory && storedRomanStory.length > 0 
-    ? storedRomanStory 
-    : generateChapters();
+  // Le récit rédigé (generer-recit-item) est stocké sous la forme
+  // { titre, texte, competences: ['OIC-…'] } ; les anciens récits sous { title, content }.
+  const histoire: RomanChapter[] = (Array.isArray(storedRomanStory) ? storedRomanStory : [])
+    .map((c: any, i: number, tous: any[]) => ({
+      id: String(c?.id ?? `chapitre-${i + 1}`),
+      title: String(c?.title ?? c?.titre ?? '').trim(),
+      content: String(c?.content ?? c?.texte ?? '').trim(),
+      type: (i === 0 ? 'intro' : i === tous.length - 1 ? 'conclusion' : 'rang-a') as RomanChapter['type'],
+      competences: [],
+    }))
+    .filter((c) => c.title && c.content);
+
+  // Plus de chapitres fabriqués à partir de gabarits (« Chapitre 1 : Les Fondements ») :
+  // sans récit rédigé, on le dit.
+  const chapters = histoire;
 
   const nextChapter = async () => {
     if (currentChapter < chapters.length - 1) {
@@ -358,13 +369,13 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
   };
 
   // Only show placeholder if chapters have just intro+epilogue (no competences)
-  if (chapters.length <= 2 || (competencesA.length === 0 && competencesB.length === 0)) {
+  if (chapters.length === 0) {
     return (
       <Card className="border-2 border-warning/20">
         <CardHeader className="bg-gradient-to-r from-success/10 to-accent/10">
           <CardTitle className="flex items-center gap-2 text-foreground">
             <BookOpen className="h-6 w-6" />
-            Roman Narratif - {itemCode}
+            Parcours narré des compétences - {itemCode}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center space-y-4">
@@ -372,13 +383,13 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
             <BookOpen className="h-8 w-8 text-success" />
           </div>
           <div>
-            <p className="font-medium text-foreground">Roman en préparation</p>
+            <p className="font-medium text-foreground">Le récit de cet item n'est pas encore rédigé</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
+              Il est écrit à partir des connaissances officielles (UNESS) de <strong>{itemCode}</strong> ; il apparaîtra ici dès qu'il aura passé le contrôle de qualité.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
-            Le roman narratif sera automatiquement généré une fois les compétences disponibles.
+Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
           </div>
         </CardContent>
       </Card>
@@ -428,7 +439,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-background">
               <BookOpen className="h-6 w-6" />
-              Roman Narratif - {itemCode}
+              Parcours narré des compétences - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
               {stats && (
@@ -525,12 +536,24 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
                 </Badge>
               )}
               <Badge className={getChapterColor(currentChap.type).replace('bg-', 'bg-').replace('border-', 'border-')}>
-                {currentChap.type.toUpperCase()}
+                {({ intro: 'Début', 'rang-a': 'Suite', 'rang-b': 'Suite', conclusion: 'Fin' } as Record<string, string>)[currentChap.type]}
               </Badge>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
+          {/* Ce format était annoncé comme un « roman ». Mesuré sur les 3719
+              chapitres des 367 items : 90 % commencent par l'une de 9 phrases
+              d'amorce interchangeables (« Ce matin-là, aux urgences, un patient
+              arrive en détresse. »), et les titres de chapitre sont les mêmes
+              partout (« Chapitre N : Les Fondements »). Le fond utile, ce sont
+              les compétences OIC citées : on le dit plutôt que de laisser croire
+              à une histoire écrite pour cet item. */}
+          <p className="text-xs text-muted-foreground mb-4">
+            Mise en situation générée automatiquement autour des compétences officielles de
+            l'item. Les phrases de mise en scène sont des formules types, communes à tous les
+            items : le contenu à retenir est la compétence citée dans chaque paragraphe.
+          </p>
           <div className="prose prose-lg max-w-none space-y-4">
             {currentChap.content.split('\n\n').map((paragraph, index) => (
               <div key={index} className="p-4 bg-background/60 rounded-xl border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors">
@@ -634,13 +657,13 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{chapter.title}</span>
                   <div className="flex items-center gap-2">
-                    {chapter.competences > 0 && (
+                    {chapter.competences.length > 0 && (
                       <Badge variant="outline" className="text-xs">
-                        {chapter.competences}
+                        {chapter.competences.length}
                       </Badge>
                     )}
                     <Badge className={`text-xs ${getChapterColor(chapter.type)}`}>
-                      {chapter.type}
+                      {({ intro: 'Début', 'rang-a': 'Suite', 'rang-b': 'Suite', conclusion: 'Fin' } as Record<string, string>)[chapter.type]}
                     </Badge>
                   </div>
                 </div>

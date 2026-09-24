@@ -1,13 +1,11 @@
 import { EcosHeader } from '@/components/ecos/EcosHeader';
-import { EcosEvaluationGrid } from '@/components/ecos/EcosEvaluationGrid';
+import { EcosEvaluationGrid, type EcosSaveOutcome } from '@/components/ecos/EcosEvaluationGrid';
 import { EcosRealTimeTimer } from '@/components/ecos/EcosRealTimeTimer';
 import { PatientCard } from '@/components/ecos/PatientCard';
-import { QuizSection } from '@/components/ecos/QuizSection';
 import { StepContent } from '@/components/ecos/StepContent';
 import { StepProgress } from '@/components/ecos/StepProgress';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { quizQuestions as fallbackQuestions, scenarioData as fallbackScenario } from '@/data/ecosData';
+import { scenarioData as fallbackScenario } from '@/data/ecosData';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useEcosTimer } from '@/hooks/useEcosTimer';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
@@ -89,32 +87,16 @@ const parseHtmlToSteps = (html: string | null) => {
   return steps;
 };
 
-// Generate quiz questions from competencies
-const generateQuizFromCompetences = (competences: string | null, _title: string) => {
-  if (!competences) return fallbackQuestions;
-  
-  const compList = competences.split(',').map(c => c.trim()).filter(Boolean);
-  if (compList.length === 0) return fallbackQuestions;
-  
-  return compList.slice(0, 4).map((comp, idx) => ({
-    question: `Quelle est la conduite à tenir prioritaire pour : ${comp} ?`,
-    options: [
-      'Évaluation clinique complète',
-      'Examens complémentaires en urgence',
-      'Traitement symptomatique immédiat',
-      'Surveillance et réévaluation'
-    ],
-    correct: idx % 4 // Rotation pour éviter pattern prévisible
-  }));
-};
+// CONSTAT (audit allégations) : un quiz de fin de situation proposait 4 réponses
+// génériques identiques pour toutes les compétences, et la « bonne » réponse était
+// choisie par position (idx % 4). Le score n'avait aucun sens : quiz et score
+// supprimés, remplacés par une auto-évaluation sur grille.
 
 const EcosScenario = () => {
   const { scenarioId: slug } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<{[key: string]: string}>({});
-  const [showQuiz, setShowQuiz] = useState(false);
   const [showEvaluation, setShowEvaluation] = useState(false);
-  const [quizAnswers, setQuizAnswers] = useState<{[key: number]: string}>({});
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [dbScenario, setDbScenario] = useState<EcosScenarioData | null>(null);
@@ -187,12 +169,6 @@ const EcosScenario = () => {
     };
   }, [dbScenario]);
 
-  const quizQuestions = useMemo(() => {
-    if (!dbScenario) return fallbackQuestions;
-    const competencesStr = normalizeCompetences(dbScenario.competences_associees);
-    return generateQuizFromCompetences(competencesStr, dbScenario.intitule_sd);
-  }, [dbScenario]);
-
   // Load user and gamification stats
   useEffect(() => {
     const checkUser = async () => {
@@ -205,20 +181,77 @@ const EcosScenario = () => {
     checkUser();
   }, [loadStats]);
 
-  const handleResponse = (field: string, value: string) => {
-    setResponses(prev => ({...prev, [field]: value}));
-  };
+  // CONSTAT : à la fin d’une simulation ECOS, le score n’était nulle part — un
+  // console.log en développement, rien en production, et aucune écriture côté grille.
+  // Conséquence : pas d’historique, pas de progression ECOS, rien dans les statistiques.
+  // Le résultat est désormais écrit dans user_progress (content_type = 'ecos'), en
+  // conservant le meilleur score et en incrémentant le nombre de tentatives.
+  const saveEcosResult = async (
+    score: number,
+    total: number,
+    checkedItems: string[]
+  ): Promise<EcosSaveOutcome> => {
+    const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
 
-  const handleQuizAnswer = async (questionIndex: number, answer: string) => {
-    setQuizAnswers(prev => ({...prev, [questionIndex]: answer}));
-    
-    if (user) {
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      // Visiteur non connecté : il n’y a pas de compte où écrire. On le dit, sans planter.
+      if (!currentUser) return 'anonymous';
+
+      const contentId = String(scenarioData.id);
+
+      const { data: existing } = await (supabase as any)
+        .from('user_progress')
+        .select('attempts_count, best_score')
+        .eq('user_id', currentUser.id)
+        .eq('content_type', 'ecos')
+        .eq('content_id', contentId)
+        .maybeSingle();
+
+      const attempts = (existing?.attempts_count ?? 0) + 1;
+      const bestScore = Math.max(existing?.best_score ?? 0, percentage);
+      const masteryLevel =
+        percentage >= 60 ? 'revised' : percentage > 0 ? 'in_progress' : 'not_started';
+      const now = new Date().toISOString();
+
+      const { error } = await (supabase as any).from('user_progress').upsert(
+        {
+          user_id: currentUser.id,
+          content_type: 'ecos',
+          content_id: contentId,
+          progress_percentage: percentage,
+          best_score: bestScore,
+          attempts_count: attempts,
+          mastery_level: masteryLevel,
+          last_accessed: now,
+          updated_at: now,
+        },
+        { onConflict: 'user_id,content_type,content_id' }
+      );
+
+      if (error) throw error;
+
       await logActivity({
         activity_type: 'ecos',
         count: 1,
-        metadata: { scenarioId: scenarioData.id, questionIndex, answer }
+        metadata: {
+          scenarioId: contentId,
+          score,
+          total,
+          percentage,
+          criteriaValidated: checkedItems.length,
+        },
       });
+
+      return 'saved';
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Enregistrement du score ECOS impossible:', err);
+      return 'error';
     }
+  };
+
+  const handleResponse = (field: string, value: string) => {
+    setResponses(prev => ({...prev, [field]: value}));
   };
 
   const nextStep = async () => {
@@ -233,7 +266,7 @@ const EcosScenario = () => {
         });
       }
     } else {
-      setShowQuiz(true);
+      setShowEvaluation(true);
       
       if (user) {
         await addPoints(user.id, POINTS_CONFIG.clinicalCase, 'clinicalCase');
@@ -313,7 +346,7 @@ const EcosScenario = () => {
             <EcosRealTimeTimer 
               durationMinutes={7}
               autoStart={false}
-              onTimeUp={() => setShowQuiz(true)}
+              onTimeUp={() => setShowEvaluation(true)}
             />
           </div>
 
@@ -324,7 +357,7 @@ const EcosScenario = () => {
             totalSteps={scenarioData.steps.length}
           />
 
-          {!showQuiz && !showEvaluation ? (
+          {!showEvaluation ? (
             <StepContent
               step={scenarioData.steps[currentStep]}
               currentStep={currentStep}
@@ -333,32 +366,19 @@ const EcosScenario = () => {
               onResponseChange={handleResponse}
               onNext={nextStep}
             />
-          ) : showQuiz && !showEvaluation ? (
-            <div className="space-y-6">
-              <QuizSection
-                questions={quizQuestions}
-                answers={quizAnswers}
-                onAnswerChange={handleQuizAnswer}
-              />
-              <div className="flex justify-center">
-                <Button 
-                  onClick={() => setShowEvaluation(true)}
-                  size="lg"
-                  className="gap-2"
-                >
-                  <FileText className="h-5 w-5" />
-                  Accéder à la grille d'évaluation ECOS
-                </Button>
-              </div>
-            </div>
           ) : (
+            <div className="space-y-4">
+            <p className="text-sm text-muted-foreground max-w-3xl mx-auto bg-card/80 rounded-lg p-4 border border-border">
+              Auto-évaluation : comparez votre démarche à la grille ci-dessous et cochez honnêtement
+              ce que vous avez fait. Ces critères sont génériques ; ils ne remplacent pas la grille
+              officielle de la station.
+            </p>
             <EcosEvaluationGrid
               scenarioId={scenarioData.id}
               scenarioTitle={scenarioData.title}
-              onComplete={(score, total, items) => {
-                if (import.meta.env.DEV) console.log('Evaluation complete:', { score, total, items });
-              }}
+              onComplete={saveEcosResult}
             />
+            </div>
           )}
         </div>
       </div>

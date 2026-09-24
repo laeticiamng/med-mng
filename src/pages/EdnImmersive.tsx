@@ -11,6 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Flame, Pause, Play, Trophy, Volume2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAccesPremium } from '@/hooks/useAccesPremium';
+import { EncartPremium } from '@/components/offre/EncartPremium';
 
 const EdnImmersive = () => {
   const {
@@ -27,6 +29,7 @@ const EdnImmersive = () => {
   } = useImmersiveLogic();
 
   const { logActivity } = useActivityTracking();
+  const { peutVoirItem, chargement: chargementAcces } = useAccesPremium();
   const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   // Load user and gamification stats
@@ -77,6 +80,16 @@ const EdnImmersive = () => {
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  // Contenu immersif : items d'essai ou MED MNG Premium.
+  if (item && !peutVoirItem(item.item_code)) {
+    if (chargementAcces) return <LoadingSpinner />;
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+        <EncartPremium contenu="Le parcours immersif de cet item" />
+      </div>
+    );
   }
 
   if (!item) {

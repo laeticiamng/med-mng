@@ -81,10 +81,14 @@ const EXPORT_MODULES: ExportModule[] = [
   },
   {
     id: 'planner',
-    name: 'Planning & objectifs',
-    description: 'Sessions d\'étude, objectifs',
+    name: 'Planning',
+    // Constat vérifié le 2026-09-18 : la table 'study_goals' n'existe pas en base
+    // (GET /rest/v1/study_goals -> 404 PGRST205 « Could not find the table »). Elle est
+    // retirée de l'export, qui annonçait des « objectifs » toujours vides. Les objectifs
+    // réellement utilisés par la page /my-goals vivent dans la table 'user_goals'.
+    description: 'Sessions d\'étude',
     icon: Calendar,
-    tables: ['study_sessions', 'study_goals'],
+    tables: ['study_sessions'],
     estimatedSize: '~40 KB'
   },
 ];

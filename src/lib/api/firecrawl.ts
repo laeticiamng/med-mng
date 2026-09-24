@@ -47,7 +47,7 @@ export const firecrawlApi = {
    * @example firecrawlApi.scrape('https://uness.fr/guidelines', { formats: ['markdown', 'summary'] })
    */
   async scrape(url: string, options?: ScrapeOptions): Promise<FirecrawlResponse> {
-    const { data, error } = await supabase.functions.invoke('firecrawl-scrape', {
+    const { data, error } = await supabase.functions.invoke('mm-firecrawl-scrape', {
       body: { url, options },
     });
 

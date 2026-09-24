@@ -99,7 +99,7 @@ serve(async (req) => {
       prompt: prompt,
       style: `${style}, educational, medical training`,
       title: title.substring(0, 80), // V4_5ALL: max 80 chars pour titre
-      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
+      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mm-suno-callback`
     };
 
     // Appel API Suno avec gestion d'erreur

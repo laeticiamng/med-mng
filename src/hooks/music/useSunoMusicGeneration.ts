@@ -26,6 +26,21 @@ const SLOW_POLL_INTERVAL = 6000; // 6s - Lent (2min+)
 const RETRY_POLL_ATTEMPTS = 3;
 const ABSOLUTE_TIMEOUT = 8 * 60 * 1000; // 8 minutes - aligné avec UI
 
+const MESSAGE_INDISPONIBLE = 'Service momentanément indisponible, réessayez plus tard.';
+
+/**
+ * Message affiché à l'utilisateur : on garde les messages métier en français
+ * renvoyés par mm-generate-music (abonnement requis, quota atteint…) et on
+ * remplace tout message technique (402/429 du fournisseur, « non-2xx »,
+ * trackId, fetch…) par un message d'indisponibilité clair.
+ */
+const messageErreurGeneration = (error: unknown): string => {
+  const brut = error instanceof Error ? error.message : '';
+  if (!brut) return "Impossible de générer la musique. Veuillez réessayer.";
+  const technique = /\b(402|429|4\d\d|5\d\d)\b|non-2xx|edge function|fetch|trackid|suno|payment|credit|rate limit|url audio|undefined|null/i;
+  return technique.test(brut) ? MESSAGE_INDISPONIBLE : brut;
+};
+
 export const useSunoMusicGeneration = () => {
   const { toast } = useToast();
   const [pollingProgress, setPollingProgress] = useState<number>(0);
@@ -285,7 +300,7 @@ export const useSunoMusicGeneration = () => {
       return validatedUrl;
       
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Impossible de générer la musique. Veuillez réessayer.";
+      const errorMessage = messageErreurGeneration(error);
       setLastError(errorMessage);
       toast({
         title: "Erreur de génération",

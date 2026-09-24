@@ -193,17 +193,17 @@ export const UnifiedChat: React.FC<UnifiedChatProps> = ({
     setMessages(prev => [...prev, typingMessage]);
 
     try {
-      const { data, error } = await supabase.functions.invoke('contextual-medical-chat', {
+      // « contextual-medical-chat » n'existe pas (ni dans supabase/functions/,
+      // ni deployee) : les messages partaient dans le vide. La fonction faite
+      // pour cet usage et reellement deployee est « contextual-ai-chat ».
+      const { data, error } = await supabase.functions.invoke('contextual-ai-chat', {
         body: {
           message: content,
-          currentItem,
-          conversationId,
-          enableWebFallback,
-          context: {
-            previousMessages: messages.slice(-5),
-            userId: user?.id,
-            contextItems
-          }
+          conversation_history: messages.slice(-5).map((m) => ({
+            role: m.role === 'assistant' ? 'assistant' : 'user',
+            content: m.content,
+          })),
+          context_items: [...(contextItems ?? []), ...(currentItem ? [currentItem] : [])],
         }
       });
 
@@ -217,12 +217,14 @@ export const UnifiedChat: React.FC<UnifiedChatProps> = ({
         role: 'assistant',
         timestamp: new Date(),
         source: data.source || 'mixed',
-        relatedItems: data.relatedItems || [],
-        suggestions: data.suggestions || []
+        // contextual-ai-chat renvoie les items utilises dans data.context.items
+        // et ne renvoie ni suggestions ni identifiant de conversation : on
+        // n'affiche pas ce qui n'existe pas.
+        relatedItems: data.context?.items ?? [],
+        suggestions: []
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      setConversationId(data.conversationId);
 
       // Gamification
       if (user) {

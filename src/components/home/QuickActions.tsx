@@ -12,13 +12,11 @@ import {
   Target,
   Sparkles,
   ListMusic,
-  Users,
   MessageSquare,
   Layers,
   Calendar,
   Trophy,
   HeartPulse,
-  ShoppingBag,
   Library,
   BarChart3
 } from 'lucide-react';
@@ -77,6 +75,9 @@ export const QuickActions: React.FC = () => {
     },
   ];
 
+  // CONSTAT : les raccourcis « Communauté » (/community) et « Boutique » (/store)
+  // pointaient vers deux pages supprimées par le commit ca5d38cb : deux 404 depuis
+  // l’accueil. Raccourcis retirés en même temps que les routes correspondantes.
   // Actions secondaires (grille plus compacte)
   const secondaryActions = [
     { id: 'flashcards', title: 'Flashcards', icon: Layers, path: ROUTE_PATHS.flashcards },
@@ -86,14 +87,12 @@ export const QuickActions: React.FC = () => {
     { id: 'music', title: 'Musique médicale', icon: Music, path: ROUTE_PATHS.generator },
     { id: 'achievements', title: 'Succès', icon: Trophy, path: ROUTE_PATHS.achievements },
     { id: 'planner', title: 'Planning', icon: Calendar, path: ROUTE_PATHS.smartStudyPlanner },
-    { id: 'community', title: 'Communauté', icon: Users, path: ROUTE_PATHS.community },
   ];
 
   // Ressources et outils
   const resourceActions = [
     { id: 'library', title: 'Bibliothèque', icon: Library, path: ROUTE_PATHS.library },
     { id: 'musicLib', title: 'Musiques EDN', icon: Headphones, path: ROUTE_PATHS.ednMusicLibrary },
-    { id: 'store', title: 'Boutique', icon: ShoppingBag, path: ROUTE_PATHS.store },
     { id: 'stats', title: 'Statistiques', icon: BarChart3, path: ROUTE_PATHS.statistics },
   ];
 

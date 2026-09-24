@@ -58,7 +58,7 @@ const SocialShareHub: React.FC = () => {
   }, [scoreData, download, trackShare]);
 
   const shareToSocial = useCallback((platform: string) => {
-    const text = `🩺 Mon score MED-MNG : ${scoreData.score}% | Niveau ${scoreData.level} | 🔥 ${scoreData.streak} jours de série ! Rejoins-moi avec mon code ${referralCode}`;
+    const text = `🩺 Mon score MED-MNG : ${scoreData.score}% | Niveau ${scoreData.level} | 🔥 ${scoreData.streak} jours de série ! Rejoignez-moi avec mon code ${referralCode}`;
     const url = shareUrl || window.location.origin;
     const encoded = encodeURIComponent(text);
     const encodedUrl = encodeURIComponent(url);
@@ -217,9 +217,9 @@ const SocialShareHub: React.FC = () => {
               <div className="bg-muted rounded-lg p-4 space-y-2">
                 <h4 className="font-semibold text-sm">Comment ça marche ?</h4>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                  <li>Partage ton code ou lien avec un ami</li>
-                  <li>Ton ami s'inscrit avec ton code</li>
-                  <li>Tu gagnes <strong className="text-primary">500 XP</strong> et ton ami <strong className="text-primary">200 XP</strong></li>
+                  <li>Partagez votre code ou votre lien avec un ami</li>
+                  <li>Votre ami s'inscrit avec votre code</li>
+                  <li>Vous gagnez <strong className="text-primary">500 XP</strong> et votre ami <strong className="text-primary">200 XP</strong></li>
                 </ol>
               </div>
             </CardContent>

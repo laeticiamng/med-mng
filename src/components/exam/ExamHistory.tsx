@@ -18,8 +18,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
 } from 'recharts';
 import {
   TrendingUp,
@@ -29,7 +27,6 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
-  Users,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -56,40 +53,26 @@ interface ExamHistoryEntry {
   correctAnswers: number;
   date: string;
   duration: number;
-  specialty: string;
   questions: ExamQuestionReview[];
 }
 
-interface ExamRanking {
-  position: number;
-  totalUsers: number;
-  percentile: number;
-}
-
 // ---------------------------------------------------------------------------
-// Mock data helpers (replaced by real Supabase calls when tables exist)
+// Sources de données réelles (vérifiées sur la base)
+//
+//   exam_history     : id, user_id, exam_type, score, total_questions,
+//                      questions (jsonb), answers (jsonb), started_at,
+//                      completed_at, created_at, time_limit_minutes
+//   ai_exam_history  : mêmes colonnes + ai_generated
+//
+// Les tables `exam_results` (lue auparavant par ce composant) et `exam_rankings`
+// n'existent PAS : PostgREST renvoie une 404 PGRST205. L'onglet « Classement »
+// et la génération de données de démonstration ont donc été retirés — ils
+// affichaient des examens et un rang entièrement inventés.
+// Ni `specialty`, ni `correct_answers`, ni `duration` n'existent en base : la
+// durée est calculée à partir de started_at/completed_at, le nombre de bonnes
+// réponses est déduit du jsonb `answers`, et l'onglet « Spécialités » a été
+// retiré faute de donnée.
 // ---------------------------------------------------------------------------
-
-const MOCK_SPECIALTIES = [
-  'Cardiologie',
-  'Pneumologie',
-  'Neurologie',
-  'Gastro-entérologie',
-  'Endocrinologie',
-  'Néphrologie',
-  'Hématologie',
-  'Rhumatologie',
-  'Dermatologie',
-  'Pédiatrie',
-];
-
-const EXAM_TYPES = [
-  { value: 'all', label: 'Tous les types' },
-  { value: 'qcm', label: 'QCM' },
-  { value: 'cas_clinique', label: 'Cas clinique' },
-  { value: 'dp', label: 'Dossier progressif' },
-  { value: 'qi', label: 'Question isolée' },
-];
 
 const DATE_RANGES = [
   { value: 'all', label: 'Toutes les dates' },
@@ -107,70 +90,128 @@ const SCORE_RANGES = [
   { value: '75-100', label: '75 – 100 %' },
 ];
 
-function generateMockHistory(): ExamHistoryEntry[] {
-  const entries: ExamHistoryEntry[] = [];
-  const types = ['qcm', 'cas_clinique', 'dp', 'qi'];
-
-  for (let i = 0; i < 20; i++) {
-    const totalQuestions = Math.floor(Math.random() * 15) + 5;
-    const correctAnswers = Math.floor(Math.random() * (totalQuestions + 1));
-    const score = Math.round((correctAnswers / totalQuestions) * 100);
-    const specialty =
-      MOCK_SPECIALTIES[Math.floor(Math.random() * MOCK_SPECIALTIES.length)];
-    const examType = types[Math.floor(Math.random() * types.length)];
-    const daysAgo = Math.floor(Math.random() * 180);
-
-    const questions: ExamQuestionReview[] = Array.from(
-      { length: totalQuestions },
-      (_, qi) => {
-        const isCorrect = qi < correctAnswers;
-        return {
-          questionText: `Question ${qi + 1} : Quel est le diagnostic le plus probable pour ce patient présentant une dyspnée aiguë avec un souffle systolique ?`,
-          userAnswer: isCorrect ? 'Insuffisance mitrale aiguë' : 'Embolie pulmonaire',
-          correctAnswer: 'Insuffisance mitrale aiguë',
-          isCorrect,
-          explanation:
-            "L'association d'une dyspnée aiguë et d'un souffle systolique de novo oriente vers une insuffisance mitrale aiguë, souvent secondaire à une rupture de cordage.",
-          itemCode: `Item ${150 + Math.floor(Math.random() * 200)}`,
-        };
-      }
-    );
-
-    entries.push({
-      id: `exam-${i}`,
-      examType,
-      score,
-      totalQuestions,
-      correctAnswers,
-      date: subDays(new Date(), daysAgo).toISOString(),
-      duration: Math.floor(Math.random() * 3600) + 600,
-      specialty,
-      questions,
-    });
-  }
-
-  // Sort newest first
-  entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  return entries;
+interface StoredAnswer {
+  selected?: number | number[];
+  correct?: boolean;
+  timeSpent?: number;
 }
 
-function generateMockRanking(): ExamRanking {
-  const totalUsers = Math.floor(Math.random() * 5000) + 1000;
-  const position = Math.floor(Math.random() * totalUsers) + 1;
-  const percentile = Math.round(((totalUsers - position) / totalUsers) * 100);
-  return { position, totalUsers, percentile };
+/** Libellé d'une option à partir de son index, quel que soit le format stocké. */
+function optionLabel(options: unknown, index: unknown): string | null {
+  if (!Array.isArray(options)) return null;
+  if (typeof index !== 'number') return null;
+  const value = options[index];
+  return typeof value === 'string' ? value : null;
+}
+
+/** Réponse attendue : `correct_answer` (QCM simple) ou `correct_answers` (QCM multiple). */
+function expectedAnswerLabel(question: Record<string, unknown>): string {
+  const options = question.options;
+  const single = optionLabel(options, question.correct_answer);
+  if (single) return single;
+
+  const multiple = question.correct_answers;
+  if (Array.isArray(multiple)) {
+    const labels = multiple
+      .map((i) => optionLabel(options, i))
+      .filter((l): l is string => Boolean(l));
+    if (labels.length > 0) return labels.join(' + ');
+  }
+  return 'Non renseignée';
+}
+
+/** Réponse de l'utilisateur, telle qu'elle a été enregistrée. */
+function givenAnswerLabel(question: Record<string, unknown>, answer?: StoredAnswer): string {
+  const selected = answer?.selected;
+  const options = question.options;
+
+  if (Array.isArray(selected)) {
+    const labels = selected
+      .map((i) => optionLabel(options, i))
+      .filter((l): l is string => Boolean(l));
+    if (labels.length > 0) return labels.join(' + ');
+  }
+
+  const single = optionLabel(options, selected);
+  if (single) return single;
+
+  return 'Non répondu';
+}
+
+/** Transforme une ligne exam_history / ai_exam_history en entrée d'historique. */
+function mapExamRow(row: Record<string, any>): ExamHistoryEntry {
+  const answers: Record<string, StoredAnswer> =
+    row.answers && typeof row.answers === 'object' && !Array.isArray(row.answers)
+      ? (row.answers as Record<string, StoredAnswer>)
+      : {};
+
+  const rawQuestions: Record<string, any>[] = Array.isArray(row.questions) ? row.questions : [];
+
+  const questions: ExamQuestionReview[] = rawQuestions.map((q, index) => {
+    // L'examen standard fusionne la réponse dans la question, l'examen IA la
+    // stocke uniquement dans `answers` : on accepte les deux.
+    const answer: StoredAnswer | undefined =
+      (q.userAnswer as StoredAnswer | undefined) ?? answers[String(q.id)];
+
+    return {
+      questionText:
+        typeof q.question_text === 'string' ? q.question_text : `Question ${index + 1}`,
+      userAnswer: givenAnswerLabel(q, answer),
+      correctAnswer: expectedAnswerLabel(q),
+      isCorrect: answer?.correct === true,
+      explanation:
+        typeof q.explanation === 'string' && q.explanation.trim()
+          ? q.explanation
+          : 'Aucune explication enregistrée pour cette question.',
+      itemCode: typeof q.item_code === 'string' ? q.item_code : '',
+    };
+  });
+
+  const totalQuestions =
+    typeof row.total_questions === 'number' ? row.total_questions : rawQuestions.length;
+  const score = typeof row.score === 'number' ? row.score : 0;
+
+  // `correct_answers` n'existe pas en base : on compte les réponses marquées
+  // correctes, et à défaut on le déduit du score.
+  const answeredCorrect = Object.values(answers).filter((a) => a?.correct === true).length;
+  const correctAnswers =
+    Object.keys(answers).length > 0
+      ? answeredCorrect
+      : Math.round((score / 100) * totalQuestions);
+
+  const date = row.completed_at ?? row.created_at ?? row.started_at ?? new Date().toISOString();
+
+  // Durée réelle de la session, en secondes.
+  let duration = 0;
+  if (row.started_at && row.completed_at) {
+    const delta =
+      new Date(row.completed_at).getTime() - new Date(row.started_at).getTime();
+    if (Number.isFinite(delta) && delta > 0) duration = Math.round(delta / 1000);
+  }
+
+  return {
+    id: String(row.id),
+    examType: typeof row.exam_type === 'string' && row.exam_type ? row.exam_type : 'standard',
+    score,
+    totalQuestions,
+    correctAnswers,
+    date,
+    duration,
+    questions,
+  };
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+// Valeurs réellement écrites en base : 'standard' (useExamMode) et
+// 'ai_generated' (useAIExam). Tout autre type est affiché tel quel.
 function examTypeLabel(type: string): string {
   const map: Record<string, string> = {
-    qcm: 'QCM',
-    cas_clinique: 'Cas clinique',
-    dp: 'Dossier progressif',
-    qi: 'Question isolée',
+    standard: 'Examen standard',
+    ai_generated: 'Examen généré par IA',
+    national_simulation: 'Simulation nationale',
   };
   return map[type] ?? type;
 }
@@ -255,8 +296,8 @@ export const ExamHistory: React.FC = React.memo(() => {
 
   // Data state
   const [history, setHistory] = useState<ExamHistoryEntry[]>([]);
-  const [ranking, setRanking] = useState<ExamRanking | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(true);
 
   // Filter state
   const [typeFilter, setTypeFilter] = useState('all');
@@ -273,48 +314,53 @@ export const ExamHistory: React.FC = React.memo(() => {
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        // Attempt to load from Supabase
         const { data: sessionUser } = await supabase.auth.getUser();
 
-        if (sessionUser?.user) {
-          const { data, error } = await supabase
-            .from('exam_results' as any)
-            .select('*')
-            .eq('user_id', sessionUser.user.id)
-            .order('created_at', { ascending: false });
-
-          if (!error && data && (data as any[]).length > 0) {
-            const mapped: ExamHistoryEntry[] = (data as any[]).map((row: any) => ({
-              id: row.id,
-              examType: row.exam_type ?? 'qcm',
-              score: row.score ?? 0,
-              totalQuestions: row.total_questions ?? 0,
-              correctAnswers: row.correct_answers ?? 0,
-              date: row.created_at,
-              duration: row.duration ?? 0,
-              specialty: row.specialty ?? 'Général',
-              questions: row.questions ?? [],
-            }));
-            setHistory(mapped);
-            setRanking(generateMockRanking());
-            setLoading(false);
-            return;
-          }
+        if (!sessionUser?.user) {
+          // Pas de session : pas d'historique. On ne fabrique rien.
+          setAuthenticated(false);
+          setHistory([]);
+          return;
         }
 
-        // Fallback to mock data for demo / unauthenticated users
-        setHistory(generateMockHistory());
-        setRanking(generateMockRanking());
+        setAuthenticated(true);
+        const userId = sessionUser.user.id;
+
+        // Les deux tables d'historique réellement présentes en base.
+        const [standard, ai] = await Promise.all([
+          supabase
+            .from('exam_history')
+            .select('*')
+            .eq('user_id', userId)
+            .order('completed_at', { ascending: false }),
+          supabase
+            .from('ai_exam_history')
+            .select('*')
+            .eq('user_id', userId)
+            .order('completed_at', { ascending: false }),
+        ]);
+
+        const firstError = standard.error ?? ai.error;
+        if (firstError) throw firstError;
+
+        const merged = [
+          ...((standard.data ?? []) as Record<string, any>[]),
+          ...((ai.data ?? []) as Record<string, any>[]),
+        ]
+          .map(mapExamRow)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        setHistory(merged);
       } catch (err) {
-        console.error('Erreur lors du chargement de l\'historique :', err);
+        console.error("Erreur lors du chargement de l'historique :", err);
+        // L'échec est signalé au lieu d'être masqué par des données fictives.
+        setHistory([]);
         toast({
           title: 'Erreur',
-          description: "Impossible de charger l'historique des examens.",
+          description:
+            (err as Error)?.message ?? "Impossible de charger l'historique des examens.",
           variant: 'destructive',
         });
-        // Still provide mock data so the UI is not empty
-        setHistory(generateMockHistory());
-        setRanking(generateMockRanking());
       } finally {
         setLoading(false);
       }
@@ -327,6 +373,15 @@ export const ExamHistory: React.FC = React.memo(() => {
   // --------------------------------------------------
   // Filtering
   // --------------------------------------------------
+  // Les types proposés au filtre sont ceux réellement présents dans l'historique.
+  const examTypeOptions = useMemo(() => {
+    const types = Array.from(new Set(history.map((e) => e.examType))).sort();
+    return [
+      { value: 'all', label: "Tous les types" },
+      ...types.map((t) => ({ value: t, label: examTypeLabel(t) })),
+    ];
+  }, [history]);
+
   const filteredHistory = useMemo(() => {
     return history.filter((entry) => {
       // Type filter
@@ -362,28 +417,6 @@ export const ExamHistory: React.FC = React.memo(() => {
         score: entry.score,
         type: examTypeLabel(entry.examType),
       }));
-  }, [filteredHistory]);
-
-  // --------------------------------------------------
-  // Chart data: performance by specialty
-  // --------------------------------------------------
-  const specialtyData = useMemo(() => {
-    const map: Record<string, { total: number; sum: number }> = {};
-    filteredHistory.forEach((entry) => {
-      if (!map[entry.specialty]) {
-        map[entry.specialty] = { total: 0, sum: 0 };
-      }
-      map[entry.specialty].total += 1;
-      map[entry.specialty].sum += entry.score;
-    });
-
-    return Object.entries(map)
-      .map(([specialty, { total, sum }]) => ({
-        specialty,
-        moyenne: Math.round(sum / total),
-        examens: total,
-      }))
-      .sort((a, b) => b.moyenne - a.moyenne);
   }, [filteredHistory]);
 
   // --------------------------------------------------
@@ -509,7 +542,7 @@ export const ExamHistory: React.FC = React.memo(() => {
                   <SelectValue placeholder="Tous les types" />
                 </SelectTrigger>
                 <SelectContent>
-                  {EXAM_TYPES.map((t) => (
+                  {examTypeOptions.map((t) => (
                     <SelectItem key={t.value} value={t.value}>
                       {t.label}
                     </SelectItem>
@@ -564,8 +597,6 @@ export const ExamHistory: React.FC = React.memo(() => {
         <TabsList>
           <TabsTrigger value="list">Liste</TabsTrigger>
           <TabsTrigger value="progression">Progression</TabsTrigger>
-          <TabsTrigger value="specialties">Spécialités</TabsTrigger>
-          <TabsTrigger value="ranking">Classement</TabsTrigger>
         </TabsList>
 
         {/* ============================================================== */}
@@ -576,7 +607,11 @@ export const ExamHistory: React.FC = React.memo(() => {
             <Card>
               <CardContent className="flex min-h-[200px] items-center justify-center">
                 <p className="text-sm text-muted-foreground">
-                  Aucun examen ne correspond aux filtres sélectionnés.
+                  {!authenticated
+                    ? 'Connectez-vous pour retrouver vos examens passés.'
+                    : history.length === 0
+                      ? "Vous n'avez pas encore passé d'examen. Votre historique apparaîtra ici."
+                      : 'Aucun examen ne correspond aux filtres sélectionnés.'}
                 </p>
               </CardContent>
             </Card>
@@ -598,9 +633,6 @@ export const ExamHistory: React.FC = React.memo(() => {
                       </Badge>
                       <span className="text-sm font-semibold">
                         {examTypeLabel(entry.examType)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {entry.specialty}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {entry.correctAnswers}/{entry.totalQuestions} bonnes réponses
@@ -688,114 +720,6 @@ export const ExamHistory: React.FC = React.memo(() => {
           </Card>
         </TabsContent>
 
-        {/* ============================================================== */}
-        {/* Tab : Spécialités */}
-        {/* ============================================================== */}
-        <TabsContent value="specialties">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                Performance par spécialité
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {specialtyData.length === 0 ? (
-                <p className="py-10 text-center text-sm text-muted-foreground">
-                  Aucune donnée disponible pour les filtres sélectionnés.
-                </p>
-              ) : (
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart
-                    data={specialtyData}
-                    layout="vertical"
-                    margin={{ left: 120, right: 20, top: 10, bottom: 10 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" domain={[0, 100]} unit=" %" tick={{ fontSize: 12 }} />
-                    <YAxis
-                      type="category"
-                      dataKey="specialty"
-                      tick={{ fontSize: 12 }}
-                      width={110}
-                    />
-                    <Tooltip
-                      formatter={(value: number, _name: string, props: any) => [
-                        `${value} % (${props.payload.examens} examen${props.payload.examens > 1 ? 's' : ''})`,
-                        'Moyenne',
-                      ]}
-                    />
-                    <Bar
-                      dataKey="moyenne"
-                      fill="#3b82f6"
-                      radius={[0, 4, 4, 0]}
-                      barSize={20}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ============================================================== */}
-        {/* Tab : Classement anonyme */}
-        {/* ============================================================== */}
-        <TabsContent value="ranking">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Users className="h-5 w-5 text-primary" />
-                Classement anonyme
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {ranking ? (
-                <div className="space-y-6">
-                  {/* Position highlight */}
-                  <div className="flex flex-col items-center gap-2 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-8 text-center">
-                    <Trophy className="h-10 w-10 text-yellow-500" />
-                    <p className="text-4xl font-extrabold text-primary">
-                      {ranking.position}
-                      <span className="text-lg font-medium text-muted-foreground">
-                        {' '}/ {ranking.totalUsers}
-                      </span>
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Vous êtes dans le top {100 - ranking.percentile} % des utilisateurs
-                    </p>
-                  </div>
-
-                  {/* Percentile bar */}
-                  <div>
-                    <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>0 %</span>
-                      <span>Votre percentile : {ranking.percentile} %</span>
-                      <span>100 %</span>
-                    </div>
-                    <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-700"
-                        style={{ width: `${ranking.percentile}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Disclaimer */}
-                  <p className="rounded-md border border-dashed border-muted-foreground/30 p-3 text-center text-xs text-muted-foreground">
-                    Le classement est entièrement anonyme. Aucune donnée personnelle n'est
-                    partagée avec les autres utilisateurs. Les positions sont recalculées
-                    quotidiennement.
-                  </p>
-                </div>
-              ) : (
-                <p className="py-10 text-center text-sm text-muted-foreground">
-                  Le classement n'est pas disponible pour le moment.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

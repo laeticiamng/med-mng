@@ -46,6 +46,17 @@ import NotFound from "./pages/NotFound";
 
 // 🎵 EDN PAGES
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
+// 📄 Fiche d'un item EDN : une sous-page par écran, chargée à la demande.
+// Ouvrir l'aperçu ne télécharge plus le quiz, la scène, les planches ni le récit.
+const EdnItemLayout = lazy(() => import("./pages/edn-item/EdnItemLayout"));
+const EdnItemApercu = lazy(() => import("./pages/edn-item/EdnItemApercu"));
+const EdnItemRangA = lazy(() => import("./pages/edn-item/EdnItemRangA"));
+const EdnItemRangB = lazy(() => import("./pages/edn-item/EdnItemRangB"));
+const EdnItemQuiz = lazy(() => import("./pages/edn-item/EdnItemQuiz"));
+const EdnItemStats = lazy(() => import("./pages/edn-item/EdnItemStats"));
+const EdnItemMusique = lazy(() => import("./pages/edn-item/EdnItemMusique"));
+const EdnItemPlanches = lazy(() => import("./pages/edn-item/EdnItemPlanches"));
+const EdnItemRecit = lazy(() => import("./pages/edn-item/EdnItemRecit"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
@@ -172,7 +183,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const About = lazy(() => import("./pages/About"));
 
 // 📈 SEO PILLAR PAGES
-const PreparationEcos2026 = lazy(() => import("./pages/seo/PreparationEcos2026"));
+const PreparationEcos2027 = lazy(() => import("./pages/seo/PreparationEcos2027"));
 const ReussirEdn = lazy(() => import("./pages/seo/ReussirEdn"));
 const FichesEcosInteractives = lazy(() => import("./pages/seo/FichesEcosInteractives"));
 const SimulationExamenEdn = lazy(() => import("./pages/seo/SimulationExamenEdn"));
@@ -191,6 +202,13 @@ const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const EdnSlugRedirect = () => {
   const { slug } = useParams();
   return <Navigate to={`/edn-complete/${slug}`} replace />;
+};
+
+// 🔄 `/edn-complete/:slug` et tout segment inconnu → l'aperçu de l'item.
+// Aucune ancienne URL ne casse : elles atterrissent toutes sur la fiche.
+const EdnItemApercuRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/edn-complete/${slug}/apercu`} replace />;
 };
 
 // ⚡ QueryClient Configuration
@@ -253,7 +271,18 @@ const App = () => {
 
                                     {/* EDN */}
                                     <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
-                                    <Route path={ROUTE_PATHS.ednCompleteDetail} element={<S><EdnComplete /></S>} />
+                                    <Route path={ROUTE_PATHS.ednCompleteDetail} element={<S><EdnItemLayout /></S>}>
+                                      <Route index element={<EdnItemApercuRedirect />} />
+                                      <Route path="apercu" element={<S><EdnItemApercu /></S>} />
+                                      <Route path="rang-a" element={<S><EdnItemRangA /></S>} />
+                                      <Route path="rang-b" element={<S><EdnItemRangB /></S>} />
+                                      <Route path="quiz" element={<S><EdnItemQuiz /></S>} />
+                                      <Route path="stats" element={<S><EdnItemStats /></S>} />
+                                      <Route path="musique" element={<S><EdnItemMusique /></S>} />
+                                      <Route path="planches" element={<S><EdnItemPlanches /></S>} />
+                                      <Route path="recit" element={<S><EdnItemRecit /></S>} />
+                                      <Route path="*" element={<EdnItemApercuRedirect />} />
+                                    </Route>
                                     <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<EdnSlugRedirect />} />
                                     <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
@@ -302,7 +331,8 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.about} element={<S><About /></S>} />
 
                                     {/* SEO Pillar Pages */}
-                                    <Route path={ROUTE_PATHS.seoPreparationEcos} element={<S><PreparationEcos2026 /></S>} />
+                                    <Route path={ROUTE_PATHS.seoPreparationEcos} element={<S><PreparationEcos2027 /></S>} />
+                                    <Route path={ROUTE_PATHS.seoPreparationEcosLegacy} element={<Navigate to={ROUTE_PATHS.seoPreparationEcos} replace />} />
                                     <Route path={ROUTE_PATHS.seoReussirEdn} element={<S><ReussirEdn /></S>} />
                                     <Route path={ROUTE_PATHS.seoFichesEcos} element={<S><FichesEcosInteractives /></S>} />
                                     <Route path={ROUTE_PATHS.seoSimulationEdn} element={<S><SimulationExamenEdn /></S>} />

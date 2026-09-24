@@ -48,7 +48,7 @@ export const MVPFooter = () => {
           {/* Copyright */}
           <div className="text-center md:text-right text-xs text-muted-foreground">
             <p>© 2026 EmotionsCare SASU</p>
-            <p className="text-[10px] mt-1">Made with ❤️ for medical students</p>
+            <p className="text-[10px] mt-1">Conçu pour les étudiants en médecine</p>
           </div>
         </div>
       </div>

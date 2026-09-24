@@ -9,16 +9,31 @@ export const ROUTE_PATHS = {
   platformSettings: '/platform-settings',
   optimizedIndex: '/optimized',
   generator: '/generator',
-  sharedMusic: '/shared-music/:trackId',
-  sharedMusicIndex: '/shared-music',
   ednComplete: '/edn-complete',
+  // Fiche d'un item : route parente + une sous-page par écran. L'ancienne
+  // modale à neuf onglets (EdnItemModal) montait les neuf contenus d'un coup ;
+  // chaque écran est maintenant une URL propre, chargée en lazy.
+  // `/edn-complete/:slug` (sans segment) redirige vers l'aperçu.
   ednCompleteDetail: '/edn-complete/:slug',
+  ednItemApercu: '/edn-complete/:slug/apercu',
+  ednItemRangA: '/edn-complete/:slug/rang-a',
+  ednItemRangB: '/edn-complete/:slug/rang-b',
+  ednItemQuiz: '/edn-complete/:slug/quiz',
+  ednItemStats: '/edn-complete/:slug/stats',
+  ednItemMusique: '/edn-complete/:slug/musique',
+  ednItemPlanches: '/edn-complete/:slug/planches',
+  ednItemRecit: '/edn-complete/:slug/recit',
   ednImmersive: '/edn/:slug/immersive',
   ednMusicLibrary: '/edn/music-library',
   ecosIndex: '/ecos',
   ecosScenario: '/ecos/:scenarioId',
-  store: '/store',
-  productDetail: '/product/:handle',
+  // CONSTAT : le commit ca5d38cb a supprimé 9 pages d'un coup (B2B, CommunityHub,
+  // KaraokePage, MoodTracker, Pomodoro, ProductDetail, SharedMusic, SharedMusicIndex,
+  // Store) sans nettoyer ce fichier : 9 chemins déclarés ici n'avaient plus aucune
+  // <Route> dans App.tsx, et ceux qui étaient encore liés (b2b, community, store)
+  // renvoyaient une 404. Les 8 clés mortes ont été supprimées et leurs liens retirés.
+  // 'b2b' est conservé volontairement : la page pourra être restaurée après relecture
+  // de ses promesses commerciales (git show ca5d38cb^:src/pages/B2B.tsx).
   audit: '/audit',
   auditCompleteness: '/audit-completeness',
   migrationDashboard: '/migration-dashboard',
@@ -64,7 +79,6 @@ export const ROUTE_PATHS = {
   securityMonitoring: '/security-monitoring',
   statistics: '/statistics',
   studyPlanner: '/study-planner',
-  community: '/community',
   homepage: '/homepage',
   achievements: '/achievements',
   favorites: '/favorites',
@@ -99,9 +113,6 @@ export const ROUTE_PATHS = {
   leaderboard: '/leaderboard',
   dailyChallenges: '/daily-challenges',
   myGoals: '/my-goals',
-  moodTracker: '/mood-tracker',
-  pomodoro: '/pomodoro',
-  karaoke: '/karaoke/:songId?',
   executiveDashboard: '/executive-dashboard',
   // Démo publique
   demo: '/demo',
@@ -117,7 +128,9 @@ export const ROUTE_PATHS = {
   // Raccourcis publics
   createShortcut: '/create',
   // 📈 SEO Pillar Pages
-  seoPreparationEcos: '/preparation-ecos-2026',
+  seoPreparationEcos: '/preparation-ecos-2027',
+  /** Ancienne URL, redirigée vers seoPreparationEcos. */
+  seoPreparationEcosLegacy: '/preparation-ecos-2026',
   seoReussirEdn: '/reussir-edn',
   seoFichesEcos: '/fiches-ecos-interactives',
   seoSimulationEdn: '/simulation-examen-edn',

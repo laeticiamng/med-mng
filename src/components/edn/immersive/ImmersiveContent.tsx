@@ -21,6 +21,9 @@ interface ImmersiveItem {
   tableau_rang_a?: Json;
   tableau_rang_b?: Json;
   paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   interaction_config?: Json;
   quiz_questions?: Json;
 }
@@ -158,8 +161,13 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         return (
           <div>
             {/* Toujours afficher la section, même si les paroles sont incomplètes */}
+            {/* Sans ces trois props, seule la section Rang A s'affichait :
+                les variantes Rang B et Fusion A+B annoncées restaient invisibles. */}
             <ParolesMusicales
               paroles={item.paroles_musicales || []}
+              paroles_rang_a={item.paroles_rang_a}
+              paroles_rang_b={item.paroles_rang_b}
+              paroles_rang_ab={item.paroles_rang_ab}
               itemCode={item.item_code}
               tableauRangA={item.tableau_rang_a as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
               tableauRangB={item.tableau_rang_b as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}

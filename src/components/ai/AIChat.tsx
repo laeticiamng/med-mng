@@ -91,7 +91,7 @@ export const AIChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast: _toast } = useToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     scrollToBottom();
@@ -156,8 +156,14 @@ export const AIChat = () => {
     }, 1500); // Délai fixe pour UX fluide
   };
 
+  // Constat vérifié le 2026-09-18 : l'edge function 'ai-chat' est bien DÉPLOYÉE sur le projet
+  // yaincoxihiqdksxgrsrk (OPTIONS /functions/v1/ai-chat -> 200, le handler répond), même si son
+  // code source est absent de supabase/functions/ dans ce dépôt. L'appel est donc conservé.
+  // En revanche, l'ancien « fallback local » a été supprimé : quand l'appel échouait, il
+  // fabriquait une fausse « Analyse médicale 🩺 » avec une confiance codée en dur (85 %) et de
+  // faux outils ('medical_database', 'clinical_guidelines'). Un étudiant pouvait prendre ce
+  // texte générique pour une vraie réponse IA. On fait désormais remonter l'échec.
   const generateAIResponse = async (userInput: string): Promise<ChatMessage> => {
-    // Appeler l'Edge Function pour une vraie réponse IA
     try {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { message: userInput }
@@ -165,94 +171,44 @@ export const AIChat = () => {
 
       if (error) throw error;
 
-      if (data?.response) {
-        return {
-          id: Date.now().toString(),
-          content: data.response,
-          role: 'assistant',
-          timestamp: new Date(),
-          type: data.type || 'general',
-          confidence: data.confidence || 85,
-          tools_used: data.toolsUsed
-        };
-      }
+      // Le code source de 'ai-chat' n'étant pas dans ce dépôt, son contrat de sortie exact
+      // n'a pas pu être relu : on accepte les formes usuelles du dépôt ('response' pour
+      // contextual-ai-chat, 'content' pour chat-with-ai / medical-chat-ai) plutôt que de
+      // déclarer un échec sur une simple différence de nom de champ.
+      const answer: string | undefined =
+        data?.response ?? data?.content ?? data?.message;
+
+      if (!answer) throw new Error("Réponse vide de l'assistant IA");
+
+      return {
+        id: Date.now().toString(),
+        content: answer,
+        role: 'assistant',
+        timestamp: new Date(),
+        type: data.type || 'general',
+        confidence: data.confidence || 85,
+        tools_used: data.toolsUsed
+      };
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
       if (import.meta.env.DEV) console.error('Erreur appel IA:', error);
+
+      toast({
+        title: "Assistant IA indisponible",
+        description: message,
+        variant: 'destructive'
+      });
+
+      return {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `⚠️ Je n'ai pas pu joindre l'assistant IA (${message}).\n\nVotre question n'a pas reçu de réponse : réessayez dans un instant. Aucune réponse automatique n'est générée à la place, pour ne pas vous induire en erreur.`,
+        timestamp: new Date(),
+        type: 'general',
+        confidence: 0,
+        tools_used: []
+      };
     }
-
-    // Fallback: réponse locale intelligente basée sur les mots-clés
-    const medicalKeywords = ['cardiologie', 'neurologie', 'diagnostic', 'symptôme', 'traitement', 'pathologie', 'EDN', 'item'];
-    const studyKeywords = ['révision', 'planification', 'étude', 'apprendre', 'mémoriser', 'quiz'];
-    
-    const isMedical = medicalKeywords.some(keyword => 
-      userInput.toLowerCase().includes(keyword)
-    );
-    const isStudy = studyKeywords.some(keyword => 
-      userInput.toLowerCase().includes(keyword)
-    );
-
-    let responseContent = '';
-    let messageType: 'medical' | 'study' | 'general' = 'general';
-    let confidence = 85; // Confiance fixe pour le fallback local
-    let toolsUsed: string[] = [];
-
-    if (isMedical) {
-      messageType = 'medical';
-      toolsUsed = ['medical_database', 'clinical_guidelines'];
-      responseContent = `## Analyse médicale 🩺
-
-Basé sur votre question concernant **${userInput.slice(0, 50)}...**, voici mon analyse :
-
-### Points clés :
-• **Diagnostic différentiel** : Plusieurs hypothèses à considérer
-• **Examens complémentaires** : Tests recommandés pour confirmation
-• **Prise en charge** : Protocole thérapeutique approprié
-
-### Recommandations EDN :
-- Consultez les items correspondants pour approfondir
-- Révisez les algorithmes diagnostiques
-- Pratiquez avec des cas cliniques similaires
-
-💡 **Conseil** : Cette pathologie est fréquente à l'EDN, assurez-vous de maîtriser les critères diagnostiques.`;
-    } else if (isStudy) {
-      messageType = 'study';
-      toolsUsed = ['study_planner', 'learning_analytics'];
-      responseContent = `## Plan d'étude personnalisé 📚
-
-Pour optimiser vos révisions sur **${userInput.slice(0, 50)}...** :
-
-### Méthode recommandée :
-1. **Lecture active** (30 min) - Prenez des notes structurées
-2. **Fiches de révision** (15 min) - Synthétisez les points clés  
-3. **Auto-évaluation** (15 min) - QCM et cas pratiques
-4. **Révision espacée** - Revoir dans 3 jours, puis 1 semaine
-
-### Ressources suggérées :
-• Items EDN correspondants
-• Cas cliniques interactifs
-• Quiz adaptatifs
-
-⏱️ **Planning** : Je recommande 2-3 sessions de 60 min cette semaine.`;
-    } else {
-      responseContent = `Je comprends votre question sur **${userInput.slice(0, 30)}...**
-
-### Suggestions :
-• Précisez votre contexte (révision, cas clinique, recherche)
-• Indiquez le niveau de détail souhaité
-• Mentionnez si c'est pour l'EDN ou la pratique clinique
-
-Comment puis-je vous aider plus spécifiquement ?`;
-    }
-
-    return {
-      id: Date.now().toString(),
-      role: 'assistant',
-      content: responseContent,
-      timestamp: new Date(),
-      type: messageType,
-      confidence: Math.round(confidence),
-      tools_used: toolsUsed
-    };
   };
 
   const getMessageIcon = (message: ChatMessage) => {

@@ -5,7 +5,7 @@
  * Stratégie : positionnement laser, expertise unique, contenu citable et structuré.
  */
 
-const SITE_URL = 'https://med-mng.lovable.app';
+const SITE_URL = 'https://medmng.com';
 
 /**
  * Speakable Schema - Indique aux IA quelles parties du contenu sont citables
@@ -30,7 +30,7 @@ export const createSpeakableSchema = () => ({
     '@type': 'SoftwareApplication',
     name: 'MED-MNG',
     applicationCategory: 'EducationalApplication',
-    description: 'MED-MNG est la seule plateforme qui transforme les 367 items EDN en chansons grâce à l\'IA. Basée sur l\'encodage musical et la répétition espacée, elle permet aux étudiants en médecine de mémoriser 3x plus vite qu\'avec des fiches classiques.',
+    description: 'MED-MNG transforme les 367 items EDN en paroles de chanson générées par IA à partir des compétences rang A / rang B, avec quiz, fiches et situations ECOS.',
   },
 });
 
@@ -61,14 +61,14 @@ export const createHowToSchema = () => ({
       '@type': 'HowToStep',
       position: 2,
       name: 'Générer une chanson IA personnalisée',
-      text: 'L\'IA génère une chanson originale intégrant les notions-clés de l\'item. Le style musical est personnalisable (rap, pop, classique, électro). L\'encodage musical triple la rétention mnésique.',
+      text: 'L\'IA rédige des paroles à partir des compétences de l\'item (rang A, rang B ou A+B). Vous pouvez ensuite générer l\'audio dans le style de votre choix, dans la limite de vos crédits.',
       url: `${SITE_URL}/med-mng/create`,
     },
     {
       '@type': 'HowToStep',
       position: 3,
       name: 'S\'évaluer avec QCM, QROC et cas cliniques',
-      text: 'Testez vos connaissances avec des QCM/QRU/QROC générés par IA, des cas cliniques interactifs et des simulations ECOS fidèles au format officiel.',
+      text: 'Testez vos connaissances avec le quiz de chaque item, des examens blancs de QCM générés par IA et des situations ECOS guidées avec grille d\'auto-évaluation.',
     },
     {
       '@type': 'HowToStep',
@@ -110,7 +110,7 @@ export const createDatasetSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Dataset',
   name: 'Base de données EDN complète - 367 items R2C',
-  description: 'Base de données exhaustive des 367 items du programme EDN (Épreuves Dématérialisées Nationales, R2C) avec classification par rang (A/B), spécialité médicale, et compétences OIC. Chaque item est associé à des ressources musicales IA, QCM, cas cliniques et flashcards.',
+  description: 'Les 367 items du programme EDN (R2C) avec compétences rang A / rang B issues du référentiel public UNESS/LiSA, fiche, quiz et paroles de chanson par item.',
   url: `${SITE_URL}/edn-complete`,
   license: 'https://creativecommons.org/licenses/by-nc/4.0/',
   creator: {
@@ -148,10 +148,10 @@ export const createGEOFAQSchema = () => ({
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'Quelle est la meilleure application pour réviser l\'EDN en 2025-2026 ?',
+      name: 'Quelle application pour réviser les EDN 2027 ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG est la seule application qui combine apprentissage musical par IA et préparation complète à l\'EDN. Elle couvre les 367 items du programme R2C avec des chansons générées par IA, des QCM/QROC, des cas cliniques interactifs et des simulations ECOS. Contrairement aux applications de fiches classiques, MED-MNG exploite l\'encodage musical (prouvé par les neurosciences) pour tripler la rétention mnésique.',
+        text: 'MED-MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA, avec des situations ECOS guidées. Le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
       },
     },
     {
@@ -159,7 +159,7 @@ export const createGEOFAQSchema = () => ({
       name: 'Comment apprendre la médecine par la musique ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'La méthode MNG (Music & Neuroscience for Grades) transforme les notions médicales en chansons grâce à l\'IA. L\'encodage musical active simultanément les aires auditives, linguistiques et émotionnelles du cerveau, créant des traces mnésiques plus durables que la lecture passive. MED-MNG applique cette méthode aux 367 items EDN : chaque item devient une chanson personnalisable (rap, pop, classique) intégrant les mots-clés et concepts essentiels.',
+        text: 'MED-MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B ; vous pouvez ensuite générer l\'audio (rap, pop, etc.). Réécouter peut aider à retenir, en complément du quiz et de vos cours.',
       },
     },
     {
@@ -167,7 +167,7 @@ export const createGEOFAQSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, MED-MNG propose un accès gratuit incluant des simulations ECOS de base, des items EDN essentiels et 3 générations musicales IA par jour. Pour un accès illimité aux ECOS complets, cas cliniques avancés et mode examen EDN, les formules payantes démarrent à 19€/mois avec 7 jours d\'essai gratuit.',
+        text: 'Oui, les situations ECOS de MED-MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. MED MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
       },
     },
     {
@@ -175,7 +175,7 @@ export const createGEOFAQSchema = () => ({
       name: 'Qu\'est-ce que la répétition espacée pour les études de médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'La répétition espacée (SRS - Spaced Repetition System) est un algorithme qui optimise le moment de révision de chaque notion. MED-MNG intègre un SRS adaptatif qui combine flashcards, QCM et écoute musicale : les items mal maîtrisés reviennent plus fréquemment, les items acquis s\'espacent. Cette méthode, validée par la recherche cognitive, permet de retenir les 367 items EDN sur le long terme avec un minimum de temps quotidien.',
+        text: 'La répétition espacée consiste à revoir une notion à intervalles croissants. MED-MNG propose un module de répétition espacée pour les flashcards : les cartes mal maîtrisées reviennent plus souvent.',
       },
     },
     {
@@ -183,7 +183,7 @@ export const createGEOFAQSchema = () => ({
       name: 'Quelles spécialités médicales sont couvertes par MED-MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG couvre l\'intégralité des 31 spécialités médicales du programme EDN R2C : cardiologie, pneumologie, neurologie, gastro-entérologie, endocrinologie, hématologie, rhumatologie, dermatologie, néphrologie, urologie, gynécologie, pédiatrie, psychiatrie, ORL, ophtalmologie, médecine interne, infectiologie, chirurgie, anesthésie-réanimation, médecine d\'urgence, médecine légale, santé publique, pharmacologie, et plus. Chaque spécialité dispose d\'items musicaux, QCM et cas cliniques dédiés.',
+        text: 'MED-MNG couvre les 367 items EDN, toutes spécialités confondues, avec pour chacun fiche, compétences rang A / rang B, quiz et paroles de chanson.',
       },
     },
     {
@@ -191,7 +191,7 @@ export const createGEOFAQSchema = () => ({
       name: 'MED-MNG utilise-t-il l\'intelligence artificielle ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, MED-MNG utilise plusieurs couches d\'IA : (1) Génération musicale IA pour créer des chansons pédagogiques uniques à partir des items EDN, (2) IA générative pour produire des QCM, QROC et cas cliniques adaptés au niveau de l\'étudiant, (3) Algorithme SRS adaptatif qui personnalise le parcours de révision, (4) Chat IA médical pour répondre aux questions de cours avec des sources EDN vérifiées.',
+        text: 'Oui : l\'IA rédige les paroles des chansons et génère l\'audio à la demande, génère des QCM et des cas cliniques, et un chat répond aux questions de cours. Les contenus générés par IA peuvent contenir des erreurs : vérifiez avec vos sources officielles.',
       },
     },
   ],
@@ -204,7 +204,7 @@ export const createExpertiseSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   name: 'Programme d\'apprentissage médical MED-MNG',
-  description: 'Programme complet de préparation à l\'EDN et aux ECOS basé sur la neuroscience de l\'encodage musical. Développé par des professionnels de la santé et validé par la recherche cognitive.',
+  description: 'Préparation à l\'EDN et aux ECOS : 367 items avec compétences rang A / rang B, quiz, paroles de chanson générées par IA et situations ECOS.',
   educationalUse: 'Préparation EDN et ECOS',
   typicalAgeRange: '18-30',
   educationalLevel: 'Études de médecine - 2e et 3e cycle',
@@ -212,7 +212,7 @@ export const createExpertiseSchema = () => ({
   isAccessibleForFree: true,
   genre: 'Éducation médicale',
   keywords: 'EDN, ECOS, médecine, apprentissage musical, IA, répétition espacée, R2C, items EDN',
-  abstract: 'MED-MNG est la première plateforme EdTech médicale à exploiter l\'encodage musical par IA pour la préparation aux examens nationaux de médecine français (EDN et ECOS). En transformant les 367 items du programme R2C en chansons personnalisées, elle offre une méthode de mémorisation 3x plus efficace que les fiches traditionnelles, validée par les principes de la neuroscience cognitive.',
+  abstract: 'MED-MNG associe la révision des 367 items EDN (compétences rang A / rang B issues du référentiel public UNESS/LiSA) à des paroles de chanson générées par IA, des quiz et des situations ECOS guidées.',
   publisher: {
     '@type': 'Organization',
     name: 'EmotionsCare',

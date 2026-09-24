@@ -33,7 +33,12 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
 }, _ref) => {
   const siteUrl = 'https://medmng.com';
   const fullTitle = `${title} - MED-MNG`;
-  const fullCanonical = canonical ? `${siteUrl}${canonical}` : undefined;
+  // Un canonical déjà absolu ne doit PAS être re-préfixé : sinon on obtenait
+  // `https://medmng.comhttps://medmng.com/`, une URL invalide servie à Google
+  // et aux aperçus sociaux (constaté en production le 18/09).
+  const fullCanonical = canonical
+    ? (/^https?:\/\//i.test(canonical) ? canonical : `${siteUrl}${canonical}`)
+    : undefined;
   const defaultImage = `${siteUrl}/og-image.png`;
 
   return (

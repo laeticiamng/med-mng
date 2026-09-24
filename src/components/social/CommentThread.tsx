@@ -4,8 +4,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Heart, Loader2, Reply, Send } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Loader2, Send } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+
+// ---------------------------------------------------------------------------
+// Périmètre réel de la table `community_comments` (vérifié sur la base) :
+//   id, post_id, author_id, content, created_at, likes_count, is_empathy_template
+// Il n'existe AUCUNE table de « j'aime » par utilisateur (community_comment_likes
+// et comment_likes renvoient toutes les deux une 404 PostgREST), ni de fonction
+// RPC d'incrémentation. Impossible donc de persister un like ni de savoir si
+// l'utilisateur courant a déjà aimé un commentaire : le bouton « j'aime » a été
+// retiré plutôt que de laisser un compteur qui ment.
+// Il n'existe pas non plus de colonne `parent_id` : les réponses imbriquées ne
+// sont pas stockables, l'UI de réponse a donc été retirée elle aussi.
+// ---------------------------------------------------------------------------
 
 interface Comment {
   id: string;
@@ -13,10 +25,7 @@ interface Comment {
   authorId: string;
   authorName: string;
   content: string;
-  likes: number;
-  isLiked: boolean;
   createdAt: string;
-  replies?: Comment[];
 }
 
 interface CommentThreadProps {
@@ -27,122 +36,104 @@ interface CommentThreadProps {
 export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentAdded }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [newComment, setNewComment] = useState('');
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyContent, setReplyContent] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadComments();
-  }, [postId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const { data: dbComments } = await (supabase as any)
+      // Uniquement des colonnes qui existent réellement : aucun embed vers une
+      // table de likes (elle n'existe pas, l'embed renvoyait une erreur 400).
+      const { data, error } = await supabase
         .from('community_comments')
-        .select('*, community_comment_likes(user_id)')
+        .select('id, post_id, author_id, content, created_at')
         .eq('post_id', postId)
         .order('created_at', { ascending: true });
 
-      if (dbComments) {
-        const formatted: Comment[] = dbComments.map((c: any) => ({
-          id: c.id,
-          postId: c.post_id,
-          authorId: c.user_id,
-          authorName: c.author_name || 'Utilisateur',
-          content: c.content,
-          likes: c.likes_count || 0,
-          isLiked: user ? c.community_comment_likes?.some((l: any) => l.user_id === user.id) : false,
-          createdAt: c.created_at,
-          replies: []
-        }));
-        setComments(formatted);
+      if (error) throw error;
+
+      const rows = data ?? [];
+
+      // `community_comments` n'a pas de colonne `author_name` et aucune clé
+      // étrangère vers `profiles` : on résout les pseudos en une requête séparée.
+      const authorIds = Array.from(new Set(rows.map((r) => r.author_id).filter(Boolean)));
+      const nameById = new Map<string, string>();
+
+      if (authorIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, name')
+          .in('id', authorIds);
+
+        profiles?.forEach((p) => {
+          if (p.name) nameById.set(p.id, p.name);
+        });
       }
+
+      setComments(
+        rows.map((row) => ({
+          id: row.id,
+          postId: row.post_id,
+          authorId: row.author_id,
+          authorName: nameById.get(row.author_id) ?? 'Utilisateur',
+          content: row.content,
+          createdAt: row.created_at ?? new Date().toISOString(),
+        }))
+      );
     } catch (e) {
-      if (import.meta.env.DEV) console.error('Error loading comments:', e);
+      if (import.meta.env.DEV) console.error('Erreur de chargement des commentaires :', e);
+      setComments([]);
+      toast({
+        title: 'Commentaires indisponibles',
+        description: (e as Error)?.message ?? 'Impossible de charger les commentaires.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId, toast]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
 
   const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || submitting) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      toast({ title: "Connexion requise", variant: "destructive" });
+      toast({ title: 'Connexion requise', variant: 'destructive' });
       return;
     }
 
+    setSubmitting(true);
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('name')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      await (supabase as any).from('community_comments').insert({
+      // Colonnes réelles de la table : post_id, author_id, content.
+      const { error } = await supabase.from('community_comments').insert({
         post_id: postId,
-        user_id: user.id,
-        author_name: profile?.name || user.email?.split('@')[0],
-        content: newComment
+        author_id: user.id,
+        content: newComment.trim(),
       });
 
-      // Update comment count on post
-      await (supabase as any).rpc('increment_comment_count', { post_id: postId });
+      // L'erreur est remontée à l'utilisateur : pas de repli local qui ferait
+      // croire que le commentaire est enregistré alors qu'il ne l'est pas.
+      if (error) throw error;
 
       setNewComment('');
-      loadComments();
+      await loadComments();
       onCommentAdded?.();
-      toast({ title: "Commentaire ajouté !" });
+      toast({ title: 'Commentaire publié !' });
     } catch (e) {
-      if (import.meta.env.DEV) console.error('Error adding comment:', e);
-      // Fallback local
-      const comment: Comment = {
-        id: Date.now().toString(),
-        postId,
-        authorId: user.id,
-        authorName: 'Vous',
-        content: newComment,
-        likes: 0,
-        isLiked: false,
-        createdAt: new Date().toISOString()
-      };
-      setComments(prev => [...prev, comment]);
-      setNewComment('');
-      toast({ title: "Commentaire ajouté !" });
+      if (import.meta.env.DEV) console.error('Erreur à la publication du commentaire :', e);
+      toast({
+        title: 'Publication impossible',
+        description: (e as Error)?.message ?? "Votre commentaire n'a pas pu être enregistré.",
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
     }
-  };
-
-  const handleLikeComment = async (commentId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const comment = comments.find(c => c.id === commentId);
-    if (!comment) return;
-
-    try {
-      if (comment.isLiked) {
-        await (supabase as any).from('community_comment_likes').delete()
-          .eq('comment_id', commentId).eq('user_id', user.id);
-      } else {
-        await (supabase as any).from('community_comment_likes').insert({
-          comment_id: commentId,
-          user_id: user.id
-        });
-      }
-    } catch (e) {
-      // Continue with local update
-    }
-
-    setComments(prev => prev.map(c =>
-      c.id === commentId
-        ? { ...c, isLiked: !c.isLiked, likes: c.isLiked ? c.likes - 1 : c.likes + 1 }
-        : c
-    ));
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -163,7 +154,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
 
   return (
     <div className="space-y-4">
-      {/* New comment input */}
+      {/* Saisie d'un nouveau commentaire */}
       <div className="flex gap-3">
         <Avatar className="h-8 w-8">
           <AvatarFallback>V</AvatarFallback>
@@ -179,16 +170,20 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
             <Button
               size="sm"
               onClick={handleSubmitComment}
-              disabled={!newComment.trim()}
+              disabled={!newComment.trim() || submitting}
             >
-              <Send className="h-4 w-4 mr-1" />
+              {submitting ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4 mr-1" />
+              )}
               Commenter
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Comments list */}
+      {/* Liste des commentaires */}
       {comments.length === 0 ? (
         <p className="text-center text-muted-foreground py-4">
           Aucun commentaire. Soyez le premier à réagir !
@@ -212,47 +207,6 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
                       </span>
                     </div>
                     <p className="text-sm">{comment.content}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2"
-                        onClick={() => handleLikeComment(comment.id)}
-                      >
-                        <Heart
-                          className={`h-4 w-4 mr-1 ${comment.isLiked ? 'fill-destructive text-destructive' : ''}`}
-                        />
-                        {comment.likes}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2"
-                        onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                      >
-                        <Reply className="h-4 w-4 mr-1" />
-                        Répondre
-                      </Button>
-                    </div>
-
-                    {/* Reply input */}
-                    {replyingTo === comment.id && (
-                      <div className="mt-3 flex gap-2">
-                        <Textarea
-                          placeholder={`Répondre à ${comment.authorName}...`}
-                          value={replyContent}
-                          onChange={(e) => setReplyContent(e.target.value)}
-                          className="min-h-[40px] text-sm resize-none"
-                        />
-                        <Button size="sm" onClick={() => {
-                          toast({ title: "Réponse envoyée !" });
-                          setReplyingTo(null);
-                          setReplyContent('');
-                        }}>
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CardContent>

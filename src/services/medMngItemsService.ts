@@ -1,20 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
-import {
-  itemDetailSchema,
-  itemSummariesSchema,
-} from '@/schemas/medMngItemSchema';
 import type {
   ItemDetail,
+  ItemNote,
   ItemStatus,
   ItemSummary,
   ProgressOverview,
   ProgressItem,
 } from '@/types/medMngItems';
-
-const mapTags = (itemTags?: { tags?: { name?: string } }[] | null): string[] => {
-  const names = (itemTags ?? []).map(tag => tag.tags?.name).filter((n): n is string => Boolean(n));
-  return Array.from(new Set(names));
-};
 
 const mapStatus = (status?: string | ItemStatus | null): ItemStatus => {
   if (status === 'in_progress' || status === 'revised') {
@@ -29,166 +21,174 @@ const mapStatus = (status?: string | ItemStatus | null): ItemStatus => {
   return 'not_started';
 };
 
+/**
+ * SOURCE DES DONNÉES — corrigé le 18/09/2026.
+ *
+ * Ce service interrogeait `items`, `specialties`, `item_tags`, `tags`,
+ * `audios` et `fiches`. AUCUNE de ces six tables n'existe en base : la
+ * bibliothèque d'items et les favoris ne pouvaient donc rien afficher.
+ *
+ * Les données existent, mais dans une seule table dénormalisée :
+ * `edn_items_complete` (367 lignes — les 367 items annoncés sur l'accueil),
+ * qui porte déjà la spécialité, les mots-clés, les tags et les tableaux de
+ * rang A/B. Les favoris vivent dans `user_edn_favorites`, indexés par
+ * `item_code`. On branche donc sur ces tables plutôt que de recréer un
+ * schéma parallèle qui dupliquerait les mêmes informations.
+ */
+
+const COLONNES_ITEM =
+  'id, item_code, title, subtitle, slug, specialite, domaine_medical, mots_cles, ' +
+  'tags_medicaux, competences_count_rang_a, competences_count_rang_b, ' +
+  'paroles_musicales, created_at';
+
+/** Rang déduit du nombre de compétences OIC de chaque rang. */
+const deduireRang = (rangA?: number | null, rangB?: number | null): 'A' | 'B' | 'AB' | null => {
+  const a = (rangA ?? 0) > 0;
+  const b = (rangB ?? 0) > 0;
+  if (a && b) return 'AB';
+  if (a) return 'A';
+  if (b) return 'B';
+  return null;
+};
+
+const versTableauDeTextes = (valeur: unknown): string[] =>
+  Array.isArray(valeur) ? valeur.filter((v): v is string => typeof v === 'string') : [];
+
+const construireResume = (
+  ligne: any,
+  favoris: Set<string>,
+  progression: Map<string, any>,
+  itemsAvecAudio: Set<string>,
+): ItemSummary => {
+  const p = progression.get(ligne.id);
+  return {
+    id: ligne.id,
+    code: ligne.item_code,
+    title: ligne.title,
+    specialty: ligne.specialite ?? ligne.domaine_medical ?? null,
+    specialtyCode: ligne.domaine_medical ?? null,
+    itemType: 'EDN',
+    rang: deduireRang(ligne.competences_count_rang_a, ligne.competences_count_rang_b),
+    createdAt: ligne.created_at,
+    keywords: versTableauDeTextes(ligne.mots_cles),
+    tags: versTableauDeTextes(ligne.tags_medicaux),
+    status: mapStatus(p?.mastery_level),
+    lastSeenAt: p?.last_accessed ?? null,
+    isFavorite: favoris.has(ligne.item_code),
+    revisionCount: p?.attempts_count ?? 0,
+    score: p?.best_score ?? 0,
+    // `hasAudio` pilote la pastille « note de musique » de la bibliothèque.
+    // Elle était vraie dès qu'il existait un champ TEXTE `paroles_musicales`,
+    // donc sur 367 items sur 367, alors qu'aucun fichier audio n'existe.
+    // On la fait dépendre des pistes réellement générées.
+    hasAudio: itemsAvecAudio.has(ligne.item_code),
+    popularityScore: p?.attempts_count ?? 0,
+  };
+};
+
+/** Items pour lesquels une piste audio a réellement été générée. */
+const chargerItemsAvecAudio = async (): Promise<Set<string>> => {
+  const { data } = await (supabase as any)
+    .from('generated_music_tracks')
+    .select('metadata')
+    .eq('generation_status', 'completed')
+    .not('audio_url', 'is', null);
+
+  return new Set<string>(
+    (data ?? [])
+      .map((piste: any) => piste?.metadata?.itemCode)
+      .filter((code: unknown): code is string => typeof code === 'string' && code.length > 0),
+  );
+};
+
+/** Favoris et progression de la personne, en une passe. */
+const chargerContexteUtilisateur = async (userId?: string) => {
+  if (!userId) return { favoris: new Set<string>(), progression: new Map<string, any>() };
+
+  const [favorisRep, progressionRep] = await Promise.all([
+    (supabase as any).from('user_edn_favorites').select('item_code').eq('user_id', userId),
+    (supabase as any)
+      .from('user_progress')
+      .select('content_id, mastery_level, last_accessed, attempts_count, best_score')
+      .eq('user_id', userId)
+      .eq('content_type', 'item'),
+  ]);
+
+  return {
+    favoris: new Set<string>((favorisRep.data ?? []).map((f: any) => f.item_code)),
+    progression: new Map<string, any>((progressionRep.data ?? []).map((p: any) => [p.content_id, p])),
+  };
+};
+
 export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]> => {
-  const { data: itemsData, error } = await (supabase as any)
-    .from('items')
-    .select(
-      'id, code, title, type, rang, created_at, keywords, specialties(name, code), item_tags(tags(name)), audios(id)'
-    )
-    .order('created_at', { ascending: false });
+  const { data: lignes, error } = await (supabase as any)
+    .from('edn_items_complete')
+    .select(COLONNES_ITEM)
+    .eq('status', 'active')
+    .order('item_code', { ascending: true });
 
   if (error) {
     throw error;
   }
 
-  const parsedItems = itemSummariesSchema.safeParse(itemsData ?? []);
-  if (!parsedItems.success) {
-    console.error('Invalid items payload', parsedItems.error.flatten());
-    return [];
-  }
-
-  const [favoritesResponse, progressResponse] = await Promise.all([
-    userId
-      ? (supabase as any).from('favorites').select('item_id').eq('user_id', userId)
-      : Promise.resolve({ data: [] as { item_id: string }[] }),
-    userId
-      ? (supabase as any)
-          .from('user_progress')
-          .select('content_id, mastery_level, last_accessed, attempts_count, best_score')
-          .eq('user_id', userId)
-          .eq('content_type', 'item')
-      : Promise.resolve({
-          data: [] as {
-            content_id: string;
-            mastery_level: string | null;
-            last_accessed: string | null;
-            attempts_count: number | null;
-            best_score: number | null;
-          }[],
-        }),
+  const [{ favoris, progression }, itemsAvecAudio] = await Promise.all([
+    chargerContexteUtilisateur(userId),
+    chargerItemsAvecAudio(),
   ]);
+  return (lignes ?? []).map((ligne: any) => construireResume(ligne, favoris, progression, itemsAvecAudio));
+};
 
-  const favoriteIds = new Set((favoritesResponse.data ?? []).map((item: any) => item.item_id));
-  const progressMap = new Map(
-    (progressResponse.data ?? []).map((item: any) => [item.content_id, item])
-  );
-
-  return parsedItems.data.map(item => {
-    const progress = progressMap.get(item.id) as any;
-
-    return {
-      id: item.id,
-      code: item.code,
-      title: item.title,
-      specialty: item.specialties?.name ?? null,
-      specialtyCode: item.specialties?.code ?? null,
-      itemType: item.type,
-      rang: item.rang ?? null,
-      createdAt: item.created_at,
-      keywords: item.keywords ?? [],
-      tags: mapTags(item.item_tags),
-      status: mapStatus(progress?.mastery_level),
-      lastSeenAt: progress?.last_accessed ?? null,
-      isFavorite: favoriteIds.has(item.id),
-      revisionCount: progress?.attempts_count ?? 0,
-      score: progress?.best_score ?? 0,
-      hasAudio: Boolean(item.audios && item.audios.length > 0),
-      popularityScore: progress?.attempts_count ?? 0,
-    };
-  });
+/** Un tableau de rang devient une « fiche » affichable. */
+const tableauVersFiche = (
+  tableau: any,
+  rang: 'A' | 'B',
+  itemCode: string,
+): ItemNote | null => {
+  if (!tableau) return null;
+  return {
+    id: `${itemCode}-rang-${rang.toLowerCase()}`,
+    title: tableau.title ?? `${itemCode} — Rang ${rang}`,
+    content: tableau,
+    contentType: 'table',
+    rang,
+  };
 };
 
 export const fetchItemDetail = async (
   itemCode: string,
   userId?: string
 ): Promise<ItemDetail> => {
-  const { data, error } = await (supabase as any)
-    .from('items')
-    .select(
-      'id, code, title, type, rang, created_at, keywords, specialties(name, code), fiches(id, title, content, type, rang), audios(id, title, url, stream_url, duration, rang, bpm, style), item_tags(tags(name))'
-    )
-    .eq('code', itemCode)
+  const { data: ligne, error } = await (supabase as any)
+    .from('edn_items_complete')
+    .select(`${COLONNES_ITEM}, tableau_rang_a, tableau_rang_b`)
+    .eq('item_code', itemCode)
     .maybeSingle();
 
   if (error) {
     throw error;
   }
-
-  if (!data) {
-    throw new Error('Item not found');
+  if (!ligne) {
+    throw new Error(`Item introuvable : ${itemCode}`);
   }
 
-  const parsed = itemDetailSchema.safeParse(data);
-  if (!parsed.success) {
-    console.error('Invalid item detail payload', parsed.error.flatten());
-    throw new Error('Invalid item detail payload');
-  }
-
-  const [favoritesResponse, progressResponse] = await Promise.all([
-    userId
-      ? (supabase as any)
-          .from('favorites')
-          .select('item_id')
-          .eq('user_id', userId)
-          .eq('item_id', data?.id ?? '')
-          .maybeSingle()
-      : Promise.resolve({ data: null as { item_id: string } | null }),
-    userId
-      ? (supabase as any)
-          .from('user_progress')
-          .select('mastery_level, last_accessed, attempts_count, best_score')
-          .eq('user_id', userId)
-          .eq('content_type', 'item')
-          .eq('content_id', data?.id ?? '')
-          .maybeSingle()
-      : Promise.resolve({
-          data: null as {
-            mastery_level: string | null;
-            last_accessed: string | null;
-            attempts_count: number | null;
-            best_score: number | null;
-          } | null,
-        }),
+  const [{ favoris, progression }, itemsAvecAudio] = await Promise.all([
+    chargerContexteUtilisateur(userId),
+    chargerItemsAvecAudio(),
   ]);
+  const resume = construireResume(ligne, favoris, progression, itemsAvecAudio);
 
-  const progress = progressResponse.data as any;
+  // Les « fiches » ne sont pas une table : ce sont les tableaux de rang A et B
+  // portés par l'item lui-même.
+  const notes = [
+    tableauVersFiche(ligne.tableau_rang_a, 'A', ligne.item_code),
+    tableauVersFiche(ligne.tableau_rang_b, 'B', ligne.item_code),
+  ].filter((n): n is ItemNote => n !== null);
 
-  return {
-    id: parsed.data.id,
-    code: parsed.data.code,
-    title: parsed.data.title,
-    specialty: parsed.data.specialties?.name ?? null,
-    specialtyCode: parsed.data.specialties?.code ?? null,
-    itemType: parsed.data.type,
-    rang: parsed.data.rang ?? null,
-    createdAt: parsed.data.created_at,
-    keywords: parsed.data.keywords ?? [],
-    tags: mapTags(parsed.data.item_tags),
-    notes: (parsed.data.fiches ?? []).map(note => ({
-      id: note.id,
-      title: note.title,
-      content: note.content,
-      contentType: note.type ?? 'text',
-      rang: note.rang ?? null,
-    })),
-    audios: (parsed.data.audios ?? []).map(audio => ({
-      id: audio.id,
-      title: audio.title,
-      audioUrl: audio.url,
-      streamUrl: audio.stream_url ?? null,
-      durationSeconds: audio.duration ?? null,
-      rang: audio.rang,
-      bpm: audio.bpm ?? null,
-      style: audio.style ?? null,
-    })),
-    status: mapStatus(progress?.mastery_level),
-    lastSeenAt: progress?.last_accessed ?? null,
-    isFavorite: Boolean(favoritesResponse.data),
-    revisionCount: progress?.attempts_count ?? 0,
-    score: progress?.best_score ?? 0,
-    hasAudio: Boolean(parsed.data.audios && parsed.data.audios.length > 0),
-    popularityScore: progress?.attempts_count ?? 0,
-  };
+  // Aucune table ne relie aujourd'hui un item à ses enregistrements audio :
+  // `med_mng_songs` ne contient que les chansons générées par les
+  // utilisateurs, sans référence à l'item. La liste reste donc vide tant que
+  // ce lien n'existe pas — plutôt que d'inventer une correspondance fausse.
+  return { ...resume, notes, audios: [] };
 };
 
 export const upsertItemProgress = async ({
@@ -231,36 +231,35 @@ export const upsertItemProgress = async ({
 
 export const toggleFavoriteItem = async ({
   userId,
-  itemId,
+  itemCode,
+  itemTitle,
   isFavorite,
 }: {
   userId: string;
-  itemId: string;
+  itemCode: string;
+  itemTitle?: string;
   isFavorite: boolean;
 }) => {
+  // `favorites` n'existe pas en base. La table réelle est
+  // `user_edn_favorites`, indexée par `item_code` (et non par un identifiant).
   if (isFavorite) {
     const { error } = await (supabase as any)
-      .from('favorites')
+      .from('user_edn_favorites')
       .delete()
       .eq('user_id', userId)
-      .eq('item_id', itemId);
+      .eq('item_code', itemCode);
 
-    if (error) {
-      throw error;
-    }
-
+    if (error) throw error;
     return false;
   }
 
-  const { error } = await (supabase as any).from('favorites').insert({
+  const { error } = await (supabase as any).from('user_edn_favorites').insert({
     user_id: userId,
-    item_id: itemId,
+    item_code: itemCode,
+    item_title: itemTitle ?? itemCode,
   });
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return true;
 };
 
@@ -269,7 +268,10 @@ export const fetchProgressOverview = async (
 ): Promise<ProgressOverview> => {
   const [itemsCountResponse, progressResponse, profileResponse, sessionsResponse] =
     await Promise.all([
-      (supabase as any).from('items').select('id', { count: 'exact', head: true }),
+      (supabase as any)
+        .from('edn_items_complete')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'active'),
       (supabase as any)
         .from('user_progress')
         .select('content_id, mastery_level, last_accessed, attempts_count')
@@ -310,8 +312,8 @@ export const fetchProgressOverview = async (
   
   if (contentIds.length > 0) {
     const { data: itemsData } = await (supabase as any)
-      .from('items')
-      .select('id, code, title, type, specialties(name, code)')
+      .from('edn_items_complete')
+      .select('id, item_code, title, specialite, domaine_medical')
       .in('id', contentIds);
     
     if (itemsData) {
@@ -328,11 +330,11 @@ export const fetchProgressOverview = async (
 
     return {
       id: item.id,
-      code: item.code,
+      code: item.item_code,
       title: item.title,
-      specialty: item.specialties?.name ?? null,
-      specialtyCode: item.specialties?.code ?? null,
-      itemType: item.type,
+      specialty: item.specialite ?? item.domaine_medical ?? null,
+      specialtyCode: item.domaine_medical ?? null,
+      itemType: 'EDN',
       status: mapStatus(row.mastery_level),
       lastSeenAt: row.last_accessed ?? null,
       revisionCount: row.attempts_count ?? 0,

@@ -12,29 +12,29 @@ export const ReassuranceSection: React.FC = () => {
   const features = [
     {
       icon: Headphones,
-      title: '🎧 Écoute passive',
-      description: 'Tu écoutes. Ton cerveau mémorise. Sans effort conscient.',
+      title: '🎧 Réécoute',
+      description: 'Réécouter vos chansons complète le quiz et vos cours.',
       color: 'text-primary',
       bg: 'bg-primary/10'
     },
     {
       icon: Music,
-      title: '🎵 Paroles = Cours',
-      description: 'Chaque chanson = un item EDN ou une situation ECOS. Précis.',
+      title: '🎵 Paroles tirées du référentiel',
+      description: 'Une chanson par item EDN, écrite à partir de ses compétences.',
       color: 'text-accent-foreground',
       bg: 'bg-accent/10'
     },
     {
       icon: Repeat,
       title: '🔁 Refrain = Essentiel',
-      description: 'Les points clés sont dans le refrain. Tu les retiens naturellement.',
+      description: 'Le refrain reprend les points clés de l\'item.',
       color: 'text-success',
       bg: 'bg-success/10'
     },
     {
       icon: Brain,
-      title: '🧠 Mémoire long terme',
-      description: 'La musique active l\'hippocampe. Rétention x3 vs lecture.',
+      title: '🧠 Musique et mémoire',
+      description: 'Une mélodie répétée peut aider à retenir un texte. Effet modeste, en complément.',
       color: 'text-warning',
       bg: 'bg-warning/10'
     },

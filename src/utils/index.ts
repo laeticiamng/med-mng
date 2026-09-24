@@ -7,10 +7,6 @@ export * from './exportAccessibilityMetrics';
 export * from './exportComparison';
 export * from './exportUtils';
 export * from './exportUtilsEnhanced';
-export * from './generateAdvancedLyrics';
-// generateAllAdvancedLyrics and generateAllLyrics have same function name
-export { generateAllAdvancedLyrics } from './generateAllAdvancedLyrics';
-export { generateAllLyrics, generateLyricsForItem, type LyricsGenerationResult, type LyricsGenerationOptions } from './generateAllLyrics';
 export * from './generateComprehensiveLyrics';
 export * from './migrationHelpers';
 export * from './oicFixLauncher';

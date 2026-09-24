@@ -2,10 +2,14 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { completionIA } from '../_shared/ia-resiliente.ts';
+import { exigerAdmin } from '../_shared/exiger-admin.ts'
 
 const ALLOWED_ORIGINS = [
   Deno.env.get('ALLOWED_ORIGIN') || 'https://med-mng.com',
   'https://staging.med-mng.com',
+  'https://medmng.com',
+  'https://www.medmng.com',
 ];
 
 function getCorsHeaders(req: Request) {
@@ -22,6 +26,10 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Écrit avec la clé de service : réservé aux administrateurs.
+  const refusAdmin = await exigerAdmin(req, corsHeaders)
+  if (refusAdmin) return refusAdmin
 
   try {
     const supabaseClient = createClient(
@@ -160,21 +168,14 @@ Réponds en JSON:
 }`;
 
         try {
-          const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+          const aiResponse = await completionIA({
               model: 'google/gemini-2.5-flash',
               messages: [
                 { role: 'system', content: 'Tu es un expert en médecine qui évalue la complétude des référentiels EDN.' },
                 { role: 'user', content: prompt }
               ],
               temperature: 0.3,
-            }),
-          });
+            });
 
           const aiData = await aiResponse.json();
           const content = aiData.choices[0].message.content;

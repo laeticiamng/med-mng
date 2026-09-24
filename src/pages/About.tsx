@@ -19,7 +19,7 @@ const About = () => {
     <>
     <SEOHead
       title="À propos - MED MNG par EmotionsCare"
-      description="Découvrez MED MNG : la première plateforme d'apprentissage médical par la musique IA. Mission, méthode MNG, équipe et EmotionsCare SASU."
+      description="Découvrez MED MNG : réviser les items EDN avec des chansons générées par IA. Mission, méthode MNG, équipe et EmotionsCare SASU."
       keywords="à propos, MED MNG, EmotionsCare, méthode MNG, apprentissage médical, musique IA"
       canonical="/about"
     />
@@ -45,10 +45,10 @@ const About = () => {
                 <h2 className="text-3xl font-bold">MED MNG</h2>
               </div>
               <p className="text-lg opacity-90 max-w-2xl mx-auto">
-                Une chanson = Un item médical maîtrisé
+                Une chanson par item, pour mieux retenir
               </p>
               <p className="text-sm opacity-80">
-                La première plateforme d'apprentissage médical par la musique générée par intelligence artificielle
+                Une plateforme qui transforme les items EDN en chansons générées par intelligence artificielle
               </p>
             </div>
           </Card>
@@ -62,18 +62,18 @@ const About = () => {
             <div className="space-y-4 text-muted-foreground">
               <p>
                 MED MNG est né d'un constat simple : les étudiants en médecine doivent mémoriser une quantité
-                colossale d'informations pour réussir l'EDN. Les méthodes traditionnelles (lecture répétée,
-                fiches) sont souvent fastidieuses et peu efficaces.
+                colossale d'informations pour réussir l'EDN. La relecture seule peut vite
+                devenir fastidieuse.
               </p>
               <p>
-                Notre mission est de <strong>révolutionner l'apprentissage médical</strong> en exploitant le
-                pouvoir de la musique et de l'intelligence artificielle. Chaque item de l'EDN devient une
-                chanson dont chaque parole est une information médicale essentielle, ancrée dans la mémoire
-                procédurale grâce à la mélodie.
+                Notre mission est de <strong>proposer une autre façon de réviser</strong> en associant
+                musique et intelligence artificielle. Pour chaque item de l'EDN, l'IA écrit des paroles à
+                partir des compétences rang A et rang B du référentiel ; vous pouvez ensuite les mettre en
+                musique et les réécouter, en complément de vos fiches et de vos cours.
               </p>
               <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
                 <p className="text-foreground font-semibold">
-                  « Une chanson = Un item médical maîtrisé »
+                  « Une chanson par item, pour mieux retenir »
                 </p>
                 <p className="text-sm mt-1">
                   C'est la philosophie fondamentale de MED MNG. Nous croyons que l'apprentissage
@@ -91,24 +91,23 @@ const About = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <p>
-                <strong>MNG — Music Neuro Learning Generator</strong> est une méthode pédagogique innovante
-                (brevet en cours de dépôt INPI) qui combine :
+                <strong>MNG — Music Neuro Learning Generator</strong> est une méthode pédagogique qui combine :
               </p>
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="bg-card p-4 rounded-lg border border-border text-center">
                   <Music className="h-8 w-8 text-primary mx-auto mb-2" />
                   <h4 className="font-semibold text-foreground mb-1">Musique IA</h4>
-                  <p className="text-sm">Chansons générées par IA à partir de contenus médicaux validés</p>
+                  <p className="text-sm">Paroles générées par IA à partir des compétences officielles du référentiel (source publique UNESS/LiSA), à vérifier avec vos sources</p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border border-border text-center">
                   <Brain className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h4 className="font-semibold text-foreground mb-1">Neurosciences</h4>
-                  <p className="text-sm">Exploitation de la mémoire procédurale et de la répétition espacée</p>
+                  <p className="text-sm">Réécoute, rappel actif (quiz) et répétition espacée</p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border border-border text-center">
                   <BookOpen className="h-8 w-8 text-primary mx-auto mb-2" />
                   <h4 className="font-semibold text-foreground mb-1">Pédagogie active</h4>
-                  <p className="text-sm">Quiz, flashcards, simulations ECOS pour un apprentissage complet</p>
+                  <p className="text-sm">Quiz, flashcards et situations ECOS guidées</p>
                 </div>
               </div>
               <p className="text-sm italic">
@@ -124,23 +123,15 @@ const About = () => {
               <Sparkles className="h-6 w-6 text-primary" />
               <h3 className="text-xl font-semibold text-foreground">MED MNG en chiffres</h3>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-3xl font-bold text-primary">367</p>
-                <p className="text-sm text-muted-foreground">Items EDN couverts</p>
-              </div>
-              <div className="text-center p-4 bg-accent/10 rounded-lg">
-                <p className="text-3xl font-bold text-accent">×3</p>
-                <p className="text-sm text-muted-foreground">Rétention améliorée</p>
-              </div>
-              <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-3xl font-bold text-primary">4.9/5</p>
-                <p className="text-sm text-muted-foreground">Note des étudiants</p>
-              </div>
-              <div className="text-center p-4 bg-accent/10 rounded-lg">
-                <p className="text-3xl font-bold text-accent">A+</p>
-                <p className="text-sm text-muted-foreground">Sécurité certifiée</p>
-              </div>
+            {/* CONSTAT : cette carte affichait 4 chiffres dont 3 sans aucune source —
+                « ×3 Rétention améliorée » (non sourcé), « 4.9/5 Note des étudiants »
+                (inventé, et contredit par le « 4.8/5 » qui s’affichait en page d’accueil)
+                et « A+ Sécurité certifiée » (aucune certification de sécurité n’existe).
+                Les trois ont été retirés. Seul le nombre d’items EDN couverts est
+                vérifiable (table edn_items_complete) et reste affiché. */}
+            <div className="text-center p-6 bg-primary/10 rounded-lg max-w-sm mx-auto">
+              <p className="text-4xl font-bold text-primary">367</p>
+              <p className="text-sm text-muted-foreground mt-1">Items EDN couverts</p>
             </div>
           </Card>
 
@@ -183,7 +174,7 @@ const About = () => {
                   <li><strong>Capital social :</strong> 100 euros</li>
                   <li><strong>Siège social :</strong> Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
                   <li><strong>RCS Amiens :</strong> 944 505 445 (inscrit le 21/05/2025)</li>
-                  <li><strong>SIRET :</strong> 944 505 445 00011</li>
+                  <li><strong>SIRET :</strong> 944 505 445 00014</li>
                   <li><strong>TVA intracommunautaire :</strong> FR89944505445</li>
                   <li><strong>Présidente :</strong> Laeticia Motongane</li>
                   <li><strong>Contact :</strong> contact@emotionscare.com</li>
@@ -202,28 +193,30 @@ const About = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Rigueur scientifique</h4>
                 <p className="text-sm text-muted-foreground">
-                  Chaque contenu est basé sur les référentiels officiels. La précision médicale est
-                  notre priorité absolue.
+                  Les compétences de chaque item proviennent du référentiel public UNESS/LiSA. Les
+                  contenus générés par IA peuvent contenir des erreurs : signalez-les-nous.
                 </p>
               </div>
               <div className="bg-accent/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Innovation pédagogique</h4>
                 <p className="text-sm text-muted-foreground">
-                  Nous exploitons les dernières avancées en IA et neurosciences pour créer des outils
-                  d'apprentissage uniques.
+                  Nous utilisons l'IA pour transformer chaque item en chanson, récit et planches
+                  illustrées.
                 </p>
               </div>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Accessibilité</h4>
                 <p className="text-sm text-muted-foreground">
-                  Gratuit pour commencer, PWA installable, mode hors ligne : MED MNG est accessible
-                  à tous les étudiants.
+                  Les fiches officielles des 367 items sont accessibles gratuitement ; l'application s'installe (PWA) et les
+                  fiches déjà consultées restent lisibles hors connexion.
                 </p>
               </div>
               <div className="bg-accent/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Respect des données</h4>
+                {/* CONSTAT : « sécurité A+ » annonçait une certification qui n’existe pas
+                    (même allégation que le « A+ » retiré de la carte « en chiffres »). */}
                 <p className="text-sm text-muted-foreground">
-                  RGPD, sécurité A+, zéro tracking publicitaire : vos données sont sacrées.
+                  RGPD, zéro tracking publicitaire : vos données sont sacrées.
                 </p>
               </div>
             </div>
@@ -232,9 +225,9 @@ const About = () => {
           {/* CTA */}
           <Card className="p-6 bg-primary/10 border-primary/20">
             <div className="text-center space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Prêt à apprendre autrement ?</h3>
+              <h3 className="text-xl font-semibold text-foreground">Envie d'essayer ?</h3>
               <p className="text-sm text-muted-foreground">
-                Rejoignez les étudiants qui utilisent déjà MED MNG pour révolutionner leurs révisions.
+                Créez votre compte gratuit et testez la méthode sur vos items.
               </p>
               <div className="flex justify-center gap-4">
                 <Link to={ROUTE_PATHS.medMngSignup}>

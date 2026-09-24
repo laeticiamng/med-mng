@@ -29,7 +29,7 @@ const LoginPromptBanner: React.FC<{ remainingFree: number }> = () => {
       <Sparkles className="h-4 w-4 text-primary" />
       <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3">
         <span className="text-sm">
-          <strong>Connectez-vous</strong> pour générer de la musique — <strong>3 essais gratuits</strong> inclus !
+          <strong>Connectez-vous</strong> pour générer de la musique — génération audio incluse dans <strong>MED MNG Premium</strong>.
         </span>
         <Button 
           variant="default" 
@@ -181,6 +181,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
               allEdnItems={allEdnItems}
               itemsLoading={itemsLoading}
               itemsError={itemsError}
+              ednLyrics={ednLyrics}
             />
 
             <LyricsStatusDisplay

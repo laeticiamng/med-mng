@@ -285,7 +285,7 @@ export class APIClient {
     cancelUrl?: string;
     customerEmail?: string;
   }): Promise<APIResponse<{ sessionId: string; url: string }>> {
-    return this.makeRequest('/create-checkout', {
+    return this.makeRequest('/mm-create-checkout', {
       method: 'POST',
       body: data,
     });

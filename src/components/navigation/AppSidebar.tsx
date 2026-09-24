@@ -29,8 +29,7 @@ import {
     Sparkles,
     Star,
     Target,
-    Trophy,
-    Users
+    Trophy
 } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -80,12 +79,8 @@ const navigationItems = [
     icon: Calendar,
     category: "Étude"
   },
-  {
-    title: "Communauté",
-    url: ROUTE_PATHS.community,
-    icon: Users,
-    category: "Social"
-  },
+  // CONSTAT : l’entrée « Communauté » menait vers /community, page supprimée par le
+  // commit ca5d38cb et sans route : 404 depuis le menu latéral. Entrée retirée.
   {
     title: "Récompenses",
     url: ROUTE_PATHS.achievements,
@@ -126,8 +121,11 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const { state: sidebarState } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
-  const [onlineUsers, setOnlineUsers] = useState(127);
+  // CONSTAT : ces deux compteurs démarraient sur des nombres inventés (3 notifications,
+  // 127 utilisateurs en ligne), affichés tels quels tant que le vrai comptage n’était
+  // pas revenu de Supabase. Ils partent maintenant de 0.
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [onlineUsers, setOnlineUsers] = useState(0);
   const [user, setUser] = useState<any>(null);
   const { stats: gamificationStats, loadStats } = useGamification();
 

@@ -95,7 +95,7 @@ const faqItems = [
       <div className="space-y-3">
         <div className="p-3 bg-success/10 rounded-lg border border-success/20">
           <p className="text-sm font-semibold text-foreground mb-2">
-            ✅ GRATUIT illimité
+            ✅ Gratuit
           </p>
           <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
             <li>Consulter les 367 items EDN</li>

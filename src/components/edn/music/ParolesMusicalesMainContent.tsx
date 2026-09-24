@@ -260,8 +260,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             paroles={`${normalizedParoles[0]}\n\n--- TRANSITION RANG B ---\n\n${normalizedParoles[1]}`}
             musicDuration={musicDuration * 1.5}
             selectedStyle={selectedStyle}
-            isGenerating={isGenerating.rangA || isGenerating.rangB}
-            generatedAudio={undefined}
+            isGenerating={Boolean(isGenerating.rangAB)}
+            generatedAudio={generatedAudio.rangAB}
             itemCode={`${itemCode}-FUSION`}
             currentTrack={currentTrack}
             isPlaying={isPlaying}
@@ -273,7 +273,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             onSeek={onSeek}
             onVolumeChange={onVolumeChange}
             onStop={onStop}
-            generationProgress={generationProgress?.rangA}
+            generationProgress={generationProgress?.rangAB}
             title="Musique Complète A+B"
           />
           <p className="text-primary/80 text-sm mt-2">

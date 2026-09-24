@@ -1,0 +1,288 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
+import { normalizeTableauData, transformTableauToSections } from '@/utils/tableauTransformations';
+
+/**
+ * Chargement d'UN item EDN, une seule fois, pour toutes les surfaces qui en ont
+ * besoin (fiche `/edn-complete/:slug/*` et générateur `/generator`).
+ *
+ * Avant : la modale `EdnItemModal` refaisait ses deux requêtes à chaque rendu
+ * (le tableau de dépendances contenait `finalItem`, un objet recréé à chaque
+ * passage), et le générateur, lui, ne chargeait que les paroles. Les deux
+ * surfaces n'affichaient donc pas les mêmes informations pour le même item.
+ *
+ * Lecture en REST direct, comme `useOicCompetences` et `useEdnItemsOptimized` :
+ * c'est le chemin qui fonctionne en production (cf. commentaire d'en-tête de
+ * `useOicCompetences` sur le verrou supabase-js).
+ *
+ * Sources :
+ *  - `edn_items_complete` : table canonique (367 lignes) — titre, tableaux de
+ *    rang, paroles, quiz, scène.
+ *  - `edn_items_immersive` : ancienne table, interrogée uniquement pour
+ *    `bd_panels` et `roman_story`, qui n'existent que là (plus `payload_v2`,
+ *    `audio_ambiance`, `visual_ambiance`, conservés pour ne rien perdre de ce
+ *    que la modale affichait).
+ */
+
+export interface EdnItemBrut {
+  id?: string;
+  item_code: string;
+  title: string;
+  subtitle?: string;
+  slug?: string;
+  pitch_intro?: string;
+  specialite?: string;
+  mots_cles?: string[];
+  competences_count_rang_a?: number;
+  competences_count_rang_b?: number;
+  // Colonnes JSONB sans schéma stable d'un item à l'autre : chaque composant
+  // consommateur y lit les champs qu'il connaît. On ne prétend pas les typer.
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
+  scene_immersive?: any;
+  quiz_questions?: any;
+  audio_ambiance?: any;
+  visual_ambiance?: any;
+  payload_v2?: any;
+  bd_panels?: any;
+  roman_story?: any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+/**
+ * Équivalent du `completeItemData` de l'ancienne modale : les valeurs issues de
+ * la table canonique, tableaux de rang déjà normalisés en sections.
+ */
+export interface EdnItemContenu {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  quiz_questions?: any;
+  scene_immersive?: any;
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  paroles_musicales: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
+  bd_panels?: any;
+  roman_story?: any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+const COLONNES_COMPLETE = [
+  'id', 'item_code', 'title', 'subtitle', 'slug', 'pitch_intro', 'specialite', 'mots_cles',
+  'competences_count_rang_a', 'competences_count_rang_b',
+  'tableau_rang_a', 'tableau_rang_b',
+  'paroles_musicales', 'paroles_rang_a', 'paroles_rang_b', 'paroles_rang_ab',
+  'scene_immersive', 'quiz_questions', 'audio_ambiance', 'visual_ambiance', 'payload_v2',
+].join(',');
+
+const COLONNES_IMMERSIVE = 'item_code,bd_panels,roman_story,payload_v2,audio_ambiance,visual_ambiance,pitch_intro';
+
+/** Normalise `paroles_musicales`, stockée tantôt en tableau, tantôt en texte. */
+const normaliserParoles = (valeur: unknown): string[] => {
+  if (Array.isArray(valeur)) return valeur as string[];
+  if (typeof valeur === 'string' && valeur.trim() !== '') {
+    return valeur
+      .split(/\n\n|\[.*?\]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+  }
+  return [];
+};
+
+/** Ne recopie que les valeurs réellement renseignées : une colonne vide de
+ *  l'ancienne table ne doit jamais effacer la valeur de la table canonique. */
+const fusionnerSiRenseigne = (cible: EdnItemBrut, source: Record<string, unknown> | null, champs: string[]) => {
+  if (!source) return;
+  for (const champ of champs) {
+    const valeur = source[champ];
+    const vide = valeur === null || valeur === undefined
+      || (Array.isArray(valeur) && valeur.length === 0)
+      || (typeof valeur === 'string' && valeur.trim() === '');
+    if (!vide) {
+      (cible as Record<string, unknown>)[champ] = valeur;
+    }
+  }
+};
+
+interface OptionsEdnItemComplet {
+  /** Charge `bd_panels` / `roman_story` (onglets Planches et Récit). */
+  avecRecits?: boolean;
+}
+
+export function useEdnItemComplet(
+  identifiant: string | null | undefined,
+  options: OptionsEdnItemComplet = {}
+) {
+  const { avecRecits = true } = options;
+  const [item, setItem] = useState<EdnItemBrut | null>(null);
+  const [loading, setLoading] = useState<boolean>(Boolean(identifiant));
+  const [error, setError] = useState<string | null>(null);
+  const [introuvable, setIntrouvable] = useState(false);
+  const numeroRequeteRef = useRef(0);
+
+  const charger = useCallback(async () => {
+    if (!identifiant || identifiant.trim() === '') {
+      setItem(null);
+      setLoading(false);
+      setError(null);
+      setIntrouvable(false);
+      return;
+    }
+
+    const requete = ++numeroRequeteRef.current;
+    setLoading(true);
+    setError(null);
+    setIntrouvable(false);
+
+    try {
+      // L'URL peut porter le slug (« ic-1-… ») ou le code (« IC-1 ») : on
+      // accepte les deux, sans distinction de casse, comme le faisait la liste.
+      const valeur = encodeURIComponent(identifiant.trim());
+      const urlComplete =
+        `${SUPABASE_URL}/rest/v1/edn_items_complete` +
+        `?or=(slug.ilike.${valeur},item_code.ilike.${valeur})` +
+        `&select=${COLONNES_COMPLETE}&limit=1`;
+
+      const reponse = await fetch(urlComplete, { headers: getSupabaseHeaders(true), cache: 'no-store' });
+      if (requete !== numeroRequeteRef.current) return;
+
+      if (!reponse.ok) {
+        setError(`Erreur ${reponse.status}`);
+        setItem(null);
+        setLoading(false);
+        return;
+      }
+
+      const lignes = (await reponse.json()) as Array<Record<string, unknown>>;
+      if (requete !== numeroRequeteRef.current) return;
+
+      if (!Array.isArray(lignes) || lignes.length === 0) {
+        setIntrouvable(true);
+        setItem(null);
+        setLoading(false);
+        return;
+      }
+
+      const ligne = lignes[0];
+      const base: EdnItemBrut = {
+        id: ligne.id as string,
+        item_code: ligne.item_code as string,
+        title: ligne.title as string,
+        subtitle: (ligne.subtitle as string) || undefined,
+        slug: (ligne.slug as string) || undefined,
+        pitch_intro: (ligne.pitch_intro as string) || undefined,
+        specialite: (ligne.specialite as string) || undefined,
+        mots_cles: (ligne.mots_cles as string[]) || undefined,
+        competences_count_rang_a: (ligne.competences_count_rang_a as number) ?? undefined,
+        competences_count_rang_b: (ligne.competences_count_rang_b as number) ?? undefined,
+        tableau_rang_a: ligne.tableau_rang_a,
+        tableau_rang_b: ligne.tableau_rang_b,
+        paroles_musicales: (ligne.paroles_musicales as string[]) || undefined,
+        paroles_rang_a: (ligne.paroles_rang_a as string[]) || undefined,
+        paroles_rang_b: (ligne.paroles_rang_b as string[]) || undefined,
+        paroles_rang_ab: (ligne.paroles_rang_ab as string[]) || undefined,
+        scene_immersive: ligne.scene_immersive,
+        quiz_questions: ligne.quiz_questions,
+        audio_ambiance: ligne.audio_ambiance || undefined,
+        visual_ambiance: ligne.visual_ambiance || undefined,
+        payload_v2: ligne.payload_v2,
+      };
+
+      // On affiche déjà tout le contenu pédagogique : les planches et le récit
+      // arrivent dans un second temps, sans bloquer l'écran.
+      setItem(base);
+      setLoading(false);
+
+      if (!avecRecits) return;
+
+      const urlImmersive =
+        `${SUPABASE_URL}/rest/v1/edn_items_immersive` +
+        `?item_code=eq.${encodeURIComponent(base.item_code)}` +
+        `&select=${COLONNES_IMMERSIVE}&limit=1`;
+
+      const reponseRecits = await fetch(urlImmersive, { headers: getSupabaseHeaders(true), cache: 'no-store' });
+      if (requete !== numeroRequeteRef.current || !reponseRecits.ok) return;
+
+      const lignesRecits = (await reponseRecits.json()) as Array<Record<string, unknown>>;
+      if (requete !== numeroRequeteRef.current) return;
+      if (!Array.isArray(lignesRecits) || lignesRecits.length === 0) return;
+
+      const enrichi: EdnItemBrut = { ...base };
+      fusionnerSiRenseigne(enrichi, lignesRecits[0], [
+        'bd_panels', 'roman_story', 'payload_v2', 'audio_ambiance', 'visual_ambiance', 'pitch_intro',
+      ]);
+      setItem(enrichi);
+    } catch (err) {
+      if (requete !== numeroRequeteRef.current) return;
+      setError(err instanceof Error ? err.message : String(err));
+      setLoading(false);
+    }
+  }, [identifiant, avecRecits]);
+
+  useEffect(() => {
+    charger();
+  }, [charger]);
+
+  // Traitement du format V2 (payload_v2 -> tableaux + paroles), à l'identique
+  // de ce que faisait la modale via useEdnItemV2Process.
+  const itemFinal = useMemo<EdnItemBrut | null>(() => {
+    if (!item) return null;
+    const payload = item.payload_v2 as {
+      content?: {
+        rang_a?: { theme?: string; competences?: Array<{ paroles_chantables?: string[] }> };
+        rang_b?: { theme?: string; competences?: Array<{ paroles_chantables?: string[] }> };
+      };
+    } | undefined;
+
+    const rangA = payload?.content?.rang_a;
+    const rangB = payload?.content?.rang_b;
+    if (!rangA || !rangB) return item;
+
+    const aDesCompetencesA = (rangA.competences?.length ?? 0) > 0;
+    const aDesCompetencesB = (rangB.competences?.length ?? 0) > 0;
+    if (!aDesCompetencesA && !aDesCompetencesB) return item;
+
+    return {
+      ...item,
+      tableau_rang_a: aDesCompetencesA
+        ? { theme: rangA.theme, sections: [{ concepts: rangA.competences }] }
+        : item.tableau_rang_a,
+      tableau_rang_b: aDesCompetencesB
+        ? { theme: rangB.theme, sections: [{ concepts: rangB.competences }] }
+        : item.tableau_rang_b,
+      paroles_musicales: [
+        ...(rangA.competences ?? []).flatMap((c) => c.paroles_chantables || []),
+        ...(rangB.competences ?? []).flatMap((c) => c.paroles_chantables || []),
+      ].filter(Boolean),
+    };
+  }, [item]);
+
+  // Tableaux de rang normalisés en sections, comme le faisait loadCompleteData().
+  const contenu = useMemo<EdnItemContenu | null>(() => {
+    if (!item) return null;
+    return {
+      quiz_questions: item.quiz_questions,
+      scene_immersive: item.scene_immersive,
+      tableau_rang_a:
+        transformTableauToSections(item.tableau_rang_a, item.item_code, item.title, 'A')
+        || normalizeTableauData(item.tableau_rang_a),
+      tableau_rang_b:
+        transformTableauToSections(item.tableau_rang_b, item.item_code, item.title, 'B')
+        || normalizeTableauData(item.tableau_rang_b),
+      paroles_musicales: normaliserParoles(item.paroles_musicales),
+      paroles_rang_a: item.paroles_rang_a,
+      paroles_rang_b: item.paroles_rang_b,
+      paroles_rang_ab: item.paroles_rang_ab,
+      bd_panels: item.bd_panels,
+      roman_story: item.roman_story,
+    };
+  }, [item]);
+
+  return { item: itemFinal, contenu, loading, error, introuvable, recharger: charger };
+}
