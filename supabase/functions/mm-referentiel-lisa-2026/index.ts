@@ -35,14 +35,16 @@ const cors = {
 interface Ligne {
   id: string; item: string; rang: string; intitule: string;
   description: string; sommaire: string; html: string; url_source: string; maj_lisa: string;
+  corrections?: { avant: string; apres: string; motif: string }[];
 }
 
 async function sha(s: string) {
   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
 }
-const empreinte = (id: string, description: string, sommaire: string, html: string, url: string, maj: string) =>
-  sha(JSON.stringify([id, description, sommaire, html, url, maj]));
+interface Correction { avant: string; apres: string; motif: string }
+const empreinte = (id: string, description: string, sommaire: string, html: string, url: string, maj: string, corrections: Correction[] = []) =>
+  sha(JSON.stringify([id, description, sommaire, html, url, maj, corrections]));
 
 // deno-lint-ignore no-explicit-any
 type Client = any;
@@ -92,9 +94,9 @@ Deno.serve(async (req) => {
       for (const l of base) {
         const id = l.objectif_id as string;
         vus.add(id);
-        const cd = (l.contenu_detaille ?? {}) as { source?: string; html?: string; maj_lisa?: string };
+        const cd = (l.contenu_detaille ?? {}) as { source?: string; html?: string; maj_lisa?: string; corrections?: Correction[] };
         const e = cd.source === 'lisa-2026'
-          ? await empreinte(id, (l.description as string) ?? '', (l.sommaire as string) ?? '', cd.html ?? '', (l.url_source as string) ?? '', cd.maj_lisa ?? '')
+          ? await empreinte(id, (l.description as string) ?? '', (l.sommaire as string) ?? '', cd.html ?? '', (l.url_source as string) ?? '', cd.maj_lisa ?? '', cd.corrections ?? [])
           : '';
         if (ATTENDUES.get(id) === e) conformes++; else if (ecarts.length < 20) ecarts.push(id);
       }
@@ -147,7 +149,7 @@ Deno.serve(async (req) => {
       const refusees: string[] = [];
       const cibles = [];
       for (const o of lignes) {
-        const e = await empreinte(o.id, o.description, o.sommaire ?? '', o.html, o.url_source, o.maj_lisa);
+        const e = await empreinte(o.id, o.description, o.sommaire ?? '', o.html, o.url_source, o.maj_lisa, o.corrections ?? []);
         if (!o.id || ATTENDUES.get(o.id) !== e) { refusees.push(o.id); continue; }
         cibles.push({
           objectif_id: o.id,
@@ -156,7 +158,7 @@ Deno.serve(async (req) => {
           rang: o.rang,
           description: o.description,
           sommaire: o.sommaire || null,
-          contenu_detaille: { source: 'lisa-2026', html: o.html, maj_lisa: o.maj_lisa, releve_le: RELEVE_LE },
+          contenu_detaille: { source: 'lisa-2026', html: o.html, maj_lisa: o.maj_lisa, releve_le: RELEVE_LE, corrections: o.corrections ?? [] },
           url_source: o.url_source,
           hash_content: e,
           date_import: RELEVE_LE,
@@ -171,6 +173,42 @@ Deno.serve(async (req) => {
         if (error) erreurs.push(`${lot[0].objectif_id}…: ${error.message}`); else ecrites += lot.length;
       }
       return rep({ recues: lignes.length, ecrites, refusees, erreurs });
+    }
+
+    // Romans et BD réécrits à partir du contenu officiel complet (crédits IA épuisés :
+    // rédigés hors passerelle, contrôlés avant envoi). Sauvegarde obligatoire avant écriture.
+    if (action === 'sauvegarder_recits') {
+      const NOM = 'recits-avant-lisa-2026.json';
+      await sb.storage.createBucket('oic-sauvegardes', { public: false }).catch(() => null);
+      const { data: deja } = await sb.storage.from('oic-sauvegardes').list('', { search: NOM });
+      if ((deja ?? []).some((f: { name: string }) => f.name === NOM)) return rep({ ok: true, deja: true });
+      const { data, error } = await sb.from('edn_items_immersive').select('item_code,roman_story,bd_panels').limit(1000);
+      if (error) return rep({ error: error.message }, 500);
+      const { error: e2 } = await sb.storage.from('oic-sauvegardes').upload(NOM,
+        new Blob([JSON.stringify({ le: new Date().toISOString(), lignes: data })], { type: 'application/json' }));
+      return e2 ? rep({ error: e2.message }, 500) : rep({ ok: true, lignes: (data ?? []).length });
+    }
+
+    if (action === 'recit') {
+      const { data: sauv } = await sb.storage.from('oic-sauvegardes').list('', { search: 'recits-avant-lisa-2026.json' });
+      if (!(sauv ?? []).length) return rep({ error: 'sauvegarde des récits absente' }, 409);
+      const { item, roman, bd } = corps as { item: string; roman: unknown[]; bd: unknown[] };
+      const numero = /^IC-(\d{1,3})$/.exec(item ?? '')?.[1];
+      const prefixe = numero ? `OIC-${numero.padStart(3, '0')}-` : '';
+      const ids = new Set([...ATTENDUES.keys()].filter((id) => prefixe && id.startsWith(prefixe)));
+      if (!ids.size) return rep({ error: 'item inconnu ou sans compétence' }, 400);
+      const txt = (v: unknown) => typeof v === 'string' && v.trim().length > 0;
+      const idsOk = (l: unknown) => Array.isArray(l) && l.every((x) => ids.has(String(x)));
+      const romanOk = Array.isArray(roman) && roman.length >= 5 && roman.length <= 9 &&
+        roman.every((c: any) => txt(c?.titre) && txt(c?.texte) && idsOk(c?.competences));
+      const bdOk = Array.isArray(bd) && bd.length >= 8 && bd.length <= 16 &&
+        bd.every((c: any) => txt(c?.titre) && txt(c?.narration) && txt(c?.dialogue) && txt(c?.illustration) && idsOk(c?.competences));
+      if (!romanOk || !bdOk) return rep({ error: 'structure invalide', romanOk, bdOk }, 422);
+      const { data: maj, error } = await sb.from('edn_items_immersive')
+        .update({ roman_story: roman, bd_panels: bd, updated_at: new Date().toISOString() })
+        .eq('item_code', item).select('item_code');
+      if (error) return rep({ error: error.message }, 500);
+      return rep({ ok: (maj ?? []).length === 1, item });
     }
 
     return rep({ error: 'action inconnue' }, 400);

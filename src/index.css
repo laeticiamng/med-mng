@@ -1355,3 +1355,5 @@ a:not([class]):hover {
 .contenu-lisa figcaption { @apply mt-1 text-sm text-muted-foreground; }
 .contenu-lisa blockquote { @apply border-l-4 border-primary/30 pl-4 italic; }
 .contenu-lisa--compact { @apply text-sm; }
+.contenu-lisa .transcription-medmng { @apply mt-5 rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4; }
+.contenu-lisa .transcription-medmng > h4:first-child { @apply mt-0 text-sm font-semibold uppercase tracking-wide text-primary; }

@@ -26,6 +26,7 @@ interface CompetenceOIC {
   html?: string;
   url_source?: string;
   maj_lisa?: string;
+  corrections?: { avant: string; apres: string; motif: string }[];
 }
 
 interface TableauCompetencesOICOptimizedProps {

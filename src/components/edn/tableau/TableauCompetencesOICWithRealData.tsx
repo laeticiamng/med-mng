@@ -10,7 +10,7 @@ interface OicCompetence {
   sommaire?: string | null;
   url_source?: string | null;
   ordre?: number | null;
-  contenu_detaille?: { source?: string; html?: string; maj_lisa?: string } | null;
+  contenu_detaille?: { source?: string; html?: string; maj_lisa?: string; corrections?: { avant: string; apres: string; motif: string }[] } | null;
 }
 
 interface TableauCompetencesOICWithRealDataProps {
@@ -145,6 +145,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
         sommaire: comp.sommaire || undefined,
         html: officiel?.html || undefined,
         maj_lisa: officiel?.maj_lisa || undefined,
+        corrections: officiel?.corrections || undefined,
         url_source: officiel ? comp.url_source || undefined : undefined,
         ordre_affichage: comp.ordre ?? undefined,
         keywords: []

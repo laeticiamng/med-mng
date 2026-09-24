@@ -19,6 +19,7 @@ interface CompetenceOIC {
   html?: string;
   url_source?: string;
   maj_lisa?: string;
+  corrections?: { avant: string; apres: string; motif: string }[];
   contributeurs?: string;
   ordre_affichage?: number;
 }
@@ -119,6 +120,7 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
               texte={texte}
               urlSource={competence.url_source}
               majLisa={competence.maj_lisa}
+              corrections={competence.corrections}
             />
           </div>
         </CardContent>
