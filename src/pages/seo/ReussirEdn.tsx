@@ -14,9 +14,9 @@ const ReussirEdn = () => {
   return (
     <>
       <SEOHead
-        title="Guide complet pour réussir les EDN 2027 | MED-MNG"
-        description="Réussir les EDN 2027 (session d'octobre 2026) : stratégies, planning, méthodes de révision et outils. 367 items, QCM, cas cliniques."
-        keywords="réussir EDN, EDN 2027, examen dématérialisé national, révision médecine, classement national"
+        title="Guide complet pour réussir l'EDN 2026 | MED-MNG"
+        description="Réussir l'EDN : stratégies, planning, méthodes de révision et outils. 367 items, QCM, cas cliniques. Le guide ultime pour les étudiants en médecine."
+        keywords="réussir EDN, EDN 2026, examen dématérialisé national, révision médecine, classement national"
         canonical="/reussir-edn"
       />
 
@@ -24,19 +24,16 @@ const ReussirEdn = () => {
         <article className="container mx-auto px-4 py-20 max-w-4xl">
           
           <header className="mb-12">
-            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide EDN 2027" /></Badge>
+            <Badge variant="secondary" className="mb-4"><TranslatedText text="Guide EDN 2026" /></Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
               <TranslatedText text="Guide complet pour réussir l'EDN : stratégie, planning et outils" />
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              <TranslatedText text="Les Épreuves Dématérialisées Nationales (EDN) remplacent l'ancien ECN. Avec 367 items à maîtriser et un classement national, la préparation doit être méthodique. Ce guide vous donne une feuille de route complète." />
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              <TranslatedText text="EDN 2027 : première session du 12 au 15 octobre 2026 (dates officielles publiées par le CNG ; vérifiez-les sur cng.sante.fr)." />
+              <TranslatedText text="L'Examen Dématérialisé National (EDN) remplace l'ancien ECN. Avec 367 items à maîtriser et un classement national, la préparation doit être méthodique et intelligente. Ce guide vous donne la feuille de route complète." />
             </p>
             <div className="flex flex-wrap gap-3">
               <Badge variant="outline" className="gap-1"><BookOpen className="h-3 w-3" /> <TranslatedText text="20 min de lecture" /></Badge>
-              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour septembre 2026" /></Badge>
+              <Badge variant="outline" className="gap-1"><Calendar className="h-3 w-3" /> <TranslatedText text="Mis à jour février 2026" /></Badge>
             </div>
           </header>
 
@@ -46,7 +43,7 @@ const ReussirEdn = () => {
               <li><a href="#quest-ce" className="text-primary hover:underline"><TranslatedText text="1. Qu'est-ce que l'EDN ?" /></a></li>
               <li><a href="#items" className="text-primary hover:underline"><TranslatedText text="2. Les 367 items : comment les aborder" /></a></li>
               <li><a href="#rang" className="text-primary hover:underline"><TranslatedText text="3. Rang A vs Rang B : stratégie de priorisation" /></a></li>
-              <li><a href="#methodes" className="text-primary hover:underline"><TranslatedText text="4. Méthodes de révision étudiées par la recherche" /></a></li>
+              <li><a href="#methodes" className="text-primary hover:underline"><TranslatedText text="4. Méthodes de révision scientifiquement prouvées" /></a></li>
               <li><a href="#planning-edn" className="text-primary hover:underline"><TranslatedText text="5. Planning de révision EDN sur 12 mois" /></a></li>
               <li><a href="#qcm" className="text-primary hover:underline"><TranslatedText text="6. Entraînement QCM : qualité vs quantité" /></a></li>
               <li><a href="#musique" className="text-primary hover:underline"><TranslatedText text="7. La méthode musicale : réviser autrement" /></a></li>
@@ -60,10 +57,10 @@ const ReussirEdn = () => {
               <TranslatedText text="1. Qu'est-ce que l'EDN ?" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="L'EDN (Examen Dématérialisé National) est l'épreuve théorique du 2e cycle des études médicales. L'EDN et les ECOS comptent tous deux dans le classement ; consultez l'arrêté en vigueur pour la pondération exacte." />
+              <TranslatedText text="L'EDN (Examen Dématérialisé National) est l'épreuve théorique du 2e cycle des études médicales. Il représente 70% de la note finale pour le classement national, les 30% restants étant les ECOS." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="L'examen se compose de dossiers progressifs et de questions isolées couvrant l'ensemble des 367 items du programme. Au sein de chaque item, chaque connaissance est classée rang A (indispensable) ou rang B (approfondie)." />
+              <TranslatedText text="L'examen se compose de dossiers progressifs et de questions isolées couvrant l'ensemble des 367 items du programme. Chaque item est classé Rang A (indispensable) ou Rang B (approfondi)." />
             </p>
             <Card>
               <CardContent className="p-6">
@@ -71,8 +68,8 @@ const ReussirEdn = () => {
                 <div className="grid sm:grid-cols-2 gap-3">
                   {[
                     '367 items au programme',
-                    'EDN et ECOS comptent dans le classement',
-                    'Dossiers progressifs et questions isolées',
+                    '70% du classement national',
+                    '120 dossiers progressifs',
                     'Format dématérialisé sur tablette',
                     'Rang A : connaissances indispensables',
                     'Rang B : connaissances approfondies',
@@ -121,7 +118,7 @@ const ReussirEdn = () => {
                     <li>• <TranslatedText text="Diagnostics et PEC des urgences" /></li>
                     <li>• <TranslatedText text="Sémiologie fondamentale" /></li>
                     <li>• <TranslatedText text="Thérapeutiques de première ligne" /></li>
-                    <li>• <TranslatedText text="À maîtriser en priorité" /></li>
+                    <li>• <TranslatedText text="Maîtriser à 100% avant l'examen" /></li>
                   </ul>
                 </CardContent>
               </Card>
@@ -132,37 +129,37 @@ const ReussirEdn = () => {
                     <li>• <TranslatedText text="Diagnostics différentiels avancés" /></li>
                     <li>• <TranslatedText text="Physiopathologie détaillée" /></li>
                     <li>• <TranslatedText text="Traitements de 2e/3e ligne" /></li>
-                    <li>• <TranslatedText text="Permet de départager les candidats" /></li>
+                    <li>• <TranslatedText text="Fait la différence dans le top 30%" /></li>
                   </ul>
                 </CardContent>
               </Card>
             </div>
             <p className="text-muted-foreground">
-              <TranslatedText text="Règle d'or : Ne commencez jamais le Rang B d'un item si vous ne maîtrisez pas le Rang A. Sur MED-MNG, chaque item affiche séparément ses connaissances de rang A et de rang B." />
+              <TranslatedText text="Règle d'or : Ne commencez jamais le Rang B d'un item si vous ne maîtrisez pas le Rang A. Sur MED-MNG, chaque item affiche clairement le contenu Rang A et Rang B séparément." />
             </p>
           </section>
 
           <section id="methodes" className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Brain className="h-6 w-6 text-primary" />
-              <TranslatedText text="4. Méthodes de révision étudiées par la recherche" />
+              <TranslatedText text="4. Méthodes de révision scientifiquement prouvées" />
             </h2>
             <div className="space-y-6 text-muted-foreground">
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Rappel actif (en anglais : active recall)" /></h3>
-                <p><TranslatedText text="Au lieu de relire passivement, testez-vous constamment. Les flashcards et les QCM sont des outils de rappel actif, souvent plus efficaces que la relecture." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Active Recall (rappel actif)" /></h3>
+                <p><TranslatedText text="Au lieu de relire passivement, testez-vous constamment. Les flashcards et les QCM sont les outils les plus efficaces pour le rappel actif. Études montrent une amélioration de 50% vs lecture passive." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Répétition espacée (en anglais : spaced repetition)" /></h3>
-                <p><TranslatedText text="Revoyez chaque notion à intervalles croissants (J1, J3, J7, J14, J30). Le module de répétition espacée de MED-MNG planifie la révision de vos flashcards." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Spaced Repetition (répétition espacée)" /></h3>
+                <p><TranslatedText text="Revoyez chaque notion à intervalles croissants (J1, J3, J7, J14, J30). Le système SRS de MED-MNG automatise ce processus pour vous." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Entrelacement (en anglais : interleaving)" /></h3>
-                <p><TranslatedText text="Mélangez les sujets plutôt que de réviser une spécialité pendant des jours. L'alternance oblige à identifier le bon raisonnement pour chaque question." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Interleaving (entrelacement)" /></h3>
+                <p><TranslatedText text="Mélangez les sujets plutôt que de réviser une spécialité pendant des jours. L'alternance force votre cerveau à faire des connexions plus profondes." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Encodage élaboré (en anglais : elaborative encoding)" /></h3>
-                <p><TranslatedText text="Reliez chaque nouvelle information à ce que vous savez déjà. Les chansons MED-MNG peuvent servir de point d'accroche, en complément de ce travail." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Elaborative Encoding (encodage élaboré)" /></h3>
+                <p><TranslatedText text="Reliez chaque nouvelle information à ce que vous savez déjà. Les chansons MED-MNG créent ces associations automatiquement en transformant les données médicales en mélodies mémorables." /></p>
               </div>
             </div>
           </section>
@@ -196,7 +193,7 @@ const ReussirEdn = () => {
               <TranslatedText text="Faire 10 000 QCM ne sert à rien si vous ne comprenez pas vos erreurs. La qualité prime toujours sur la quantité." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Notre recommandation : 30-50 QCM/jour avec analyse détaillée de chaque erreur. Sur MED-MNG, chaque quiz est rattaché à un item EDN : relisez la fiche de l'item après chaque erreur." />
+              <TranslatedText text="Notre recommandation : 30-50 QCM/jour avec analyse détaillée de chaque erreur. Sur MED-MNG, chaque QCM est lié à un item EDN avec correction pédagogique." />
             </p>
           </section>
 
@@ -205,17 +202,17 @@ const ReussirEdn = () => {
               <TranslatedText text="7. La méthode musicale : réviser autrement" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="MED-MNG combine révision médicale et musique IA : pour chaque item EDN, l'IA écrit des paroles à partir de ses compétences rang A et rang B, que vous pouvez mettre en musique." />
+              <TranslatedText text="MED-MNG est la première plateforme à combiner apprentissage médical et musique IA. Chaque item EDN peut être transformé en chanson, créant des associations mnémotechniques puissantes." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Certaines études montrent qu'une mélodie répétée peut aider à retenir un texte. L'effet reste modeste : la chanson complète le rappel actif et vos cours, elle ne les remplace pas." />
+              <TranslatedText text="Les études en neurosciences cognitives montrent que l'apprentissage musical active les deux hémisphères cérébraux simultanément, améliorant la rétention de 20 à 40% par rapport à la lecture seule." />
             </p>
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6 text-center">
                 <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Essayez la méthode MED-MNG" /></h3>
-                <p className="text-sm text-muted-foreground mb-4"><TranslatedText text="367 items EDN : fiche, rang A, rang B, quiz et paroles de chanson" /></p>
+                <p className="text-sm text-muted-foreground mb-4"><TranslatedText text="367 items EDN + Musique IA + QCM + Cas cliniques" /></p>
                 <Link to={ROUTE_PATHS.medMngSignup}>
-                  <Button className="gap-2"><TranslatedText text="Créer un compte gratuit" /> <ArrowRight className="h-4 w-4" /></Button>
+                  <Button className="gap-2"><TranslatedText text="Essai gratuit 7 jours" /> <ArrowRight className="h-4 w-4" /></Button>
                 </Link>
               </CardContent>
             </Card>
@@ -240,7 +237,7 @@ const ReussirEdn = () => {
 
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à réussir l'EDN ?" /></h2>
-            <p className="text-muted-foreground mb-6"><TranslatedText text="Fiches officielles des 367 items (rang A, rang B) gratuites ; paroles, récit, planches et quiz de tous les items avec MED MNG Premium." /></p>
+            <p className="text-muted-foreground mb-6"><TranslatedText text="367 items, QCM illimités, musique IA et cas cliniques sur une seule plateforme." /></p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}><Button size="lg" className="gap-2"><TranslatedText text="Commencer" /> <ArrowRight className="h-4 w-4" /></Button></Link>
               <Link to={ROUTE_PATHS.medMngPricing}><Button variant="outline" size="lg"><TranslatedText text="Voir les tarifs" /></Button></Link>

@@ -176,7 +176,7 @@ const ExempleCasClinique = () => {
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
               <Target className="h-6 w-6 text-primary" />
-              Exemple de grille d'auto-évaluation (pondération indicative, non officielle)
+              Grille de notation ECOS
             </h2>
             <Card>
               <CardContent className="pt-6">
@@ -201,16 +201,16 @@ const ExempleCasClinique = () => {
             </Card>
           </section>
 
-          {/* CTA */}
+          {/* CTA Premium */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
             <Lock className="h-8 w-8 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-3">Entraînez-vous sur d'autres cas cliniques</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-3">Accédez aux 20+ cas cliniques premium</h2>
             <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-              Cas cliniques générés par IA à partir des items, à vérifier avec vos sources, et situations ECOS guidées.
+              Cas cliniques interactifs avec correction par compétence ECOS, score comparatif et recommandations personnalisées.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
-                <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
+                <Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button>
               </Link>
               <Link to={ROUTE_PATHS.medMngPricing}>
                 <Button variant="outline" size="lg">Voir les tarifs</Button>
@@ -226,7 +226,7 @@ const ExempleCasClinique = () => {
                 { title: "Travailler les cas cliniques", path: "/travailler-cas-cliniques" },
                 { title: "Erreurs fréquentes ECOS", path: "/erreurs-frequentes-ecos" },
                 { title: "Cas cliniques EDN", path: ROUTE_PATHS.seoCasCliniqueEdn },
-                { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
+                { title: "Préparation ECOS 2026", path: ROUTE_PATHS.seoPreparationEcos },
               ].map((article) => (
                 <Link key={article.path} to={article.path}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">

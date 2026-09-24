@@ -183,14 +183,12 @@ export function useCommunityPosts() {
           return [];
         }
 
-        // CONSTAT : la table 'community_event_registrations' n'existe pas. La vraie table
-        // d'inscriptions aux événements est 'event_registrations'
-        // (colonnes : id, event_id, user_id, registered_at, status).
+        // Check user registrations (if table exists)
         let userRegistrations: string[] = [];
         if (user) {
           try {
             const { data: regs } = await supabase
-              .from('event_registrations' as any)
+              .from('community_event_registrations' as any)
               .select('event_id')
               .eq('user_id', user.id);
             userRegistrations = (regs as any[])?.map(r => r.event_id) || [];
@@ -314,10 +312,9 @@ export function useCommunityPosts() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // CONSTAT : idem — 'community_event_registrations' n'existe pas, cible réelle
-      // 'event_registrations' (event_id et user_id sont bien les colonnes attendues).
+      // Try to insert registration
       const { error } = await supabase
-        .from('event_registrations' as any)
+        .from('community_event_registrations' as any)
         .insert({ event_id: eventId, user_id: user.id });
 
       if (error) {

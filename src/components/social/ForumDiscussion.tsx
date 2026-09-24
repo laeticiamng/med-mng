@@ -258,38 +258,23 @@ export const ForumDiscussion: React.FC = React.memo(() => {
     const topic = topics.find(t => t.id === topicId);
     if (!topic) return;
 
-    // Le client Supabase ne lève pas d'exception : il faut inspecter `error`.
-    // Sans cette vérification, un refus RLS passait inaperçu et le compteur
-    // bougeait à l'écran sans rien enregistrer (il repartait au rechargement).
     try {
-      const nextLikes = topic.isLiked ? Math.max(0, topic.likes - 1) : topic.likes + 1;
-
-      const { error: likeError } = topic.isLiked
-        ? await supabase.from('forum_likes').delete().eq('user_id', user.id).eq('topic_id', topicId)
-        : await supabase.from('forum_likes').insert({ user_id: user.id, topic_id: topicId });
-
-      if (likeError) throw likeError;
-
-      const { error: countError } = await supabase
-        .from('forum_topics')
-        .update({ likes_count: nextLikes })
-        .eq('id', topicId);
-
-      if (countError) throw countError;
-
-      setTopics(prev => prev.map(t =>
-        t.id === topicId
-          ? { ...t, isLiked: !t.isLiked, likes: nextLikes }
-          : t
-      ));
+      if (topic.isLiked) {
+        await supabase.from('forum_likes').delete().eq('user_id', user.id).eq('topic_id', topicId);
+        await supabase.from('forum_topics').update({ likes_count: Math.max(0, topic.likes - 1) }).eq('id', topicId);
+      } else {
+        await supabase.from('forum_likes').insert({ user_id: user.id, topic_id: topicId });
+        await supabase.from('forum_topics').update({ likes_count: topic.likes + 1 }).eq('id', topicId);
+      }
     } catch (error) {
       console.error('Erreur like:', error);
-      toast({
-        title: 'Action impossible',
-        description: (error as Error)?.message ?? "Votre « j'aime » n'a pas pu être enregistré.",
-        variant: 'destructive',
-      });
     }
+
+    setTopics(prev => prev.map(t =>
+      t.id === topicId
+        ? { ...t, isLiked: !t.isLiked, likes: t.isLiked ? t.likes - 1 : t.likes + 1 }
+        : t
+    ));
   };
 
   const handleLikeReply = async (replyId: string) => {
@@ -299,37 +284,23 @@ export const ForumDiscussion: React.FC = React.memo(() => {
     const reply = replies.find(r => r.id === replyId);
     if (!reply) return;
 
-    // Idem que pour les sujets : on n'avance le compteur affiché que si
-    // l'écriture en base a réellement abouti.
     try {
-      const nextLikes = reply.isLiked ? Math.max(0, reply.likes - 1) : reply.likes + 1;
-
-      const { error: likeError } = reply.isLiked
-        ? await supabase.from('forum_likes').delete().eq('user_id', user.id).eq('reply_id', replyId)
-        : await supabase.from('forum_likes').insert({ user_id: user.id, reply_id: replyId });
-
-      if (likeError) throw likeError;
-
-      const { error: countError } = await supabase
-        .from('forum_replies')
-        .update({ likes_count: nextLikes })
-        .eq('id', replyId);
-
-      if (countError) throw countError;
-
-      setReplies(prev => prev.map(r =>
-        r.id === replyId
-          ? { ...r, isLiked: !r.isLiked, likes: nextLikes }
-          : r
-      ));
+      if (reply.isLiked) {
+        await supabase.from('forum_likes').delete().eq('user_id', user.id).eq('reply_id', replyId);
+        await supabase.from('forum_replies').update({ likes_count: Math.max(0, reply.likes - 1) }).eq('id', replyId);
+      } else {
+        await supabase.from('forum_likes').insert({ user_id: user.id, reply_id: replyId });
+        await supabase.from('forum_replies').update({ likes_count: reply.likes + 1 }).eq('id', replyId);
+      }
     } catch (error) {
       console.error('Erreur like réponse:', error);
-      toast({
-        title: 'Action impossible',
-        description: (error as Error)?.message ?? "Votre « j'aime » n'a pas pu être enregistré.",
-        variant: 'destructive',
-      });
     }
+
+    setReplies(prev => prev.map(r =>
+      r.id === replyId
+        ? { ...r, isLiked: !r.isLiked, likes: r.isLiked ? r.likes - 1 : r.likes + 1 }
+        : r
+    ));
   };
 
   const handleBookmark = async (topicId: string) => {

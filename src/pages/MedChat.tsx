@@ -268,16 +268,18 @@ Tu n'as pas besoin de tout chercher toi-même.`,
       if (import.meta.env.DEV) console.error('[Chat IA] Erreur envoi message:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing' && msg.id !== streamingMessageId));
       
-      // Message clair, jamais de message technique brut. 402 (crédits IA
-      // épuisés) et 429 (limite de débit) : même message d'indisponibilité.
+      // Message user-friendly selon le type d'erreur
       const errorMessage = error instanceof Error ? error.message : String(error);
-      const indisponible = /\b(402|429)\b|rate|payment|credit|quota/i.test(errorMessage);
-
+      const isRateLimit = errorMessage.includes('rate') || errorMessage.includes('429');
+      const isApiError = errorMessage.includes('API') || errorMessage.includes('key') || errorMessage.includes('401');
+      
       toast({
-        title: "Assistant momentanément indisponible",
-        description: indisponible
-          ? "Service momentanément indisponible, réessayez plus tard."
-          : "Une erreur s'est produite. Veuillez réessayer dans quelques instants.",
+        title: "🤖 Assistant temporairement indisponible",
+        description: isRateLimit 
+          ? "Trop de requêtes. Veuillez patienter quelques secondes."
+          : isApiError 
+            ? "Le service IA est en maintenance. Réessayez dans quelques instants."
+            : "Une erreur s'est produite. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {

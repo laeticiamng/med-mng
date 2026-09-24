@@ -75,12 +75,9 @@ export const AdminSecurityAudit = () => {
     try {
       setLoading(true);
       
-      // CONSTAT : la table 'streaming_sessions' n'existe pas. La vraie table d'audit du
-      // streaming est 'streaming_access_logs' (id, user_id, song_id, session_token, action,
-      // ip_address, user_agent, created_at) : elle contient TOUTES les colonnes mappées
-      // ci-dessous, plus action/ip_address/user_agent qui étaient jusqu'ici forcés à vide.
+      // Charger les logs depuis streaming_sessions (table non typée)
       const { data: logs, error } = await (supabase as any)
-        .from('streaming_access_logs')
+        .from('streaming_sessions')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
@@ -96,11 +93,9 @@ export const AdminSecurityAudit = () => {
         user_id: log.user_id,
         song_id: log.song_id,
         session_token: log.session_token || '',
-        // CONSTAT : 'is_active' n'existe sur aucune des deux tables ; l'action réelle est
-        // stockée dans la colonne 'action' de streaming_access_logs.
-        action: log.action || 'session_created',
-        ip_address: log.ip_address || '',
-        user_agent: log.user_agent || '',
+        action: log.is_active ? 'stream_accessed' : 'session_created',
+        ip_address: '',
+        user_agent: '',
         created_at: log.created_at
       }));
 

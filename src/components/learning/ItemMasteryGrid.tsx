@@ -49,9 +49,8 @@ export const ItemMasteryGrid: React.FC = () => {
       });
 
       // Get all EDN items
-      // Table canonique : edn_items_complete (cf. EdnItemModal).
       const { data: ednItems } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select('item_code, title')
         .order('item_code');
 

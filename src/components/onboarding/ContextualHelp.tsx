@@ -61,21 +61,39 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
     loadDismissalStatus();
   }, [loadDismissalStatus]);
 
-  // Constat vérifié le 2026-09-18 : la table 'help_tips' n'existe pas en base
-  // (GET /rest/v1/help_tips -> 404 PGRST205). La requête échouait silencieusement à chaque
-  // rendu (seul `data` était déstructuré, `error` était ignoré) et le composant retombait de
-  // toute façon sur les props. La lecture distante est donc supprimée : l'aide contextuelle
-  // vient uniquement des props `title` / `content`, ce qui est son comportement réel.
   useEffect(() => {
-    if (!helpKey) return;
+    const loadHelpContent = async () => {
+      if (!helpKey) return;
 
-    setHelpContent({
-      id: crypto.randomUUID(),
-      key: helpKey,
-      title: title || 'Aide',
-      body: content || '',
-      route: location.pathname
-    });
+      // Essayer de charger depuis Supabase (table non typée)
+      // Table 'help_tips' not in generated Supabase types; using `as any` intentionally
+      const { data: helpData } = await (supabase as any)
+        .from('help_tips')
+        .select('*')
+        .eq('key', helpKey)
+        .maybeSingle();
+
+      if (helpData) {
+        setHelpContent({
+          id: helpData.id,
+          key: helpData.key,
+          title: helpData.title,
+          body: helpData.body,
+          route: helpData.route
+        });
+      } else {
+        // Utiliser les props si pas de données en base
+        setHelpContent({
+          id: crypto.randomUUID(),
+          key: helpKey,
+          title: title || 'Aide',
+          body: content || '',
+          route: location.pathname
+        });
+      }
+    };
+
+    loadHelpContent();
   }, [helpKey, location.pathname, title, content]);
 
   const shouldShow = () => {

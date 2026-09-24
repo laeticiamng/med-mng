@@ -73,13 +73,10 @@ export const useMusicGeneration = () => {
       // Add to library via Supabase directly
       const { data: { user } } = await supabase.auth.getUser();
       if (user && result?.trackId) {
-        // CONSTAT : 'med_mng_library' n'existe pas ; 'med_mng_view_library' est une VUE
-        // (non insérable). La table de base est 'med_mng_user_songs' (user_id, song_id,
-        // created_at) — même insertion que EnhancedQuiz.tsx ligne 282. 'added_at' n'existe
-        // pas : created_at est renseigné par défaut côté base.
-        await supabase.from('med_mng_user_songs').insert({
+        await supabase.from('med_mng_library' as any).insert({
           user_id: user.id,
-          song_id: result.trackId
+          song_id: result.trackId,
+          added_at: new Date().toISOString()
         });
       }
 

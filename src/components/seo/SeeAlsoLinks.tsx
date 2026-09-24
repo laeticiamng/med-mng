@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
 
 const ALL_PILLAR_PAGES = [
-  { path: ROUTE_PATHS.seoPreparationEcos, title: 'Préparation ECOS 2027 – Guide complet' },
+  { path: ROUTE_PATHS.seoPreparationEcos, title: 'Préparation ECOS 2026 – Guide complet' },
   { path: ROUTE_PATHS.seoReussirEdn, title: 'Réussir l\'EDN : stratégie et planning' },
   { path: ROUTE_PATHS.seoFichesEcos, title: 'Fiches ECOS interactives gratuites' },
   { path: ROUTE_PATHS.seoSimulationEdn, title: 'Simulateur d\'examen EDN en ligne' },

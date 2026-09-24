@@ -410,17 +410,56 @@ class MusicService {
       timestamp: new Date().toISOString()
     }
     
-    // Constat verifie le 2026-09-18 : la table 'music_analytics' n'existe pas en base
-    // (GET /rest/v1/music_analytics -> 404 PGRST205). L'insert precedent etait avale
-    // silencieusement (supabase-js ne leve pas, il renvoie { error } : le try/catch ne
-    // captait donc rien) et aucun ecran ne lisait ces donnees. Persistance retiree ;
-    // les analytics d'ecoute reellement affichees (/med-mng/analytics) reposent sur
-    // 'med_mng_user_analytics', qui existe bien.
     if (import.meta.env.DEV) console.log('📊 Music generation event:', event)
+    
+    // Stocker dans Supabase pour analytics persistants
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await (supabase as any).from('music_analytics').insert({
+          user_id: user.id,
+          event_type: event.event_type,
+          event_data: event
+        })
+      }
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('Failed to save music analytics:', err)
+    }
   }
 
-  // getAnalytics() / calculateSessionStats() supprimes le 2026-09-18 : ils lisaient la table
-  // 'music_analytics', absente de la base (404 PGRST205), et aucun composant ne les appelait.
+  async getAnalytics(): Promise<any> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { local_events: [], session_stats: this.calculateSessionStats([]) }
+    
+    const { data } = await (supabase as any)
+      .from('music_analytics')
+      .select('event_data')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(100)
+    
+    const events = (data || []).map((d: any) => d.event_data)
+    return {
+      local_events: events,
+      session_stats: this.calculateSessionStats(events)
+    }
+  }
+
+  private calculateSessionStats(events: any[]) {
+    const totalEvents = events.length
+    const successfulEvents = events.filter(e => e.success).length
+    const avgDuration = events.length > 0
+      ? events.reduce((sum, e) => sum + e.duration_seconds, 0) / events.length
+      : 0
+
+    return {
+      total_generations: totalEvents,
+      success_rate: totalEvents > 0 ? Math.round((successfulEvents / totalEvents) * 100) : 0,
+      average_duration: Math.round(avgDuration),
+      session_start: events[0]?.timestamp,
+      last_generation: events[events.length - 1]?.timestamp
+    }
+  }
 
   // Rechercher dans la bibliotheque
   async searchLibrary(query: string): Promise<any[]> {

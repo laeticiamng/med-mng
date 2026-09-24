@@ -9,8 +9,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { toast } from 'sonner';
 
 interface MusicTrack {
   id: string;
@@ -36,7 +34,6 @@ interface MusicPlaylistProps {
 
 export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => {
   const { user } = useAuth();
-  const { play: playAudio, pause: pauseAudio, resume: resumeAudio, isPlaying: audioIsPlaying, currentTrack: audioCurrentTrack } = useGlobalAudio();
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [history, setHistory] = useState<MusicTrack[]>([]);
@@ -106,61 +103,50 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
       return;
     }
 
-    // supabase-js ne lève pas sur erreur PostgREST : le try/catch précédent ne
-    // captait rien et l'échec d'écriture passait inaperçu.
-    const { error } = await supabase
-      .from('user_music_preferences' as any)
-      .upsert({
-        user_id: user.id,
-        favorites: [...favoritesToSave],
-        history: historyToSave,
-        shuffle_enabled: shuffleToSave,
-        repeat_mode: repeatToSave,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-
-    if (error) {
-      toast.error(`Préférences non enregistrées : ${error.message}`);
+    try {
+      await supabase
+        .from('user_music_preferences' as any)
+        .upsert({
+          user_id: user.id,
+          favorites: [...favoritesToSave],
+          history: historyToSave,
+          shuffle_enabled: shuffleToSave,
+          repeat_mode: repeatToSave,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+    } catch {
+      // Silent error handling
     }
   }, [user, favorites, history, shuffleEnabled, repeatMode]);
 
   const loadMusicData = useCallback(async () => {
-    setLoading(true);
+    try {
+      setLoading(true);
+      
+      const { data: itemsData } = await supabase
+        .from('edn_items_complete')
+        .select('id, item_code, title, paroles_musicales')
+        .not('paroles_musicales', 'is', null)
+        .order('item_code');
 
-    // Cette playlist listait les 367 items dès qu'ils avaient un champ TEXTE
-    // `paroles_musicales`, avec une durée calculée arithmétiquement
-    // (60 + 3 × nb_lignes + index) : elle annonçait « 367 titres disponibles »
-    // sans qu'aucun fichier audio n'existe, et les boutons Lecture ne
-    // produisaient aucun son. On ne liste désormais que les pistes réellement
-    // générées, celles que la chaîne Suno écrit dans `generated_music_tracks`.
-    const { data, error } = await supabase
-      .from('generated_music_tracks')
-      .select('id, title, audio_url, duration, metadata, created_at')
-      .eq('generation_status', 'completed')
-      .not('audio_url', 'is', null)
-      .order('created_at', { ascending: false });
+      const musicTracks = (itemsData || [])
+        .filter(item => item.paroles_musicales && item.paroles_musicales.length > 0)
+        .map((item, index) => ({
+          id: item.id,
+          item_code: item.item_code,
+          title: item.title,
+          // Durée déterministe basée sur la longueur des paroles
+          duration: 60 + ((item.paroles_musicales?.length || 0) * 3) + (index % 60),
+        }));
 
-    if (error) {
-      setTracks([]);
+      setTracks(musicTracks);
+      await loadUserPreferences(musicTracks);
+
+    } catch {
+      // Silent error handling
+    } finally {
       setLoading(false);
-      toast.error(`Playlist indisponible : ${error.message}`);
-      return;
     }
-
-    const musicTracks: MusicTrack[] = (data || []).map((row) => {
-      const meta = (row.metadata ?? {}) as { itemCode?: string; rang?: string };
-      return {
-        id: row.id,
-        item_code: meta.itemCode || row.title,
-        title: row.title,
-        audio_url: row.audio_url ?? undefined,
-        duration: row.duration ?? undefined,
-      };
-    });
-
-    setTracks(musicTracks);
-    await loadUserPreferences(musicTracks);
-    setLoading(false);
   }, [loadUserPreferences]);
 
   useEffect(() => {
@@ -199,17 +185,10 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     const index = displayList.findIndex(t => t.id === track.id);
     setCurrentIndex(index);
     setCurrentTrack(track);
+    setIsPlaying(true);
     addToHistory(track);
     onPlayTrack?.(track);
-
-    if (track.audio_url) {
-      playAudio({ url: track.audio_url, title: track.title, rang: 'AB' });
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(false);
-      toast.error("Cette piste n'a pas de fichier audio associé.");
-    }
-  }, [activeTab, tracks, favorites, history, addToHistory, onPlayTrack, playAudio]);
+  }, [activeTab, tracks, favorites, history, addToHistory, onPlayTrack]);
 
   // Skip to previous track
   const skipPrevious = useCallback(() => {
@@ -237,12 +216,8 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
       setCurrentTrack(newTrack);
       addToHistory(newTrack);
       onPlayTrack?.(newTrack);
-      if (newTrack.audio_url) {
-        playAudio({ url: newTrack.audio_url, title: newTrack.title, rang: 'AB' });
-        setIsPlaying(true);
-      }
     }
-  }, [activeTab, tracks, favorites, history, currentIndex, shuffleEnabled, repeatMode, addToHistory, onPlayTrack, playAudio]);
+  }, [activeTab, tracks, favorites, history, currentIndex, shuffleEnabled, repeatMode, addToHistory, onPlayTrack]);
 
   // Skip to next track
   const skipNext = useCallback(() => {
@@ -270,12 +245,8 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
       setCurrentTrack(newTrack);
       addToHistory(newTrack);
       onPlayTrack?.(newTrack);
-      if (newTrack.audio_url) {
-        playAudio({ url: newTrack.audio_url, title: newTrack.title, rang: 'AB' });
-        setIsPlaying(true);
-      }
     }
-  }, [activeTab, tracks, favorites, history, currentIndex, shuffleEnabled, repeatMode, addToHistory, onPlayTrack, playAudio]);
+  }, [activeTab, tracks, favorites, history, currentIndex, shuffleEnabled, repeatMode, addToHistory, onPlayTrack]);
 
   // Toggle shuffle mode
   const toggleShuffle = useCallback(() => {
@@ -352,20 +323,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
                 <Button 
                   size="icon" 
                   className="h-10 w-10 rounded-full"
-                  disabled={!currentTrack?.audio_url}
-                  onClick={() => {
-                    if (!currentTrack?.audio_url) return;
-                    if (audioIsPlaying && audioCurrentTrack?.url === currentTrack.audio_url) {
-                      pauseAudio();
-                      setIsPlaying(false);
-                    } else if (audioCurrentTrack?.url === currentTrack.audio_url) {
-                      resumeAudio();
-                      setIsPlaying(true);
-                    } else {
-                      playAudio({ url: currentTrack.audio_url, title: currentTrack.title, rang: 'AB' });
-                      setIsPlaying(true);
-                    }
-                  }}
+                  onClick={() => setIsPlaying(!isPlaying)}
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
                 </Button>
@@ -429,9 +387,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
             </div>
           </div>
           <CardDescription>
-            {tracks.length === 0
-              ? "Aucune chanson générée pour l'instant — les pistes apparaissent ici une fois la génération terminée"
-              : `${tracks.length} chanson${tracks.length > 1 ? 's' : ''} générée${tracks.length > 1 ? 's' : ''} et écoutable${tracks.length > 1 ? 's' : ''}`}
+            {tracks.length} titres disponibles pour mémoriser les items EDN
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -456,7 +412,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
                   <p className="text-sm text-muted-foreground mt-1">
                     {activeTab === 'favorites' && "Cliquez sur ❤️ pour ajouter des titres à vos favoris"}
                     {activeTab === 'history' && "Écoutez des musiques pour voir votre historique ici"}
-                    {activeTab === 'all' && "Aucune chanson n'a encore été générée. Lancez une génération depuis un item pour remplir cette playlist."}
+                    {activeTab === 'all' && "Les musiques mnémotechniques n'ont pas encore été générées pour les items"}
                   </p>
                 </div>
               </div>

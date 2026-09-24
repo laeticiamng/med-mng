@@ -23,7 +23,7 @@ interface RequestAttempt {
 export const ClientRateLimiter = () => {
   const [rateLimits, setRateLimits] = useState<RateLimitConfig[]>([
     {
-      endpoint: '/mm-generate-music',
+      endpoint: '/generate-music',
       maxRequests: 5,
       windowMs: 60000, // 1 minute
       currentCount: 0,

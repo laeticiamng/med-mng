@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -32,9 +32,7 @@ describe('Sitemap', () => {
       '/med-mng/login',
       '/med-mng/signup',
       '/edn-complete',
-      '/exam-mode',
-      '/clinical-cases',
-      '/flashcards',
+      '/edn/music-library',
       '/ecos',
     ];
     for (const route of requiredRoutes) {

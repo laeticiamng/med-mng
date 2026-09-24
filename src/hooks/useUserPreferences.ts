@@ -345,10 +345,7 @@ export function useUserPreferences() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
-      // Repousse hors du callback : supabase-js le declenche en tenant son
-      // verrou d'authentification, et toute requete lancee depuis l'interieur
-      // le redemande (cf. AuthProvider.tsx).
-        setTimeout(() => loadPreferences(), 0);
+        loadPreferences();
       } else if (event === 'SIGNED_OUT') {
         setPreferences(defaultPreferences);
       }

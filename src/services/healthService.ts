@@ -119,10 +119,7 @@ async function checkStorageHealth(): Promise<ServiceHealth> {
 async function checkEdgeFunctionsHealth(): Promise<ServiceHealth> {
   const start = performance.now();
   try {
-    // CONSTAT : aucune fonction edge 'health-check' n'existe dans supabase/functions/.
-    // La fonction réellement déployée s'appelle 'health' (supabase/functions/health/index.ts)
-    // et renvoie les checks database / storage. Le statut restait bloqué sur « degraded ».
-    const { error } = await supabase.functions.invoke('health', {
+    const { error } = await supabase.functions.invoke('health-check', {
       body: { ping: true }
     });
     const responseTime = performance.now() - start;

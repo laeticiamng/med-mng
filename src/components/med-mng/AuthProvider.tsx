@@ -3,17 +3,14 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 import { TEST_MODE_ENABLED, TEST_USER } from '@/config/testMode';
-import { cheminInterneSur } from '@/lib/cheminSuivant';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  /** `suivant` : chemin interne où revenir après confirmation de l'e-mail. */
-  signUp: (email: string, password: string, name: string, suivant?: string | null) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  /** `suivant` : chemin interne où revenir après la connexion Google. */
-  signInWithGoogle: (suivant?: string | null) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
 }
@@ -71,22 +68,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       });
 
-    // ------------------------------------------------------------------
-    // INTERBLOCAGE (constate en production le 18/09/2026)
-    // supabase-js execute ce callback EN TENANT son verrou d'authentification
-    // (navigator.locks : "lock:sb-<projet>-auth-token"). Tout appel a
-    // supabase.from(...) fait depuis l'interieur redemande ce meme verrou et
-    // ne l'obtient jamais : le verrou n'est plus jamais relache, et plus
-    // AUCUNE requete REST ne part de l'application. Mesure en ligne : verrou
-    // detenu, 24 acquisitions en attente, zero requete /rest/v1 sur toute la
-    // session. Favoris, gamification, quota, hors-ligne : tout etait gele.
-    //
-    // La regle de la documentation Supabase : dans ce callback, uniquement des
-    // mises a jour d'etat synchrones. Tout le reste est repousse hors du
-    // callback (setTimeout 0), une fois le verrou relache.
-    // ------------------------------------------------------------------
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (import.meta.env.DEV) console.log('🔔 Auth state change:', event);
         
         // Gérer les erreurs de token
@@ -100,19 +84,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Log auth events & upsert profile — hors du callback (cf. ci-dessus).
+        // Log auth events & upsert profile
         if (event === 'SIGNED_IN' && session?.user) {
-          setTimeout(async () => {
           // Log activity
           try {
-            // Colonnes réelles : user_id, activity_type, count, duration_seconds,
-            // metadata (pas de « action » ni de « duration »).
             await supabase.from('user_activity_log').insert({
               user_id: session.user.id,
               activity_type: 'study',
+              action: 'user_signed_in',
+              duration: 0,
               count: 1,
-              duration_seconds: 0,
-              metadata: { event: 'signed_in', action: 'user_signed_in' }
+              metadata: { event: 'signed_in' }
             });
           } catch (e) {
             if (import.meta.env.DEV) console.warn('Could not log sign in activity:', e);
@@ -151,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             }, 2000);
           }
-          }, 0);
+
         }
 
         if (event === 'SIGNED_OUT') {
@@ -175,13 +157,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, suivant?: string | null) => {
+  const signUp = async (email: string, password: string, name: string) => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}${cheminInterneSur(suivant) ?? '/edn-complete'}`,
+          emailRedirectTo: `${window.location.origin}/med-mng/music-library`,
           data: {
             name,
           },
@@ -203,12 +185,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async (suivant?: string | null) => {
+  const signInWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${cheminInterneSur(suivant) ?? '/edn-complete'}`,
+          redirectTo: `${window.location.origin}/med-mng/music-library`,
         },
       });
       return { error };

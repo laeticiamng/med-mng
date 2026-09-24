@@ -34,7 +34,7 @@ export const useMusicTransposition = () => {
       setProgress(30);
 
       // Étape 2: Appeler l'API de génération
-      const { data, error } = await supabase.functions.invoke('mm-generate-music', {
+      const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           lyrics: translatedLyrics,
           style: selectedStyle,

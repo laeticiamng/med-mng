@@ -18,7 +18,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === HOME ===
   '/': {
     title: 'MED MNG - Apprends la médecine en musique | EDN & ECOS',
-    description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium. Situations ECOS guidées.',
+    description: 'Révolutionne tes révisions médicales. 367 items EDN et simulations ECOS transformés en chansons. Écoute, retiens, réussis. Gratuit pour commencer.',
     keywords: `${BASE_KEYWORDS}, révisions, mémorisation, étudiants médecine`,
     canonical: '/',
   },
@@ -81,7 +81,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/exam-mode': {
     title: 'Mode Examen - Simulation EDN',
-    description: 'Examens blancs EDN chronométrés : questions générées à partir des items, score par spécialité et par rang.',
+    description: 'Simulez un examen EDN en conditions réelles : QCM, QRU, QROC chronométrés. Correction détaillée et analyse de performance.',
     keywords: `${BASE_KEYWORDS}, examen, simulation, QCM, QRU, QROC, entraînement`,
     canonical: '/exam-mode',
   },
@@ -165,7 +165,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === STORE ===
   '/store': {
     title: 'Boutique MED-MNG',
-    description: 'MED MNG Premium : contenu immersif des 367 items EDN et génération audio, 69 €/an ou 9,90 €/mois.',
+    description: 'Découvrez les produits et abonnements MED-MNG. Accédez aux contenus premium, générations musicales illimitées et plus.',
     keywords: `${BASE_KEYWORDS}, boutique, premium, abonnement, achats`,
     canonical: '/store',
   },
@@ -179,13 +179,13 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/signup': {
     title: 'Inscription Gratuite',
-    description: 'Créez votre compte MED-MNG gratuit : fiches officielles des 367 items EDN et 10 items d\'essai en immersion complète.',
+    description: 'Créez votre compte MED-MNG gratuit et commencez à apprendre la médecine en musique. Accès immédiat aux items EDN.',
     keywords: `${BASE_KEYWORDS}, inscription, créer compte, gratuit, démarrer`,
     canonical: '/med-mng/signup',
   },
   '/med-mng/pricing': {
     title: 'Tarifs & Abonnements',
-    description: 'MED MNG : fiches officielles des 367 items gratuites et 10 items d\'essai en immersion. MED MNG Premium : tous les items en immersion et génération audio, 69 €/an ou 9,90 €/mois.',
+    description: 'Choisissez votre formule MED-MNG : Gratuit, Pro Étudiant (19€) ou Premium (39€). Essai gratuit 7 jours pour réviser la médecine en musique.',
     keywords: `${BASE_KEYWORDS}, tarifs, prix, abonnement, premium, pro`,
     canonical: '/med-mng/pricing',
   },
@@ -439,16 +439,16 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
 
   // === PILLAR PAGES SEO (contenu long-form, acquisition organique) ===
-  '/preparation-ecos-2027': {
-    title: 'Préparation ECOS 2027 - Guide Complet',
-    description: 'Guide complet pour préparer les ECOS 2027. Méthodologie, simulations interactives, grilles d\'évaluation et conseils par spécialité.',
-    keywords: `${BASE_KEYWORDS}, ECOS 2027, préparation, guide, simulation, grille évaluation`,
-    canonical: '/preparation-ecos-2027',
+  '/preparation-ecos-2026': {
+    title: 'Préparation ECOS 2026 - Guide Complet',
+    description: 'Guide complet pour préparer les ECOS 2026. Méthodologie, simulations interactives, grilles d\'évaluation et conseils par spécialité.',
+    keywords: `${BASE_KEYWORDS}, ECOS 2026, préparation, guide, simulation, grille évaluation`,
+    canonical: '/preparation-ecos-2026',
     ogType: 'article',
   },
   '/reussir-edn': {
-    title: 'Réussir les EDN 2027 - Stratégies & Méthodes',
-    description: 'Stratégies pour réussir les EDN 2027 (session d\'octobre 2026). Planning de révision, priorisation des items, méthodes de mémorisation et erreurs à éviter.',
+    title: 'Réussir l\'EDN 2026 - Stratégies & Méthodes',
+    description: 'Stratégies éprouvées pour réussir l\'EDN. Planning de révision, priorisation des items, méthodes de mémorisation et erreurs à éviter.',
     keywords: `${BASE_KEYWORDS}, réussir EDN, stratégie, planning révision, méthodes`,
     canonical: '/reussir-edn',
     ogType: 'article',
@@ -462,7 +462,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/simulation-examen-edn': {
     title: 'Simulation Examen EDN - Entraînement Réaliste',
-    description: 'Examens blancs EDN chronométrés : questions générées à partir des items, score par spécialité et par rang.',
+    description: 'Simulez l\'examen EDN en conditions réelles. QCM, QRU, QROC chronométrés avec correction détaillée et analyse de performance.',
     keywords: `${BASE_KEYWORDS}, simulation examen, EDN, entraînement, conditions réelles, QCM`,
     canonical: '/simulation-examen-edn',
     ogType: 'article',
@@ -535,22 +535,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
 };
 
 /**
- * Sous-pages d'un item EDN (`/edn-complete/:slug/<segment>`).
- * Les libellés reprennent ceux affichés par les composants correspondants.
- */
-const SEO_SOUS_PAGES_ITEM_EDN: Record<string, { titre: string; description: string }> = {
-  'apercu': { titre: 'Aperçu', description: 'Aperçu d\'un item EDN : compétences UNESS de rang A et de rang B, contenus disponibles, notes et export PDF.' },
-  'rang-a': { titre: 'Rang A', description: 'Compétences officielles de rang A d\'un item EDN, issues du référentiel UNESS.' },
-  'rang-b': { titre: 'Rang B', description: 'Compétences officielles de rang B d\'un item EDN, issues du référentiel UNESS.' },
-  'quiz': { titre: 'Quiz', description: 'Quiz d\'un item EDN construit sur les compétences OIC officielles.' },
-  'stats': { titre: 'Statistiques', description: 'Progression sur un item EDN : historique des quiz, activité et validation des compétences.' },
-  'musique': { titre: 'Musique', description: 'Paroles mnémotechniques d\'un item EDN, par rang A, rang B et fusion A+B.' },
-  'scene': { titre: 'Scène clinique', description: 'Scène clinique immersive d\'un item EDN.' },
-  'planches': { titre: 'Planches de compétences', description: 'Les compétences OIC d\'un item EDN présentées en diaporama illustré.' },
-  'recit': { titre: 'Parcours narré des compétences', description: 'Mise en situation construite à partir des compétences OIC d\'un item EDN.' },
-};
-
-/**
  * Récupère la config SEO pour une route donnée
  * Retourne un fallback si la route n'est pas configurée
  */
@@ -562,15 +546,9 @@ export function getRouteSEO(pathname: string): RouteSEO {
 
   // Pattern matching for dynamic routes
   if (pathname.startsWith('/edn-complete/')) {
-    // La fiche d'un item est découpée en sous-pages (/apercu, /rang-a, …) :
-    // chacune annonce son propre titre. La sous-page affinera ensuite ce titre
-    // avec le code et l'intitulé réels de l'item une fois celui-ci chargé.
-    const segment = pathname.split('/').filter(Boolean)[2];
-    const sousPage = segment ? SEO_SOUS_PAGES_ITEM_EDN[segment] : undefined;
     return {
-      title: sousPage ? `Item EDN — ${sousPage.titre}` : 'Item EDN',
-      description: sousPage?.description
-        ?? 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur MED-MNG.',
+      title: 'Item EDN',
+      description: 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur MED-MNG.',
       keywords: `${BASE_KEYWORDS}, item EDN, cours, détail`,
       canonical: pathname,
       ogType: 'article',

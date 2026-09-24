@@ -17,4 +17,5 @@ export { ReassuranceSection } from './ReassuranceSection';
 export { AppleHero } from './AppleHero';
 export { AppleMusicPlayer } from './AppleMusicPlayer';
 export { AppleFeatureShowcase } from './AppleFeatureShowcase';
+export { AppleTestimonials } from './AppleTestimonials';
 export { AppleFinalCTA } from './AppleFinalCTA';

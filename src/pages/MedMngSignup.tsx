@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,9 +17,6 @@ const MIN_PASSWORD_LENGTH = 6;
 export const MedMngSignup = () => {
   const { user, signUp, signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  // Plan choisi avant l'inscription : retour vers la page d'abonnement.
-  const suivant = cheminInterneSur(searchParams.get('next'));
   const { logActivity } = useActivityTracking();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,7 +33,7 @@ export const MedMngSignup = () => {
   const [showConsentErrors, setShowConsentErrors] = useState(false);
 
   if (user) {
-    return <Navigate to={suivant ?? ROUTE_PATHS.ednComplete} replace />;
+    return <Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +66,7 @@ export const MedMngSignup = () => {
       return;
     }
 
-    const { error: signUpError } = await signUp(email, password, name, suivant);
+    const { error: signUpError } = await signUp(email, password, name);
     
     if (signUpError) {
       if (signUpError.message?.includes('already') || signUpError.status === 422) {
@@ -91,7 +87,7 @@ export const MedMngSignup = () => {
     if (signInError) {
       // Cas rare : le signup a réussi mais le signIn échoue
       toast.success('Compte créé avec succès !', { description: 'Connectez-vous avec vos identifiants.' });
-      navigate(avecSuivant(ROUTE_PATHS.medMngLogin, suivant));
+      navigate(ROUTE_PATHS.medMngLogin);
     } else {
       toast.success('Bienvenue sur MED-MNG ! 🎵');
       // La redirection se fait automatiquement via le `if (user) return Navigate`
@@ -102,7 +98,7 @@ export const MedMngSignup = () => {
 
   const handleOAuthSignIn = async (provider: 'google') => {
     setError('');
-    const result = await signInWithGoogle(suivant);
+    const result = await signInWithGoogle();
     if (result.error) {
       setError(result.error.message);
     }
@@ -127,7 +123,7 @@ export const MedMngSignup = () => {
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      onClick={() => navigate(avecSuivant(ROUTE_PATHS.medMngLogin, suivant))}
+                      onClick={() => navigate(ROUTE_PATHS.medMngLogin)}
                     >
                       Se connecter
                     </Button>
@@ -234,7 +230,7 @@ export const MedMngSignup = () => {
           
           <div className="text-center text-sm">
             Déjà un compte ?{' '}
-            <Link to={avecSuivant(ROUTE_PATHS.medMngLogin, suivant)} className="text-primary hover:underline">
+            <Link to={ROUTE_PATHS.medMngLogin} className="text-primary hover:underline">
               Se connecter
             </Link>
           </div>

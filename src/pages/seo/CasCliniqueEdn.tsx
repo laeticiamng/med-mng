@@ -14,7 +14,7 @@ const CasCliniqueEdn = () => {
     <>
       <SEOHead
         title="Cas cliniques corrigés pour l'EDN – Entraînement médecine | MED-MNG"
-        description="Cas cliniques générés par IA à partir des items EDN, avec questions progressives et correction. À vérifier avec vos sources officielles."
+        description="Cas cliniques corrigés pour l'EDN et les ECOS. Dossiers progressifs, scoring par compétence, correction détaillée. Préparez-vous efficacement."
         keywords="cas cliniques EDN, dossiers progressifs médecine, cas cliniques corrigés, entraînement médecine, ECOS cas cliniques"
         canonical="/cas-cliniques-edn"
       />
@@ -23,13 +23,13 @@ const CasCliniqueEdn = () => {
         <article className="container mx-auto px-4 py-20 max-w-4xl">
           
           <header className="mb-12">
-            <Badge variant="secondary" className="mb-4">Entraînement</Badge>
+            <Badge variant="secondary" className="mb-4">Entraînement premium</Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              Cas cliniques pour l'EDN : entraînez votre raisonnement
+              Cas cliniques corrigés pour l'EDN : entraînez-vous comme un pro
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Des cas cliniques générés par IA à partir des items EDN, avec questions progressives, correction et liens
-              vers les items. Les contenus générés par IA peuvent contenir des erreurs : vérifiez-les avec vos sources.
+              Des dossiers progressifs réalistes avec correction détaillée, scoring par compétence et liens vers les items EDN. 
+              La méthode la plus efficace pour progresser en raisonnement clinique.
             </p>
           </header>
 
@@ -45,7 +45,7 @@ const CasCliniqueEdn = () => {
             </p>
             <p className="text-muted-foreground mb-4">
               Les étudiants qui s'entraînent régulièrement sur des cas cliniques développent des réflexes diagnostiques 
-              utiles le jour de l'examen.
+              qui font la différence le jour de l'examen. C'est la méthode privilégiée par les majors de promo.
             </p>
           </section>
 
@@ -56,7 +56,7 @@ const CasCliniqueEdn = () => {
                 { icon: <FileText className="h-5 w-5" />, title: 'Présentation clinique', desc: 'Vignette réaliste avec antécédents, motif de consultation, constantes, examen physique.' },
                 { icon: <Brain className="h-5 w-5" />, title: 'Raisonnement diagnostique', desc: 'Questions progressives : hypothèses diagnostiques, examens complémentaires, interprétation des résultats.' },
                 { icon: <Stethoscope className="h-5 w-5" />, title: 'Prise en charge', desc: 'Traitement, prescription, mesures associées, suivi, éducation thérapeutique.' },
-                { icon: <Award className="h-5 w-5" />, title: 'Score & feedback', desc: 'Score sur vos réponses, correction et liens vers les items EDN.' },
+                { icon: <Award className="h-5 w-5" />, title: 'Score & feedback', desc: 'Notation par compétence ECOS, correction pédagogique détaillée, liens vers items EDN.' },
               ].map((s, i) => (
                 <Card key={i}>
                   <CardContent className="p-5 flex items-start gap-4">
@@ -72,7 +72,7 @@ const CasCliniqueEdn = () => {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Spécialités possibles</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Spécialités couvertes</h2>
             <div className="grid sm:grid-cols-3 gap-3">
               {[
                 'Cardiologie', 'Pneumologie', 'Gastro-entérologie', 'Neurologie', 'Endocrinologie',
@@ -113,7 +113,7 @@ const CasCliniqueEdn = () => {
                   </ol>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="text-xs">Items EDN : 232, 233, 234</Badge>
+                  <Badge variant="outline" className="text-xs">Items EDN : 232, 234, 236</Badge>
                   <Badge variant="outline" className="text-xs">Compétences : Clinicien, Prescripteur, Éducateur</Badge>
                 </div>
               </CardContent>
@@ -124,8 +124,8 @@ const CasCliniqueEdn = () => {
             <h2 className="text-2xl font-bold text-foreground mb-4">Conseils pour progresser</h2>
             <div className="space-y-3">
               {[
-                'Faites des cas cliniques régulièrement, surtout dans les derniers mois',
-                'Chronométrez-vous pour vous habituer au temps limité',
+                'Faites au moins 3-4 cas cliniques par semaine pendant les 6 derniers mois',
+                'Chronométrez-vous : un dossier EDN dure environ 15-20 minutes',
                 'Analysez chaque erreur et reliez-la à l\'item EDN correspondant',
                 'Variez les spécialités — ne restez pas dans votre zone de confort',
                 'Refaites les cas ratés après 2-3 semaines pour consolider',
@@ -142,9 +142,9 @@ const CasCliniqueEdn = () => {
             <h2 className="text-2xl font-bold text-foreground mb-4">FAQ</h2>
             <Accordion type="single" collapsible>
               {[
-                { q: 'Combien de cas cliniques sont disponibles ?', a: 'Les cas sont générés par IA à la demande à partir des items : leur nombre dépend de ce qui a déjà été généré.' },
-                { q: 'Les corrections sont-elles détaillées ?', a: 'Chaque cas inclut une correction et des liens vers les items EDN concernés. Elle est générée par IA : vérifiez-la avec vos sources officielles.' },
-                { q: 'Puis-je créer mes propres cas cliniques ?', a: 'Oui, depuis la page Cas cliniques, vous pouvez demander à l\'IA de générer un cas sur un item.' },
+                { q: 'Combien de cas cliniques sont disponibles ?', a: 'MED-MNG propose des dizaines de cas cliniques couvrant toutes les spécialités du programme EDN, avec de nouveaux cas ajoutés régulièrement.' },
+                { q: 'Les corrections sont-elles détaillées ?', a: 'Oui, chaque cas inclut une correction pédagogique complète avec références aux items EDN, scoring par compétence et pièges à éviter.' },
+                { q: 'Puis-je créer mes propres cas cliniques ?', a: 'Avec le plan Premium, vous pouvez utiliser l\'IA MED-MNG pour générer des cas cliniques personnalisés sur les sujets de votre choix.' },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
                   <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>
@@ -156,7 +156,7 @@ const CasCliniqueEdn = () => {
 
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3">Accédez aux cas cliniques</h2>
-            <p className="text-muted-foreground mb-6">Questions progressives, correction et liens vers les items EDN.</p>
+            <p className="text-muted-foreground mb-6">Dossiers progressifs, correction détaillée, scoring par compétence.</p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.clinicalCases}><Button size="lg" className="gap-2">Voir les cas cliniques <ArrowRight className="h-4 w-4" /></Button></Link>
               <Link to={ROUTE_PATHS.medMngPricing}><Button variant="outline" size="lg">Voir les tarifs</Button></Link>

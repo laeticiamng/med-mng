@@ -344,7 +344,7 @@ export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
 
   // ===== Homepage - AppleHero =====
   "Révolutionner l'apprentissage médical": { en: "Revolutionizing medical learning", de: "Medizinisches Lernen revolutionieren" },
-  "Apprenez la médecine": { en: "Learn medicine", de: "Lernen Sie Medizin" },
+  "Apprends la médecine": { en: "Learn medicine", de: "Lerne Medizin" },
   "en musique.": { en: "through music.", de: "mit Musik." },
   "Les 367 cours du programme médical.": { en: "The 367 courses of the medical program.", de: "Die 367 Kurse des Medizinprogramms." },
   "Transformés en": { en: "Transformed into", de: "Verwandelt in" },
@@ -387,10 +387,14 @@ export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
   "La musique active l'hippocampe et l'amygdale simultanément. Rétention 3x supérieure à la lecture passive. C'est neuroscientifique.": { en: "Music activates the hippocampus and amygdala simultaneously. 3x better retention than passive reading. It's neuroscience.", de: "Musik aktiviert den Hippocampus und die Amygdala gleichzeitig. 3x bessere Merkfähigkeit als passives Lesen. Das ist Neurowissenschaft." },
   "Explorer les 367 items": { en: "Explore the 367 items", de: "Die 367 Elemente erkunden" },
 
-  // ===== Homepage - anciens libellés de la section « témoignages » =====
-  // CONSTAT : les 4 témoignages traduits ici étaient inventés (aucun utilisateur réel).
-  // La section a été retirée de la page d’accueil, ses clés de traduction aussi.
-  // Les clés conservées ci-dessous servent au CTA final et à d’autres sections.
+  // ===== Homepage - AppleTestimonials =====
+  "Ce qu'ils en": { en: "What they", de: "Was sie" },
+  "disent": { en: "say", de: "sagen" },
+  "Retours de nos bêta-testeurs. Sceptiques au début. Convaincus maintenant.": { en: "Feedback from our beta testers. Skeptical at first. Convinced now.", de: "Rückmeldungen unserer Betatester. Anfangs skeptisch. Jetzt überzeugt." },
+  "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.": { en: "I retained more in 2 weeks of listening than in 2 months of flashcards. My brain remembers on its own.", de: "Ich habe in 2 Wochen Zuhören mehr behalten als in 2 Monaten mit Karteikarten. Mein Gehirn erinnert sich von allein." },
+  "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.": { en: "The concept is revolutionary. I study on the subway, while running, everywhere. Zero effort, max results.", de: "Das Konzept ist revolutionär. Ich lerne in der U-Bahn, beim Laufen, überall. Null Aufwand, maximale Ergebnisse." },
+  "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.": { en: "The choruses stay in your head for days. Perfect for items that never stuck.", de: "Die Refrains bleiben tagelang im Kopf. Perfekt für Elemente, die nie hängen blieben." },
+  "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.": { en: "Skeptical at first, converted after 3 days. This is exactly what medicine needed.", de: "Anfangs skeptisch, nach 3 Tagen überzeugt. Genau das, was die Medizin brauchte." },
   "Créer mon compte gratuit": { en: "Create my free account", de: "Mein kostenloses Konto erstellen" },
   "Gratuit pour commencer · Sans engagement": { en: "Free to start · No commitment", de: "Kostenlos zum Starten · Ohne Verpflichtung" },
   "Pour commencer": { en: "To get started", de: "Zum Starten" },
@@ -402,9 +406,9 @@ export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
   "Gratuit pour commencer": { en: "Free to start", de: "Kostenlos starten" },
   "Prêt à": { en: "Ready to", de: "Bereit," },
   "tout retenir ?": { en: "remember everything?", de: "alles zu behalten?" },
-  "Ne vous épuisez plus sur des fiches.": { en: "Stop exhausting yourself with flashcards.", de: "Quälen Sie sich nicht mehr mit Karteikarten." },
-  "Écoutez. Retenez. Réussissez.": { en: "Listen. Remember. Succeed.", de: "Hören. Behalten. Bestehen." },
-  "Ou explorez d'abord les items EDN": { en: "Or explore the EDN items first", de: "Oder erkunden Sie zuerst die EDN-Elemente" },
+  "Arrête de t'épuiser sur des fiches.": { en: "Stop exhausting yourself with flashcards.", de: "Hör auf, dich mit Karteikarten zu quälen." },
+  "Écoute. Retiens. Réussis.": { en: "Listen. Remember. Succeed.", de: "Hör zu. Behalte. Bestehe." },
+  "Ou explore les items EDN d'abord": { en: "Or explore the EDN items first", de: "Oder erkunde zuerst die EDN-Elemente" },
   "Aucune carte requise": { en: "No card required", de: "Keine Karte erforderlich" },
   "Accès instantané": { en: "Instant access", de: "Sofortiger Zugang" },
   "Annulation libre": { en: "Free cancellation", de: "Jederzeit kündbar" },
@@ -431,12 +435,12 @@ export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
   // ===== Navigation labels =====
   "Chat IA": { en: "AI Chat", de: "KI-Chat" },
 
-  // ===== PreparationEcos2027 Page =====
-  "Guide 2027": { en: "Guide 2027", de: "Leitfaden 2027" },
-  "Comment préparer les ECOS 2027 : le guide complet pour réussir": { en: "How to prepare for ECOS 2027: the complete guide to success", de: "ECOS 2027 vorbereiten: der vollständige Leitfaden zum Erfolg" },
+  // ===== PreparationEcos2026 Page =====
+  "Guide 2026": { en: "Guide 2026", de: "Leitfaden 2026" },
+  "Comment préparer les ECOS 2026 : le guide complet pour réussir": { en: "How to prepare for ECOS 2026: the complete guide to success", de: "ECOS 2026 vorbereiten: der vollständige Leitfaden zum Erfolg" },
   "Les ECOS (Examens Cliniques Objectifs Structurés) sont l'épreuve décisive du 2e cycle des études médicales. Ce guide vous donne toutes les clés pour vous y préparer efficacement, avec un planning structuré et des outils interactifs.": { en: "The ECOS (Objective Structured Clinical Examinations) are the decisive test of the 2nd cycle of medical studies. This guide gives you all the keys to prepare effectively, with a structured schedule and interactive tools.", de: "Die ECOS (Objektive Strukturierte Klinische Prüfungen) sind die entscheidende Prüfung des 2. Studienabschnitts der Medizin. Dieser Leitfaden gibt Ihnen alle Schlüssel für eine effektive Vorbereitung, mit einem strukturierten Zeitplan und interaktiven Werkzeugen." },
   "15 min de lecture": { en: "15 min read", de: "15 Min. Lesezeit" },
-  "Mis à jour septembre 2026": { en: "Updated September 2026", de: "Aktualisiert September 2026" },
+  "Mis à jour février 2026": { en: "Updated February 2026", de: "Aktualisiert Februar 2026" },
   "Sommaire": { en: "Table of contents", de: "Inhaltsverzeichnis" },
   "1. Comprendre les ECOS : format, notation, enjeux": { en: "1. Understanding ECOS: format, grading, stakes", de: "1. ECOS verstehen: Format, Bewertung, Herausforderungen" },
   "2. Les 11 compétences évaluées": { en: "2. The 11 assessed competencies", de: "2. Die 11 bewerteten Kompetenzen" },
@@ -529,11 +533,12 @@ export const TRANSLATIONS_DICT: Record<string, Record<string, string>> = {
   "Cardiologie, pneumologie, urgences, pédiatrie et gynécologie sont les plus fréquentes. Mais toutes les spécialités peuvent tomber.": { en: "Cardiology, pulmonology, emergencies, pediatrics and gynecology are the most frequent. But all specialties can come up.", de: "Kardiologie, Pneumologie, Notfälle, Pädiatrie und Gynäkologie sind die häufigsten. Aber alle Fachgebiete können vorkommen." },
   "Comment gérer le stress le jour J ?": { en: "How to manage stress on exam day?", de: "Wie man am Prüfungstag mit Stress umgeht?" },
   "Techniques de respiration, visualisation positive, et surtout : être bien préparé. La confiance vient de la pratique répétée.": { en: "Breathing techniques, positive visualization, and above all: being well prepared. Confidence comes from repeated practice.", de: "Atemtechniken, positive Visualisierung und vor allem: gut vorbereitet sein. Vertrauen kommt durch wiederholtes Üben." },
-  "Prêt à préparer les ECOS 2027 ?": { en: "Ready to prepare for ECOS 2027?", de: "Bereit für die ECOS 2027 Vorbereitung?" },
+  "Prêt à préparer les ECOS 2026 ?": { en: "Ready to prepare for ECOS 2026?", de: "Bereit für die ECOS 2026 Vorbereitung?" },
   "Rejoignez MED-MNG et accédez à des simulations ECOS complètes, des cas cliniques et de la musique médicale IA.": { en: "Join MED-MNG and access complete ECOS simulations, clinical cases, and AI medical music.", de: "Treten Sie MED-MNG bei und erhalten Sie Zugang zu vollständigen ECOS-Simulationen, klinischen Fällen und KI-Medizinmusik." },
-  
+  "Essai gratuit 7 jours": { en: "7-day free trial", de: "7 Tage kostenlos testen" },
+
   // ===== ReussirEdn Page =====
-  "Guide EDN 2027": { en: "EDN Guide 2027", de: "EDN-Leitfaden 2027" },
+  "Guide EDN 2026": { en: "EDN Guide 2026", de: "EDN-Leitfaden 2026" },
   "Guide complet pour réussir l'EDN : stratégie, planning et outils": { en: "Complete guide to succeed in the EDN: strategy, planning and tools", de: "Vollständiger Leitfaden zum Bestehen der EDN: Strategie, Planung und Werkzeuge" },
   "L'Examen Dématérialisé National (EDN) remplace l'ancien ECN. Avec 367 items à maîtriser et un classement national, la préparation doit être méthodique et intelligente. Ce guide vous donne la feuille de route complète.": { en: "The National Digital Exam (EDN) replaces the former ECN. With 367 items to master and a national ranking, preparation must be methodical and intelligent. This guide gives you the complete roadmap.", de: "Die Nationale Digitale Prüfung (EDN) ersetzt die ehemalige ECN. Mit 367 zu beherrschenden Elementen und einer nationalen Rangliste muss die Vorbereitung methodisch und intelligent sein. Dieser Leitfaden gibt Ihnen den vollständigen Fahrplan." },
   "20 min de lecture": { en: "20 min read", de: "20 Min. Lesezeit" },

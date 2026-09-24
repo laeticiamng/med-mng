@@ -40,12 +40,14 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       if (import.meta.env.DEV) console.log('✅ Régénération OIC terminée:', data);
 
-      // Constat vérifié le 2026-09-18 : l'edge function 'transform-edn-sections' n'existe pas
-      // (absente de supabase/functions/ ET non déployée : OPTIONS .../functions/v1/transform-edn-sections
-      // -> 404 NOT_FOUND). Son appel levait systématiquement une erreur, si bien que ce bouton
-      // affichait « ❌ Échec de la régénération » même quand 'regenerate-all-oic-content' (elle,
-      // bien déployée) venait de réussir. Étape supprimée : le panneau rend maintenant le vrai
-      // résultat de la régénération OIC.
+      const { error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
+        body: {}
+      });
+
+      if (transformError) {
+        throw transformError;
+      }
+
       setProgress(100);
 
       setResult({
@@ -110,6 +112,7 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
                 <li>Récupérer les 4,872 compétences OIC authentiques (Rang A + B)</li>
                 <li>Regénérer les tableaux pour tous les 367 items</li>
                 <li>Filtrer les compétences de qualité (intitulé ≥15 chars, description ≥20 chars)</li>
+                <li>Transformer automatiquement en sections structurées</li>
               </ul>
             </div>
           </AlertDescription>

@@ -13,29 +13,29 @@ import { GlowingCard } from '@/components/ui/glowing-card';
 const features = [
   {
     id: 'passive', icon: Headphones,
-    title: 'Réécoute', subtitle: 'Réviser en mobilité',
-    description: "Dans le métro, en cuisinant : réécouter les chansons de vos items vous aide à revoir les notions, en complément du quiz et de vos cours.",
+    title: 'Écoute passive', subtitle: 'Ton cerveau fait le travail',
+    description: "Dans le métro, en cuisinant, avant de dormir. La musique encode les informations dans ta mémoire sans effort conscient.",
     gradient: 'from-primary to-primary/60', bgGradient: 'from-primary/20 via-primary/5 to-transparent',
     colSpan: 2 as const,
   },
   {
     id: 'lyrics', icon: Music,
-    title: 'Paroles tirées du référentiel', subtitle: '1 chanson par item EDN',
-    description: "Les paroles sont écrites à partir des compétences rang A et rang B de l'item. Elles complètent la fiche, sans la remplacer.",
+    title: 'Paroles = Cours', subtitle: '1 chanson = 1 item EDN',
+    description: "Chaque mot est pensé pour transmettre l'essentiel. Les paroles SONT le cours. Pas de décor, que du contenu médical précis.",
     gradient: 'from-accent to-accent/60', bgGradient: 'from-accent/20 via-accent/5 to-transparent',
     colSpan: 1 as const,
   },
   {
     id: 'refrain', icon: Repeat,
     title: 'Refrain = Essentiel', subtitle: 'Les clés en boucle',
-    description: "Le refrain reprend les points clés de l'item, pour que vous les entendiez plusieurs fois.",
+    description: "Le refrain contient les points critiques. Tu l'entends 4 fois par chanson. Impossible d'oublier ce qui compte vraiment.",
     gradient: 'from-success to-success/60', bgGradient: 'from-success/20 via-success/5 to-transparent',
     colSpan: 1 as const,
   },
   {
     id: 'memory', icon: Brain,
-    title: 'Musique et mémoire', subtitle: 'Ce que dit la recherche',
-    description: "Certaines études montrent qu'une mélodie répétée peut aider à retenir un texte (Wallace, 1994). L'effet reste modeste : la chanson est un complément, pas une méthode miracle.",
+    title: 'Mémoire renforcée', subtitle: 'Appuyé par les neurosciences',
+    description: "La musique active l'hippocampe et l'amygdale simultanément. Des études montrent une rétention significativement supérieure à la lecture passive (Wallace, 1994 ; Rainey & Larsen, 2002).",
     gradient: 'from-warning to-warning/60', bgGradient: 'from-warning/20 via-warning/5 to-transparent',
     colSpan: 2 as const,
   },
@@ -58,7 +58,7 @@ export const AppleFeatureShowcase = () => {
             </span>
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            <TranslatedText text="Pourquoi la musique peut aider à mémoriser, et ses limites." />
+            <TranslatedText text="Ce n'est pas une promesse. C'est de la neuroscience appliquée." />
           </p>
         </motion.div>
 

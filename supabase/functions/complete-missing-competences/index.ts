@@ -2,7 +2,6 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 import { corsHeaders } from '../_shared/cors.ts';
-import { completionIA } from '../_shared/ia-resiliente.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -151,7 +150,13 @@ IMPORTANT:
 - Références récentes et fiables
 - Format JSON strict`;
 
-      const aiResponse = await completionIA({
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
             {
@@ -165,7 +170,8 @@ IMPORTANT:
           ],
           temperature: 0.3,
           max_tokens: 4000,
-        });
+        }),
+      });
 
       if (!aiResponse.ok) {
         console.error(`❌ AI request failed for ${comp.competence}`);

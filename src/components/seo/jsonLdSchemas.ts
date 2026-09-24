@@ -8,47 +8,7 @@
  * - FAQPage : questions fréquentes
  */
 
-const SITE_URL = 'https://medmng.com';
-
-/** Offre unique (source : src/config/offre.ts). */
-const OFFRES_JSONLD = [
-  {
-    '@type': 'Offer',
-    name: 'Gratuit',
-    price: '0',
-    priceCurrency: 'EUR',
-    availability: 'https://schema.org/InStock',
-    description: "Fiches officielles des 367 items EDN (compétences rang A et rang B, référentiel LiSA 2026) et contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai.",
-  },
-  {
-    '@type': 'Offer',
-    name: 'MED MNG Premium — annuel',
-    price: '69',
-    priceCurrency: 'EUR',
-    availability: 'https://schema.org/InStock',
-    description: 'Contenu immersif des 367 items EDN et 30 générations audio par mois. 69 € par an (environ 5,75 € par mois).',
-    priceSpecification: {
-      '@type': 'UnitPriceSpecification',
-      price: '69',
-      priceCurrency: 'EUR',
-      billingDuration: 'P1Y',
-    },
-  },
-  {
-    '@type': 'Offer',
-    name: 'MED MNG Premium — mensuel',
-    price: '9.90',
-    priceCurrency: 'EUR',
-    availability: 'https://schema.org/InStock',
-    description: 'Contenu immersif des 367 items EDN et 30 générations audio par mois. 9,90 € par mois.',
-    priceSpecification: {
-      '@type': 'UnitPriceSpecification',
-      price: '9.90',
-      priceCurrency: 'EUR',
-      billingDuration: 'P1M',
-    },
-  },
-];
+const SITE_URL = 'https://med-mng.lovable.app';
 
 export const createSoftwareApplicationSchema = () => ({
   '@context': 'https://schema.org',
@@ -57,10 +17,38 @@ export const createSoftwareApplicationSchema = () => ({
   applicationCategory: 'EducationalApplication',
   applicationSubCategory: 'Medical Education',
   operatingSystem: 'Web, iOS, Android (PWA)',
-  offers: OFFRES_JSONLD,
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Gratuit',
+      price: '0',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'EDN basique, 10 flashcards/jour, 3 générations musicales IA',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro Étudiant',
+      price: '19',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Musique IA illimitée, 367 items EDN complets, QCM + QROC, cas cliniques, flashcards SRS',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Premium',
+      price: '39',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Tout Pro + ECOS complets, cas cliniques avancés, mode examen EDN, support VIP',
+      priceValidUntil: '2027-12-31',
+    },
+  ],
   url: SITE_URL,
   screenshot: `${SITE_URL}/og-image.png`,
-  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium ; situations ECOS.',
+  description: 'Plateforme d\'apprentissage médical innovante par la musique. 367 items EDN et simulations ECOS transformés en chansons.',
   inLanguage: 'fr',
 });
 
@@ -109,7 +97,7 @@ export const createOrganizationSchemaFull = () => ({
   alternateName: 'MED MNG par EmotionsCare',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
-  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium ; situations ECOS.',
+  description: 'Plateforme d\'apprentissage médical innovante par la musique IA. Transforme 367 items EDN et simulations ECOS en chansons.',
   foundingDate: '2024',
   founder: {
     '@type': 'Organization',
@@ -145,13 +133,41 @@ export const createProductSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: 'MED-MNG Premium',
-  description: 'MED MNG Premium : contenu immersif des 367 items EDN (paroles, récit, planches, quiz) et génération audio. 69 € par an ou 9,90 € par mois.',
+  description: 'Abonnement premium MED-MNG : musique IA illimitée, ECOS complets, cas cliniques avancés, mode examen EDN.',
   brand: {
     '@type': 'Organization',
     name: 'MED-MNG par EmotionsCare',
   },
   category: 'Educational Software',
-  offers: OFFRES_JSONLD,
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Gratuit',
+      price: '0',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'EDN basique, 10 flashcards/jour, 3 générations musicales IA',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro Étudiant',
+      price: '19',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Musique IA illimitée, 367 items EDN complets, QCM + QROC, cas cliniques, flashcards SRS',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Premium',
+      price: '39',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Tout Pro + ECOS complets, cas cliniques avancés, mode examen EDN, support VIP',
+      priceValidUntil: '2027-12-31',
+    },
+  ],
 });
 
 export const createFAQPageSchema = () => ({
@@ -164,7 +180,7 @@ export const createFAQPageSchema = () => ({
       name: 'Qu\'est-ce que MED-MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel public UNESS/LiSA, ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
+        text: 'MED-MNG est une plateforme d\'apprentissage médical qui transforme les 367 items EDN et les simulations ECOS en chansons grâce à l\'intelligence artificielle. Écoutez, retenez, réussissez.',
       },
     },
     {
@@ -172,7 +188,7 @@ export const createFAQPageSchema = () => ({
       name: 'Comment fonctionne l\'apprentissage par la musique ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'La méthode MNG associe des paroles de chanson écrites à partir des compétences de chaque item, la réécoute et le rappel actif (quiz). La musique peut aider à retenir un texte ; l\'effet reste modeste et ne remplace pas vos cours.',
+        text: 'La méthode MNG combine la science cognitive (effet de production, encodage musical, répétition espacée) avec la génération musicale IA. Chaque item EDN est transformé en chanson mémorable, facilitant la rétention à long terme.',
       },
     },
     {
@@ -180,7 +196,7 @@ export const createFAQPageSchema = () => ({
       name: 'MED-MNG est-il gratuit ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'En partie. Les fiches officielles des 367 items (compétences rang A et rang B) et les situations ECOS sont gratuites, ainsi que le contenu immersif complet de 10 items d\'essai. MED MNG Premium (69 € par an ou 9,90 € par mois) ouvre le contenu immersif des 367 items et la génération audio (30 par mois).',
+        text: 'MED-MNG propose un accès gratuit aux items EDN de base avec 10 flashcards/jour et 3 générations musicales IA. Les formules Pro Étudiant (19€/mois) et Premium (39€/mois) offrent un accès illimité : génération musicale illimitée, QCM, cas cliniques, ECOS et plus. Essai gratuit de 7 jours.',
       },
     },
     {
@@ -188,7 +204,7 @@ export const createFAQPageSchema = () => ({
       name: 'MED-MNG couvre-t-il tous les items EDN ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans MED MNG Premium, et offert pour 10 items d\'essai ; l\'audio des chansons se génère à la demande.',
+        text: 'Oui, MED-MNG couvre les 367 items du programme EDN (R2C) avec cours musicaux, QCM, flashcards SRS et cas cliniques interactifs pour chaque item.',
       },
     },
     {
@@ -196,7 +212,7 @@ export const createFAQPageSchema = () => ({
       name: 'Puis-je utiliser MED-MNG hors connexion ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'En partie : grâce à la PWA, les fiches déjà consultées restent lisibles hors connexion. L\'audio, les quiz et la génération nécessitent une connexion.',
+        text: 'Oui, MED-MNG est une Progressive Web App (PWA). Installez-la sur votre appareil pour accéder à vos contenus même sans connexion internet. Les données se synchronisent automatiquement à la reconnexion.',
       },
     },
     {
@@ -204,16 +220,16 @@ export const createFAQPageSchema = () => ({
       name: 'Les données sont-elles sécurisées et conformes RGPD ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Vos données sont hébergées en Europe (Supabase), jamais vendues, et vous pouvez les exporter ou les supprimer depuis vos paramètres.',
+        text: 'MED-MNG est 100% conforme RGPD. Vos données sont chiffrées, hébergées en Europe via Supabase, avec export et suppression disponibles à tout moment dans vos paramètres.',
       },
     },
     // GEO - Questions conversationnelles IA
     {
       '@type': 'Question',
-      name: 'Quelle application pour réviser les EDN 2027 ?',
+      name: 'Quelle est la meilleure application pour réviser l\'EDN en 2025-2026 ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA à partir des compétences de chaque item, avec des situations ECOS guidées. À vous de juger si la méthode vous convient : le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
+        text: 'MED-MNG est la seule application qui combine apprentissage musical par IA et préparation complète à l\'EDN. Elle couvre les 367 items du programme R2C avec des chansons générées par IA, des QCM/QROC, des cas cliniques interactifs et des simulations ECOS. Contrairement aux applications de fiches classiques, MED-MNG exploite l\'encodage musical (prouvé par les neurosciences) pour tripler la rétention mnésique.',
       },
     },
     {
@@ -221,7 +237,7 @@ export const createFAQPageSchema = () => ({
       name: 'Comment apprendre la médecine par la musique ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED-MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B, puis vous pouvez générer l\'audio. Réécouter une chanson peut aider à retenir, en complément du rappel actif (quiz) et de vos cours.',
+        text: 'La méthode MNG (Music & Neuroscience for Grades) transforme les notions médicales en chansons grâce à l\'IA. L\'encodage musical active simultanément les aires auditives, linguistiques et émotionnelles du cerveau, créant des traces mnésiques plus durables que la lecture passive. MED-MNG applique cette méthode aux 367 items EDN.',
       },
     },
     {
@@ -229,7 +245,7 @@ export const createFAQPageSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les situations ECOS de MED-MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. MED MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
+        text: 'Oui, MED-MNG propose un accès gratuit incluant des simulations ECOS de base, des items EDN essentiels et 3 générations musicales IA par jour. Pour un accès illimité aux ECOS complets, cas cliniques avancés et mode examen EDN, les formules payantes démarrent à 19€/mois avec 7 jours d\'essai gratuit.',
       },
     },
     {

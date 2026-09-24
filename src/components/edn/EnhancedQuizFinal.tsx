@@ -6,8 +6,7 @@ import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { supabase } from '@/integrations/supabase/client';
 import { BookOpen, Music, RotateCcw, Settings, Trophy } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { estQuestionQuizGenerique } from '@/utils/tableauTransformations';
+import React, { useEffect, useState } from 'react';
 import { QuizFinal } from './QuizFinal';
 import { QuizErrorSongGenerator } from './music/QuizErrorSongGenerator';
 import { OicQuizGenerator } from './quiz/OicQuizGenerator';
@@ -120,40 +119,15 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     return completedSession;
   };
 
-  // Les 1101 questions stockées dans `edn_items_complete.quiz_questions`
-  // (3 par item, 367 items) sont trois gabarits où seul le numéro d'item change,
-  // sans aucun contenu médical. On les écarte : le composant bascule alors sur
-  // OicQuizGenerator, qui construit les questions depuis les compétences OIC
-  // réelles de l'item plutôt que d'afficher un quiz fabriqué.
-  const questionsReelles = useMemo((): typeof questions => {
-    const aGarder = (q: unknown) =>
-      !estQuestionQuizGenerique((q as { question?: string } | null | undefined)?.question);
-
-    if (Array.isArray(questions)) {
-      return (questions as unknown[]).filter(aGarder) as unknown as typeof questions;
-    }
-    if (questions && typeof questions === 'object') {
-      const filtre = { ...(questions as Record<string, unknown>) };
-      (['qcm', 'qru', 'qroc', 'zap'] as const).forEach((cle) => {
-        const valeur = filtre[cle];
-        if (Array.isArray(valeur)) {
-          filtre[cle] = (valeur as unknown[]).filter(aGarder);
-        }
-      });
-      return filtre as unknown as typeof questions;
-    }
-    return questions;
-  }, [questions]);
-
   // Calculer le nombre total de questions disponibles
   // Format 1: Tableau direct [{question, options, correct}, ...]
   // Format 2: Objet avec catégories {qcm: [...], qru: [...], ...}
-  const totalAvailableQuestions = Array.isArray(questionsReelles) 
-    ? questionsReelles.length 
-    : (Array.isArray(questionsReelles?.qcm) ? questionsReelles.qcm.length : 0) + 
-      (Array.isArray(questionsReelles?.qru) ? questionsReelles.qru.length : 0) + 
-      (Array.isArray(questionsReelles?.qroc) ? questionsReelles.qroc.length : 0) + 
-      (Array.isArray(questionsReelles?.zap) ? questionsReelles.zap.length : 0);
+  const totalAvailableQuestions = Array.isArray(questions) 
+    ? questions.length 
+    : (Array.isArray(questions?.qcm) ? questions.qcm.length : 0) + 
+      (Array.isArray(questions?.qru) ? questions.qru.length : 0) + 
+      (Array.isArray(questions?.qroc) ? questions.qroc.length : 0) + 
+      (Array.isArray(questions?.zap) ? questions.zap.length : 0);
 
   // Si le quiz n'est pas encore configuré, afficher le sélecteur ou le quiz OIC
   if (!quizStarted) {
@@ -182,7 +156,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   const QuizWithErrorTracking = () => {
     return (
       <QuizFinal 
-        questions={questionsReelles} 
+        questions={questions} 
         rewards={rewards}
         itemCode={itemCode}
         itemTitle={itemTitle}

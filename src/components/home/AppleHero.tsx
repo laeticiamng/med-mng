@@ -78,7 +78,7 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6"
         >
-          <span className="text-foreground"><TranslatedText text="Apprenez la médecine" /></span>
+          <span className="text-foreground"><TranslatedText text="Apprends la médecine" /></span>
           <br />
           <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
             <TranslatedText text="en musique." />
@@ -92,9 +92,9 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          <TranslatedText text="Les 367 items EDN, avec leurs compétences officielles rang A et rang B." />{' '}
+          <TranslatedText text="Les 367 cours du programme médical." />
           <br className="hidden sm:block" />
-          <TranslatedText text="Chaque item peut être mis en" /> <span className="text-foreground font-semibold"><TranslatedText text="chanson à la demande" /></span>.
+          <TranslatedText text="Transformés en" /> <span className="text-foreground font-semibold"><TranslatedText text="chansons que tu retiens" /></span>.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -119,7 +119,7 @@ export const AppleHero = () => {
             className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105 w-full sm:w-auto"
           >
             <Play className="h-5 w-5 mr-2" />
-            <TranslatedText text="Voir les 367 items" />
+            <TranslatedText text="Voir les 367 cours" />
           </Button>
         </motion.div>
 
@@ -131,8 +131,8 @@ export const AppleHero = () => {
           className="flex flex-wrap justify-center gap-3"
         >
           {[
-            { icon: Music, label: "Paroles tirées du référentiel" },
-            { icon: Brain, label: "Quiz par item" },
+            { icon: Music, label: "Paroles = Cours" },
+            { icon: Brain, label: "Mémoire durable" },
             { icon: Zap, label: "En mobilité" }
           ].map((item, index) => (
             <motion.div

@@ -19,9 +19,7 @@ export interface EdnItemOptimized {
   competences_oic_rang_b?: any;
 }
 
-// v3 : la source a changé (edn_items_immersive -> edn_items_complete),
-// on repart d'un cache neuf plutôt que de servir les anciens compteurs.
-const CACHE_KEY = 'edn_items_cache_v3';
+const CACHE_KEY = 'edn_items_cache_v2';
 
 interface CacheData {
   items: EdnItemOptimized[];
@@ -79,13 +77,7 @@ export const useEdnItemsOptimized = () => {
         level: 'info',
       });
 
-      // Table canonique : `edn_items_complete` (367 lignes, status « active »).
-      // Cette liste lisait encore `edn_items_immersive`, dont les compteurs de
-      // compétences divergent — IC-30 y annonce 7 compétences de rang A et
-      // IC-142 en annonce 6, alors que le référentiel `oic_competences` n'en
-      // contient aucune pour ces deux items : la carte promettait un tableau
-      // que l'onglet Rang A ne pouvait pas afficher.
-      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&status=eq.active&order=item_code`;
+      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&order=item_code`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
       const response = await fetch(url, {
         headers: getSupabaseHeaders(true),

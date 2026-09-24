@@ -109,12 +109,9 @@ const MedMngItemDetailComponent = () => {
     }
 
     try {
-      // Les favoris sont indexés par code d'item (`user_edn_favorites`),
-      // pas par identifiant.
       const nextFavorite = await toggleFavoriteItem({
         userId: user.id,
-        itemCode: item.code,
-        itemTitle: item.title,
+        itemId: item.id,
         isFavorite,
       });
       setIsFavorite(nextFavorite);
@@ -392,30 +389,6 @@ const MedMngItemDetailComponent = () => {
 
 export const MedMngItemDetail = withAuth(MedMngItemDetailComponent);
 
-interface CompetenceCle {
-  objectif_id?: string;
-  competence?: string;
-  intitule?: string;
-  description?: string;
-  rubrique?: string;
-}
-
-interface TableauRang {
-  title?: string;
-  subtitle?: string;
-  objectifs?: unknown;
-  competences_cles?: CompetenceCle[];
-  situations_cliniques?: unknown;
-  cas_complexes?: unknown;
-}
-
-/** Une liste JSONB peut arriver en chaîne : on ramène toujours à un tableau. */
-const versLignes = (valeur: unknown): string[] => {
-  if (Array.isArray(valeur)) return valeur.map(v => String(v)).filter(v => v.trim() !== '');
-  if (typeof valeur === 'string' && valeur.trim() !== '') return [valeur];
-  return [];
-};
-
 const renderFicheContent = (content: unknown) => {
   if (typeof content === 'string') {
     return <p className="text-sm text-foreground whitespace-pre-line">{content}</p>;
@@ -469,80 +442,5 @@ const renderFicheContent = (content: unknown) => {
     );
   }
 
-  // Les « fiches » de cette page sont les tableaux de rang de
-  // `edn_items_complete`, au format { title, subtitle, objectifs[],
-  // competences_cles[], situations_cliniques[], cas_complexes[] }. Ce format
-  // n'était traité par aucune des branches ci-dessus : les 734 fiches
-  // (367 items × rang A et B) retombaient sur un JSON.stringify et
-  // l'étudiant voyait le JSON brut de la ligne à l'écran.
-  if (content && typeof content === 'object') {
-    const tableau = content as TableauRang;
-    const blocs: Array<{ titre: string; lignes: string[] }> = [
-      { titre: 'Objectifs pédagogiques', lignes: versLignes(tableau.objectifs) },
-      { titre: 'Situations cliniques', lignes: versLignes(tableau.situations_cliniques) },
-      { titre: 'Cas complexes', lignes: versLignes(tableau.cas_complexes) },
-    ].filter(b => b.lignes.length > 0);
-    const competences = Array.isArray(tableau.competences_cles) ? tableau.competences_cles : [];
-
-    if (blocs.length === 0 && competences.length === 0) {
-      return (
-        <p className="text-sm text-muted-foreground">
-          Aucun contenu n'est enregistré pour cette fiche.
-        </p>
-      );
-    }
-
-    return (
-      <div className="space-y-4">
-        {competences.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">
-              Compétences ({competences.length})
-            </h4>
-            {competences.map((competence, index) => (
-              <div key={competence.objectif_id ?? index} className="rounded-lg border border-border/40 p-3 space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  {competence.objectif_id && (
-                    <Badge variant="outline" className="font-mono text-[11px]">
-                      {competence.objectif_id}
-                    </Badge>
-                  )}
-                  {competence.rubrique && (
-                    <Badge variant="secondary" className="text-[11px]">
-                      {competence.rubrique}
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm font-medium text-foreground">
-                  {competence.competence ?? competence.intitule ?? 'Compétence sans intitulé'}
-                </p>
-                {competence.description && competence.description !== competence.competence && (
-                  <p className="text-xs text-muted-foreground whitespace-pre-line">
-                    {competence.description}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {blocs.map(bloc => (
-          <div key={bloc.titre} className="space-y-1">
-            <h4 className="text-sm font-semibold text-foreground">{bloc.titre}</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              {bloc.lignes.map((ligne, index) => (
-                <li key={index} className="text-sm text-muted-foreground">{ligne}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <p className="text-sm text-muted-foreground">
-      Aucun contenu n'est enregistré pour cette fiche.
-    </p>
-  );
+  return <pre className="text-xs text-muted-foreground">{JSON.stringify(content, null, 2)}</pre>;
 };

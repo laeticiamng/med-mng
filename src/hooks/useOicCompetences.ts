@@ -1,25 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
-import { estCompetenceOICReelle } from '@/utils/tableauTransformations';
-
-/**
- * LECTURE EN REST DIRECT — corrigé le 18/09/2026.
- *
- * Ce hook interrogeait `oic_competences` via supabase-js. Constaté en ligne sur
- * medmng.com : le verrou d'authentification de supabase-js
- * (`lock:sb-yaincoxihiqdksxgrsrk-auth-token`, Web Locks API) reste pris et
- * n'est jamais relâché — 18 acquisitions en attente derrière lui. Toute requête
- * supabase-js attend donc indéfiniment : aucune requête HTTP n'est même émise,
- * et les blocs « Compétences UNESS (OIC) » et « Validation des compétences » de
- * la fiche item restaient bloqués sur « Chargement… » sans jamais afficher un
- * seul objectif.
- *
- * On lit donc en REST direct, comme le fait déjà
- * TableauCompetencesOICWithRealData — qui, lui, s'affiche correctement. La
- * cause racine du verrou (appels Supabase à l'intérieur du callback
- * `onAuthStateChange` de AuthProvider, et dépendance non mémoïsée
- * `sendWelcomeEmail` qui réabonne à chaque rendu) reste à traiter à part.
- */
+import { supabase } from '@/integrations/supabase/client';
 
 export interface OicCompetence {
   objectif_id: string;
@@ -103,47 +83,35 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     try {
       // Use direct padded item_parent for more reliable matching
-      const url =
-        `${SUPABASE_URL}/rest/v1/oic_competences` +
-        `?select=objectif_id,intitule,description,rang,item_parent,rubrique,sommaire` +
-        `&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
-
-      const response = await fetch(url, { headers: getSupabaseHeaders() });
+      const { data, error: fetchError } = await supabase
+        .from('oic_competences')
+        .select('objectif_id, intitule, description, rang, item_parent, rubrique')
+        .eq('item_parent', paddedItemParent)
+        .eq('rang', rang)
+        .order('objectif_id');
 
       // Ignore if a newer fetch was triggered
       if (currentFetch !== fetchCountRef.current) return;
 
-      if (!response.ok) {
-        const message = `Erreur ${response.status}`;
-        if (import.meta.env.DEV) console.warn(`[useOicCompetences] ${message}`);
-        setError(message);
+      if (fetchError) {
+        if (import.meta.env.DEV) console.warn(`[useOicCompetences] Error: ${fetchError.message}`);
+        setError(fetchError.message);
         setCompetences([]);
         setLoading(false);
         return;
       }
 
-      const data = (await response.json()) as Array<Record<string, string | null>>;
-      if (currentFetch !== fetchCountRef.current) return;
-
-      if (!Array.isArray(data)) {
-        setError('Format de réponse inattendu');
-        setCompetences([]);
-        setLoading(false);
-        return;
-      }
-
-      const realCompetences = data
-        // On écarte les lignes d'en-tête `IC-<n>-<rang>` : ce ne sont pas des
-        // compétences du référentiel, et elles faussaient le décompte affiché.
-        .filter(comp => Boolean(comp.objectif_id && comp.intitule) && estCompetenceOICReelle(comp.objectif_id))
+      const realCompetences = (data || [])
+        .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
+          Boolean(comp.objectif_id && comp.intitule)
+        )
         .map(comp => ({
-          objectif_id: comp.objectif_id as string,
-          intitule: comp.intitule as string,
+          objectif_id: comp.objectif_id,
+          intitule: comp.intitule,
           description: comp.description || comp.intitule,
           rubrique: comp.rubrique || '',
           rang: comp.rang || rang,
-          item_parent: comp.item_parent || paddedItemParent,
-          sommaire: comp.sommaire || undefined
+          item_parent: comp.item_parent || paddedItemParent
         })) as OicCompetence[];
 
       // Cache results

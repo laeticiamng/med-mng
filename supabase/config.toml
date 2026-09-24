@@ -62,7 +62,7 @@ verify_jwt = false
 # WEBHOOKS EXTERNES - verify_jwt = false (signatures validées en code)
 # ============================================================================
 
-[functions.mm-stripe-webhook]
+[functions.stripe-webhook]
 verify_jwt = false
 
 [functions.auth-webhook]
@@ -75,13 +75,22 @@ verify_jwt = false
 # FONCTIONS AUTHENTIFIÉES - verify_jwt = false, JWT validé en code
 # ============================================================================
 
-[functions.mm-firecrawl-scrape]
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+
+[functions.firecrawl-scrape]
 verify_jwt = false
 
 [functions.firecrawl-search]
 verify_jwt = false
 
-[functions.mm-perplexity-search]
+[functions.perplexity-search]
 verify_jwt = false
 
 [functions.whisper-transcribe]
@@ -104,21 +113,3 @@ verify_jwt = false
 
 [functions.generate-medical-lyrics]
 verify_jwt = false
-
-[functions.generer-paroles-item]
-verify_jwt = false
-
-[functions.generer-recit-item]
-verify_jwt = false
-
-[functions.mm-create-checkout]
-verify_jwt = false
-
-[functions.mm-check-subscription]
-verify_jwt = false
-
-[functions.mm-customer-portal]
-verify_jwt = false
-
-[functions.mm-referentiel-lisa-2026]
-verify_jwt = true

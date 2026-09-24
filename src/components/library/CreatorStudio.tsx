@@ -39,16 +39,6 @@ const SPECIALTIES = [
   'Pédiatrie', 'Urgences', 'Immunologie', 'Pneumologie',
 ];
 
-// ⚠️ CONSTAT D'AUDIT — PROMESSE NON TENUE (onglet « Studio » de /library)
-// La page d'accueil annonce : « Importe ton cours en PDF → l'IA crée des paroles de
-// chanson adaptées » (ApplePlatformFeatures.tsx l.24).
-// Or le CONTENU du fichier n'est JAMAIS lu : startGeneration() n'envoie que
-// file.name (le nom du fichier, extension retirée) à la fonction edge
-// 'generate-medical-lyrics'. Le PDF/PPTX déposé n'est ni parsé, ni uploadé.
-// De plus handlePublish() insère suno_audio_id = `cs-<timestamp>` (placeholder) :
-// la « chanson » publiée n'a aucun audio associé.
-// DECISION ATTENDUE : implémenter l'extraction du texte du PDF + la génération audio,
-// ou reformuler la promesse de la page d'accueil.
 export const CreatorStudio = () => {
   const { toast } = useToast();
   const [step, setStep] = useState<StudioStep>('upload');

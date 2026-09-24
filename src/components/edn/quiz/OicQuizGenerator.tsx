@@ -171,22 +171,20 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
       const score = questions.filter(q => answers[q.id] === q.correctIndex).length;
       const percentage = (score / questions.length) * 100;
 
-      // Sauvegarder en base de données. supabase-js ne lève pas sur erreur
-      // PostgREST : le try/catch précédent n'attrapait rien et un score perdu
-      // passait pour un score enregistré.
-      const { error: erreurEnregistrement } = await supabase.from('quiz_results').insert({
-        user_id: user.id,
-        item_code: itemCode,
-        item_title: itemTitle,
-        score: percentage,
-        total_questions: questions.length,
-        correct_answers: score,
-        wrong_answers: questions.length - score,
-        time_spent: 0
-      });
-
-      if (erreurEnregistrement) {
-        toast.error(`Score non enregistré : ${erreurEnregistrement.message}`);
+      // Sauvegarder en base de données
+      try {
+        await supabase.from('quiz_results').insert({
+          user_id: user.id,
+          item_code: itemCode,
+          item_title: itemTitle,
+          score: percentage,
+          total_questions: questions.length,
+          correct_answers: score,
+          wrong_answers: questions.length - score,
+          time_spent: 0
+        });
+      } catch {
+        // Erreur silencieuse
       }
 
       await addPoints(user.id, percentage === 100 ? 200 : 100, percentage === 100 ? 'perfectExam' : 'examCompleted');

@@ -62,7 +62,7 @@ const EcosIndex = () => {
       setEcosScenarios(data || []);
 
       if (!data || data.length === 0) {
-        toast.info('Aucune situation ECOS disponible pour le moment.', {
+        toast.info('Aucune situation ECOS trouvée. Veuillez d\'abord extraire les données depuis UNESS.', {
           duration: 5000
         });
       }
@@ -96,7 +96,7 @@ const EcosIndex = () => {
     <>
       <SEOHead
         title="Simulations ECOS"
-        description="Entraînez-vous aux ECOS avec des situations cliniques réalistes. Situations issues du référentiel, déroulé guidé, chronomètre et grille d'auto-évaluation."
+        description="Entraînez-vous aux ECOS avec des situations cliniques réalistes. Préparez l'examen clinique en musique."
         keywords="ECOS, simulation, clinique, médecine, examen"
         canonical="/ecos"
       />

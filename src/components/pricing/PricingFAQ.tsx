@@ -4,44 +4,68 @@ import { HelpCircle } from "lucide-react";
 
 const faqs = [
   {
-    question: "Qu'est-ce qui est gratuit ?",
-    answer: "Avec un compte gratuit : les fiches officielles des 367 items (compétences rang A et rang B, référentiel LiSA 2026), le contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai, et les situations ECOS."
+    question: "Comment fonctionne l'essai gratuit de 7 jours ?",
+    answer: "Inscrivez-vous au plan Pro Étudiant et profitez de 7 jours gratuits. Aucun prélèvement avant la fin de l'essai. Annulez à tout moment en 1 clic depuis votre profil."
   },
   {
-    question: "Que contient MED MNG Premium ?",
-    answer: "Le contenu immersif des 367 items (paroles rang A, rang B et A+B, récit, planches, quiz) et 30 générations audio de chansons par mois. Deux formules : 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il n'y a pas de période d'essai payante : les 10 items d'essai sont ouverts à tous."
+    question: "Puis-je changer de plan à tout moment ?",
+    answer: "Oui, vous pouvez upgrader ou downgrader votre abonnement à tout moment. Le changement prend effet immédiatement, calculé au prorata."
+  },
+  {
+    question: "Quelle est la différence entre Pro et Premium ?",
+    answer: "Le plan Pro donne accès à tout le contenu EDN (367 items), ECOS, cas cliniques et musique IA. Le plan Premium ajoute l'IA avancée, le planning personnalisé, le percentile national simulé et le support VIP."
   },
   {
     question: "Comment fonctionne le droit de rétractation ?",
-    answer: "Le contenu est accessible dès le paiement. Avant de payer, vous demandez expressément cet accès immédiat et reconnaissez perdre votre droit de rétractation dès cet accès (case à cocher). Voir les CGV."
+    answer: "Vous disposez de 14 jours pour vous rétracter, sauf si vous avez utilisé des crédits de génération. Dans ce cas, le service est considéré comme consommé."
   },
   {
-    question: "Puis-je résilier mon abonnement ?",
-    answer: "Oui, à tout moment depuis votre profil (« Gérer / résilier mon abonnement »). La résiliation arrête le renouvellement : vous conservez l'accès jusqu'à la fin de la période déjà payée (l'année ou le mois en cours)."
+    question: "Puis-je annuler mon abonnement ?",
+    answer: "Oui, annulation en 1 clic depuis votre profil. Vous conservez l'accès jusqu'à la fin de la période payée. Aucun engagement."
   },
   {
-    question: "Sur quoi repose le contenu ?",
-    answer: "Les compétences de chaque item (rang A et rang B) proviennent du référentiel public UNESS/LiSA. MED-MNG n'a aucun partenariat officiel avec l'UNESS ni le CNG. Les paroles et quiz sont générés par IA et doivent être vérifiés avec vos sources officielles."
+    question: "Le pack 6 mois est-il remboursable ?",
+    answer: "Le pack 6 mois Pro à 99€ bénéficie du même droit de rétractation de 14 jours. Après cette période, il n'est pas remboursable mais vous conservez l'accès pendant 6 mois."
+  },
+  {
+    question: "MED-MNG est-il adapté à la réforme R2C ?",
+    answer: "Oui, tout le contenu est aligné sur le programme R2C officiel avec les 367 items EDN, les rangs A et B, et les grilles ECOS conformes aux standards UNESS."
+  },
+  {
+    question: "Combien de temps faut-il pour voir des résultats ?",
+    answer: "La plupart des étudiants constatent une amélioration de leurs scores dès les 2 premières semaines. Le percentile national simulé vous permet de suivre votre progression en temps réel."
   },
   {
     question: "Puis-je utiliser MED-MNG sur mobile ?",
-    answer: "Oui, MED-MNG est une application web progressive (PWA) utilisable sur ordinateur, tablette et smartphone. Installez-la directement depuis votre navigateur."
+    answer: "Oui, MED-MNG est une application web progressive (PWA) utilisable sur tous les appareils : ordinateur, tablette et smartphone. Installez-la directement depuis votre navigateur."
   },
   {
     question: "Comment fonctionne la musique IA pour réviser ?",
-    answer: "Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. Avec MED MNG Premium, vous pouvez ensuite générer l'audio de la chanson (30 générations par mois)."
+    answer: "Notre IA génère des chansons médicales personnalisées à partir des items EDN. Chaque chanson est un moyen mnémotechnique unique pour ancrer les connaissances essentielles."
+  },
+  {
+    question: "Les QCM sont-ils conformes à l'EDN ?",
+    answer: "Oui, nos QCM sont construits selon le format officiel de l'EDN avec des questions à choix unique et multiple, classées par item et par rang (A et B)."
+  },
+  {
+    question: "Que contiennent les cas cliniques ?",
+    answer: "Chaque cas clinique comprend une présentation patient réaliste, des étapes de raisonnement clinique, une correction détaillée et un score par compétence ECOS."
   },
   {
     question: "Mes données sont-elles sécurisées ?",
-    answer: "Les données sont hébergées en Europe (RGPD) et ne sont jamais vendues. Vous pouvez les exporter ou les supprimer à tout moment."
+    answer: "Oui, toutes les données sont chiffrées et hébergées en Europe (RGPD). Vos données personnelles ne sont jamais partagées avec des tiers. Vous pouvez les exporter ou les supprimer à tout moment."
   },
   {
     question: "Y a-t-il un support en cas de problème ?",
-    answer: "Oui, écrivez à contact@emotionscare.com."
+    answer: "Les utilisateurs Pro bénéficient d'un support email prioritaire. Les utilisateurs Premium ont accès au support VIP avec réponse sous 24h."
+  },
+  {
+    question: "Comment fonctionne le percentile national simulé ?",
+    answer: "Après chaque examen blanc, votre score est comparé à l'ensemble des utilisateurs de la plateforme. Vous obtenez un rang simulé (top 10%, top 25%, etc.) pour évaluer votre niveau."
   },
   {
     question: "Puis-je accéder à MED-MNG hors connexion ?",
-    answer: "Les fiches déjà consultées restent lisibles hors connexion grâce à la PWA. L'audio, les quiz et la génération nécessitent une connexion internet."
+    answer: "Certaines fonctionnalités sont disponibles hors ligne grâce à la technologie PWA : fiches de révision, flashcards déjà chargées. Les examens et la génération musicale nécessitent une connexion internet."
   }
 ];
 

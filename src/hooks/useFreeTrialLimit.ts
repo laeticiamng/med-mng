@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
-// Offre MED MNG : la génération audio est incluse dans MED MNG Premium
-// (src/config/offre.ts) ; aucune génération offerte hors abonnement.
-const MAX_FREE_GENERATIONS = 0;
+const MAX_FREE_GENERATIONS = 3;
 
 interface FreeTrialError {
   code: string;

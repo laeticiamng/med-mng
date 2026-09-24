@@ -68,7 +68,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
     }
 
     if (!user) {
-      return <Navigate to={`${ROUTE_PATHS.medMngLogin}?next=${encodeURIComponent(location.pathname + location.search)}`} state={{ from: location }} replace />;
+      return <Navigate to={ROUTE_PATHS.medMngLogin} state={{ from: location }} replace />;
     }
 
     return <Component {...props} />;

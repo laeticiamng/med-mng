@@ -10,22 +10,20 @@ import { Link } from 'react-router-dom';
 import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const FichesEcosInteractives = () => {
-  // Les 12 situations réellement disponibles sur /ecos (table ecos_situations_uness).
-  // À mettre à jour si de nouvelles situations sont ajoutées.
   const specialties = [
-    { icon: <Heart className="h-5 w-5" />, name: 'Cardiologie / Urgences', examples: ['Douleur thoracique aiguë', 'Syndrome coronarien aigu ST+', 'Polytraumatisé (accident de la voie publique)'] },
-    { icon: <Stethoscope className="h-5 w-5" />, name: 'Neurologie / Gériatrie', examples: ['AVC ischémique en phase aiguë', 'Personne âgée confuse aux urgences'] },
-    { icon: <FileText className="h-5 w-5" />, name: 'Pédiatrie', examples: ['Enfant avec fièvre et éruption cutanée', 'Allergie alimentaire sévère chez l\'enfant'] },
-    { icon: <MessageSquare className="h-5 w-5" />, name: 'Psychiatrie', examples: ['Adolescent avec idées suicidaires', 'Dépression du post-partum'] },
-    { icon: <AlertTriangle className="h-5 w-5" />, name: 'Obstétrique', examples: ['Femme enceinte avec contractions prématurées'] },
-    { icon: <Pill className="h-5 w-5" />, name: 'Autres', examples: ['Patient diabétique avec pied infecté', 'Colique néphrétique hyperalgique'] },
+    { icon: <Heart className="h-5 w-5" />, name: 'Cardiologie', examples: ['Douleur thoracique', 'Insuffisance cardiaque', 'HTA résistante'] },
+    { icon: <Stethoscope className="h-5 w-5" />, name: 'Pneumologie', examples: ['Dyspnée aiguë', 'Asthme', 'Pneumothorax'] },
+    { icon: <AlertTriangle className="h-5 w-5" />, name: 'Urgences', examples: ['Arrêt cardiaque', 'Choc septique', 'AVC'] },
+    { icon: <MessageSquare className="h-5 w-5" />, name: 'Psychiatrie', examples: ['Annonce diagnostique', 'Risque suicidaire', 'Trouble anxieux'] },
+    { icon: <Pill className="h-5 w-5" />, name: 'Pharmacologie', examples: ['Prescription sécurisée', 'Interactions', 'Iatrogénie'] },
+    { icon: <FileText className="h-5 w-5" />, name: 'Pédiatrie', examples: ['Fièvre du nourrisson', 'Bronchiolite', 'Vaccination'] },
   ];
 
   return (
     <>
       <SEOHead
-        title="Situations ECOS guidées gratuites – Préparation médecine | MED-MNG"
-        description="12 situations ECOS guidées et gratuites pour préparer l'examen clinique : déroulé pas à pas, chronomètre et grille d'auto-évaluation."
+        title="Fiches ECOS interactives gratuites – Préparation médecine | MED-MNG"
+        description="Fiches ECOS interactives pour préparer l'examen clinique. Cardiologie, pneumologie, urgences, pédiatrie. Cas cliniques avec scoring par compétence."
         keywords="fiches ECOS, fiches interactives médecine, ECOS cardiologie, fiches révision ECOS gratuites"
         canonical="/fiches-ecos-interactives"
       />
@@ -34,27 +32,27 @@ const FichesEcosInteractives = () => {
         <article className="container mx-auto px-4 py-20 max-w-4xl">
           
           <header className="mb-12">
-            <Badge variant="secondary" className="mb-4">Gratuit avec un compte</Badge>
+            <Badge variant="secondary" className="mb-4">Ressources gratuites</Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              Situations ECOS guidées : entraînez-vous station par station
+              Fiches ECOS interactives : révisez par spécialité
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              12 situations ECOS issues du référentiel, avec un déroulé guidé (je questionne, j'examine, je conclus),
-              un chronomètre et une grille d'auto-évaluation. Préparez chaque station avec méthode.
+              Des fiches de révision ECOS structurées par spécialité, avec cas cliniques interactifs et notation 
+              par compétence. Préparez chaque station avec méthode.
             </p>
           </header>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Pourquoi des situations guidées ?</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Pourquoi des fiches interactives ?</h2>
             <p className="text-muted-foreground mb-4">
-              Relire une fiche ne prépare pas à parler à un patient. Nos situations vous font dérouler la station
-              étape par étape, puis vous comparez votre démarche à une grille d'auto-évaluation.
+              Les fiches papier classiques sont passives. Nos fiches ECOS interactives vous mettent en situation : 
+              vous devez répondre, prescrire, annoncer un diagnostic. Chaque action est évaluée sur les compétences ECOS.
             </p>
             <div className="grid sm:grid-cols-3 gap-4 mb-6">
               {[
-                { title: 'Guidé', desc: 'Déroulé étape par étape' },
-                { title: 'Chronomètre', desc: 'Pour s\'habituer au temps limité' },
-                { title: 'Auto-évaluation', desc: 'Grille de critères génériques à cocher' },
+                { title: 'Interactif', desc: 'Répondez aux questions comme le jour J' },
+                { title: 'Scoring', desc: 'Note par compétence ECOS en temps réel' },
+                { title: 'Feedback', desc: 'Correction détaillée après chaque fiche' },
               ].map((f, i) => (
                 <Card key={i}>
                   <CardContent className="p-4 text-center">
@@ -67,7 +65,7 @@ const FichesEcosInteractives = () => {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Les 12 situations disponibles</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Fiches par spécialité</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {specialties.map((spec, i) => (
                 <Card key={i} className="hover:shadow-md transition-shadow">
@@ -94,13 +92,13 @@ const FichesEcosInteractives = () => {
             <div className="space-y-4 text-muted-foreground">
               <p><strong>Étape 1 :</strong> Choisissez une spécialité et un cas clinique. Lisez la vignette clinique comme le jour de l'examen.</p>
               <p><strong>Étape 2 :</strong> Répondez aux questions (anamnèse, examen physique, hypothèses diagnostiques, examens complémentaires, PEC).</p>
-              <p><strong>Étape 3 :</strong> Remplissez la grille d'auto-évaluation. Identifiez vos points forts et vos lacunes.</p>
-              <p><strong>Étape 4 :</strong> Révisez les notions manquantes avec les items EDN correspondants (fiche, rang A, rang B, paroles).</p>
+              <p><strong>Étape 3 :</strong> Consultez votre score détaillé par compétence ECOS. Identifiez vos points forts et vos lacunes.</p>
+              <p><strong>Étape 4 :</strong> Révisez les notions manquantes avec les items EDN correspondants et les chansons MED-MNG.</p>
             </div>
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Exemple de situation : douleur thoracique</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Exemple de fiche ECOS : Douleur thoracique</h2>
             <Card className="bg-muted/30">
               <CardContent className="p-6 space-y-4">
                 <div>
@@ -112,9 +110,9 @@ const FichesEcosInteractives = () => {
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground text-sm mb-1">Dimensions travaillées</h3>
+                  <h3 className="font-semibold text-foreground text-sm mb-1">Compétences évaluées</h3>
                   <div className="flex flex-wrap gap-2">
-                    {['Interrogatoire', 'Examen clinique', 'Prise en charge', 'Communication'].map(c => (
+                    {['Clinicien', 'Communicateur', 'Prescripteur', 'Urgentiste'].map(c => (
                       <Badge key={c} variant="outline" className="text-xs">{c}</Badge>
                     ))}
                   </div>
@@ -137,9 +135,9 @@ const FichesEcosInteractives = () => {
             <h2 className="text-2xl font-bold text-foreground mb-4">FAQ</h2>
             <Accordion type="single" collapsible>
               {[
-                { q: 'Les situations ECOS sont-elles gratuites ?', a: 'Oui, les situations ECOS sont accessibles gratuitement.' },
-                { q: 'Combien de situations ECOS sont disponibles ?', a: '12 situations sont disponibles pour l\'instant.' },
-                { q: 'Les situations sont-elles officielles ?', a: 'Elles s\'inspirent des situations de départ du référentiel. La grille d\'auto-évaluation utilise des critères génériques : ce n\'est pas la grille officielle de la station.' },
+                { q: 'Les fiches ECOS sont-elles gratuites ?', a: 'Les fiches découverte sont gratuites. L\'accès complet avec scoring et feedback détaillé est disponible avec le plan Pro à 19€/mois (essai gratuit 7 jours).' },
+                { q: 'Combien de fiches ECOS sont disponibles ?', a: 'MED-MNG propose des fiches pour toutes les spécialités du programme, couvrant les cas les plus fréquents aux ECOS.' },
+                { q: 'Les fiches sont-elles conformes au programme officiel ?', a: 'Oui, toutes nos fiches sont alignées sur le référentiel de compétences ECOS et les 367 items du programme EDN.' },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
                   <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>
@@ -150,10 +148,10 @@ const FichesEcosInteractives = () => {
           </section>
 
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Accédez aux situations ECOS</h2>
-            <p className="text-muted-foreground mb-6">Déroulé guidé, chronomètre, grille d'auto-évaluation et historique de vos tentatives.</p>
+            <h2 className="text-2xl font-bold text-foreground mb-3">Accédez à toutes les fiches ECOS</h2>
+            <p className="text-muted-foreground mb-6">Scoring par compétence, feedback détaillé, progression suivie.</p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <Link to={ROUTE_PATHS.medMngSignup}><Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button></Link>
+              <Link to={ROUTE_PATHS.medMngSignup}><Button size="lg" className="gap-2">Essai gratuit 7 jours <ArrowRight className="h-4 w-4" /></Button></Link>
               <Link to={ROUTE_PATHS.ecosIndex}><Button variant="outline" size="lg">Voir les ECOS</Button></Link>
             </div>
           </div>

@@ -87,7 +87,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     id: '5',
     question: 'Comment fonctionne l\'abonnement Premium ?',
-    answer: 'MED MNG Premium coûte 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il ouvre le contenu immersif des 367 items (paroles, récit, planches, quiz) et 30 générations audio par mois. Sans abonnement, vous gardez les fiches officielles des 367 items, 10 items d\'essai en immersion complète et les situations ECOS. Paiement via Stripe ; résiliation à tout moment depuis votre profil, avec effet à la fin de la période payée.',
+    answer: 'L\'abonnement Premium débloque : génération illimitée de chansons, accès complet aux simulations ECOS, MedChat IA avancé, export PDF, et statistiques détaillées. Facturation mensuelle via Stripe, annulation possible à tout moment.',
     category: 'Compte',
     helpful: 145
   },

@@ -55,7 +55,7 @@ export const perplexityApi = {
     model: PerplexityModel = 'sonar',
     options?: PerplexityOptions
   ): Promise<PerplexityResponse> {
-    const { data, error } = await supabase.functions.invoke('mm-perplexity-search', {
+    const { data, error } = await supabase.functions.invoke('perplexity-search', {
       body: { messages, model, options },
     });
 

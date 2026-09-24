@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { corsHeaders } from '../_shared/cors.ts';
-import { completionIA } from '../_shared/ia-resiliente.ts';
 
 interface Recommendation {
   title: string;
@@ -108,7 +107,13 @@ Génère exactement 5 recommandations qui:
 
 Les recommandations doivent être pratiques et adaptées au contexte des notifications A/B tests.`;
 
-    const aiResponse = await completionIA({
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
           {
@@ -174,7 +179,8 @@ Les recommandations doivent être pratiques et adaptées au contexte des notific
           type: "function",
           function: { name: "generate_recommendations" },
         },
-      });
+      }),
+    });
 
     if (!aiResponse.ok) {
       if (aiResponse.status === 429) {

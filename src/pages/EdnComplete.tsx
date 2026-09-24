@@ -1,11 +1,12 @@
 // @refresh reset
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
-import { cheminItemEdn, segmentDepuisOngletLegacy } from "@/pages/edn-item/ednItemTabs";
+import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { OfflineStatusBar } from "@/components/edn/OfflineStatusBar";
 import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { EdnItemSkeletonGrid } from "@/components/edn/EdnItemSkeleton";
 import { MVPFooter } from "@/components/layout/MVPFooter";
+import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
@@ -23,7 +24,7 @@ import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
 import { useEdnOffline } from "@/hooks/useEdnOffline";
 import { useGamification } from "@/hooks/useGamification";
 import { useIAQuota } from "@/hooks/useIAQuota";
-import { ProfileSubscription } from "@/components/med-mng/profile/ProfileSubscription";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -82,7 +83,11 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
+  const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
+  const [showPricing, setShowPricing] = useState(false);
+  const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   
@@ -93,6 +98,7 @@ export default function EdnComplete() {
   // Hooks qui font des appels Supabase
   const { stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
+  const { subscription } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
   const { isAvailableOffline, isDownloading, downloadItem, removeItem, downloadedCount, syncProgress } = useEdnOffline();
   const { isOnline, pendingCount } = useOfflineSync();
@@ -286,18 +292,27 @@ export default function EdnComplete() {
     return () => observer.disconnect();
   }, [hasMore, filteredItems.length]);
 
-  // La fiche d'un item n'est plus une modale à neuf onglets montés d'un coup :
-  // c'est une route avec une sous-page par écran (cf. src/pages/edn-item/).
-  // On y navigue, ce qui donne une URL partageable, un retour arrière qui
-  // fonctionne écran par écran, et un chargement à la demande. Les anciens
-  // identifiants d'onglet (« music », « bd »…) sont traduits en segments d'URL
-  // par segmentDepuisOngletLegacy, donc les appels existants continuent de
-  // viser le bon écran.
-  const openItemModal = useCallback((item: EdnItem, tab?: string) => {
-    const slug = item.slug || item.item_code?.toLowerCase();
-    if (!slug) return;
-    navigate(cheminItemEdn(slug, segmentDepuisOngletLegacy(tab)));
-  }, [navigate]);
+  const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
+    // Ouvrir la modal immédiatement avec données partielles
+    setSelectedItem(item);
+    setSelectedItemTab(tab || 'overview');
+    setIsModalOpen(true);
+    
+    // Puis fetch données complètes (tableaux, quiz, scène, etc.) via supabase
+    try {
+      const { data } = await supabase
+        .from('edn_items_immersive')
+        .select('*')
+        .eq('item_code', item.item_code)
+        .maybeSingle();
+
+      if (data) {
+        setSelectedItem({ ...item, ...data });
+      }
+    } catch (err) {
+      // Silently ignore - partial data is still usable
+    }
+  }, []);
 
   if (loading && ednItems.length === 0) {
     return (
@@ -395,7 +410,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">Répétition espacée</span>
+                    <span className="hidden sm:inline">SRS</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -413,7 +428,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 border-success/30 hover:bg-success/10 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <Gamepad2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden lg:inline">Cas cliniques</span>
+                    <span className="hidden lg:inline">Cas</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -422,7 +437,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 border-warning/30 hover:bg-warning/10 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden lg:inline">Flashcards</span>
+                    <span className="hidden lg:inline">Flash</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -431,7 +446,7 @@ export default function EdnComplete() {
                     className="gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 text-xs shrink-0"
                   >
                     <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden xl:inline">Progression</span>
+                    <span className="hidden xl:inline">Stats</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -452,7 +467,7 @@ export default function EdnComplete() {
                     <TabsTrigger value="complete" className="text-[10px] sm:text-xs px-2 sm:px-3">📚 Items</TabsTrigger>
                     <TabsTrigger value="immersive" className="text-[10px] sm:text-xs px-2 sm:px-3">🎯 Approfondir</TabsTrigger>
                     <TabsTrigger value="music" className="text-[10px] sm:text-xs px-2 sm:px-3">🎵 Écouter</TabsTrigger>
-                    <TabsTrigger value="subscription" className="text-[10px] sm:text-xs px-2 sm:px-3">⭐ Abonnement</TabsTrigger>
+                    <TabsTrigger value="subscription" className="text-[10px] sm:text-xs px-2 sm:px-3">⭐ Premium</TabsTrigger>
                   </TabsList>
                 </div>
               </div>
@@ -465,12 +480,13 @@ export default function EdnComplete() {
         <Alert className="mb-4 bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
           <Sparkles className="h-4 w-4 text-primary" />
           <AlertDescription className="text-sm text-foreground">
-            <strong className="font-semibold">Ce qui est inclus</strong>
+            <strong className="font-semibold">Accès gratuit illimité aux révisions EDN</strong>
             <div className="mt-1 space-y-1">
-              <div>✅ Fiches officielles des 367 items (compétences rang A et rang B) : <strong>gratuit</strong></div>
-              <div>✅ Paroles, récit, planches et quiz des items IC-1 à IC-10 : <strong>gratuit</strong></div>
+              <div>✅ Réviser les 367 items EDN : <strong>GRATUIT ♾️</strong></div>
+              <div>✅ Lire tout le contenu (Rang A + B) : <strong>GRATUIT</strong></div>
+              <div>✅ Faire les quiz : <strong>GRATUIT</strong></div>
               <div className="mt-2 pt-2 border-t border-primary/20 dark:border-primary/30">
-                ⭐ <strong>MED MNG Premium</strong> (69 €/an ou 9,90 €/mois) : contenu immersif des 367 items et génération audio
+                🎵 Les crédits ({quota || 80}/160) servent uniquement à <strong>générer des musiques IA personnalisées</strong>
               </div>
             </div>
           </AlertDescription>
@@ -535,11 +551,11 @@ export default function EdnComplete() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
+                onClick={() => navigate(ROUTE_PATHS.learningDashboard)}
                 className="flex items-center gap-2"
               >
                 <BarChart3 className="h-4 w-4" />
-                Ma progression
+                Analytics
               </Button>
               
               <div className="flex gap-1 border rounded-md">
@@ -711,8 +727,59 @@ export default function EdnComplete() {
 
           <TabsContent value="subscription">
             <div className="space-y-6">
-              {/* Abonnement : même source et même vue que le profil */}
-              <ProfileSubscription />
+              {/* Quota Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <QuotaIndicator showDetails />
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Plan actuel</CardTitle>
+                    <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {subscription?.plan_name || 'Plan Gratuit'}
+                        </span>
+                        <Badge variant={subscription ? 'default' : 'secondary'}>
+                          {subscription ? 'Actif' : 'Gratuit'}
+                        </Badge>
+                      </div>
+                      {subscription && (
+                        <div className="text-sm text-muted-foreground">
+                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
+                          <p>Statut: {subscription.status}</p>
+                        </div>
+                      )}
+                      {!subscription && (
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            Vous utilisez le plan gratuit avec des fonctionnalités limitées.
+                          </p>
+                          <Button 
+                            onClick={() => setShowPricing(true)}
+                            className="w-full"
+                          >
+                            Découvrir nos plans
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Pricing Plans */}
+              {showPricing && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Choisissez votre plan</h3>
+                  <PricingPlans 
+                    onSelectPlan={(planId) => {
+                      navigate(`/med-mng/subscribe/${planId}`);
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Usage Stats */}
               <Card>
@@ -780,6 +847,13 @@ export default function EdnComplete() {
 
       </div>
 
+        {/* Modal */}
+        <EdnItemModal
+          item={selectedItem}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          initialTab={selectedItemTab}
+        />
       </Tabs>
       <MVPFooter />
     </div>

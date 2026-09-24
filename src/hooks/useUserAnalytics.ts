@@ -64,11 +64,8 @@ export const useUserAnalytics = () => {
         sessionsResponse,
         badgesResponse,
       ] = await Promise.all([
-        // CONSTAT : la table 'items' n'existe pas. Le catalogue des 367 items EDN est
-        // 'edn_items_complete' (même requête que medMngItemsService.ts ligne 246).
-        // Conséquence avant correction : totalItems = 0, donc « X révisés sur 0 items »
-        // et progressPercentage = 0 % sur /med-mng/progress.
-        (supabase as any).from('edn_items_complete').select('id', { count: 'exact', head: true }),
+        // Total items
+        (supabase as any).from('items').select('id', { count: 'exact', head: true }),
         
         // Progression utilisateur
         (supabase as any)
@@ -84,13 +81,10 @@ export const useUserAnalytics = () => {
           .eq('id', user.id)
           .maybeSingle(),
         
-        // CONSTAT : la table 'med_mng_library' n'existe pas. La vraie source de lecture
-        // est la vue 'med_mng_view_library' (id, user_id, is_liked, suno_audio_id, title,
-        // added_to_library_at). Les colonnes 'song_id' et 'added_at' n'y existent pas et
-        // n'étaient de toute façon pas utilisées (seuls .length et is_liked le sont).
+        // Bibliothèque musicale
         (supabase as any)
-          .from('med_mng_view_library')
-          .select('id, is_liked')
+          .from('med_mng_library')
+          .select('id, song_id, is_liked, added_at')
           .eq('user_id', user.id),
         
         // Sessions d'étude
@@ -153,19 +147,16 @@ export const useUserAnalytics = () => {
       if (progressData.length > 0) {
         // Récupérer les items avec leur spécialité
         const contentIds = progressData.map((p: any) => p.content_id);
-        // CONSTAT : ni la table 'items' ni la table 'specialties' n'existent. La spécialité
-        // est une colonne scalaire 'specialite' de 'edn_items_complete', et user_progress
-        // .content_id référence bien edn_items_complete.id (cf. medMngItemsService.ts l.62).
         const { data: itemsWithSpecialty } = await (supabase as any)
-          .from('edn_items_complete')
-          .select('id, specialite')
+          .from('items')
+          .select('id, specialties(name)')
           .in('id', contentIds);
         
         if (itemsWithSpecialty) {
           const specialtyMap: Record<string, { total: number; revised: number }> = {};
           
           itemsWithSpecialty.forEach((item: any) => {
-            const specialtyName = item.specialite || 'Sans spécialité';
+            const specialtyName = item.specialties?.name || 'Sans spécialité';
             if (!specialtyMap[specialtyName]) {
               specialtyMap[specialtyName] = { total: 0, revised: 0 };
             }

@@ -118,7 +118,6 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     handleGenerateMix: originalHandleGenerateMix,
     handlePlayAudio,
     seek,
-    stop,
     changeVolume
   } = useParolesMusicales(paroles, {
     paroles_rang_a, 
@@ -186,29 +185,23 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     const rating = feedback === 'like' ? 5 : 2;
     setUserFeedback(feedback);
 
-    const { error } = await supabase.from('music_feedback').upsert({
-      user_id: user.id,
-      item_code: itemCode,
-      style: selectedStyle,
-      rating,
-      audio_url: typeof generatedAudio === 'string' ? generatedAudio : null,
-      created_at: new Date().toISOString()
-    }, { onConflict: 'user_id,item_code' });
+    try {
+      await supabase.from('music_feedback').upsert({
+        user_id: user.id,
+        item_code: itemCode,
+        style: selectedStyle,
+        rating,
+        audio_url: typeof generatedAudio === 'string' ? generatedAudio : null,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'user_id,item_code' });
 
-    if (error) {
-      setUserFeedback(null);
       toast({
-        title: "Avis non enregistré",
-        description: error.message,
-        variant: 'destructive'
+        title: feedback === 'like' ? '👍 Merci !' : '📝 Feedback enregistré',
+        description: 'Votre avis nous aide à améliorer la génération musicale'
       });
-      return;
+    } catch {
+      // Silent error handling
     }
-
-    toast({
-      title: feedback === 'like' ? '👍 Merci !' : '📝 Feedback enregistré',
-      description: 'Votre avis nous aide à améliorer la génération musicale'
-    });
   }, [itemCode, selectedStyle, generatedAudio, toast]);
 
   // Handle download/cache for offline

@@ -656,18 +656,18 @@ export default function Demo() {
               </div>
               <h2 className="text-3xl font-bold">Démo terminée !</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Vous avez découvert un aperçu de MED-MNG. La plateforme inclut :
+                Vous avez découvert un aperçu de MED-MNG. La plateforme complète inclut :
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto text-left">
               {[
-                { icon: BookOpen, title: '367 items EDN', desc: 'Fiche, compétences rang A et rang B, quiz' },
-                { icon: Music, title: 'Paroles de chanson par item', desc: 'Paroles offertes pour 10 items d\'essai ; tous les items et l\'audio avec MED MNG Premium' },
-                { icon: Stethoscope, title: 'Cas cliniques', desc: 'Générés par IA à partir des items, à vérifier avec vos sources' },
-                { icon: Brain, title: 'Flashcards', desc: 'Avec répétition espacée' },
-                { icon: GraduationCap, title: 'Examens blancs', desc: 'Jusqu\'à 120 questions chronométrées' },
-                { icon: Star, title: 'ECOS', desc: 'Situations guidées avec grille d\'auto-évaluation' },
+                { icon: BookOpen, title: '367 items EDN', desc: 'Couverture complète R2C avec tableaux Rang A & B' },
+                { icon: Music, title: 'Musique IA illimitée', desc: 'Chaque item transformé en chanson mémorable' },
+                { icon: Stethoscope, title: '50+ cas cliniques', desc: 'Scénarios interactifs avec arbres décisionnels' },
+                { icon: Brain, title: 'Flashcards SRS', desc: 'Répétition espacée intelligente pour mémorisation long terme' },
+                { icon: GraduationCap, title: 'Mode Examen EDN', desc: 'Conditions réelles : 120 dossiers, QCM + QRU + QROC' },
+                { icon: Star, title: 'ECOS', desc: 'Simulations d\'examens cliniques objectifs structurés' },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                   <Icon className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />

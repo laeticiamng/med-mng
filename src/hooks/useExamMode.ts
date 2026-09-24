@@ -61,12 +61,8 @@ export const useExamMode = () => {
         const tableauA = item.tableau_rang_a as any;
         
         if (tableauA?.competences_cles) {
-          // Clé réelle en base : `competence` (aucune ligne n'a `intitule`).
-          // Sans cela la liste restait vide et la bonne réponse retombait sur
-          // le libellé générique « Compétence principale de … ».
           tableauA.competences_cles.forEach((c: any) => {
-            const libelle = c?.competence || c?.intitule || c?.titre || '';
-            if (libelle) competences.push(libelle);
+            if (c.intitule) competences.push(c.intitule);
           });
         }
 

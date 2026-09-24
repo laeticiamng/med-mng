@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { parolesSontRedigees, contientResidusDeBalisage } from '@/components/edn/music/utils/parolesFormatter';
 import { supabase } from '@/integrations/supabase/client';
 import {
     BarChart3,
@@ -88,20 +87,15 @@ export const LyricsCompletionStatus: React.FC = () => {
     }
   };
 
-  // Une colonne non vide ne veut pas dire « paroles prêtes ». Mesuré sur les
-  // 367 items : 345 contiennent une suite de mots-clés sans verbe ni
-  // ponctuation (« nbsp nbsp migraine évaluer »). Compter ça comme « complet »
-  // affichait 367/367 prêts alors que 22 seulement l'étaient.
-  const estRedige = (paroles?: string[] | null) =>
-    Array.isArray(paroles) && paroles.length > 0
-    && parolesSontRedigees(paroles) && !contientResidusDeBalisage(paroles);
-
   const getLyricsStatus = (item: EdnItemLyrics) => {
-    const a = estRedige(item.paroles_rang_a);
-    const b = estRedige(item.paroles_rang_b);
-    const ab = estRedige(item.paroles_rang_ab);
-    if (a && b && ab) return 'complete';   // les trois variantes annoncées
-    if (a || b || ab) return 'partial';
+    const hasRangA = item.paroles_rang_a && item.paroles_rang_a.length > 0;
+    const hasRangB = item.paroles_rang_b && item.paroles_rang_b.length > 0;
+    const hasMusic = item.paroles_musicales && item.paroles_musicales.length > 0;
+
+    // Un item est complet s'il a des paroles musicales (prêt pour génération Suno)
+    if (hasMusic) return 'complete';
+    // Partiel s'il a au moins rang A ou B
+    if (hasRangA || hasRangB) return 'partial';
     return 'missing';
   };
 
@@ -115,14 +109,13 @@ export const LyricsCompletionStatus: React.FC = () => {
   const calculateStats = (): LyricsStats => {
     return items.reduce((stats, item) => {
       stats.total++;
-      const a = estRedige(item.paroles_rang_a);
-      const b = estRedige(item.paroles_rang_b);
-      const ab = estRedige(item.paroles_rang_ab);
-      if (a) stats.withRangA++;
-      if (b) stats.withRangB++;
-      if (ab) stats.withRangAB++;
-      if (estRedige(item.paroles_musicales)) stats.withMusic++;
-      if (a && b && ab) stats.complete++;
+      if (item.paroles_rang_a?.length) stats.withRangA++;
+      if (item.paroles_rang_b?.length) stats.withRangB++;
+      if (item.paroles_rang_ab?.length) stats.withRangAB++;
+      if (item.paroles_musicales?.length) {
+        stats.withMusic++;
+        stats.complete++; // Un item avec paroles_musicales est complet
+      }
       return stats;
     }, { total: 0, withRangA: 0, withRangB: 0, withRangAB: 0, complete: 0, withMusic: 0 });
   };

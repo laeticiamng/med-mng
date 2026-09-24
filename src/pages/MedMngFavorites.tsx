@@ -105,17 +105,9 @@ const MedMngFavoritesComponent = () => {
     }
 
     try {
-      // On repasse par la liste pour retrouver le code de chaque item :
-      // `user_edn_favorites` est indexée par `item_code`, pas par identifiant.
-      const aRetirer = favorites.filter(item => selectedIds.includes(item.id));
       await Promise.all(
-        aRetirer.map(item =>
-          toggleFavoriteItem({
-            userId: user.id,
-            itemCode: item.code,
-            itemTitle: item.title,
-            isFavorite: true,
-          })
+        selectedIds.map(itemId =>
+          toggleFavoriteItem({ userId: user.id, itemId, isFavorite: true })
         )
       );
 

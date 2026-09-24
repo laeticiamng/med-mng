@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
-import { estCompetenceOICReelle } from '@/utils/tableauTransformations';
 
 interface OicCompetence {
   objectif_id: string;
   intitule: string;
   description: string;
   rubrique: string;
-  sommaire?: string | null;
-  url_source?: string | null;
-  ordre?: number | null;
-  contenu_detaille?: { source?: string; html?: string; maj_lisa?: string; corrections?: { avant: string; apres: string; motif: string }[] } | null;
 }
 
 interface TableauCompetencesOICWithRealDataProps {
@@ -49,7 +44,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     setLoading(true);
     setError(null);
 
-    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique,sommaire,url_source,ordre,contenu_detaille&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
+    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
     
     fetch(url, {
       headers: {
@@ -66,13 +61,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       })
       .then(data => {
         if (Array.isArray(data)) {
-          // On n'affiche que les vraies compétences du référentiel : les lignes
-          // d'en-tête `IC-<n>-<rang>` gonflaient le compteur d'une unité sur
-          // les 367 items, et constituaient la seule ligne visible pour les
-          // items dépourvus de compétences de rang B en base.
-          const filtered = data.filter(
-            (c: OicCompetence) => c.objectif_id && c.intitule && estCompetenceOICReelle(c.objectif_id)
-          );
+          const filtered = data.filter((c: OicCompetence) => c.objectif_id && c.intitule);
           setCompetences(filtered);
         } else {
           setError('Format de réponse inattendu');
@@ -124,8 +113,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
             Compétences OIC {itemCode} Rang {rang}
           </h3>
           <p className="text-muted-foreground text-sm">
-            Le référentiel UNESS ne contient aucune compétence de rang {rang} pour
-            cet item. Rien n'est masqué : il n'y a rien à afficher.
+            Aucune compétence OIC trouvée pour cet item.
           </p>
         </div>
       </div>
@@ -134,23 +122,13 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
 
   const competencesData = {
     title: `${itemCode} Rang ${rang} - Compétences OIC officielles UNESS`,
-    competences: competences.map(comp => {
-      // Le contenu complet n'est affiché que s'il vient du référentiel LiSA 2026.
-      const officiel = comp.contenu_detaille?.source === 'lisa-2026' ? comp.contenu_detaille : null;
-      return {
-        intitule: comp.intitule,
-        description: comp.description || comp.intitule,
-        objectif_id: comp.objectif_id,
-        rubrique: comp.rubrique,
-        sommaire: comp.sommaire || undefined,
-        html: officiel?.html || undefined,
-        maj_lisa: officiel?.maj_lisa || undefined,
-        corrections: officiel?.corrections || undefined,
-        url_source: officiel ? comp.url_source || undefined : undefined,
-        ordre_affichage: comp.ordre ?? undefined,
-        keywords: []
-      };
-    }),
+    competences: competences.map(comp => ({
+      intitule: comp.intitule,
+      description: comp.description || comp.intitule,
+      objectif_id: comp.objectif_id,
+      rubrique: comp.rubrique,
+      keywords: []
+    })),
     count: competences.length,
     theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'}`
   };

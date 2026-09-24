@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { completionIA } from '../_shared/ia-resiliente.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://med-mng.lovable.app',
@@ -128,7 +127,13 @@ Format de réponse attendu:
 
     // 4. Appeler Lovable AI
     console.log('🤖 Appel à Lovable AI...');
-    const aiResponse = await completionIA({
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
           {
@@ -141,7 +146,8 @@ Format de réponse attendu:
           }
         ],
         temperature: 0.3,
-      });
+      }),
+    });
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();

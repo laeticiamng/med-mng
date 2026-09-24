@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { transformTableauToSections } from '@/utils/tableauTransformations';
 import { Flame, Star } from 'lucide-react';
 
 interface TableauConcept {
@@ -21,12 +20,7 @@ interface TableauConcept {
 
 interface TableauSectionData {
   title?: string;
-  /** Texte en puces (objectifs, situations cliniques, cas complexes). */
-  content?: string;
-  /** Ancien format immersif. */
   concepts?: TableauConcept[];
-  /** Format de la table canonique, après normalisation. */
-  competences?: TableauConcept[];
 }
 
 interface TableauData {
@@ -86,33 +80,8 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
     );
   }
 
-  // `edn_items_complete` ne fournit pas de `sections` : ses tableaux de rang
-  // portent objectifs / competences_cles / situations_cliniques. Sans
-  // normalisation, cette carte s'affichait avec son titre et un corps vide.
-  const normalise = (transformTableauToSections(data, '', title, type === 'rang_a' ? 'A' : 'B') ??
-    data) as TableauData;
-  const sections = normalise.sections || [];
-  const theme = normalise.title || data.title || title;
-
-  if (sections.length === 0) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Badge variant={type === 'rang_a' ? 'default' : 'secondary'}>
-              {type === 'rang_a' ? 'Rang A' : 'Rang B'}
-            </Badge>
-            {theme}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Aucun contenu n'est enregistré pour ce tableau.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const sections = data.sections || [];
+  const theme = data.title || title;
 
   return (
     <Card className="w-full">
@@ -143,15 +112,8 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
               </h3>
             )}
             
-            {/* Texte en puces : objectifs, situations cliniques, cas complexes */}
-            {section.content && (
-              <p className="text-muted-foreground whitespace-pre-line">
-                {section.content}
-              </p>
-            )}
-
-            {/* Afficher les compétences de la section (les deux formats) */}
-            {[...(section.concepts ?? []), ...(section.competences ?? [])].map((concept, conceptIndex) => (
+            {/* Afficher les compétences de la section */}
+            {section.concepts && section.concepts.map((concept, conceptIndex) => (
               <div key={`${sectionIndex}-${conceptIndex}`} className="p-4 bg-muted/50 rounded-lg border-l-4 border-primary">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="outline" className="text-xs">

@@ -7,6 +7,7 @@ import {
   Home,
   Info,
   Library,
+  MessageSquare,
   Music,
   ShoppingBag,
   Users,
@@ -37,11 +38,12 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre)
+// Navigation principale MVP (7 liens uniquement)
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
   { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Target },
+  { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 
@@ -106,6 +108,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
 export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
+  { path: ROUTE_PATHS.chat, label: 'Chat IA', icon: MessageSquare },
   { path: ROUTE_PATHS.generator, label: 'Générateur Musique', icon: Music },
   { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
@@ -133,8 +136,7 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
   { path: ROUTE_PATHS.faq, label: 'FAQ', category: 'Ressources' },
   { path: ROUTE_PATHS.about, label: 'A propos', category: 'Ressources' },
-  // CONSTAT : une 4e référence à /b2b traînait ici (page supprimée, route inexistante).
-  // Retirée pour qu’aucun sitemap ni aucune recherche interne ne propose une 404.
+  { path: ROUTE_PATHS.b2b, label: 'Universités & CHU', category: 'Ressources' },
   { path: ROUTE_PATHS.medMngSignup, label: 'Créer un compte', category: 'Compte' },
   { path: ROUTE_PATHS.mentionsLegales, label: 'Mentions légales', category: 'Légal' },
   { path: ROUTE_PATHS.politiqueConfidentialite, label: 'Confidentialité', category: 'Légal' },

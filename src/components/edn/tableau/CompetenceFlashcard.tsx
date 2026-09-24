@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ContenuOfficielOIC } from './ContenuOfficielOIC';
 import { 
   ChevronLeft, ChevronRight, RotateCcw, CheckCircle, 
   XCircle, Eye, EyeOff, Shuffle, BookOpen 
@@ -14,8 +13,6 @@ interface Competence {
   description?: string;
   objectif_id?: string;
   rubrique?: string;
-  sommaire?: string;
-  html?: string;
 }
 
 interface CompetenceFlashcardProps {
@@ -154,7 +151,7 @@ export const CompetenceFlashcard: React.FC<CompetenceFlashcardProps> = ({
               </h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 <Eye className="h-4 w-4" />
-                Cliquez pour voir le contenu
+                Cliquez pour voir la description
               </p>
             </>
           ) : (
@@ -162,16 +159,9 @@ export const CompetenceFlashcard: React.FC<CompetenceFlashcardProps> = ({
               <Badge variant="secondary" className="mb-4">
                 {currentCompetence.rubrique || 'Description'}
               </Badge>
-              {currentCompetence.sommaire && (
-                <p className="text-center text-sm italic text-muted-foreground mb-3">{currentCompetence.sommaire}</p>
-              )}
-              <div className="w-full max-h-[45vh] overflow-y-auto text-left" onClick={(e) => e.stopPropagation()}>
-                <ContenuOfficielOIC
-                  html={currentCompetence.html}
-                  texte={currentCompetence.description || 'Aucun contenu pour cette compétence dans le référentiel.'}
-                  compact
-                />
-              </div>
+              <p className="text-center text-muted-foreground leading-relaxed">
+                {currentCompetence.description || 'Aucune description disponible pour cette compétence.'}
+              </p>
               <p className="text-sm text-muted-foreground mt-4 flex items-center gap-1">
                 <EyeOff className="h-4 w-4" />
                 Cliquez pour masquer

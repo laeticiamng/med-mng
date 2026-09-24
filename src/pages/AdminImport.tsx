@@ -10,24 +10,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertCircle, CheckCircle, Clock, Upload, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, FileSpreadsheet, Upload, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface ImportBatch {
   [key: string]: any;
 }
 
-// Onglet « Intégration Google Sheets » retiré le 2026-09-18.
-// Constat vérifié : l'edge function 'google-sheets-webhook' n'existe pas (absente de
-// supabase/functions/ ET non déployée : OPTIONS .../functions/v1/google-sheets-webhook
-// -> 404 NOT_FOUND). La table 'google_sheets_integrations' existe bien (HTTP 200) mais
-// est vide, et l'URL de webhook affichée pointait de surcroît sur l'origine de l'app
-// (medmng.com/functions/v1/...) au lieu du projet Supabase. L'onglet annonçait donc un
-// « import automatique à chaque modification de votre feuille » qu'aucun backend ne peut
-// assurer. Import CSV/Excel (fonctionnel) conservé.
+interface GoogleSheetsIntegration {
+  [key: string]: any;
+}
+
 export default function AdminImport() {
   const { logActivity } = useActivityTracking();
   const [importBatches, setImportBatches] = useState<ImportBatch[]>([]);
+  const [googleIntegrations, setGoogleIntegrations] = useState<GoogleSheetsIntegration[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [csvData, setCsvData] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -58,6 +55,7 @@ export default function AdminImport() {
 
   useEffect(() => {
     fetchImportBatches();
+    fetchGoogleIntegrations();
     
     logActivity({
       activity_type: 'study',
@@ -85,6 +83,20 @@ export default function AdminImport() {
       setImportBatches(data || []);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error fetching import batches:', error);
+    }
+  };
+
+  const fetchGoogleIntegrations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('google_sheets_integrations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setGoogleIntegrations(data || []);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error fetching Google integrations:', error);
     }
   };
 
@@ -250,15 +262,19 @@ export default function AdminImport() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Import de Fiches EDN</h1>
-          <p className="text-muted-foreground mt-2">Importez vos fiches pédagogiques en masse depuis un fichier CSV ou Excel</p>
+          <p className="text-muted-foreground mt-2">Importez vos fiches pédagogiques en masse depuis CSV, Excel ou Google Sheets</p>
         </div>
       </div>
 
       <Tabs defaultValue="csv" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="csv" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Import CSV/Excel
+          </TabsTrigger>
+          <TabsTrigger value="google" className="flex items-center gap-2">
+            <FileSpreadsheet className="h-4 w-4" />
+            Google Sheets
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
@@ -356,6 +372,61 @@ export default function AdminImport() {
                   </>
                 )}
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="google" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileSpreadsheet className="h-5 w-5" />
+                Intégration Google Sheets
+              </CardTitle>
+              <CardDescription>
+                Configurez l'import automatique depuis Google Sheets
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Les intégrations Google Sheets permettent un import automatique à chaque modification de votre feuille.
+              </p>
+              
+              {googleIntegrations.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileSpreadsheet className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Aucune intégration Google Sheets configurée</p>
+                  <p className="text-sm">Contactez l'administrateur pour configurer une intégration</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {googleIntegrations.map((integration) => (
+                    <div key={integration.id} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">{integration.sheet_name}</h4>
+                          <p className="text-sm text-muted-foreground">ID: {integration.sheet_id}</p>
+                          {integration.last_sync && (
+                            <p className="text-xs text-muted-foreground">
+                              Dernière sync: {new Date(integration.last_sync).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                        <Badge className={integration.is_active ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}>
+                          {integration.is_active ? 'Actif' : 'Inactif'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="mt-3 p-3 bg-muted rounded text-sm font-mono">
+                        <p className="text-xs text-muted-foreground mb-1">URL Webhook:</p>
+                        <p className="break-all">
+                          {window.location.origin}/functions/v1/google-sheets-webhook?token={integration.webhook_token}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
