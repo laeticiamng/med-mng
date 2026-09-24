@@ -16,7 +16,7 @@
 //   verifier    (défaut) n'écrit rien ; mesure l'écart base / référentiel
 //   sauvegarder copie l'état actuel des 4872 lignes dans le bucket privé
 //               oic-sauvegardes (obligatoire avant appliquer)
-//   images      copie les figures LiSA (publiques) dans le bucket oic-images
+//   images      copie les figures et documents joints LiSA (publics) dans le bucket oic-images
 //   appliquer   { lignes: [...] } écrit description, sommaire, contenu_detaille,
 //               url_source, hash_content, date_import. Ne supprime aucune ligne,
 //               ne touche ni intitulé, ni rang, ni item parent (déjà conformes).
@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
             const r = await fetch(img.source);
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             const type = r.headers.get('content-type') ?? 'image/png';
-            if (!type.startsWith('image/')) throw new Error(`type ${type}`);
+            if (!/^(image\/|application\/(pdf|msword|vnd\.openxmlformats|vnd\.ms-))/.test(type)) throw new Error(`type ${type}`);
             const { error } = await sb.storage.from('oic-images').upload(img.cible, await r.arrayBuffer(), { contentType: type, upsert: true, cacheControl: '31536000' });
             if (error) throw new Error(error.message);
             copiees++;

@@ -8,7 +8,7 @@ Sortie : oic-2026.json — pour chaque objectif :
   images       : [{source, cible}] à copier dans le stockage MED MNG
 """
 import hashlib, json, re, sys
-from urllib.parse import unquote, urljoin
+from urllib.parse import quote, unquote, urljoin
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
 SRC = sys.argv[1]
@@ -35,6 +35,28 @@ def nettoyer(html: str, images: dict) -> str:
         c.extract()
     for t in corps.select('.mw-editsection, .mw-empty-elt, link, meta, style, script, .toc, #toc, noscript'):
         t.decompose()
+    # documents joints (PDF, PPTX…) : lien « Fichier: » -> copie chez nous, lien conservé
+    for a in corps.find_all('a'):
+        href = unquote(a.get('href') or '')
+        m = re.match(r'/lisa/2026/Fichier:(.+\.(pdf|pptx?|docx?|xlsx?))$', href, re.I)
+        if not m:
+            continue
+        nom = m.group(1).replace(' ', '_')
+        h = hashlib.md5(nom.encode()).hexdigest()
+        source = f'{LISA}/lisa/2026/images/{h[0]}/{h[:2]}/{quote(nom)}'
+        cible = nom_image(source)
+        images[source] = cible
+        ext = m.group(2).upper()
+        lien = s.new_tag('a', href=IMG_BASE + cible)
+        lien.string = f'Document officiel : {nom.rsplit(".", 1)[0].replace("_", " ")} ({ext})'
+        boite = a.find_parent('li', class_='gallerybox')
+        if boite:
+            p_ = s.new_tag('p'); p_.append(lien); boite.replace_with(p_)
+        else:
+            a.replace_with(lien)
+    for g in corps.select('ul.gallery'):
+        if not g.select('li.gallerybox'):
+            g.unwrap()
     # images : source d'origine (pleine taille si miniature), copiée chez nous
     for img in corps.find_all('img'):
         src = img.get('src') or ''
@@ -48,6 +70,9 @@ def nettoyer(html: str, images: dict) -> str:
         img['loading'] = 'lazy'
     for a in corps.find_all('a'):
         href = a.get('href') or ''
+        if href.startswith(IMG_BASE):
+            a.attrs = {'href': href, 'target': '_blank', 'rel': 'noopener noreferrer'}
+            continue
         interne = href.startswith('/lisa/') or 'livret.uness.fr' in href or href.startswith('#') or not href
         if 'new' in (a.get('class') or []) or interne:
             a.unwrap()
