@@ -258,6 +258,10 @@ serve(async (req) => {
 
     if (competences.length === 0) {
       // On ne fabrique rien : sans contenu officiel, il n'y a pas de chanson.
+      // Et on retire toute ancienne chanson de ce rang : elle aurait été écrite
+      // sans aucune compétence réelle derrière (mots-clés assemblés au hasard).
+      const colonneVide = rang === 'A' ? 'paroles_rang_a' : rang === 'B' ? 'paroles_rang_b' : 'paroles_rang_ab'
+      await supabase.from('edn_items_complete').update({ [colonneVide]: null }).eq('id', item.id)
       return repondre(
         {
           error: 'aucune_competence',
