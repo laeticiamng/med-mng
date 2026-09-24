@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -21,7 +21,7 @@ describe('Sitemap', () => {
   });
 
   it('should include homepage with highest priority', () => {
-    expect(sitemapContent).toContain('https://med-mng.lovable.app/</loc>');
+    expect(sitemapContent).toContain('https://medmng.com/</loc>');
     expect(sitemapContent).toContain('<priority>1.0</priority>');
   });
 
@@ -32,9 +32,7 @@ describe('Sitemap', () => {
       '/med-mng/login',
       '/med-mng/signup',
       '/edn-complete',
-      '/exam-mode',
-      '/clinical-cases',
-      '/flashcards',
+      '/edn/music-library',
       '/ecos',
     ];
     for (const route of requiredRoutes) {
