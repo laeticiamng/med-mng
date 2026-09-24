@@ -22,6 +22,8 @@ interface QuotaStats {
 export const useIAQuota = () => {
   const [quota, setQuota] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  /** true seulement si `quota` vient réellement du serveur (pas du défaut de 80). */
+  const [quotaServeur, setQuotaServeur] = useState(false);
   const { toast } = useToast();
 
   const fetchQuota = async (): Promise<number> => {
@@ -33,6 +35,7 @@ export const useIAQuota = () => {
       
       if (!user) {
         // Utilisateur non connecté : appliquer quota par défaut silencieusement
+        setQuotaServeur(false);
         setQuota(80);
         return 80;
       }
@@ -53,8 +56,11 @@ export const useIAQuota = () => {
       }
 
       const quotaData = data?.[0];
-      const remainingCredits = quotaData?.remaining_credits || 80;
-      
+      const creditsServeur = typeof quotaData?.remaining_credits === 'number' ? quotaData.remaining_credits : null;
+      // Un solde réel de 0 reste 0 (auparavant « || 80 » l'affichait comme 80).
+      const remainingCredits = creditsServeur ?? 80;
+      setQuotaServeur(creditsServeur !== null);
+
       setQuota(remainingCredits);
       return remainingCredits;
     } catch (error) {
@@ -287,6 +293,7 @@ export const useIAQuota = () => {
 
   return {
     quota,
+    quotaServeur,
     loading,
     fetchQuota,
     checkQuota,

@@ -27,7 +27,8 @@ export const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({
         variant="outline"
         size={compact ? 'icon' : 'sm'}
         disabled
-        className="border-primary/30"
+        className={`border-primary/30 ${compact ? 'h-9 w-9' : ''}`}
+        aria-label="Téléchargement hors-ligne en cours"
       >
         <Loader2 className="h-4 w-4 animate-spin" />
         {!compact && <span className="ml-1">Téléchargement...</span>}
@@ -45,8 +46,9 @@ export const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({
           e.stopPropagation();
           onRemove(itemCode);
         }}
-        className="border-success/30 text-success hover:text-destructive hover:border-destructive/30 group"
+        className={`border-success/30 text-success hover:text-destructive hover:border-destructive/30 group ${compact ? 'h-9 w-9' : ''}`}
         title="Disponible hors-ligne — cliquer pour supprimer"
+        aria-label="Disponible hors-ligne : retirer la copie hors-ligne"
       >
         <span className="group-hover:hidden flex items-center gap-1">
           <Check className="h-4 w-4" />
@@ -69,8 +71,9 @@ export const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({
         e.stopPropagation();
         onDownload(item);
       }}
-      className="border-muted-foreground/30 hover:border-primary/50 hover:text-primary"
+      className={`border-muted-foreground/30 hover:border-primary/50 hover:text-primary ${compact ? 'h-9 w-9' : ''}`}
       title="Télécharger pour révision hors-ligne"
+      aria-label="Télécharger pour réviser hors-ligne"
     >
       <Download className="h-4 w-4" />
       {!compact && <span className="ml-1">Hors-ligne</span>}

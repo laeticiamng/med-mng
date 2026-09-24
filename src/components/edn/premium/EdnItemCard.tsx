@@ -1,24 +1,23 @@
 import { Badge } from "@/components/ui/badge";
 import { sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OfflineDownloadButton } from "@/components/edn/OfflineDownloadButton";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
-import { useEdnNotes } from "@/hooks/useEdnNotes";
+import type { StatutItem } from "@/lib/recommandation";
 import {
-    AlertCircle,
-    BookOpen,
+    ArrowRight,
     Brain,
-    CheckCircle,
     FileText,
     Heart,
     Image,
     Music,
+    RotateCcw,
     StickyNote,
     Users,
-    Volume2
+    Volume2,
+    type LucideIcon
 } from "lucide-react";
 import React from 'react';
 
@@ -60,7 +59,6 @@ interface EdnItemCardProps {
     bd_panels?: unknown;
     roman_story?: unknown;
   };
-  completionPercentage: number;
   onOpen: (tab?: string) => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
@@ -68,11 +66,56 @@ interface EdnItemCardProps {
   isDownloading?: boolean;
   onDownloadOffline?: (item: any) => void;
   onRemoveOffline?: (itemCode: string) => void;
+  /** Statut pédagogique calculé à partir des données réelles (connecté uniquement). */
+  statut?: StatutItem;
+  /** « il y a 3 jours », si une date de dernière révision existe. */
+  derniereRevision?: string | null;
+  /** L'utilisateur a une note personnelle sur cet item. */
+  hasNotes?: boolean;
+  /** Afficher la pastille « Essai gratuit » (compte sans Premium). */
+  estEssaiGratuit?: boolean;
 }
+
+const STATUTS: Record<StatutItem, { libelle: string; classe: string; cta: string }> = {
+  non_commence: { libelle: 'Non commencé', classe: 'bg-muted text-muted-foreground border-transparent', cta: 'Commencer' },
+  en_cours: { libelle: 'En cours', classe: 'bg-primary/10 text-primary border-primary/20', cta: 'Continuer' },
+  a_revoir: { libelle: 'À revoir', classe: 'bg-warning/20 text-foreground border-warning/70', cta: 'Revoir' },
+  maitrise: { libelle: 'Maîtrisé', classe: 'bg-success/15 text-foreground border-success/60', cta: 'Revoir' },
+};
+
+const stop = (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+};
+
+/** Bouton icône avec libellé accessible et infobulle. */
+const BoutonIcone: React.FC<{
+  libelle: string;
+  onClick: (e: React.MouseEvent) => void;
+  className?: string;
+  pressed?: boolean;
+  children: React.ReactNode;
+}> = ({ libelle, onClick, className, pressed, children }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        aria-label={libelle}
+        aria-pressed={pressed}
+        onClick={onClick}
+        className={`h-9 w-9 shrink-0 ${className ?? ''}`}
+      >
+        {children}
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent>{libelle}</TooltipContent>
+  </Tooltip>
+);
 
 export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   item,
-  completionPercentage,
   onOpen,
   isFavorite = false,
   onToggleFavorite,
@@ -80,220 +123,142 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   isDownloading = false,
   onDownloadOffline,
   onRemoveOffline,
+  statut,
+  derniereRevision,
+  hasNotes = false,
+  estEssaiGratuit = false,
 }) => {
-  const isMobile = useIsMobile();
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
-  
-  // Check if user has notes for this item
-  const { hasNote } = useEdnNotes();
-  const hasNotes = hasNote(finalItem.item_code);
 
-  const getItemNumber = (itemCode: string) => {
-    return parseInt(itemCode.replace('IC-', '') || '0');
-  };
+  const itemNumber = parseInt(finalItem.item_code.replace(/\D/g, '') || '0', 10);
+  const rangA = finalItem.competences_count_rang_a || 0;
+  const rangB = finalItem.competences_count_rang_b || 0;
+  const aMusique = Boolean(finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0);
 
-  const getFeatures = () => {
-    const features = [];
-    // Utiliser les comptages réels OIC
-    const rangACount = finalItem.competences_count_rang_a || 0;
-    const rangBCount = finalItem.competences_count_rang_b || 0;
-    
-    if (rangACount > 0) features.push({ icon: BookOpen, text: `Rang A: ${rangACount}`, color: 'text-primary' });
-    if (rangBCount > 0) features.push({ icon: BookOpen, text: `Rang B: ${rangBCount}`, color: 'text-accent' });
-    if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
-      features.push({ icon: Music, text: 'Musique', color: 'text-success' });
-    }
-    if (!sceneImmersiveEstGenerique(finalItem.scene_immersive)) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
-    if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-destructive' });
-    if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-primary' });
-    // Présents sur les 367 items, mais ce ne sont ni une BD ni un roman :
-    // diaporama des compétences (photos génériques) et mise en situation
-    // construite à partir de phrases types. Libellés corrigés en conséquence.
-    features.push({ icon: Image, text: 'Planches', color: 'text-pink-500' });
-    features.push({ icon: FileText, text: 'Récit', color: 'text-indigo-500' });
-    return features;
-  };
+  // Formats disponibles. Planches et Récit sont présents sur les 367 items
+  // (diaporama des compétences et mise en situation à partir de phrases types).
+  const formats: Array<{ icon: LucideIcon; text: string }> = [];
+  if (aMusique) formats.push({ icon: Music, text: 'Musique' });
+  formats.push({ icon: Image, text: 'Planches' });
+  formats.push({ icon: FileText, text: 'Récit' });
+  if (finalItem.quiz_questions) formats.push({ icon: Brain, text: 'Quiz' });
+  if (!sceneImmersiveEstGenerique(finalItem.scene_immersive)) formats.push({ icon: Users, text: 'Scène' });
+  if (finalItem.audio_ambiance) formats.push({ icon: Volume2, text: 'Audio' });
 
-  const getCompletionColor = () => {
-    if (completionPercentage === 100) return 'text-success';
-    if (completionPercentage >= 80) return 'text-primary';
-    if (completionPercentage >= 60) return 'text-warning';
-    return 'text-muted-foreground';
-  };
-
-  const getCompletionBadge = () => {
-    if (completionPercentage === 100) {
-      return (
-        <Badge className="bg-success/10 text-success border-success/20">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Complet
-        </Badge>
-      );
-    }
-    return (
-      <Badge variant="outline" className={`${getCompletionColor()} border-current`}>
-        <AlertCircle className="h-3 w-3 mr-1" />
-        {completionPercentage}%
-      </Badge>
-    );
-  };
-
-  const itemNumber = getItemNumber(finalItem.item_code);
-  const features = getFeatures();
+  const infosStatut = statut ? STATUTS[statut] : null;
+  const cta = infosStatut?.cta ?? 'Commencer';
+  const CtaIcon = statut === 'a_revoir' || statut === 'maitrise' ? RotateCcw : ArrowRight;
+  const titreComplet = `${itemNumber}. ${finalItem.title}`;
 
   return (
-    <Card className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-accent/30 bg-background/80 backdrop-blur-sm overflow-hidden">
-      {/* Header avec gradient */}
-      <div className={`bg-gradient-to-r from-accent to-primary ${isMobile ? 'p-3' : 'p-4'} text-accent-foreground`}>
-        <div className={`flex items-start justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
-          <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-3'}`}>
-            <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-background/20 rounded-lg flex items-center justify-center`}>
-              <span className={`text-accent-foreground font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{itemNumber}</span>
-            </div>
-            {!isMobile && (
-              <Badge variant="secondary" className="bg-background/20 text-accent-foreground border-background/20">
-                {finalItem.item_code}
+    <Card className="group relative flex flex-col overflow-hidden border bg-card text-card-foreground transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+      {/* Accent : bandeau fin, le fond de carte reste clair */}
+      <div className="h-1 bg-gradient-to-r from-accent to-primary" aria-hidden="true" />
+
+      <div className="flex flex-1 flex-col gap-2 p-3">
+        <div className="flex items-start gap-2">
+          <span
+            className="flex h-9 min-w-[2.25rem] shrink-0 items-center justify-center rounded-md bg-primary/10 px-1.5 text-sm font-bold text-primary"
+            aria-hidden="true"
+          >
+            {itemNumber}
+          </span>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-xs font-medium text-muted-foreground">{finalItem.item_code}</span>
+            {estEssaiGratuit && (
+              <Badge variant="outline" className="h-5 border-success/60 bg-success/10 px-1.5 text-[11px] font-medium text-foreground">
+                Essai gratuit
               </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {hasNotes && (
-            <Badge variant="secondary" className="bg-warning/20 text-warning border-warning/30 text-xs">
-              <StickyNote className="h-3 w-3 mr-1" />
-              Notes
-            </Badge>
-          )}
+            )}
+            {hasNotes && (
+              <Badge variant="outline" className="h-5 gap-1 px-1.5 text-[11px] font-medium text-muted-foreground">
+                <StickyNote className="h-3 w-3" aria-hidden="true" />
+                Notes
+              </Badge>
+            )}
+          </div>
           {onToggleFavorite && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onToggleFavorite();
-              }}
-              className={`h-8 w-8 ${isFavorite ? 'text-red-500' : 'text-accent-foreground/60'} hover:text-red-500`}
-            >
-              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={isFavorite ? `Retirer l'item ${itemNumber} des favoris` : `Ajouter l'item ${itemNumber} aux favoris`}
+                  aria-pressed={isFavorite}
+                  onClick={(e) => {
+                    stop(e);
+                    onToggleFavorite();
+                  }}
+                  className={`-mr-1 -mt-1 h-9 w-9 shrink-0 ${isFavorite ? 'text-red-600 hover:text-red-700' : 'text-muted-foreground hover:text-red-600'}`}
+                >
+                  <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}</TooltipContent>
+            </Tooltip>
           )}
         </div>
-        </div>
-        
-        <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight text-accent-foreground group-hover:text-accent-foreground/80 transition-colors`}>
-          {isMobile ? `${itemNumber}. ${finalItem.title.length > 40 ? finalItem.title.substring(0, 40) + '...' : finalItem.title}` : `${itemNumber}. ${finalItem.title}`}
-        </CardTitle>
-        
-        {finalItem.subtitle && !isMobile && (
-          <p className="text-accent-foreground/80 text-sm mt-2 line-clamp-2">
-            {finalItem.subtitle}
-          </p>
-        )}
-      </div>
 
-      <CardContent className={`${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'}`}>
-        {/* CONSTAT (audit allégations) : un pourcentage « Complétude » (50 %, 70 %…) était
-            calculé à partir du NOMBRE de compétences. Un item qui compte peu de compétences
-            dans le référentiel apparaissait « incomplet » alors que ses données sont complètes.
-            Indicateur retiré ; on affiche seulement les compteurs rang A / rang B plus bas. */}
-        {/* Features Grid */}
-        <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
-          {features.slice(0, isMobile ? 4 : features.length).map((feature, index) => {
-            const IconComponent = feature.icon;
-            return (
-              <div 
-                key={`${item.id}-feature-${feature.text}-${index}`}
-                className={`flex flex-col items-center ${isMobile ? 'p-1.5' : 'p-2'} bg-muted rounded-lg hover:bg-muted/80 transition-colors`}
-              >
-                <IconComponent className={`h-4 w-4 ${feature.color} mb-1`} />
-                <span className="text-xs text-muted-foreground font-medium">{feature.text}</span>
-              </div>
-            );
-          })}
-        </div>
+        <h3 className="line-clamp-3 text-sm font-semibold leading-snug text-foreground" title={titreComplet}>
+          <span className="sr-only">Item {itemNumber} : </span>
+          {finalItem.title}
+        </h3>
 
-        {/* Badges de compétences - version simplifiée pour les cartes */}
-        {!isMobile && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-foreground">Compétences du référentiel (source UNESS) :</h4>
-            <div className="flex gap-2 flex-wrap">
-              <Badge variant="outline" className="text-primary border-primary/30">
-                Rang A: {finalItem.competences_count_rang_a || 0}
-              </Badge>
-              <Badge variant="outline" className="text-accent border-accent/30">
-                Rang B: {finalItem.competences_count_rang_b || 0}
-              </Badge>
-            </div>
+        {infosStatut && (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+            <Badge variant="outline" className={`h-5 px-1.5 text-[11px] font-medium ${infosStatut.classe}`}>
+              {infosStatut.libelle}
+            </Badge>
+            {derniereRevision && (
+              <span className="text-muted-foreground">Dernière révision {derniereRevision}</span>
+            )}
           </div>
         )}
 
-        {/* Action Buttons Premium Mobile */}
-        <div className={`flex gap-2 pt-2 ${isMobile ? 'flex-col' : ''}`}>
-          <Button 
+        <div className="mt-auto space-y-1 text-muted-foreground">
+          <p className="text-xs leading-normal">
+            <span className="font-medium text-foreground/80">Rang A</span> {rangA}
+            <span aria-hidden="true"> · </span>
+            <span className="font-medium text-foreground/80">Rang B</span> {rangB}
+            <span className="sr-only"> compétences du référentiel</span>
+          </p>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs leading-normal">
+            <span className="sr-only">Formats : </span>
+            {formats.map(({ icon: Icon, text }) => (
+              <span key={text} className="inline-flex items-center gap-1">
+                <Icon className="h-3 w-3" aria-hidden="true" />
+                {text}
+              </span>
+            ))}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-1.5 pt-1">
+          <Button
+            type="button"
+            size="sm"
             onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+              stop(e);
               onOpen();
             }}
-            className={`${isMobile ? 'w-full py-3' : 'flex-1'} bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90 text-primary-foreground transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
-            type="button"
+            className="h-9 flex-1"
+            aria-label={`${cta} l'item ${itemNumber}`}
           >
-            <BookOpen className="h-4 w-4 mr-2" />
-            {isMobile ? '📖 Réviser cet item' : '📖 Réviser le contenu'}
+            {cta}
+            <CtaIcon className="ml-1.5 h-4 w-4" aria-hidden="true" />
           </Button>
-          
-          {isMobile ? (
-            // Boutons secondaires sur mobile
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onOpen('music');
-                }}
-                className="flex-1 hover:bg-accent/10 hover:border-accent/30 transition-all duration-200 active:scale-95"
-                type="button"
-              >
-                <Music className="h-4 w-4 mr-1" />
-                🎵 Musique
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onOpen('quiz');
-                }}
-                className="flex-1 hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 active:scale-95"
-                type="button"
-              >
-                <Brain className="h-4 w-4 mr-1" />
-                ✅ Quiz
-              </Button>
-            </div>
-          ) : (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onOpen('music');
-              }}
-              className="px-3 hover:bg-accent/10 hover:border-accent/30 transition-all duration-200 active:scale-95"
-              type="button"
-              title="Écouter la musique mnémotechnique"
-            >
-              <Music className="h-4 w-4" />
-            </Button>
-          )}
-
-          {/* Offline download button */}
+          <BoutonIcone
+            libelle={aMusique ? 'Écouter la chanson mnémotechnique' : "Ouvrir l'écran musique de l'item"}
+            onClick={(e) => {
+              stop(e);
+              onOpen('music');
+            }}
+          >
+            <Music className="h-4 w-4" aria-hidden="true" />
+          </BoutonIcone>
           {onDownloadOffline && onRemoveOffline && (
             <OfflineDownloadButton
               itemCode={finalItem.item_code}
@@ -302,11 +267,11 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               isDownloading={isDownloading}
               onDownload={onDownloadOffline}
               onRemove={onRemoveOffline}
-              compact={!isMobile}
+              compact
             />
           )}
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

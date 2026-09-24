@@ -69,7 +69,7 @@ export const useEdnFavorites = () => {
 
         setFavorites(prev => prev.filter(f => f.item_code !== itemCode));
         toast({
-          title: "💔 Retiré des favoris",
+          title: "Retiré des favoris",
           description: `Item ${itemCode} retiré de vos favoris`,
         });
         return false;
@@ -89,7 +89,7 @@ export const useEdnFavorites = () => {
 
         setFavorites(prev => [data, ...prev]);
         toast({
-          title: "❤️ Ajouté aux favoris",
+          title: "Ajouté aux favoris",
           description: `Item ${itemCode} ajouté à vos favoris`,
         });
         return true;
