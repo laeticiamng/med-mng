@@ -140,7 +140,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   // Formats disponibles. Planches et Récit sont présents sur les 367 items
   // (diaporama des compétences et mise en situation à partir de phrases types).
   const formats: Array<{ icon: LucideIcon; text: string }> = [];
-  if (aMusique) formats.push({ icon: Music, text: 'Musique' });
+  if (aMusique) formats.push({ icon: Music, text: 'Paroles' });
   formats.push({ icon: Image, text: 'Planches' });
   formats.push({ icon: FileText, text: 'Récit' });
   if (finalItem.quiz_questions) formats.push({ icon: Brain, text: 'Quiz' });
@@ -251,7 +251,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             <CtaIcon className="ml-1.5 h-4 w-4" aria-hidden="true" />
           </Button>
           <BoutonIcone
-            libelle={aMusique ? 'Écouter la chanson mnémotechnique' : "Ouvrir l'écran musique de l'item"}
+            libelle={aMusique ? 'Ouvrir la chanson mnémotechnique (paroles)' : "Ouvrir l'écran musique de l'item"}
             onClick={(e) => {
               stop(e);
               onOpen('music');

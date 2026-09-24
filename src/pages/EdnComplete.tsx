@@ -507,7 +507,7 @@ export default function EdnComplete() {
                   <h2 id="titre-bibliotheque" className="text-lg font-semibold text-foreground">Tous les items</h2>
                   <p className="text-xs text-muted-foreground">
                     {stats.total} items · {stats.totalOicRangA + stats.totalOicRangB} compétences du référentiel
-                    (rang A {stats.totalOicRangA} · rang B {stats.totalOicRangB}) · {stats.withMusic} avec musique
+                    (rang A {stats.totalOicRangA} · rang B {stats.totalOicRangB}) · {stats.withMusic} avec paroles de chanson
                   </p>
                 </div>
 
