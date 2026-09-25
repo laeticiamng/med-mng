@@ -105,7 +105,7 @@ const fusionnerSiRenseigne = (cible: EdnItemBrut, source: Record<string, unknown
       || (Array.isArray(valeur) && valeur.length === 0)
       || (typeof valeur === 'string' && valeur.trim() === '');
     if (!vide) {
-      (cible as Record<string, unknown>)[champ] = valeur;
+      (cible as unknown as Record<string, unknown>)[champ] = valeur;
     }
   }
 };
