@@ -19,6 +19,12 @@ export interface ItemBibliotheque {
   item_code: string;
   title: string;
   specialite?: string | null;
+  /**
+   * Paroles de l'item, si elles ont été chargées. La liste /edn-complete ne
+   * lit plus cette colonne (contenu Premium, réservé à la RPC
+   * mm_contenu_immersif_item) : elle est alors `undefined`, ce qui signifie
+   * « inconnu » — ni « avec » ni « sans » paroles.
+   */
   paroles_musicales?: string[] | null;
   competences_count_rang_a?: number | null;
   competences_count_rang_b?: number | null;
@@ -73,11 +79,15 @@ export const totalCompetences = (item: ItemBibliotheque): number =>
 /**
  * Paroles réellement rédigées (et non une suite de mots-clés ou des résidus
  * HTML) : même règle que l'écran Musique de l'item.
+ * `undefined` quand les paroles n'ont pas été chargées (information inconnue).
  */
-export const aParolesRedigees = (item: ItemBibliotheque): boolean => {
+export const parolesRedigees = (item: ItemBibliotheque): boolean | undefined => {
   const p = item.paroles_musicales;
+  if (p === undefined) return undefined;
   return Array.isArray(p) && p.length > 0 && parolesSontRedigees(p) && !contientResidusDeBalisage(p);
 };
+
+export const aParolesRedigees = (item: ItemBibliotheque): boolean => parolesRedigees(item) === true;
 
 export const LIBELLES_CONTENU: Record<Exclude<FiltreContenu, 'all'>, string> = {
   avecParoles: 'Avec paroles de chanson',
@@ -88,8 +98,10 @@ export const LIBELLES_CONTENU: Record<Exclude<FiltreContenu, 'all'>, string> = {
 
 export const correspondContenu = (item: ItemBibliotheque, filtre: FiltreContenu): boolean => {
   switch (filtre) {
-    case 'avecParoles': return aParolesRedigees(item);
-    case 'sansParoles': return !aParolesRedigees(item);
+    // Un item dont les paroles sont inconnues n'est ni « avec » ni « sans » :
+    // les deux options disparaissent d'elles-mêmes (effectif nul).
+    case 'avecParoles': return parolesRedigees(item) === true;
+    case 'sansParoles': return parolesRedigees(item) === false;
     case 'competences10': return totalCompetences(item) >= 10;
     case 'competencesMoins5': return totalCompetences(item) < 5;
     default: return true;

@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, CheckCircle, Clock, FileText, Users, BookOpen } from 'lucide-react';
 import { useItemsCompleteness } from '@/hooks/useItemsCompleteness';
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
 import { normalizeTableauData } from '@/utils/tableauTransformations';
 
 interface TableauSection {
@@ -43,10 +44,11 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
         setLoading(true);
         setError(null);
 
-        // Charger l'item depuis Supabase
+        // Charger l'item depuis Supabase — colonnes publiques seulement
+        // (cet écran n'affiche que les tableaux de rang).
         const result = await supabase
           .from('edn_items_immersive')
-          .select('*')
+          .select(SELECT_PUBLIC_IMMERSIVE)
           .eq('item_code', itemCode)
           .maybeSingle();
 

@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 import { TableauRangA } from '@/components/edn/tableau/TableauRangA';
 import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
 
@@ -16,15 +18,20 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
 
   useEffect(() => {
     const fetchItem = async () => {
-      const { data, error } = await supabase
+      // Colonnes publiques, puis contenu immersif par la RPC (paroles,
+      // payload_v2 absents si l'appelant n'y a pas droit).
+      const { data: ligne, error } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select(SELECT_PUBLIC_IMMERSIVE)
         .eq('item_code', itemCode)
         .maybeSingle();
 
       if (error) {
         console.error('Erreur:', error);
+      } else if (!ligne) {
+        setItem(null);
       } else {
+        const data = await completerAvecContenuImmersif(ligne);
         setItem(data);
         if (import.meta.env.DEV) console.log('✅ Item chargé:', {
           item_code: data.item_code,

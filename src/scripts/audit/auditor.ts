@@ -1,5 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif, completerListeAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 import { AuditResult, AuditReport } from './types';
 import { AuditValidators } from './validators';
 
@@ -9,15 +11,19 @@ export class EDNItemsAuditor {
     if (import.meta.env.DEV) console.log('🔍 Démarrage de l\'audit des items EDN...');
     
     try {
-      // Récupération de tous les items
-      const { data: items, error } = await supabase
+      // Récupération de tous les items : colonnes publiques, puis contenu
+      // immersif (paroles, quiz, payload_v2) par la RPC — un administrateur
+      // reçoit tout, les autres n'ont que la partie publique.
+      const { data: lignes, error } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select(SELECT_PUBLIC_IMMERSIVE)
         .order('item_code');
 
       if (error) {
         throw new Error(`Erreur Supabase: ${error.message}`);
       }
+
+      const items = lignes && lignes.length > 0 ? await completerListeAvecContenuImmersif(lignes) : [];
 
       if (!items || items.length === 0) {
         if (import.meta.env.DEV) console.warn('⚠️ Aucun item trouvé dans la base');

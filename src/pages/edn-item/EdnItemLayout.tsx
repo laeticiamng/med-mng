@@ -15,6 +15,11 @@ import { EncartPremium } from '@/components/offre/EncartPremium';
  * Sous-pages de contenu immersif, réservées aux items d'essai et à
  * MED MNG Premium. Aperçu, Rang A, Rang B (fiches officielles) et Stats
  * restent accessibles à tous.
+ *
+ * Le verrou est décidé par le serveur : la RPC `mm_contenu_immersif_item`
+ * renvoie `{ verrouille: true }` quand l'appelant n'y a pas droit (d'après son
+ * JWT), et le contenu sinon. La règle côté client (`useAccesPremium`) ne sert
+ * plus que de repli si la RPC est injoignable (erreur réseau).
  */
 const SEGMENTS_PREMIUM: Record<string, string> = {
   quiz: 'Le quiz de cet item',
@@ -41,7 +46,10 @@ export default function EdnItemLayout() {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  const { item, contenu, loading, error, introuvable } = useEdnItemComplet(slug);
+  const {
+    item, contenu, loading, error, introuvable,
+    contenuVerrouille, chargementContenu, etatContenu,
+  } = useEdnItemComplet(slug);
   const { peutVoirItem, chargement: chargementAcces } = useAccesPremium();
 
   // Un seul chargement des compétences OIC pour les neuf sous-pages.
@@ -144,6 +152,8 @@ export default function EdnItemLayout() {
     competencesRangB,
     chargementRangA,
     chargementRangB,
+    contenuVerrouille,
+    chargementContenu,
     numeroItem,
     slugUrl: slug || item.slug || item.item_code.toLowerCase(),
     slugCanonique: item.slug || item.item_code.toLowerCase(),
@@ -227,15 +237,24 @@ export default function EdnItemLayout() {
         </nav>
 
         <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 flex-1">
-          {SEGMENTS_PREMIUM[segmentCourant] && !peutVoirItem(item.item_code) ? (
-            chargementAcces ? (
-              <div className="h-64 bg-muted rounded-xl animate-pulse" aria-busy="true" />
-            ) : (
-              <EncartPremium contenu={SEGMENTS_PREMIUM[segmentCourant]} />
-            )
-          ) : (
-            <Outlet />
-          )}
+          {(() => {
+            const contenuPremium = SEGMENTS_PREMIUM[segmentCourant];
+            if (!contenuPremium) return <Outlet />;
+
+            // Le serveur n'a pas encore répondu : on n'affiche ni le contenu
+            // ni l'encart, pour ne jamais montrer l'un puis l'autre.
+            if (chargementContenu || (etatContenu === 'erreur' && chargementAcces)) {
+              return <div className="h-64 bg-muted rounded-xl animate-pulse" aria-busy="true" />;
+            }
+
+            // Réponse du serveur : verrouillé. En cas d'erreur réseau sur la
+            // RPC, on retombe sur la règle côté client (item d'essai ou abonné).
+            const verrouille = contenuVerrouille
+              || (etatContenu === 'erreur' && !peutVoirItem(item.item_code));
+            if (verrouille) return <EncartPremium contenu={contenuPremium} />;
+
+            return <Outlet />;
+          })()}
         </main>
       </div>
     </ContexteFicheItemEdn.Provider>

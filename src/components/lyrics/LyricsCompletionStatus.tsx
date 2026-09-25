@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { parolesSontRedigees, contientResidusDeBalisage } from '@/components/edn/music/utils/parolesFormatter';
-import { supabase } from '@/integrations/supabase/client';
+import { chargerEtatContenuImmersif, type EtatContenuItem } from '@/hooks/useEtatContenuImmersif';
 import {
     BarChart3,
     CheckCircle,
@@ -21,16 +20,16 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
-interface EdnItemLyrics {
-  id: string;
-  item_code: string;
-  title: string;
-  paroles_rang_a?: string[];
-  paroles_rang_b?: string[];
-  paroles_rang_ab?: string[];
-  paroles_musicales?: string[];
-  updated_at: string;
-}
+/**
+ * Statut des paroles des 367 items.
+ *
+ * Cet écran lisait les quatre colonnes de paroles de tous les items — un
+ * contenu réservé à MED MNG Premium, exposé à tout visiteur. Il ne reçoit plus
+ * que des booléens « paroles rédigées » par variante, calculés côté serveur
+ * par la RPC `mm_etat_contenu_immersif` (même règle que parolesSontRedigees),
+ * et affiche « statut indisponible » tant que cette RPC n'est pas déployée.
+ */
+type EdnItemLyrics = EtatContenuItem;
 
 interface LyricsStats {
   total: number;
@@ -44,6 +43,7 @@ interface LyricsStats {
 export const LyricsCompletionStatus: React.FC = () => {
   const [items, setItems] = useState<EdnItemLyrics[]>([]);
   const [loading, setLoading] = useState(true);
+  const [indisponible, setIndisponible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'partial' | 'missing'>('all');
   const [_viewMode, _setViewMode] = useState<'grid' | 'list'>('list');
@@ -59,22 +59,18 @@ export const LyricsCompletionStatus: React.FC = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('edn_items_complete')
-        .select(`
-          id, item_code, title,
-          paroles_rang_a, paroles_rang_b, paroles_rang_ab,
-          paroles_musicales, updated_at
-        `)
-        .order('item_code');
-
-      if (error) throw error;
-
-      setItems(data || []);
+      const data = await chargerEtatContenuImmersif();
+      if (data === null) {
+        setItems([]);
+        setIndisponible(true);
+        return;
+      }
+      setIndisponible(false);
+      setItems(data);
       
       toast({
         title: "📊 Statut chargé",
-        description: `${data?.length || 0} items analysés`
+        description: `${data.length} items analysés`
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -88,18 +84,13 @@ export const LyricsCompletionStatus: React.FC = () => {
     }
   };
 
-  // Une colonne non vide ne veut pas dire « paroles prêtes ». Mesuré sur les
-  // 367 items : 345 contiennent une suite de mots-clés sans verbe ni
-  // ponctuation (« nbsp nbsp migraine évaluer »). Compter ça comme « complet »
-  // affichait 367/367 prêts alors que 22 seulement l'étaient.
-  const estRedige = (paroles?: string[] | null) =>
-    Array.isArray(paroles) && paroles.length > 0
-    && parolesSontRedigees(paroles) && !contientResidusDeBalisage(paroles);
-
+  // Une colonne non vide ne veut pas dire « paroles prêtes » : le serveur
+  // applique la règle « paroles rédigées » (structure ou ponctuation, sans
+  // résidu HTML) et ne renvoie que le booléen.
   const getLyricsStatus = (item: EdnItemLyrics) => {
-    const a = estRedige(item.paroles_rang_a);
-    const b = estRedige(item.paroles_rang_b);
-    const ab = estRedige(item.paroles_rang_ab);
+    const a = item.paroles_rang_a;
+    const b = item.paroles_rang_b;
+    const ab = item.paroles_rang_ab;
     if (a && b && ab) return 'complete';   // les trois variantes annoncées
     if (a || b || ab) return 'partial';
     return 'missing';
@@ -115,13 +106,13 @@ export const LyricsCompletionStatus: React.FC = () => {
   const calculateStats = (): LyricsStats => {
     return items.reduce((stats, item) => {
       stats.total++;
-      const a = estRedige(item.paroles_rang_a);
-      const b = estRedige(item.paroles_rang_b);
-      const ab = estRedige(item.paroles_rang_ab);
+      const a = item.paroles_rang_a;
+      const b = item.paroles_rang_b;
+      const ab = item.paroles_rang_ab;
       if (a) stats.withRangA++;
       if (b) stats.withRangB++;
       if (ab) stats.withRangAB++;
-      if (estRedige(item.paroles_musicales)) stats.withMusic++;
+      if (item.paroles_musicales) stats.withMusic++;
       if (a && b && ab) stats.complete++;
       return stats;
     }, { total: 0, withRangA: 0, withRangB: 0, withRangAB: 0, complete: 0, withMusic: 0 });
@@ -169,6 +160,17 @@ export const LyricsCompletionStatus: React.FC = () => {
       </TabsContent>
 
       <TabsContent value="status" className="space-y-4">
+      {indisponible && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <Music className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="font-semibold mb-2">Statut des paroles indisponible</h3>
+            <p className="text-sm text-muted-foreground">
+              Le serveur ne fournit pas encore l'état des paroles par item (fonction mm_etat_contenu_immersif).
+            </p>
+          </CardContent>
+        </Card>
+      )}
       {/* Statistiques compactes */}
       <Card>
         <CardContent className="p-4">
@@ -234,12 +236,12 @@ export const LyricsCompletionStatus: React.FC = () => {
       <div className="space-y-2">
         {filteredItems.map((item) => {
           const status = getLyricsStatus(item);
-          const hasRangA = item.paroles_rang_a && item.paroles_rang_a.length > 0;
-          const hasRangB = item.paroles_rang_b && item.paroles_rang_b.length > 0;
-          const hasMusic = item.paroles_musicales && item.paroles_musicales.length > 0;
+          const hasRangA = item.paroles_rang_a;
+          const hasRangB = item.paroles_rang_b;
+          const hasMusic = item.paroles_musicales;
 
           return (
-            <Card key={item.id} className="hover:shadow-sm transition-shadow">
+            <Card key={item.item_code} className="hover:shadow-sm transition-shadow">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -274,7 +276,7 @@ export const LyricsCompletionStatus: React.FC = () => {
         })}
       </div>
 
-      {filteredItems.length === 0 && (
+      {filteredItems.length === 0 && !indisponible && (
         <Card>
           <CardContent className="text-center py-8">
             <Music className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

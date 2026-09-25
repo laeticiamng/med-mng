@@ -2,6 +2,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEdnItemV2Process } from './useEdnItemV2Process';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
+
+/**
+ * Lecture d'`edn_items_immersive` en colonnes publiques (jamais `*`) ; les
+ * paroles, le quiz et payload_v2 sont complétés par la RPC
+ * `mm_contenu_immersif_item` quand l'appelant y a droit (absents sinon).
+ */
 
 import { Json } from '@/integrations/supabase/types';
 
@@ -76,9 +84,9 @@ export const useEdnItem = (slug: string | undefined) => {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
+      const { data: ligne, error: fetchError } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select(SELECT_PUBLIC_IMMERSIVE)
         .eq('slug', slug)
         .maybeSingle();
 
@@ -87,13 +95,14 @@ export const useEdnItem = (slug: string | undefined) => {
         return;
       }
 
-      if (data) {
+      if (ligne) {
+        const data = await completerAvecContenuImmersif(ligne);
         const mappedData: EdnItemData = {
           id: data.id,
           item_code: data.item_code,
           title: data.title,
-          subtitle: data.subtitle,
-          slug: data.slug,
+          subtitle: data.subtitle ?? undefined,
+          slug: data.slug ?? '',
           paroles_musicales: data.paroles_musicales as string[] | undefined,
           tableau_rang_a: data.tableau_rang_a,
           tableau_rang_b: data.tableau_rang_b,
@@ -101,7 +110,7 @@ export const useEdnItem = (slug: string | undefined) => {
           quiz_questions: data.quiz_questions,
           created_at: data.created_at,
           updated_at: data.updated_at,
-          payload_v2: 'payload_v2' in data ? (data as Record<string, Json>).payload_v2 : undefined,
+          payload_v2: data.payload_v2 as Json | undefined,
           // Computed fields from existing data
           category: 'EDN',
           has_music: Boolean(data.paroles_musicales),
@@ -128,9 +137,9 @@ export const useEdnItem = (slug: string | undefined) => {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
+      const { data: ligne, error: fetchError } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select(SELECT_PUBLIC_IMMERSIVE)
         .eq('item_code', itemCode)
         .maybeSingle();
 
@@ -139,13 +148,14 @@ export const useEdnItem = (slug: string | undefined) => {
         return null;
       }
 
-      if (data) {
+      if (ligne) {
+        const data = await completerAvecContenuImmersif(ligne);
         const mappedData: EdnItemData = {
           id: data.id,
           item_code: data.item_code,
           title: data.title,
-          subtitle: data.subtitle,
-          slug: data.slug,
+          subtitle: data.subtitle ?? undefined,
+          slug: data.slug ?? '',
           paroles_musicales: data.paroles_musicales as string[] | undefined,
           tableau_rang_a: data.tableau_rang_a,
           tableau_rang_b: data.tableau_rang_b,
@@ -153,7 +163,7 @@ export const useEdnItem = (slug: string | undefined) => {
           quiz_questions: data.quiz_questions,
           created_at: data.created_at,
           updated_at: data.updated_at,
-          payload_v2: 'payload_v2' in data ? (data as Record<string, Json>).payload_v2 : undefined,
+          payload_v2: data.payload_v2 as Json | undefined,
           category: 'EDN',
           has_music: Boolean(data.paroles_musicales),
           has_lyrics: Boolean(data.paroles_musicales),

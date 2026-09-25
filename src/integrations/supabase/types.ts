@@ -32682,9 +32682,25 @@ export type Database = {
       }
       mm_a_acces_premium: { Args: { p_user_id: string }; Returns: boolean }
       mm_contenu_immersif_item: { Args: { p_item_code: string }; Returns: Json }
+      mm_etat_contenu_immersif: {
+        Args: never
+        Returns: {
+          item_code: string
+          title: string
+          updated_at: string
+          paroles_musicales: boolean
+          paroles_rang_a: boolean
+          paroles_rang_b: boolean
+          paroles_rang_ab: boolean
+          quiz: boolean
+          planches: boolean
+          recit: boolean
+        }[]
+      }
       mm_item_gratuit: { Args: { p_item_code: string }; Returns: boolean }
       mm_items_gratuits: { Args: never; Returns: string[] }
       mm_normaliser_code_item: { Args: { p_code: string }; Returns: string }
+      mm_paroles_redigees: { Args: { p_paroles: string[] }; Returns: boolean }
       organize_competences_by_item_and_rank: {
         Args: never
         Returns: {

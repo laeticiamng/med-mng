@@ -96,7 +96,7 @@ export const OfflineSyncManager: React.FC = () => {
       // Contenu EDN
       const { count: ednCount } = await supabase
         .from('edn_items_complete')
-        .select('*', { count: 'exact', head: true });
+        .select('id', { count: 'exact', head: true });
       
       syncItemsList.push({
         id: 'edn-content',

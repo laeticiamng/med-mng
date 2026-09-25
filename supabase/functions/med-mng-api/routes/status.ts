@@ -83,18 +83,23 @@ async function performHealthCheck(supabase: any) {
 
 async function getDataCompleteness(supabase: any) {
   try {
-    // Check EDN items completeness
+    // Check EDN items completeness — colonnes publiques seulement :
+    // `quiz_questions` est un contenu Premium (verrouillé par colonne), son
+    // état « renseigné » vient de la RPC mm_etat_contenu_immersif (booléens).
     const { data: ednItems, error: ednError } = await supabase
       .from('edn_items_immersive')
-      .select('id, item_code, tableau_rang_a, tableau_rang_b, quiz_questions, scene_immersive');
+      .select('id, item_code, tableau_rang_a, tableau_rang_b, scene_immersive');
 
     if (ednError) throw ednError;
+
+    const { data: etats } = await supabase.rpc('mm_etat_contenu_immersif');
+    const avecQuiz = new Set((etats ?? []).filter((e: any) => e.quiz).map((e: any) => e.item_code));
 
     const ednStats = {
       total: ednItems.length,
       with_rang_a: ednItems.filter(item => item.tableau_rang_a).length,
       with_rang_b: ednItems.filter(item => item.tableau_rang_b).length,
-      with_quiz: ednItems.filter(item => item.quiz_questions).length,
+      with_quiz: ednItems.filter(item => avecQuiz.has(item.item_code)).length,
       with_scene: ednItems.filter(item => item.scene_immersive).length
     };
 
@@ -118,7 +123,7 @@ async function getDataCompleteness(supabase: any) {
       edn_items: ednStats,
       oic_competences: oicStats,
       completeness_score: calculateCompletenessScore(ednStats, oicStats),
-      gaps: identifyDataGaps(ednItems, oicData)
+      gaps: identifyDataGaps(ednItems.map(item => ({ ...item, a_quiz: avecQuiz.has(item.item_code) })), oicData)
     };
   } catch (error) {
     throw error;
@@ -154,7 +159,7 @@ function identifyDataGaps(ednItems: any[], oicData: any[]): string[] {
   
   const itemsWithoutRangA = ednItems.filter(item => !item.tableau_rang_a);
   const itemsWithoutRangB = ednItems.filter(item => !item.tableau_rang_b);
-  const itemsWithoutQuiz = ednItems.filter(item => !item.quiz_questions);
+  const itemsWithoutQuiz = ednItems.filter(item => !item.a_quiz);
   
   if (itemsWithoutRangA.length > 0) {
     gaps.push(`${itemsWithoutRangA.length} items missing Rang A content`);

@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_COMPLETE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 import {
     AlertCircle,
     BookOpen,
@@ -329,14 +331,16 @@ export const OfflineMode: React.FC = () => {
       if (type === 'edn' && itemCode) {
         setDownloadProgress(prev => ({ ...prev, [contentId]: 20 }));
 
-        // Récupérer l'item EDN complet
-        const { data: ednData, error: ednError } = await supabase
+        // Récupérer l'item EDN : colonnes publiques, puis contenu immersif
+        // par la RPC (absent si l'utilisateur n'y a pas droit).
+        const { data: ednLigne, error: ednError } = await supabase
           .from('edn_items_complete')
-          .select('*')
+          .select(SELECT_PUBLIC_COMPLETE)
           .eq('item_code', itemCode)
           .maybeSingle();
 
         if (ednError) throw ednError;
+        const ednData = ednLigne ? await completerAvecContenuImmersif(ednLigne) : null;
 
         setDownloadProgress(prev => ({ ...prev, [contentId]: 60 }));
 

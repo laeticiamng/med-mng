@@ -33,6 +33,11 @@ interface EdnItem {
 
 interface CompetenceValidationProps {
   item: EdnItem;
+  /**
+   * Le serveur a refusé le contenu immersif (paroles, quiz) : leur absence
+   * n'est pas un manque de l'item mais une réserve Premium, on ne la signale pas.
+   */
+  contenuVerrouille?: boolean;
 }
 
 interface CompetenceMastery {
@@ -42,7 +47,7 @@ interface CompetenceMastery {
   review_count: number;
 }
 
-export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
+export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item, contenuVerrouille = false }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { loadStats, addPoints, stats } = useGamification();
@@ -280,11 +285,12 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       result.issues.push("Tableau Rang B manquant");
     }
 
-    // Vérification des contenus complémentaires
-    if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
+    // Vérification des contenus complémentaires (non évaluables quand le
+    // contenu immersif est réservé à Premium pour cet utilisateur).
+    if (!contenuVerrouille && (!item.paroles_musicales || item.paroles_musicales.length === 0)) {
       result.issues.push("Paroles musicales manquantes");
     }
-    if (!item.quiz_questions) {
+    if (!contenuVerrouille && !item.quiz_questions) {
       result.issues.push("Quiz manquant");
     }
     if (!item.scene_immersive) {
@@ -299,7 +305,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
                       result.issues.length === 0;
 
     return result;
-  }, [item, oicCompetencesA, oicCompetencesB]);
+  }, [item, contenuVerrouille, oicCompetencesA, oicCompetencesB]);
 
   const isLoading = loadingA || loadingB;
 

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { normalizeTableauData, transformTableauToSections } from '@/utils/tableauTransformations';
+import { verifierSelectionPublique } from '@/lib/colonnesEdnPubliques';
+import { CHAMPS_CONTENU_IMMERSIF, useContenuImmersifItem, type EtatContenuImmersif } from '@/hooks/useContenuImmersifItem';
 
 /**
  * Chargement d'UN item EDN, une seule fois, pour toutes les surfaces qui en ont
@@ -17,11 +19,12 @@ import { normalizeTableauData, transformTableauToSections } from '@/utils/tablea
  *
  * Sources :
  *  - `edn_items_complete` : table canonique (367 lignes) — titre, tableaux de
- *    rang, paroles, quiz, scène.
- *  - `edn_items_immersive` : ancienne table, interrogée uniquement pour
- *    `bd_panels` et `roman_story`, qui n'existent que là (plus `payload_v2`,
- *    `audio_ambiance`, `visual_ambiance`, conservés pour ne rien perdre de ce
- *    que la modale affichait).
+ *    rang, scène. COLONNES PUBLIQUES UNIQUEMENT (src/lib/colonnesEdnPubliques.ts).
+ *  - RPC `mm_contenu_immersif_item` : paroles, quiz, payload_v2, planches et
+ *    récit — le serveur ne les renvoie que pour un item d'essai ou un abonné
+ *    Premium (`contenuVerrouille` sinon). L'ancienne table `edn_items_immersive`
+ *    n'est plus interrogée ici : ses `audio_ambiance` / `visual_ambiance`
+ *    n'étaient affichés par aucune sous-page.
  */
 
 export interface EdnItemBrut {
@@ -73,15 +76,15 @@ export interface EdnItemContenu {
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
+// Colonnes publiques seulement : les paroles, le quiz, payload_v2 (et les
+// planches / le récit de l'ancienne table) arrivent par la RPC.
 const COLONNES_COMPLETE = [
   'id', 'item_code', 'title', 'subtitle', 'slug', 'pitch_intro', 'specialite', 'mots_cles',
   'competences_count_rang_a', 'competences_count_rang_b',
   'tableau_rang_a', 'tableau_rang_b',
-  'paroles_musicales', 'paroles_rang_a', 'paroles_rang_b', 'paroles_rang_ab',
-  'scene_immersive', 'quiz_questions', 'audio_ambiance', 'visual_ambiance', 'payload_v2',
+  'scene_immersive', 'audio_ambiance', 'visual_ambiance',
 ].join(',');
-
-const COLONNES_IMMERSIVE = 'item_code,bd_panels,roman_story,payload_v2,audio_ambiance,visual_ambiance,pitch_intro';
+verifierSelectionPublique(COLONNES_COMPLETE);
 
 /** Normalise `paroles_musicales`, stockée tantôt en tableau, tantôt en texte. */
 const normaliserParoles = (valeur: unknown): string[] => {
@@ -95,23 +98,13 @@ const normaliserParoles = (valeur: unknown): string[] => {
   return [];
 };
 
-/** Ne recopie que les valeurs réellement renseignées : une colonne vide de
- *  l'ancienne table ne doit jamais effacer la valeur de la table canonique. */
-const fusionnerSiRenseigne = (cible: EdnItemBrut, source: Record<string, unknown> | null, champs: string[]) => {
-  if (!source) return;
-  for (const champ of champs) {
-    const valeur = source[champ];
-    const vide = valeur === null || valeur === undefined
-      || (Array.isArray(valeur) && valeur.length === 0)
-      || (typeof valeur === 'string' && valeur.trim() === '');
-    if (!vide) {
-      (cible as unknown as Record<string, unknown>)[champ] = valeur;
-    }
-  }
-};
-
 interface OptionsEdnItemComplet {
-  /** Charge `bd_panels` / `roman_story` (onglets Planches et Récit). */
+  /**
+   * Charge le contenu immersif (paroles, quiz, planches, récit) par la RPC.
+   * `false` pour une surface qui n'affiche que les fiches officielles.
+   */
+  avecContenuImmersif?: boolean;
+  /** @deprecated alias historique de `avecContenuImmersif`. */
   avecRecits?: boolean;
 }
 
@@ -119,7 +112,7 @@ export function useEdnItemComplet(
   identifiant: string | null | undefined,
   options: OptionsEdnItemComplet = {}
 ) {
-  const { avecRecits = true } = options;
+  const avecContenuImmersif = options.avecContenuImmersif ?? options.avecRecits ?? true;
   const [item, setItem] = useState<EdnItemBrut | null>(null);
   const [loading, setLoading] = useState<boolean>(Boolean(identifiant));
   const [error, setError] = useState<string | null>(null);
@@ -183,57 +176,54 @@ export function useEdnItemComplet(
         competences_count_rang_b: (ligne.competences_count_rang_b as number) ?? undefined,
         tableau_rang_a: ligne.tableau_rang_a,
         tableau_rang_b: ligne.tableau_rang_b,
-        paroles_musicales: (ligne.paroles_musicales as string[]) || undefined,
-        paroles_rang_a: (ligne.paroles_rang_a as string[]) || undefined,
-        paroles_rang_b: (ligne.paroles_rang_b as string[]) || undefined,
-        paroles_rang_ab: (ligne.paroles_rang_ab as string[]) || undefined,
         scene_immersive: ligne.scene_immersive,
-        quiz_questions: ligne.quiz_questions,
         audio_ambiance: ligne.audio_ambiance || undefined,
         visual_ambiance: ligne.visual_ambiance || undefined,
-        payload_v2: ligne.payload_v2,
       };
 
-      // On affiche déjà tout le contenu pédagogique : les planches et le récit
-      // arrivent dans un second temps, sans bloquer l'écran.
+      // On affiche déjà les fiches officielles : le contenu immersif arrive
+      // dans un second temps, par la RPC, sans bloquer l'écran.
       setItem(base);
       setLoading(false);
-
-      if (!avecRecits) return;
-
-      const urlImmersive =
-        `${SUPABASE_URL}/rest/v1/edn_items_immersive` +
-        `?item_code=eq.${encodeURIComponent(base.item_code)}` +
-        `&select=${COLONNES_IMMERSIVE}&limit=1`;
-
-      const reponseRecits = await fetch(urlImmersive, { headers: getSupabaseHeaders(true), cache: 'no-store' });
-      if (requete !== numeroRequeteRef.current || !reponseRecits.ok) return;
-
-      const lignesRecits = (await reponseRecits.json()) as Array<Record<string, unknown>>;
-      if (requete !== numeroRequeteRef.current) return;
-      if (!Array.isArray(lignesRecits) || lignesRecits.length === 0) return;
-
-      const enrichi: EdnItemBrut = { ...base };
-      fusionnerSiRenseigne(enrichi, lignesRecits[0], [
-        'bd_panels', 'roman_story', 'payload_v2', 'audio_ambiance', 'visual_ambiance', 'pitch_intro',
-      ]);
-      setItem(enrichi);
     } catch (err) {
       if (requete !== numeroRequeteRef.current) return;
       setError(err instanceof Error ? err.message : String(err));
       setLoading(false);
     }
-  }, [identifiant, avecRecits]);
+  }, [identifiant]);
 
   useEffect(() => {
     charger();
   }, [charger]);
 
+  // Contenu immersif : le serveur décide (item d'essai, abonné, admin).
+  const {
+    contenu: contenuImmersif,
+    etat: etatContenu,
+    verrouille: contenuVerrouille,
+    chargement: chargementContenu,
+    erreur: erreurContenu,
+    recharger: rechargerContenu,
+  } = useContenuImmersifItem(item?.item_code, { actif: avecContenuImmersif && Boolean(item) });
+
+  const itemEnrichi = useMemo<EdnItemBrut | null>(() => {
+    if (!item) return null;
+    if (!contenuImmersif) return item;
+    const enrichi: EdnItemBrut = { ...item };
+    for (const champ of CHAMPS_CONTENU_IMMERSIF) {
+      const valeur = contenuImmersif[champ];
+      if (valeur !== undefined && valeur !== null) {
+        (enrichi as unknown as Record<string, unknown>)[champ] = valeur;
+      }
+    }
+    return enrichi;
+  }, [item, contenuImmersif]);
+
   // Traitement du format V2 (payload_v2 -> tableaux + paroles), à l'identique
   // de ce que faisait la modale via useEdnItemV2Process.
   const itemFinal = useMemo<EdnItemBrut | null>(() => {
-    if (!item) return null;
-    const payload = item.payload_v2 as {
+    if (!itemEnrichi) return null;
+    const payload = itemEnrichi.payload_v2 as {
       content?: {
         rang_a?: { theme?: string; competences?: Array<{ paroles_chantables?: string[] }> };
         rang_b?: { theme?: string; competences?: Array<{ paroles_chantables?: string[] }> };
@@ -242,47 +232,65 @@ export function useEdnItemComplet(
 
     const rangA = payload?.content?.rang_a;
     const rangB = payload?.content?.rang_b;
-    if (!rangA || !rangB) return item;
+    if (!rangA || !rangB) return itemEnrichi;
 
     const aDesCompetencesA = (rangA.competences?.length ?? 0) > 0;
     const aDesCompetencesB = (rangB.competences?.length ?? 0) > 0;
-    if (!aDesCompetencesA && !aDesCompetencesB) return item;
+    if (!aDesCompetencesA && !aDesCompetencesB) return itemEnrichi;
 
     return {
-      ...item,
+      ...itemEnrichi,
       tableau_rang_a: aDesCompetencesA
         ? { theme: rangA.theme, sections: [{ concepts: rangA.competences }] }
-        : item.tableau_rang_a,
+        : itemEnrichi.tableau_rang_a,
       tableau_rang_b: aDesCompetencesB
         ? { theme: rangB.theme, sections: [{ concepts: rangB.competences }] }
-        : item.tableau_rang_b,
+        : itemEnrichi.tableau_rang_b,
       paroles_musicales: [
         ...(rangA.competences ?? []).flatMap((c) => c.paroles_chantables || []),
         ...(rangB.competences ?? []).flatMap((c) => c.paroles_chantables || []),
       ].filter(Boolean),
     };
-  }, [item]);
+  }, [itemEnrichi]);
 
   // Tableaux de rang normalisés en sections, comme le faisait loadCompleteData().
   const contenu = useMemo<EdnItemContenu | null>(() => {
-    if (!item) return null;
+    if (!itemEnrichi) return null;
     return {
-      quiz_questions: item.quiz_questions,
-      scene_immersive: item.scene_immersive,
+      quiz_questions: itemEnrichi.quiz_questions,
+      scene_immersive: itemEnrichi.scene_immersive,
       tableau_rang_a:
-        transformTableauToSections(item.tableau_rang_a, item.item_code, item.title, 'A')
-        || normalizeTableauData(item.tableau_rang_a),
+        transformTableauToSections(itemEnrichi.tableau_rang_a, itemEnrichi.item_code, itemEnrichi.title, 'A')
+        || normalizeTableauData(itemEnrichi.tableau_rang_a),
       tableau_rang_b:
-        transformTableauToSections(item.tableau_rang_b, item.item_code, item.title, 'B')
-        || normalizeTableauData(item.tableau_rang_b),
-      paroles_musicales: normaliserParoles(item.paroles_musicales),
-      paroles_rang_a: item.paroles_rang_a,
-      paroles_rang_b: item.paroles_rang_b,
-      paroles_rang_ab: item.paroles_rang_ab,
-      bd_panels: item.bd_panels,
-      roman_story: item.roman_story,
+        transformTableauToSections(itemEnrichi.tableau_rang_b, itemEnrichi.item_code, itemEnrichi.title, 'B')
+        || normalizeTableauData(itemEnrichi.tableau_rang_b),
+      paroles_musicales: normaliserParoles(itemEnrichi.paroles_musicales),
+      paroles_rang_a: itemEnrichi.paroles_rang_a,
+      paroles_rang_b: itemEnrichi.paroles_rang_b,
+      paroles_rang_ab: itemEnrichi.paroles_rang_ab,
+      bd_panels: itemEnrichi.bd_panels,
+      roman_story: itemEnrichi.roman_story,
     };
-  }, [item]);
+  }, [itemEnrichi]);
 
-  return { item: itemFinal, contenu, loading, error, introuvable, recharger: charger };
+  const recharger = useCallback(() => {
+    charger();
+    rechargerContenu();
+  }, [charger, rechargerContenu]);
+
+  return {
+    item: itemFinal,
+    contenu,
+    loading,
+    error,
+    introuvable,
+    recharger,
+    /** `true` : l'appelant n'a pas droit au contenu immersif de cet item (réponse du serveur). */
+    contenuVerrouille,
+    /** `true` tant que le serveur n'a pas répondu pour le contenu immersif. */
+    chargementContenu,
+    etatContenu: etatContenu as EtatContenuImmersif,
+    erreurContenu,
+  };
 }

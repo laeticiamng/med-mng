@@ -139,10 +139,11 @@ export default function SRSReview() {
       if (reviewQueue.length === 0 || currentIndex >= reviewQueue.length) return;
       
       const currentItem = reviewQueue[currentIndex];
-      // Use edn_items_complete for proper OIC competences
+      // Use edn_items_complete for proper OIC competences — colonnes publiques
+      // seulement (seuls les tableaux de rang sont lus ici).
       const { data } = await supabase
         .from('edn_items_complete')
-        .select('*')
+        .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .eq('item_code', currentItem.item_code)
         .maybeSingle();
 

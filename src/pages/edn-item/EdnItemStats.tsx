@@ -11,7 +11,7 @@ import { EdnItemSeo } from './EdnItemSeo';
 
 /** `/edn-complete/:slug/stats` — ancien onglet « Stats » de la modale. */
 export default function EdnItemStats() {
-  const { item, competencesRangA, competencesRangB } = useFicheItemEdn();
+  const { item, competencesRangA, competencesRangB, contenuVerrouille } = useFicheItemEdn();
 
   return (
     <>
@@ -40,8 +40,10 @@ export default function EdnItemStats() {
                 <div className="text-sm text-muted-foreground">Total OIC</div>
               </div>
               <div className="text-center p-4 rounded-lg bg-warning/5 border border-warning/20">
-                <div className="text-3xl font-bold text-warning">
-                  {item.paroles_musicales?.length ? '✓' : '○'}
+                {/* Les paroles viennent de la RPC de contenu immersif : pour un
+                    item verrouillé, on indique « Premium » et non « absent ». */}
+                <div className={`font-bold text-warning ${contenuVerrouille ? 'text-base leading-9' : 'text-3xl'}`}>
+                  {contenuVerrouille ? 'Premium' : item.paroles_musicales?.length ? '✓' : '○'}
                 </div>
                 <div className="text-sm text-muted-foreground">Musique</div>
               </div>
@@ -83,7 +85,7 @@ export default function EdnItemStats() {
             <ProgressHeatmap itemCode={item.item_code} days={28} />
 
             {/* Validation des compétences */}
-            <CompetenceValidation item={item} />
+            <CompetenceValidation item={item} contenuVerrouille={contenuVerrouille} />
 
             {/* Classement */}
             <QuizLeaderboard itemCode={item.item_code} limit={5} />

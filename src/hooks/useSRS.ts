@@ -261,7 +261,7 @@ export const useSRS = () => {
       // Get total items count
       const { count: totalItems } = await supabase
         .from('edn_items_immersive')
-        .select('*', { count: 'exact', head: true });
+        .select('id', { count: 'exact', head: true });
 
       const userProgress = progress || [];
       const studiedItemCodes = userProgress.map(p => p.item_code);

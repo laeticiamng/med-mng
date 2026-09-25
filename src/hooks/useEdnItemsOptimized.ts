@@ -1,6 +1,7 @@
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { captureException, addBreadcrumb } from '@/utils/sentry';
 import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
+import { verifierSelectionPublique } from '@/lib/colonnesEdnPubliques';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export interface EdnItemOptimized {
@@ -10,7 +11,6 @@ export interface EdnItemOptimized {
   subtitle?: string;
   slug: string;
   updated_at: string;
-  paroles_musicales?: string[];
   competences_count_rang_a?: number;
   competences_count_rang_b?: number;
   specialite?: string;
@@ -21,7 +21,12 @@ export interface EdnItemOptimized {
 
 // v3 : la source a changé (edn_items_immersive -> edn_items_complete),
 // on repart d'un cache neuf plutôt que de servir les anciens compteurs.
-const CACHE_KEY = 'edn_items_cache_v3';
+// v4 : la liste ne lit plus `paroles_musicales` (contenu Premium, réservé à la
+// RPC mm_contenu_immersif_item) — on invalide les caches qui la contenaient.
+const CACHE_KEY = 'edn_items_cache_v4';
+
+const COLONNES_LISTE = 'id,item_code,title,subtitle,slug,updated_at,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles';
+verifierSelectionPublique(COLONNES_LISTE);
 
 interface CacheData {
   items: EdnItemOptimized[];
@@ -85,7 +90,9 @@ export const useEdnItemsOptimized = () => {
       // IC-142 en annonce 6, alors que le référentiel `oic_competences` n'en
       // contient aucune pour ces deux items : la carte promettait un tableau
       // que l'onglet Rang A ne pouvait pas afficher.
-      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&status=eq.active&order=item_code`;
+      // Colonnes publiques uniquement : les paroles (367 items × 4 jeux) ne
+      // transitent plus par la liste, elles sont réservées à la RPC.
+      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?select=${COLONNES_LISTE}&status=eq.active&order=item_code`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
       const response = await fetch(url, {
         headers: getSupabaseHeaders(true),
@@ -117,7 +124,6 @@ export const useEdnItemsOptimized = () => {
         subtitle: item.subtitle || undefined,
         slug: item.slug,
         updated_at: item.updated_at,
-        paroles_musicales: item.paroles_musicales || undefined,
         competences_count_rang_a: item.competences_count_rang_a || 0,
         competences_count_rang_b: item.competences_count_rang_b || 0,
         specialite: item.specialite || undefined,
@@ -191,25 +197,23 @@ export const useEdnItemsOptimized = () => {
     const complete = items.filter(i => 
       (i.competences_count_rang_a || 0) > 0 && (i.competences_count_rang_b || 0) > 0
     ).length;
-    const withMusic = items.filter(i => 
-      i.paroles_musicales && i.paroles_musicales.length > 0
-    ).length;
 
     const totalOicRangA = items.reduce((sum, i) => sum + (i.competences_count_rang_a || 0), 0);
     const totalOicRangB = items.reduce((sum, i) => sum + (i.competences_count_rang_b || 0), 0);
     const totalOicCompetences = totalOicRangA + totalOicRangB;
 
+    // Score de complétude sur les seules fiches officielles (les paroles,
+    // contenu Premium, ne sont plus connues de la liste).
     const avgScore = total > 0 ? Math.round(
       items.reduce((sum, item) => {
         let score = 0;
-        if ((item.competences_count_rang_a || 0) > 0) score += 35;
-        if ((item.competences_count_rang_b || 0) > 0) score += 35;
-        if (item.paroles_musicales && item.paroles_musicales.length > 0) score += 30;
+        if ((item.competences_count_rang_a || 0) > 0) score += 50;
+        if ((item.competences_count_rang_b || 0) > 0) score += 50;
         return sum + score;
       }, 0) / total
     ) : 0;
 
-    return { total, withRangA, withRangB, complete, withMusic, avgScore, totalOicRangA, totalOicRangB, totalOicCompetences };
+    return { total, withRangA, withRangB, complete, avgScore, totalOicRangA, totalOicRangB, totalOicCompetences };
   }, [items]);
 
   const refresh = useCallback(() => {

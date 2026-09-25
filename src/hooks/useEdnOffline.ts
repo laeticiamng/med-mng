@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { offlineSyncService } from '@/services/offlineSyncService';
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_COMPLETE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseEdnOfflineReturn {
@@ -36,15 +38,17 @@ export function useEdnOffline(): UseEdnOfflineReturn {
   const downloadItem = useCallback(async (item: any) => {
     setIsDownloading(item.item_code);
     try {
-      // If item is incomplete, fetch full data from Supabase
+      // If item is incomplete, fetch full data from Supabase : colonnes
+      // publiques, puis contenu immersif par la RPC (absent si verrouillé —
+      // la copie hors-ligne respecte le même droit que l'écran).
       let fullItem = item;
       if (!item.tableau_rang_a && !item.quiz_questions) {
         const { data } = await supabase
           .from('edn_items_complete')
-          .select('*')
+          .select(SELECT_PUBLIC_COMPLETE)
           .eq('item_code', item.item_code)
           .single();
-        if (data) fullItem = data;
+        if (data) fullItem = await completerAvecContenuImmersif(data);
       }
 
       await offlineSyncService.downloadEdnItemOffline(fullItem);

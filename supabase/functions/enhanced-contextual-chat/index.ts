@@ -242,9 +242,13 @@ async function searchEdnKnowledgeBase(
   try {
     const searchTerms = extractMedicalKeywords(query);
     
+    // Colonnes publiques seulement : `quiz_questions` est un contenu Premium
+    // (verrouillé par colonne pour la clé anon) et ne servait ici qu'à
+    // proposer un quiz — proposé désormais pour tout item (écran Quiz
+    // reconstruit depuis les compétences OIC s'il le faut).
     let baseQuery = supabase
       .from('edn_items_immersive')
-      .select('item_code, title, tableau_rang_a, tableau_rang_b, quiz_questions, scene_immersive');
+      .select('item_code, title, tableau_rang_a, tableau_rang_b, scene_immersive');
 
     // Prioriser les items spécifiques si fournis
     if (contextItems.length > 0) {
@@ -358,16 +362,14 @@ function generateContextualSuggestions(ednContext: EdnContext[]): any[] {
   if (ednContext.length > 0) {
     const mainItem = ednContext[0];
     
-    // Suggestions de quiz
-    if (mainItem.quiz_questions) {
-      suggestions.push({
-        type: 'quiz',
-        title: `Quiz sur ${mainItem.item_code}`,
-        description: 'Testez vos connaissances sur cet item',
-        action: 'start_quiz',
-        item_code: mainItem.item_code
-      });
-    }
+    // Suggestions de quiz (tout item a un écran Quiz)
+    suggestions.push({
+      type: 'quiz',
+      title: `Quiz sur ${mainItem.item_code}`,
+      description: 'Testez vos connaissances sur cet item',
+      action: 'start_quiz',
+      item_code: mainItem.item_code
+    });
 
     // Suggestions de musique
     suggestions.push({

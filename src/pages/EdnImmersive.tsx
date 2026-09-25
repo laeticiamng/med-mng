@@ -21,6 +21,9 @@ const EdnImmersive = () => {
     isAudioPlaying,
     progress,
     loading,
+    contenuVerrouille,
+    chargementContenu,
+    etatContenu,
     sections,
     toggleAudio,
     nextSection,
@@ -82,9 +85,18 @@ const EdnImmersive = () => {
     return <LoadingSpinner />;
   }
 
-  // Contenu immersif : items d'essai ou MED MNG Premium.
-  if (item && !peutVoirItem(item.item_code)) {
-    if (chargementAcces) return <LoadingSpinner />;
+  // Contenu immersif : items d'essai ou MED MNG Premium. Le serveur (RPC
+  // mm_contenu_immersif_item) tranche ; tant qu'il n'a pas répondu, ni le
+  // contenu ni l'encart ne sont affichés.
+  if (item && chargementContenu) {
+    return <LoadingSpinner />;
+  }
+  // En cas d'erreur réseau sur la RPC, on retombe sur la règle côté client.
+  const verrouilleParLeClient = etatContenu === 'erreur' && !peutVoirItem(item?.item_code);
+  if (item && verrouilleParLeClient && chargementAcces) {
+    return <LoadingSpinner />;
+  }
+  if (item && (contenuVerrouille || verrouilleParLeClient)) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-12">
         <EncartPremium contenu="Le parcours immersif de cet item" />

@@ -55,6 +55,16 @@ describe('contenu', () => {
     expect(options.map(o => o.valeur)).not.toContain('sansParoles');
   });
 
+  it('paroles non chargées (contenu Premium) : ni « avec » ni « sans », les deux options disparaissent', () => {
+    const sansParoles = items.map(({ paroles_musicales: _p, ...reste }) => reste);
+    expect(sansParoles.filter(i => correspondContenu(i, 'avecParoles'))).toEqual([]);
+    expect(sansParoles.filter(i => correspondContenu(i, 'sansParoles'))).toEqual([]);
+    const options = listerOptionsContenu(sansParoles).map(o => o.valeur);
+    expect(options).not.toContain('avecParoles');
+    expect(options).not.toContain('sansParoles');
+    expect(options).toContain('competences10');
+  });
+
   it('seuils de compétences', () => {
     expect(items.filter(i => correspondContenu(i, 'competences10')).map(i => i.item_code)).toEqual(['IC-230', 'IC-233']);
     expect(items.filter(i => correspondContenu(i, 'competencesMoins5')).map(i => i.item_code)).toEqual(['IC-280', 'IC-99']);

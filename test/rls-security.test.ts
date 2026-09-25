@@ -175,9 +175,11 @@ describe('RLS Security Tests', () => {
 
   describe('Public Tables RLS', () => {
     it('should allow anyone to read edn_items_immersive', async () => {
+      // Colonnes publiques : les colonnes premium (paroles_*, quiz_questions,
+      // payload_v2, bd_panels, roman_story) sont retirées de la lecture directe.
       const { data, error } = await supabaseUser1
         .from('edn_items_immersive')
-        .select('*')
+        .select('id, item_code, title')
         .limit(1);
 
       expect(error).toBeNull();

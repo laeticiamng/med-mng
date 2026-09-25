@@ -39,7 +39,6 @@ import {
   type StatutItem,
 } from '@/lib/recommandation';
 import {
-  aParolesRedigees,
   appartientADiscipline,
   comparateur,
   correspondContenu,
@@ -60,6 +59,9 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+// Ligne de la liste : colonnes publiques seulement (cf. useEdnItemsOptimized).
+// Les paroles, le quiz, payload_v2 sont un contenu Premium qui ne transite
+// plus par la liste (RPC mm_contenu_immersif_item, item par item).
 interface EdnItem {
   id: string;
   item_code: string;
@@ -68,15 +70,9 @@ interface EdnItem {
   slug: string;
   tableau_rang_a?: any;
   tableau_rang_b?: any;
-  paroles_musicales?: string[];
-  paroles_rang_a?: string[];
-  paroles_rang_b?: string[];
-  paroles_rang_ab?: string[];
   scene_immersive?: any;
-  quiz_questions?: any;
   audio_ambiance?: any;
   visual_ambiance?: any;
-  payload_v2?: any;
   updated_at: string;
   specialite?: string;
   mots_cles?: string[];
@@ -132,13 +128,12 @@ export default function EdnComplete() {
   const { isOnline, pendingCount } = useOfflineSync();
   const immersiveItems = ednItems as EdnItem[];
 
-  // Totaux du référentiel (compétences OIC officielles)
+  // Totaux du référentiel (compétences OIC officielles). Le décompte « avec
+  // paroles » a disparu : les paroles ne sont plus lues par la liste.
   const stats = useMemo(() => {
     const totalOicRangA = ednItems.reduce((sum, i) => sum + (i.competences_count_rang_a || 0), 0);
     const totalOicRangB = ednItems.reduce((sum, i) => sum + (i.competences_count_rang_b || 0), 0);
-    // Paroles réellement rédigées (pas une suite de mots-clés), même règle que l'écran Musique.
-    const withMusic = ednItems.filter(aParolesRedigees).length;
-    return { total: ednItems.length, totalOicRangA, totalOicRangB, withMusic };
+    return { total: ednItems.length, totalOicRangA, totalOicRangB };
   }, [ednItems]);
 
   // La fiche d'un item n'est plus une modale à neuf onglets montés d'un coup :
@@ -453,7 +448,7 @@ export default function EdnComplete() {
                   <h2 id="titre-bibliotheque" className="text-lg font-semibold text-foreground">Tous les items</h2>
                   <p className="text-xs text-muted-foreground">
                     {stats.total} items · {stats.totalOicRangA + stats.totalOicRangB} compétences du référentiel
-                    (rang A {stats.totalOicRangA} · rang B {stats.totalOicRangB}) · {stats.withMusic} avec paroles de chanson
+                    (rang A {stats.totalOicRangA} · rang B {stats.totalOicRangB})
                   </p>
                 </div>
 

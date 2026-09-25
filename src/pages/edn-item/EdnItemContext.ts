@@ -18,6 +18,14 @@ export interface ValeurFicheItemEdn {
   competencesRangB: OicCompetence[];
   chargementRangA: boolean;
   chargementRangB: boolean;
+  /**
+   * Contenu immersif (paroles, quiz, planches, récit) refusé par le serveur :
+   * l'item n'est pas un item d'essai et l'utilisateur n'est pas abonné
+   * Premium. Les sous-pages remplacent alors ce contenu par `EncartPremium`.
+   */
+  contenuVerrouille: boolean;
+  /** La RPC de contenu immersif n'a pas encore répondu. */
+  chargementContenu: boolean;
   numeroItem: number;
   /** Le `:slug` tel qu'il figure dans l'URL (slug ou code item, toute casse). */
   slugUrl: string;

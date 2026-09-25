@@ -7,10 +7,10 @@ import { FaqSection } from '@/components/help/FaqSection';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
-import { BookOpen, Brain } from 'lucide-react';
+import { BookOpen, Brain, Lock } from 'lucide-react';
 import { useFicheItemEdn } from './EdnItemContext';
 import { EdnItemSeo } from './EdnItemSeo';
-import { useAccesPremium } from '@/hooks/useAccesPremium';
+import { EncartPremium } from '@/components/offre/EncartPremium';
 
 /** `/edn-complete/:slug/apercu` — ancien onglet « Aperçu » de la modale. */
 export default function EdnItemApercu() {
@@ -21,8 +21,9 @@ export default function EdnItemApercu() {
     competencesRangB,
     chargementRangA,
     chargementRangB,
+    contenuVerrouille,
+    chargementContenu,
   } = useFicheItemEdn();
-  const { peutVoirItem } = useAccesPremium();
 
   return (
     <>
@@ -49,6 +50,9 @@ export default function EdnItemApercu() {
                   {competencesRangB.length > 0 && (
                     <Badge className="bg-accent/10 text-accent">Rang B</Badge>
                   )}
+                  {/* Paroles et quiz viennent de la RPC de contenu immersif :
+                      pour un item verrouillé, le serveur ne les renvoie pas et
+                      on annonce le contenu Premium plutôt que son absence. */}
                   {item.paroles_musicales && item.paroles_musicales.length > 0 && (
                     <Badge className="bg-success/10 text-success">Paroles</Badge>
                   )}
@@ -57,6 +61,15 @@ export default function EdnItemApercu() {
                   )}
                   {item.quiz_questions && (
                     <Badge className="bg-warning/10 text-warning">Quiz</Badge>
+                  )}
+                  {contenuVerrouille && (
+                    <Badge variant="outline" className="border-primary/30 text-primary">
+                      <Lock className="h-3 w-3 mr-1" aria-hidden="true" />
+                      Paroles, quiz, planches et récit : Premium
+                    </Badge>
+                  )}
+                  {chargementContenu && (
+                    <span className="text-xs text-muted-foreground animate-pulse" aria-busy="true">Contenu immersif…</span>
                   )}
                 </div>
               </div>
@@ -71,6 +84,12 @@ export default function EdnItemApercu() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Contenu immersif refusé par le serveur (item hors essai, sans
+            abonnement) : l'encart Premium remplace ce qui ne peut être montré. */}
+        {contenuVerrouille && (
+          <EncartPremium contenu="Le contenu immersif de cet item (paroles, quiz, planches, récit)" />
+        )}
 
         {/* Données OIC complètes avec détails */}
         <Card>
@@ -156,19 +175,20 @@ export default function EdnItemApercu() {
         </Card>
 
         {/* Validation complète des compétences */}
-        <CompetenceValidation item={item} />
+        <CompetenceValidation item={item} contenuVerrouille={contenuVerrouille} />
 
         {/* Export PDF — on passe les tableaux normalisés en sections : la modale
             transmettait la forme brute (objectifs / competences_cles), que
             l'export ne sait pas lire, et le PDF annonçait alors « Aucune
-            compétence Rang A disponible ». */}
+            compétence Rang A disponible ». Les paroles ne sont présentes que si
+            le serveur les a renvoyées (item d'essai ou abonné Premium). */}
         <EdnItemExport
           itemCode={item.item_code}
           itemTitle={item.title}
           tableauRangA={contenu.tableau_rang_a}
           tableauRangB={contenu.tableau_rang_b}
-          parolesRangA={peutVoirItem(item.item_code) ? contenu.paroles_rang_a : undefined}
-          parolesRangB={peutVoirItem(item.item_code) ? contenu.paroles_rang_b : undefined}
+          parolesRangA={contenu.paroles_rang_a}
+          parolesRangB={contenu.paroles_rang_b}
         />
 
         {/* Notes personnelles */}
@@ -186,6 +206,7 @@ export default function EdnItemApercu() {
           item={item}
           competencesRangA={competencesRangA.length}
           competencesRangB={competencesRangB.length}
+          contenuVerrouille={contenuVerrouille}
         />
       </div>
     </>

@@ -1,5 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 import type { IC1CompletenessReport } from './types/ic1Types';
 import { IC1Validator } from './validators/ic1Validator';
 import { IC1ContentAnalyzer } from './analyzers/ic1ContentAnalyzer';
@@ -13,12 +15,14 @@ export class IC1CompletenessAuditor {
     if (import.meta.env.DEV) console.log('🔍 Audit de complétude IC-1 - Relation médecin-malade...');
     
     try {
-      // Récupération de l'item IC-1
-      const { data: ic1Item, error } = await supabase
+      // Récupération de l'item IC-1 : colonnes publiques + contenu immersif
+      // par la RPC (IC-1 est un item d'essai, renvoyé à tous).
+      const { data: ligne, error } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select(SELECT_PUBLIC_IMMERSIVE)
         .or('item_code.eq.IC-1,item_code.eq.IC-001,slug.eq.ic-1,slug.eq.relation-medecin-malade')
         .maybeSingle();
+      const ic1Item = ligne ? await completerAvecContenuImmersif(ligne) : null;
 
       if (error || !ic1Item) {
         return this.createErrorReport();

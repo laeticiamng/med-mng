@@ -3,6 +3,8 @@ import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
 import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
 import { appendEdnCacheParams, getEdnCacheBuster, pickCacheDiagnostics, subscribeEdnCacheBuster } from '@/utils/ednCache';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabaseConstants';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;
@@ -37,8 +39,9 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
       try {
         if (import.meta.env.DEV) console.log('🔍 useEdnItemV2 - Chargement item:', slug);
         
-        // 1. Récupération depuis Supabase REST avec cache busting
-        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`;
+        // 1. Récupération depuis Supabase REST avec cache busting — colonnes
+        //    publiques ; payload_v2 / paroles / quiz viennent ensuite de la RPC.
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?slug=eq.${encodeURIComponent(slug)}&select=${SELECT_PUBLIC_IMMERSIVE}&limit=1`;
         const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
         const response = await fetch(url, {
           headers: {
@@ -60,12 +63,15 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         const payload = await response.json();
         if (import.meta.env.DEV) console.log('🧾 useEdnItemV2 - Cache headers:', pickCacheDiagnostics(response.headers));
 
-        const data = Array.isArray(payload) ? payload[0] : payload;
+        const ligne = Array.isArray(payload) ? payload[0] : payload;
 
-        if (!data) {
+        if (!ligne) {
           setError('Aucune donnée trouvée');
           return;
         }
+
+        // 1 bis. Contenu immersif (payload_v2, paroles, quiz) si l'appelant y a droit.
+        const data = await completerAvecContenuImmersif(ligne as Record<string, unknown> & { item_code: string; id?: string });
 
         if (import.meta.env.DEV) console.log('📦 Données brutes récupérées:', data);
         setRawItem(data);

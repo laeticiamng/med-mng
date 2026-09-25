@@ -1,4 +1,6 @@
 import { supabase } from "@/integrations/supabase/client"
+import { SELECT_PUBLIC_IMMERSIVE } from "@/lib/colonnesEdnPubliques"
+import { completerAvecContenuImmersif } from "@/hooks/useContenuImmersifItem"
 
 export interface TableauRang {
   title?: string
@@ -268,14 +270,17 @@ class EdnTableauxService {
   // Exporter les données d'un item
   async exportItemData(itemCode: string, format: 'json' | 'csv' = 'json'): Promise<string> {
     try {
-      const { data, error } = await supabase
+      // Colonnes publiques, puis contenu immersif par la RPC (absent si
+      // l'appelant n'y a pas droit ; un administrateur reçoit tout).
+      const { data: ligne, error } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select(SELECT_PUBLIC_IMMERSIVE)
         .eq('item_code', itemCode)
         .maybeSingle()
 
       if (error) throw error
-      if (!data) throw new Error('Item non trouvé')
+      if (!ligne) throw new Error('Item non trouvé')
+      const data = await completerAvecContenuImmersif(ligne)
 
       if (format === 'json') {
         return JSON.stringify(data, null, 2)

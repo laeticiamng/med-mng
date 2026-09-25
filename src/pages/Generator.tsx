@@ -144,12 +144,17 @@ const Generator = () => {
   // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
   
-  const { lyrics: ednLyricsBrutes, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
-    contentType === 'edn' ? selectedItem : null
-  );
-  // Paroles hors items d'essai : réservées à MED MNG Premium.
+  const {
+    lyrics: ednLyricsBrutes,
+    loading: lyricsLoading,
+    error: lyricsError,
+    verrouille: parolesVerrouillees,
+  } = useEdnItemLyrics(contentType === 'edn' ? selectedItem : null);
+  // Paroles hors items d'essai : réservées à MED MNG Premium. Le serveur (RPC
+  // mm_contenu_immersif_item) fait foi (`parolesVerrouillees`) ; la règle
+  // côté client évite seulement d'afficher des paroles avant sa réponse.
   const { aAccesPremium, peutVoirItem } = useAccesPremium();
-  const ednLyrics = selectedItem && !peutVoirItem(selectedItem) ? null : ednLyricsBrutes;
+  const ednLyrics = (selectedItem && !peutVoirItem(selectedItem)) || parolesVerrouillees ? null : ednLyricsBrutes;
   
   // Hook pour les paroles ECOS
   const { lyrics: ecosLyrics, loading: ecosLyricsLoading, error: ecosLyricsError } = useEcosLyrics(

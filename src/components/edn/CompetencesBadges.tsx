@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle, AlertCircle, XCircle, Clock, 
-  BookOpen, Brain, Music, Users, Gamepad2, Flame, Star, Trophy 
+  BookOpen, Brain, Music, Users, Gamepad2, Flame, Star, Trophy, Lock 
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -33,6 +33,12 @@ interface CompetencesBadgesProps {
    */
   competencesRangA?: number;
   competencesRangB?: number;
+  /**
+   * Le serveur a refusé le contenu immersif (item hors essai, sans abonnement
+   * Premium) : paroles et quiz ne sont ni « manquants » ni « disponibles »,
+   * ils sont réservés à Premium et ne comptent pas dans la complétion.
+   */
+  contenuVerrouille?: boolean;
   item: {
     tableau_rang_a?: TableauData;
     tableau_rang_b?: TableauData;
@@ -48,6 +54,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
   item,
   competencesRangA,
   competencesRangB,
+  contenuVerrouille = false,
 }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
@@ -160,8 +167,9 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       label: 'Musique',
       icon: Music,
       available: parolesRedigees,
+      verrouille: contenuVerrouille,
       count: parolesRedigees ? (item.paroles_musicales?.length || 0) : 0,
-      description: parolesRedigees ? 'Paroles rédigées' : 'Paroles non rédigées',
+      description: contenuVerrouille ? 'Réservé à MED MNG Premium' : parolesRedigees ? 'Paroles rédigées' : 'Paroles non rédigées',
       color: parolesRedigees ? 'text-success bg-success/10 border-success/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
@@ -178,13 +186,17 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       label: 'Quiz',
       icon: Gamepad2,
       available: questionsReelles > 0,
+      verrouille: contenuVerrouille,
       count: questionsReelles,
-      description: questionsReelles > 0 ? 'Questions interactives' : 'Questions reconstruites depuis les compétences OIC',
+      description: contenuVerrouille ? 'Réservé à MED MNG Premium' : questionsReelles > 0 ? 'Questions interactives' : 'Questions reconstruites depuis les compétences OIC',
       color: questionsReelles > 0 ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
     }
   ];
 
-  const getStatusIcon = (available: boolean) => {
+  const getStatusIcon = (available: boolean, verrouille?: boolean) => {
+    if (verrouille) {
+      return <Lock className="h-3 w-3 text-primary" aria-label="Réservé à MED MNG Premium" />;
+    }
     if (available) {
       return <CheckCircle className="h-3 w-3 text-success" />;
     } else {
@@ -192,10 +204,12 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
     }
   };
 
+  // Un contenu verrouillé n'est ni présent ni absent : il ne compte pas.
   const calculateGlobalCompletion = () => {
-    const availableFeatures = features.filter(f => f.available).length;
-    const totalFeatures = features.length;
-    return Math.round((availableFeatures / totalFeatures) * 100);
+    const evaluees = features.filter(f => !f.verrouille);
+    if (evaluees.length === 0) return 100;
+    const availableFeatures = evaluees.filter(f => f.available).length;
+    return Math.round((availableFeatures / evaluees.length) * 100);
   };
 
   const globalCompletion = calculateGlobalCompletion();
@@ -246,7 +260,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
                   {feature.count > 0 && (
                     <span className="text-xs font-bold">{feature.count}</span>
                   )}
-                  {getStatusIcon(feature.available)}
+                  {getStatusIcon(feature.available, feature.verrouille)}
                 </div>
               </Badge>
               <div className="text-xs text-muted-foreground text-center px-1">

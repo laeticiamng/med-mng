@@ -135,12 +135,14 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   const itemNumber = parseInt(finalItem.item_code.replace(/\D/g, '') || '0', 10);
   const rangA = finalItem.competences_count_rang_a || 0;
   const rangB = finalItem.competences_count_rang_b || 0;
-  const aMusique = Boolean(finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0);
 
-  // Formats disponibles. Planches et Récit sont présents sur les 367 items
-  // (diaporama des compétences et mise en situation à partir de phrases types).
+  // Formats disponibles. Paroles, Planches et Récit existent pour les 367 items
+  // (écran Musique — paroles stockées ou reconstruites depuis les compétences
+  // OIC —, diaporama des compétences, mise en situation). La liste ne lit plus
+  // `paroles_musicales` (contenu Premium réservé à la RPC), et ce badge était
+  // de toute façon affiché pour 367 items sur 367.
   const formats: Array<{ icon: LucideIcon; text: string }> = [];
-  if (aMusique) formats.push({ icon: Music, text: 'Paroles' });
+  formats.push({ icon: Music, text: 'Paroles' });
   formats.push({ icon: Image, text: 'Planches' });
   formats.push({ icon: FileText, text: 'Récit' });
   if (finalItem.quiz_questions) formats.push({ icon: Brain, text: 'Quiz' });
@@ -251,7 +253,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             <CtaIcon className="ml-1.5 h-4 w-4" aria-hidden="true" />
           </Button>
           <BoutonIcone
-            libelle={aMusique ? 'Ouvrir la chanson mnémotechnique (paroles)' : "Ouvrir l'écran musique de l'item"}
+            libelle="Ouvrir la chanson mnémotechnique (paroles)"
             onClick={(e) => {
               stop(e);
               onOpen('music');

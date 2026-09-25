@@ -7,6 +7,11 @@ const TEST_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ
 
 const supabase = createClient(TEST_SUPABASE_URL, TEST_SUPABASE_ANON_KEY);
 
+// Colonnes publiques d'edn_items_complete : les paroles, le quiz et payload_v2
+// sont réservés à la RPC mm_contenu_immersif_item (verrouillage par colonne,
+// phase 2) — plus aucune requête ne demande `*`.
+const COLONNES_PUBLIQUES = 'id, item_code, title, slug, tableau_rang_a, tableau_rang_b';
+
 // Données de test
 describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
   
@@ -14,7 +19,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('✅ GET /edn - doit retourner la liste des items EDN', async () => {
       const { data, error } = await supabase
         .from('edn_items_complete')
-        .select('*')
+        .select(COLONNES_PUBLIQUES)
         .limit(5);
 
       // Either success or graceful failure
@@ -32,7 +37,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 
         const { data, error } = await supabase
           .from('edn_items_complete')
-          .select('*')
+          .select(COLONNES_PUBLIQUES)
           .eq('slug', testSlug)
           .single();
 
@@ -47,12 +52,27 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('❌ GET /edn/:slug - doit retourner 404 pour slug inexistant', async () => {
       const { data } = await supabase
         .from('edn_items_complete')
-        .select('*')
+        .select(COLONNES_PUBLIQUES)
         .eq('slug', 'slug-inexistant-test-12345')
         .single();
 
       // Should not find data for non-existent slug
       expect(data).toBeNull();
+    });
+
+    it('🔒 Contenu immersif - la RPC verrouille un item hors essai pour un visiteur', async () => {
+      const { data, error } = await supabase.rpc('mm_contenu_immersif_item', { p_item_code: 'IC-247' });
+      expect(error).toBeNull();
+      expect(data).toMatchObject({ item_code: 'IC-247', verrouille: true });
+      expect(data).not.toHaveProperty('paroles_rang_a');
+    });
+
+    it('🔓 Contenu immersif - la RPC renvoie le contenu d’un item d’essai à un visiteur', async () => {
+      const { data, error } = await supabase.rpc('mm_contenu_immersif_item', { p_item_code: 'ic-1' });
+      expect(error).toBeNull();
+      expect(data).toMatchObject({ item_code: 'IC-1', verrouille: false });
+      expect(data).toHaveProperty('paroles_rang_a');
+      expect(data).toHaveProperty('quiz_questions');
     });
 
     it('🔍 Verify Item Completeness - doit retourner le statut de complétude', async () => {
@@ -189,7 +209,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 
       const { data, error } = await supabase
         .from('edn_items_complete')
-        .select('*')
+        .select(COLONNES_PUBLIQUES)
         .limit(1);
 
       const responseTime = performance.now() - startTime;
@@ -292,7 +312,7 @@ describe('🚨 Tests de robustesse - Edge Cases', () => {
   it('💾 Gestion mémoire - requêtes volumineuses', async () => {
     const { data, error } = await supabase
       .from('edn_items_complete')
-      .select('*')
+      .select(COLONNES_PUBLIQUES)
       .limit(100);
 
     // Either success or graceful failure

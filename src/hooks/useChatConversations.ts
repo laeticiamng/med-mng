@@ -88,9 +88,11 @@ export const useChatConversations = () => {
     try {
       // Rechercher dans les items immersifs (remplace edn_items_complete)
       // Note: PostgREST ne supporte pas ::text cast dans .or(), on filtre sur title uniquement
+      // Colonnes publiques uniquement : `payload_v2` (contenu Premium) n'est
+      // plus lu ici — seuls le code et le titre servent aux citations.
       const { data: immersiveItems, error: immersiveError } = await supabase
         .from('edn_items_immersive')
-        .select('item_code, title, payload_v2')
+        .select('item_code, title')
         .ilike('title', `%${query}%`)
         .limit(5);
 

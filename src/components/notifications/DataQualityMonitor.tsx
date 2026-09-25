@@ -111,7 +111,7 @@ export function DataQualityMonitor() {
         try {
           const { count, error } = await (supabase as any)
             .from(tableName)
-            .select('*', { count: 'exact', head: true });
+            .select('id', { count: 'exact', head: true });
 
           if (error) continue;
 
@@ -126,7 +126,7 @@ export function DataQualityMonitor() {
           if (tableName === 'edn_items_immersive') {
             const { count: nullCount } = await supabase
               .from(tableName)
-              .select('*', { count: 'exact', head: true })
+              .select('id', { count: 'exact', head: true })
               .is('tableau_rang_a', null);
 
             if (nullCount && nullCount > 0) {

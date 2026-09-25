@@ -1,6 +1,18 @@
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { appendEdnCacheParams, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { chargerContenuImmersifItem } from '@/hooks/useContenuImmersifItem';
+
+/**
+ * Paroles d'un item pour le générateur audio.
+ *
+ * Titre et sous-titre : colonnes publiques d'`edn_items_complete` (REST).
+ * Paroles : RPC `mm_contenu_immersif_item` uniquement — le serveur ne les
+ * renvoie que pour un item d'essai ou un abonné Premium (`verrouille` sinon),
+ * d'après le JWT de la session. Le hook se recharge à la connexion /
+ * déconnexion, puisque le droit en dépend.
+ */
 
 interface EdnItemLyrics {
   paroles_musicales?: string[];
@@ -40,12 +52,22 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
   const [lyrics, setLyrics] = useState<EdnItemLyrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Le serveur a refusé les paroles de cet item (hors essai, sans Premium). */
+  const [verrouille, setVerrouille] = useState(false);
   const [cacheBuster, setCacheBuster] = useState(getEdnCacheBuster);
+  const { user, loading: chargementAuth } = useAuth();
+  const utilisateurId = user?.id ?? null;
 
   useEffect(() => {
     if (!itemCode) {
       setLyrics(null);
+      setVerrouille(false);
       setLoading(false);
+      return;
+    }
+    // On attend la restauration de la session : le droit aux paroles dépend du JWT.
+    if (chargementAuth) {
+      setLoading(true);
       return;
     }
 
@@ -59,21 +81,21 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
       setError(null);
 
       try {
-        // Table canonique : `edn_items_complete` (367 lignes). Ce hook lisait
-        // encore `edn_items_immersive`, l'ancienne table, dont les quatre colonnes
-        // de paroles sont un gabarit unique décliné sur les 367 items (« Rang A
-        // Fondamentaux, expertise qui s'précise », présent 367 fois) : le
-        // générateur envoyait donc à Suno, pour chaque item, la même chanson.
-        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle,paroles_musicales,paroles_rang_a,paroles_rang_b,paroles_rang_ab&limit=1`;
+        // Table canonique : `edn_items_complete` (367 lignes) — colonnes
+        // publiques seulement. Les paroles (colonnes premium) viennent de la RPC.
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle&limit=1`;
         const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
         
-        const response = await fetch(url, {
-          headers: {
-            ...getSupabaseHeaders(true),
-            'Accept': 'application/json',
-          },
-          cache: 'no-store'
-        });
+        const [response, contenu] = await Promise.all([
+          fetch(url, {
+            headers: {
+              ...getSupabaseHeaders(true),
+              'Accept': 'application/json',
+            },
+            cache: 'no-store'
+          }),
+          chargerContenuImmersifItem(itemCode),
+        ]);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
@@ -85,16 +107,18 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
 
         if (data && data.length > 0) {
           const item = data[0];
+          setVerrouille(contenu.verrouille);
           setLyrics({
             item_code: item.item_code,
             title: item.title,
             subtitle: item.subtitle,
-            paroles_musicales: item.paroles_musicales || [],
-            paroles_rang_a: item.paroles_rang_a || [],
-            paroles_rang_b: item.paroles_rang_b || [],
-            paroles_rang_ab: item.paroles_rang_ab || []
+            paroles_musicales: contenu.contenu?.paroles_musicales || [],
+            paroles_rang_a: contenu.contenu?.paroles_rang_a || [],
+            paroles_rang_b: contenu.contenu?.paroles_rang_b || [],
+            paroles_rang_ab: contenu.contenu?.paroles_rang_ab || []
           });
         } else {
+          setVerrouille(false);
           setError('Aucune parole trouvée pour cet item');
         }
       } catch (err) {
@@ -115,7 +139,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
       isMounted = false;
       unsubscribe();
     };
-  }, [itemCode, cacheBuster]);
+  }, [itemCode, cacheBuster, chargementAuth, utilisateurId]);
 
   // Parser les paroles en structure utilisable - prioriser rang A/B/AB
   const parsedLyrics = useMemo((): ParsedLyrics | null => {
@@ -246,6 +270,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     lyrics,
     loading,
     error,
+    verrouille,
     parsedLyrics,
     stats,
     formatDuration,

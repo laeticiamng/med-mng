@@ -17,6 +17,7 @@ import {
     TableHeader, TableRow
 } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
+import { chargerEtatContenuImmersif } from '@/hooks/useEtatContenuImmersif';
 import {
     AlertTriangle,
     BookOpen,
@@ -63,30 +64,36 @@ export const AdminContentManager = () => {
     try {
       setLoading(true);
       
-      const { data: immersiveItems, error: immersiveError } = await supabase
-        .from('edn_items_immersive')
-        .select(`
-          id, item_code, title, subtitle, 
-          tableau_rang_a, tableau_rang_b,
-          paroles_musicales, quiz_questions, scene_immersive,
-          created_at, updated_at
-        `)
-        .order('item_code');
+      // Colonnes publiques seulement : paroles et quiz (contenu Premium) ne
+      // sont plus lus ici — la RPC mm_etat_contenu_immersif fournit, pour
+      // chaque item, les booléens « renseigné » sans faire sortir le contenu.
+      const [{ data: immersiveItems, error: immersiveError }, { data: completeItems }, etats] = await Promise.all([
+        supabase
+          .from('edn_items_immersive')
+          .select('id, item_code, title, subtitle, tableau_rang_a, tableau_rang_b, scene_immersive, created_at, updated_at')
+          .order('item_code'),
+        supabase
+          .from('edn_items_complete')
+          .select('item_code, completeness_score, is_validated'),
+        chargerEtatContenuImmersif(),
+      ]);
 
       if (immersiveError) {
         throw immersiveError;
       }
 
-      const { data: completeItems } = await supabase
-        .from('edn_items_complete')
-        .select('item_code, completeness_score, is_validated');
+      if (etats === null) {
+        toast.warning("État des paroles et des quiz indisponible (RPC mm_etat_contenu_immersif absente) : pastilles Musique et Quiz non renseignées.");
+      }
+      const etatParCode = new Map((etats ?? []).map(e => [e.item_code, e]));
 
       // Merger les données et calculer les métriques
       const mergedItems: EdnItem[] = immersiveItems?.map(item => {
         const completeData = completeItems?.find(c => c.item_code === item.item_code);
+        const etat = etatParCode.get(item.item_code);
         
-        const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
-        const hasQuiz = !!item.quiz_questions;
+        const hasMusic = etat?.paroles_musicales ?? false;
+        const hasQuiz = etat?.quiz ?? false;
         const hasScene = !!item.scene_immersive;
         const hasTableauA = !!item.tableau_rang_a;
         const hasTableauB = !!item.tableau_rang_b;

@@ -9,9 +9,9 @@ export default function EdnItemMusique() {
   return (
     <>
       <EdnItemSeo segment="musique" />
-      {/* Les quatre jeux de paroles viennent de `edn_items_complete` : la liste
-          d'items ne sélectionne que `paroles_musicales`, si bien que les
-          variantes Rang B et Fusion A+B étaient inatteignables avant. */}
+      {/* Les quatre jeux de paroles viennent de la RPC `mm_contenu_immersif_item`
+          (contenu réservé aux items d'essai et à Premium) ; la route parente
+          n'affiche cette sous-page qu'une fois le contenu renvoyé par le serveur. */}
       <ParolesMusicales
         paroles={contenu.paroles_musicales.length > 0 ? contenu.paroles_musicales : item.paroles_musicales}
         paroles_rang_a={contenu.paroles_rang_a ?? item.paroles_rang_a}

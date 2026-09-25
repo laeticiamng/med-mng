@@ -36,10 +36,12 @@ const mapStatus = (status?: string | ItemStatus | null): ItemStatus => {
  * schéma parallèle qui dupliquerait les mêmes informations.
  */
 
+// Colonnes publiques uniquement (src/lib/colonnesEdnPubliques.ts) :
+// `paroles_musicales` n'est plus lue ici — contenu Premium réservé à la RPC
+// mm_contenu_immersif_item, et `hasAudio` ne dépend plus d'elle.
 const COLONNES_ITEM =
   'id, item_code, title, subtitle, slug, specialite, domaine_medical, mots_cles, ' +
-  'tags_medicaux, competences_count_rang_a, competences_count_rang_b, ' +
-  'paroles_musicales, created_at';
+  'tags_medicaux, competences_count_rang_a, competences_count_rang_b, created_at';
 
 /** Rang déduit du nombre de compétences OIC de chaque rang. */
 const deduireRang = (rangA?: number | null, rangB?: number | null): 'A' | 'B' | 'AB' | null => {

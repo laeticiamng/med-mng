@@ -1,5 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 import { EXPECTED_IC2_RANG_A, EXPECTED_IC2_RANG_B } from './constants/ic2Constants';
 import { analyzeContentForConcepts } from './analyzers/ic2ContentAnalyzer';
 import { generateRecommendations, calculateCompleteness } from './generators/ic2ReportGenerator';
@@ -11,11 +13,14 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
   log('🔍 Vérification de la complétude IC-2...');
   
   try {
-    const { data: item, error } = await supabase
+    // Colonnes publiques + contenu immersif par la RPC (IC-2 est un item
+    // d'essai : paroles, quiz, planches et récit sont renvoyés à tous).
+    const { data: ligne, error } = await supabase
       .from('edn_items_immersive')
-      .select('*')
+      .select(SELECT_PUBLIC_IMMERSIVE)
       .eq('item_code', 'IC-2')
       .maybeSingle();
+    const item = ligne ? await completerAvecContenuImmersif(ligne) : null;
 
     if (error || !item) {
       log('❌ Item IC-2 non trouvé');

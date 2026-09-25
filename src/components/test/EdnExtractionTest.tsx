@@ -33,7 +33,8 @@ interface EdnItemPlatform {
   title: string;
   tableau_rang_a: any;
   tableau_rang_b: any;
-  paroles_musicales: string[];
+  /** Non chargées (contenu Premium réservé à la RPC mm_contenu_immersif_item). */
+  paroles_musicales?: string[];
 }
 
 export const EdnExtractionTest = () => {
@@ -115,7 +116,7 @@ export const EdnExtractionTest = () => {
       
       const { data, error } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select('item_code, title, updated_at')
         .order('updated_at', { ascending: false })
         .limit(10);
 
@@ -147,7 +148,8 @@ export const EdnExtractionTest = () => {
     try {
       const { data, error } = await supabase
         .from('edn_items_immersive')
-        .select('item_code, title, tableau_rang_a, tableau_rang_b, paroles_musicales')
+        // `paroles_musicales` (contenu Premium) n'est plus lue : seuls les tableaux de rang sont affichés.
+        .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .order('item_code')
         .limit(10);
 
@@ -389,7 +391,7 @@ export const EdnExtractionTest = () => {
                       <div className="text-muted-foreground">
                         {item.paroles_musicales ? 
                           `${item.paroles_musicales.length} lignes` :
-                          'Non définies'
+                          'Contenu Premium (non chargé ici)'
                         }
                       </div>
                     </div>

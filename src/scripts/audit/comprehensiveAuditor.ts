@@ -1,4 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_IMMERSIVE } from '@/lib/colonnesEdnPubliques';
+import { completerListeAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
 
 // DEV-only logging — all audit logs are suppressed in production
 const log = (...args: any[]) => { if (import.meta.env.DEV) console.log(...args); };
@@ -97,7 +99,7 @@ export class ComprehensiveSystemAuditor {
       
       const tableChecks = [
         { name: 'subscription_plans', query: () => supabase.from('subscription_plans').select('*').limit(1) },
-        { name: 'edn_items_immersive', query: () => supabase.from('edn_items_immersive').select('*').limit(1) }
+        { name: 'edn_items_immersive', query: () => supabase.from('edn_items_immersive').select('id').limit(1) }
       ];
       
       for (const tableCheck of tableChecks) {
@@ -136,9 +138,11 @@ export class ComprehensiveSystemAuditor {
     console.log('📚 Audit des items EDN...');
     
     try {
-      const { data: items, error } = await supabase
+      const { data: lignes, error } = await supabase
         .from('edn_items_immersive')
-        .select('*');
+        .select(SELECT_PUBLIC_IMMERSIVE);
+      // Paroles et quiz par la RPC (contenu Premium ; l'administrateur y a droit).
+      const items = lignes ? await completerListeAvecContenuImmersif(lignes) : null;
 
       if (error) {
         result.issues.push({
@@ -481,16 +485,19 @@ export class ComprehensiveSystemAuditor {
     let fixedCount = 0;
     
     try {
-      const { data: items, error } = await supabase
+      const { data: lignes, error } = await supabase
         .from('edn_items_immersive')
-        .select('*');
+        .select(SELECT_PUBLIC_IMMERSIVE);
 
       if (error) {
         console.error('Erreur lors de la récupération des items:', error);
         return 0;
       }
+      // Les paroles viennent de la RPC : sans elles (contenu verrouillé pour
+      // l'appelant), on ne doit surtout pas les croire absentes et les écraser.
+      const items = await completerListeAvecContenuImmersif(lignes || []);
       
-      for (const item of items || []) {
+      for (const item of items) {
         let needsUpdate = false;
         const updates: any = {};
         
@@ -499,7 +506,7 @@ export class ComprehensiveSystemAuditor {
           needsUpdate = true;
         }
         
-        if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
+        if (!item.contenu_verrouille && (!item.paroles_musicales || item.paroles_musicales.length === 0)) {
           updates.paroles_musicales = [
             `${item.item_code} Rang A: Connaissances essentielles de base pour cet item`,
             `${item.item_code} Rang B: Expertise avancée et spécialisée pour cet item`

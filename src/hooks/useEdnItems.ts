@@ -9,7 +9,6 @@ export interface EdnItemBasic {
   subtitle?: string;
   slug: string;
   updated_at: string;
-  paroles_musicales?: string[];
   competences_count_rang_a?: number;
   competences_count_rang_b?: number;
 }
@@ -50,7 +49,9 @@ export const useEdnItems = () => {
       }
       
       // Utiliser fetch directement au lieu du SDK Supabase
-      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
+      // Colonnes publiques uniquement : `paroles_musicales` est un contenu
+      // Premium, réservé à la RPC mm_contenu_immersif_item (item par item).
+      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, forceRefresh);
       
       const response = await fetch(url, {

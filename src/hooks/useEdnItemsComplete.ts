@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { SELECT_PUBLIC_COMPLETE } from '@/lib/colonnesEdnPubliques';
+import { completerAvecContenuImmersif } from '@/hooks/useContenuImmersifItem';
+
+/**
+ * Lectures d'`edn_items_complete` en colonnes publiques uniquement (jamais
+ * `*`) ; pour un item seul, le contenu immersif (paroles, quiz…) est complété
+ * par la RPC `mm_contenu_immersif_item` quand l'appelant y a droit.
+ */
 
 export interface EdnItemComplete {
   id: string;
@@ -41,11 +49,11 @@ export const useEdnItemsComplete = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('edn_items_complete')
-        .select('*')
+        .select(SELECT_PUBLIC_COMPLETE)
         .order('item_code');
 
       if (error) throw error;
-      setItems(data || []);
+      setItems((data || []) as unknown as EdnItemComplete[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -71,12 +79,12 @@ export const useEdnItemComplete = (slug: string) => {
         setLoading(true);
         const { data, error } = await supabase
           .from('edn_items_complete')
-          .select('*')
+          .select(SELECT_PUBLIC_COMPLETE)
           .eq('slug', slug)
           .maybeSingle();
 
         if (error) throw error;
-        setItem(data);
+        setItem(data ? ((await completerAvecContenuImmersif(data)) as unknown as EdnItemComplete) : null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Item non trouvé');
       } finally {

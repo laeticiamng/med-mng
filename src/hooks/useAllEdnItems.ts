@@ -1,21 +1,27 @@
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+/**
+ * Liste légère des 367 items pour le sélecteur du générateur.
+ *
+ * Colonnes publiques d'`edn_items_complete` uniquement : les paroles sont un
+ * contenu Premium, obtenu item par item via la RPC `mm_contenu_immersif_item`
+ * (useEdnItemLyrics). Chaque item dispose d'un écran Musique (paroles
+ * stockées ou reconstruites depuis les compétences OIC), donc plus aucun
+ * indicateur « a des paroles » n'est calculé ici.
+ */
 interface EdnItem {
   item_code: string;
   title: string;
   subtitle?: string;
+  slug?: string;
   category: string;
-  has_music: boolean;
-  has_lyrics: boolean;
   competences_count: number;
 }
 
 interface EdnItemsStats {
   total: number;
-  withMusic: number;
-  withLyrics: number;
   byCategory: Record<string, number>;
 }
 
@@ -25,7 +31,7 @@ let cachedStats: EdnItemsStats | null = null;
 
 export const useAllEdnItems = () => {
   const [items, setItems] = useState<EdnItem[]>(cachedItems || []);
-  const [stats, setStats] = useState<EdnItemsStats>(cachedStats || { total: 0, withMusic: 0, withLyrics: 0, byCategory: {} });
+  const [stats, setStats] = useState<EdnItemsStats>(cachedStats || { total: 0, byCategory: {} });
   const [loading, setLoading] = useState(!cachedItems);
   const [error, setError] = useState<string | null>(null);
   const [cacheBuster, setCacheBuster] = useState(getEdnCacheBuster);
@@ -56,8 +62,9 @@ export const useAllEdnItems = () => {
         setLoading(true);
         setError(null);
 
-        // Utiliser fetch direct pour éviter les conflits avec d'autres hooks Supabase
-        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`;
+        // Utiliser fetch direct pour éviter les conflits avec d'autres hooks Supabase.
+        // Table canonique (367 lignes actives), colonnes publiques seulement.
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_complete?select=item_code,title,subtitle,slug,competences_count_total&status=eq.active&order=item_code`;
         const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
         const response = await fetch(url, {
           headers: getSupabaseHeaders(true),
@@ -82,16 +89,13 @@ export const useAllEdnItems = () => {
             item_code: d.item_code,
             title: d.title,
             subtitle: d.subtitle || undefined,
+            slug: d.slug || undefined,
             category: 'EDN',
-            has_music: Boolean(d.paroles_musicales),
-            has_lyrics: Boolean(d.paroles_musicales),
-            competences_count: 0
+            competences_count: d.competences_count_total || 0
           }));
 
           const statsData: EdnItemsStats = {
             total: mappedItems.length,
-            withMusic: mappedItems.filter(i => i.has_music).length,
-            withLyrics: mappedItems.filter(i => i.has_lyrics).length,
             byCategory: { EDN: mappedItems.length }
           };
 
@@ -139,8 +143,6 @@ export const useAllEdnItems = () => {
     return items.filter(item => item.category === category);
   }, [items]);
 
-  const itemsWithLyrics = useMemo(() => items.filter(i => i.has_lyrics), [items]);
-
   const refreshItems = useCallback(() => {
     cachedItems = null;
     cachedStats = null;
@@ -155,7 +157,6 @@ export const useAllEdnItems = () => {
     getItemByCode,
     searchItems,
     getItemsByCategory,
-    itemsWithLyrics,
     refreshItems
   };
 };
