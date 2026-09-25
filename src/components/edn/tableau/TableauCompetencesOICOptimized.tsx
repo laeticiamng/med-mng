@@ -161,6 +161,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
                 <Button
                   variant={viewMode === 'cards' ? 'default' : 'ghost'}
                   size="sm"
+                  aria-pressed={viewMode === 'cards'}
                   onClick={() => setViewMode('cards')}
                   className="rounded-r-none"
                 >
@@ -170,6 +171,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
                 <Button
                   variant={viewMode === 'compact' ? 'default' : 'ghost'}
                   size="sm"
+                  aria-pressed={viewMode === 'compact'}
                   onClick={() => setViewMode('compact')}
                   className="rounded-l-none rounded-r-none border-l"
                 >

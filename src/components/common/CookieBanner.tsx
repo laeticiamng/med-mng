@@ -102,6 +102,8 @@ export const CookieBanner = () => {
               onClick={() => setShowSettings(true)} 
               variant="ghost" 
               size="sm"
+              aria-label="Paramètres des cookies"
+              title="Paramètres des cookies"
             >
               <Settings className="h-4 w-4" />
             </Button>

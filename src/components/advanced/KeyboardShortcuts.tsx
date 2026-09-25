@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ROUTE_PATHS } from '@/config/routes';
+import { EVENEMENT_RACCOURCIS } from '@/components/onboarding/HelpButton';
 import { Keyboard } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,26 @@ interface ShortcutGroup {
   }[];
 }
 
+/** Vrai quand la frappe vient d'un champ de saisie : les raccourcis n'y ont pas cours. */
+const dansUnChamp = (e: KeyboardEvent) => {
+  const cible = e.target as HTMLElement | null;
+  if (!cible) return false;
+  const balise = cible.tagName;
+  return balise === 'INPUT' || balise === 'TEXTAREA' || balise === 'SELECT' || cible.isContentEditable;
+};
+
+/**
+ * Aide-mémoire des raccourcis clavier, ouvert par « ? » ou depuis le bouton
+ * d'aide (événement EVENEMENT_RACCOURCIS).
+ *
+ * CONSTAT (25/09/2026) : la liste annonçait dix raccourcis dont sept
+ * n'existaient pas (Ctrl+/, Ctrl+B, Ctrl+Entrée, Ctrl+S, Ctrl+Maj+P, Alt+N,
+ * G+D vers un tableau de bord réservé aux administrateurs), et la séquence
+ * « G puis H » se déclenchait même en tapant dans un champ (« gh » saisi dans
+ * la recherche renvoyait à l'accueil). Le bouton flottant dédié était
+ * recouvert par celui du tuteur IA. Ne restent que les raccourcis réels ;
+ * les champs de saisie sont ignorés.
+ */
 export const KeyboardShortcuts: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -23,76 +44,54 @@ export const KeyboardShortcuts: React.FC = () => {
     {
       title: 'Navigation',
       shortcuts: [
-        { keys: ['Ctrl', 'K'], description: 'Ouvrir la recherche rapide' },
-        { keys: ['G', 'H'], description: 'Aller à l\'accueil', action: () => navigate(ROUTE_PATHS.home) },
-        { keys: ['G', 'M'], description: 'Aller au générateur musical', action: () => navigate(ROUTE_PATHS.generator) },
-        { keys: ['G', 'E'], description: 'Aller à EDN', action: () => navigate(ROUTE_PATHS.ednComplete) },
-        { keys: ['G', 'D'], description: 'Aller au dashboard', action: () => navigate(ROUTE_PATHS.dashboard) },
+        { keys: ['Ctrl', 'K'], description: 'Rechercher un item EDN' },
+        { keys: ['G', 'H'], description: "Aller à l'accueil", action: () => navigate(ROUTE_PATHS.home) },
+        { keys: ['G', 'E'], description: 'Aller aux items EDN', action: () => navigate(ROUTE_PATHS.ednComplete) },
+        { keys: ['G', 'M'], description: 'Créer une chanson (compte requis)', action: () => navigate(ROUTE_PATHS.medMngCreate) },
       ]
     },
     {
       title: 'Interface',
       shortcuts: [
-        { keys: ['?'], description: 'Afficher les raccourcis clavier' },
-        { keys: ['Ctrl', '/'], description: 'Basculer le thème' },
-        { keys: ['Escape'], description: 'Fermer les modales' },
-        { keys: ['Ctrl', 'B'], description: 'Basculer la barre latérale' },
+        { keys: ['?'], description: 'Afficher cette aide' },
+        { keys: ['Échap'], description: 'Fermer les fenêtres et menus' },
       ]
     },
-    {
-      title: 'Actions',
-      shortcuts: [
-        { keys: ['Ctrl', 'Enter'], description: 'Générer de la musique' },
-        { keys: ['Ctrl', 'S'], description: 'Sauvegarder le contenu' },
-        { keys: ['Ctrl', 'Shift', 'P'], description: 'Ouvrir la palette de commandes' },
-        { keys: ['Alt', 'N'], description: 'Nouvelle création' },
-      ]
-    }
   ];
 
   useEffect(() => {
+    const ouvrir = () => setIsOpen(true);
+    window.addEventListener(EVENEMENT_RACCOURCIS, ouvrir);
+    return () => window.removeEventListener(EVENEMENT_RACCOURCIS, ouvrir);
+  }, []);
+
+  useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      // Vérification de sécurité - s'assurer que e.key existe
       if (!e || !e.key) return;
-      
-      // Ctrl+K pour recherche
-      if (e.ctrlKey && e.key === 'k') {
-        e.preventDefault();
-        // Logique de recherche
-        if (import.meta.env.DEV) console.log('Ouverture recherche rapide');
-      }
+      if (dansUnChamp(e)) return;
 
       // ? pour afficher les raccourcis
-      if (e.key === '?' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+      if (e.key === '?' && !e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
         setIsOpen(true);
+        return;
       }
 
-      // Navigation avec G+lettre
-      if (e.key && e.key.toLowerCase() === 'g' && !e.ctrlKey) {
+      // Navigation avec G + lettre (dans les deux secondes)
+      if (e.key.toLowerCase() === 'g' && !e.ctrlKey && !e.altKey && !e.metaKey) {
         const handleSecondKey = (secondE: KeyboardEvent) => {
-          if (!secondE || !secondE.key) return;
-          
+          if (!secondE || !secondE.key || dansUnChamp(secondE)) return;
           const secondKey = secondE.key.toLowerCase();
-          const action = shortcutGroups[0].shortcuts.find(s => 
+          const action = shortcutGroups[0].shortcuts.find(s =>
             s.keys[1] && s.keys[1].toLowerCase() === secondKey
           )?.action;
-          
           if (action) {
             secondE.preventDefault();
             action();
           }
-          
-          document.removeEventListener('keydown', handleSecondKey);
         };
-        
         document.addEventListener('keydown', handleSecondKey, { once: true });
         setTimeout(() => document.removeEventListener('keydown', handleSecondKey), 2000);
-      }
-
-      // Escape pour fermer
-      if (e.key === 'Escape') {
-        setIsOpen(false);
       }
     };
 
@@ -102,7 +101,7 @@ export const KeyboardShortcuts: React.FC = () => {
 
   const formatKeys = (keys: string[]) => {
     if (!Array.isArray(keys)) return null;
-    
+
     return keys.filter(key => key != null).map((key, index) => (
       <span key={`${key}-${index}`} className="inline-flex items-center">
         <Badge variant="outline" className="px-2 py-1 font-mono text-xs">
@@ -114,62 +113,50 @@ export const KeyboardShortcuts: React.FC = () => {
   };
 
   return (
-    <>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-50 shadow-lg"
-        title="Raccourcis clavier (?)"
-      >
-        <Keyboard className="h-4 w-4" />
-      </Button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Keyboard className="h-5 w-5" />
+            Raccourcis clavier
+          </DialogTitle>
+          <DialogDescription>
+            Les raccourcis ne s'appliquent pas pendant la saisie dans un champ.
+          </DialogDescription>
+        </DialogHeader>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Keyboard className="h-5 w-5" />
-              Raccourcis Clavier
-            </DialogTitle>
-            <DialogDescription>
-              Gagnez en productivité avec ces raccourcis essentiels
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 max-h-[60vh] overflow-y-auto">
-            {shortcutGroups.map((group) => (
-              <div key={group.title}>
-                <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
-                  {group.title}
-                </h3>
-                <div className="space-y-2">
-                  {group.shortcuts.map((shortcut, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <span className="text-sm">{shortcut.description}</span>
-                      <div className="flex items-center gap-1">
-                        {formatKeys(shortcut.keys)}
-                      </div>
+        <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+          {shortcutGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+                {group.title}
+              </h3>
+              <div className="space-y-2">
+                {group.shortcuts.map((shortcut, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <span className="text-sm">{shortcut.description}</span>
+                    <div className="flex items-center gap-1">
+                      {formatKeys(shortcut.keys)}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          <div className="flex justify-between items-center pt-4 border-t">
-            <p className="text-xs text-muted-foreground">
-              Appuyez sur <Badge variant="outline" className="px-1 py-0 text-xs">?</Badge> pour afficher cette aide
-            </p>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Fermer
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        <div className="flex justify-between items-center pt-4 border-t">
+          <p className="text-xs text-muted-foreground">
+            Appuyez sur <Badge variant="outline" className="px-1 py-0 text-xs">?</Badge> pour afficher cette aide
+          </p>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Fermer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

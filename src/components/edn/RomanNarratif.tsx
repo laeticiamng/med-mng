@@ -415,6 +415,7 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
                 key={chap.id}
                 variant={currentChapter === idx ? "default" : "outline"}
                 size="sm"
+                aria-current={currentChapter === idx ? 'true' : undefined}
                 onClick={() => {
                   setCurrentChapter(idx);
                   setReadingProgress((idx / chapters.length) * 100);
@@ -639,6 +640,8 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
             {chapters.map((chapter, index) => (
               <button
                 key={chapter.id}
+                type="button"
+                aria-current={index === currentChapter ? 'true' : undefined}
                 onClick={() => {
                   setCurrentChapter(index);
                   setReadingProgress((index / chapters.length) * 100);

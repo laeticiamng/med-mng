@@ -164,24 +164,35 @@ export default function Demo() {
           </div>
         </div>
 
-        {/* Step indicators */}
+        {/* Step indicators : l'étape courante est un repère (aria-current), pas un
+            bouton — cliquer dessus ne faisait rien. Les étapes déjà vues restent
+            cliquables pour y revenir ; les suivantes sont désactivées. */}
         <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
           {STEP_ORDER.map((step, i) => (
-            <button
-              key={step}
-              onClick={() => i <= stepIndex && setCurrentStep(step)}
-              disabled={i > stepIndex}
-              className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs transition-all ${
-                step === currentStep
-                  ? 'bg-primary text-primary-foreground'
-                  : completedSteps.includes(step)
+            step === currentStep ? (
+              <span
+                key={step}
+                aria-current="step"
+                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs bg-primary text-primary-foreground"
+              >
+                {getStepLabel(step)}
+              </span>
+            ) : (
+              <button
+                key={step}
+                type="button"
+                onClick={() => i <= stepIndex && setCurrentStep(step)}
+                disabled={i > stepIndex}
+                className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs transition-all ${
+                  completedSteps.includes(step)
                     ? 'bg-success/20 text-success cursor-pointer'
                     : 'bg-muted text-muted-foreground'
-              }`}
-            >
-              {completedSteps.includes(step) && <CheckCircle className="h-3 w-3" />}
-              {getStepLabel(step)}
-            </button>
+                }`}
+              >
+                {completedSteps.includes(step) && <CheckCircle className="h-3 w-3" />}
+                {getStepLabel(step)}
+              </button>
+            )
           ))}
         </div>
 
@@ -499,6 +510,8 @@ export default function Demo() {
                 {DEMO_CLINICAL_CASE.options.map((option) => (
                   <button
                     key={option.id}
+                    type="button"
+                    aria-pressed={clinicalAnswer === option.id}
                     onClick={() => !clinicalSubmitted && setClinicalAnswer(option.id)}
                     disabled={clinicalSubmitted}
                     className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
@@ -581,6 +594,8 @@ export default function Demo() {
                 {DEMO_QCM[0].options.map((option, i) => (
                   <button
                     key={i}
+                    type="button"
+                    aria-pressed={qcmAnswer === i}
                     onClick={() => !qcmSubmitted && setQcmAnswer(i)}
                     disabled={qcmSubmitted}
                     className={`w-full p-4 text-left rounded-lg border-2 transition-all ${

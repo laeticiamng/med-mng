@@ -69,13 +69,13 @@ const navigationItems = [
   },
   {
     title: "Plans d'Étude",
-    url: ROUTE_PATHS.studyPlanner,
+    url: ROUTE_PATHS.smartStudyPlanner,
     icon: Target,
     category: "Étude"
   },
   {
     title: "Calendrier",
-    url: ROUTE_PATHS.studyPlanner,
+    url: ROUTE_PATHS.progressDashboard,
     icon: Calendar,
     category: "Étude"
   },

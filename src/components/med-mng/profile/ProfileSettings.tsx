@@ -15,6 +15,8 @@ import {
     Volume2
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface ProfileSettingsProps {
   profile?: any;
@@ -246,9 +248,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
             <p className="text-sm text-destructive/80 mb-4">
               Cette action supprimera définitivement votre compte et toutes vos données.
             </p>
-            <Button variant="destructive" size="sm" className="flex items-center gap-2">
-              <Trash2 className="h-4 w-4" />
-              Supprimer mon compte
+            {/* CONSTAT (25/09/2026) : ce bouton n'avait aucun gestionnaire. La
+                suppression réelle (avec confirmation) est sur la page « Mes données ». */}
+            <Button asChild variant="destructive" size="sm" className="flex items-center gap-2">
+              <Link to={ROUTE_PATHS.mesDonneesRgpd}>
+                <Trash2 className="h-4 w-4" />
+                Supprimer mon compte
+              </Link>
             </Button>
           </div>
         </CardContent>

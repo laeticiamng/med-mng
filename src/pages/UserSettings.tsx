@@ -35,6 +35,8 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { toast } from 'sonner';
 
 // Nouveaux composants d'amélioration
@@ -561,12 +563,13 @@ const UserSettings: React.FC = () => {
                         La suppression de votre compte est irréversible. Toutes vos données,
                         progression et créations seront définitivement perdues.
                       </p>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Supprimer mon compte
+                      {/* CONSTAT (25/09/2026) : ce bouton n'avait aucun gestionnaire. La
+                          suppression réelle (avec confirmation) est sur la page « Mes données ». */}
+                      <Button asChild variant="destructive" size="sm">
+                        <Link to={ROUTE_PATHS.mesDonneesRgpd}>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer mon compte
+                        </Link>
                       </Button>
                     </CardContent>
                   </Card>

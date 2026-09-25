@@ -11,7 +11,6 @@ import { LearningInsights } from '@/components/learning/LearningInsights';
 import { StudyCalendar } from '@/components/learning/StudyCalendar';
 import { StudyCalendarSync } from '@/components/learning/StudyCalendarSync';
 import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
-import { OfflineSyncManager } from '@/components/pwa/OfflineSyncManager';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -380,7 +379,10 @@ export default function ProgressDashboard() {
                 <ProgressExport userId={user.id} stats={gamificationStats} />
               )}
               <PDFExportService />
-              <OfflineSyncManager />
+              {/* OfflineSyncManager retiré le 25/09/2026 : son « téléchargement hors
+                  ligne » n'écrivait qu'un stub JSON de quelques octets dans le cache
+                  sous une URL fictive, puis annonçait le contenu « disponible hors
+                  ligne » ; ses réglages n'étaient enregistrés nulle part. */}
             </div>
           </TabsContent>
         </Tabs>
@@ -578,7 +580,7 @@ export default function ProgressDashboard() {
               <Button 
                 variant="outline" 
                 className="h-auto py-4 flex-col gap-2"
-                onClick={() => navigate(ROUTE_PATHS.studyPlanner)}
+                onClick={() => navigate(ROUTE_PATHS.smartStudyPlanner)}
               >
                 <Calendar className="h-6 w-6 text-warning" />
                 <span className="text-xs">Planning IA</span>

@@ -7,8 +7,8 @@ import { Stethoscope, Flame } from 'lucide-react';
 
 interface Patient {
   name: string;
-  age: number;
-  sex: string;
+  age: number | null;
+  sex: string | null;
   avatar: string;
   background: string;
 }
@@ -57,7 +57,9 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
             <div className="text-4xl">{patient.avatar}</div>
             <div>
               <h3 className="text-xl font-bold text-foreground">{patient.name}</h3>
-              <p className="text-success">{patient.age} ans • {patient.sex}</p>
+              {(patient.age || patient.sex) && (
+                <p className="text-success">{[patient.age ? `${patient.age} ans` : null, patient.sex].filter(Boolean).join(' • ')}</p>
+              )}
             </div>
           </div>
           {stats && (

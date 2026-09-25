@@ -84,12 +84,15 @@ export const usePathDetail = (slug: string) => {
   return useQuery({
     queryKey: ['specialty-path', slug],
     queryFn: async () => {
+      // maybeSingle : un slug inconnu renvoie null (« Parcours introuvable »)
+      // au lieu d'une erreur HTTP 406 dans la console.
       const { data: path, error } = await (supabase as any)
         .from('specialty_paths')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
       if (error) throw error;
+      if (!path) return { path: null, steps: [] };
 
       const { data: steps, error: stepsError } = await (supabase as any)
         .from('specialty_path_steps')
@@ -98,7 +101,7 @@ export const usePathDetail = (slug: string) => {
         .order('step_order');
       if (stepsError) throw stepsError;
 
-      return { path: path as SpecialtyPath, steps: steps as PathStep[] };
+      return { path: path as SpecialtyPath | null, steps: steps as PathStep[] };
     },
     enabled: !!slug,
   });
@@ -167,8 +170,11 @@ export const useStartPath = () => {
     },
     onSuccess: (_, pathId) => {
       queryClient.invalidateQueries({ queryKey: ['user-path-progress', pathId] });
-      toast({ title: '🎯 Parcours démarré !', description: 'Bonne chance dans votre progression.' });
+      toast({ title: 'Parcours démarré', description: 'Ouvrez le premier item pour commencer.' });
     },
+    // CONSTAT (25/09/2026) : sans onError, un échec (visiteur non connecté,
+    // réseau) ne produisait rien : bouton apparemment mort.
+    onError: () => toast({ title: 'Parcours non démarré', description: 'Réessayez dans quelques instants.', variant: 'destructive' }),
   });
 };
 
@@ -177,8 +183,8 @@ export const useCompleteStep = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ stepId, pathId, score, nextStepOrder }: {
-      stepId: string; pathId: string; score?: number; nextStepOrder: number;
+    mutationFn: async ({ stepId, pathId, nextStepOrder }: {
+      stepId: string; pathId: string; nextStepOrder: number;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Non authentifié');
@@ -190,7 +196,9 @@ export const useCompleteStep = () => {
           user_id: user.id,
           step_id: stepId,
           status: 'completed',
-          score: score || 100,
+          // Avancement déclaratif (« marquer comme révisé ») : aucun score n'est
+          // mesuré, on n'en invente pas.
+          score: null,
           attempts: 1,
           completed_at: new Date().toISOString(),
         }, { onConflict: 'user_id,step_id' });
@@ -210,8 +218,9 @@ export const useCompleteStep = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['user-path-progress', data.pathId] });
       queryClient.invalidateQueries({ queryKey: ['user-step-progresses'] });
-      toast({ title: '✅ Étape validée !' });
+      toast({ title: 'Étape marquée comme révisée' });
     },
+    onError: () => toast({ title: 'Étape non enregistrée', description: 'Réessayez dans quelques instants.', variant: 'destructive' }),
   });
 };
 
@@ -238,9 +247,10 @@ export const useCertifyPath = () => {
 
       return certId;
     },
-    onSuccess: (certId, pathId) => {
+    onSuccess: (_certId, pathId) => {
       queryClient.invalidateQueries({ queryKey: ['user-path-progress', pathId] });
-      toast({ title: '🏆 Certification obtenue !', description: `ID: ${certId}` });
+      toast({ title: 'Parcours terminé', description: 'Tous les items de ce parcours sont marqués comme révisés.' });
     },
+    onError: () => toast({ title: 'Fin de parcours non enregistrée', description: 'Réessayez dans quelques instants.', variant: 'destructive' }),
   });
 };

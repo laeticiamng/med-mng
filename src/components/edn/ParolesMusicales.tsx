@@ -211,22 +211,30 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     });
   }, [itemCode, selectedStyle, generatedAudio, toast]);
 
+  // URL de l'audio généré, s'il existe. `generatedAudio` est toujours un objet
+  // (fusion des sources) : tester sa seule présence affichait le bloc « avis »
+  // et « Hors-ligne » même sans aucune musique, et « Hors-ligne » ne faisait
+  // alors rien (bouton mort constaté sur la fiche de l'item 1).
+  const audioUrlGeneree = typeof generatedAudio === 'string'
+    ? generatedAudio
+    : generatedAudio?.rangA || generatedAudio?.rangB || generatedAudio?.rangAB || '';
+
   // Handle download/cache for offline
   const handleCacheAudio = useCallback(async () => {
-    const audioUrl = typeof generatedAudio === 'string' 
-      ? generatedAudio 
-      : generatedAudio?.rangA || generatedAudio?.rangB || '';
-    if (!audioUrl) return;
+    if (!audioUrlGeneree) {
+      toast({ title: 'Aucune musique à enregistrer', description: 'Générez d\'abord la chanson de cet item.', variant: 'destructive' });
+      return;
+    }
     const success = await cacheAudio(
       `music-${itemCode}`,
-      audioUrl,
+      audioUrlGeneree,
       `Musique ${itemCode}`,
       duration
     );
     if (success) {
       toast({ title: '📥 Audio mis en cache', description: 'Disponible hors-ligne' });
     }
-  }, [generatedAudio, itemCode, duration, cacheAudio, toast]);
+  }, [audioUrlGeneree, itemCode, duration, cacheAudio, toast]);
 
 
   return (
@@ -361,7 +369,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
             />
 
             {/* Feedback and cache section after generation */}
-            {generatedAudio && (
+            {audioUrlGeneree && (
               <div className="flex items-center justify-between pt-4 border-t">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Cette musique vous plaît ?</span>

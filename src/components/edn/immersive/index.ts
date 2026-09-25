@@ -6,4 +6,3 @@ export { InteractionSection } from './InteractionSection';
 export { PitchIntroSection } from './PitchIntroSection';
 export { QuizSection as ImmersiveQuizSection } from './QuizSection';
 export { TableauSection } from './TableauSection';
-export { useImmersiveLogic } from './useImmersiveLogic';

@@ -25,7 +25,8 @@ export const StickyMobileCTA = forwardRef<HTMLDivElement>((_, ref) => {
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
     >
-      <div className="bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3 safe-area-bottom">
+      {/* pr-20 : laisse la place au bouton flottant du tuteur IA (bottom-6 right-6), qui recouvrait le bord droit de ce bouton. */}
+      <div className="bg-background/95 backdrop-blur-xl border-t border-border pl-4 pr-20 py-3 safe-area-bottom">
         <Button
           size="lg"
           onClick={() => navigate(ROUTE_PATHS.medMngSignup)}

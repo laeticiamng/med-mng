@@ -11,6 +11,7 @@ import { AlertTriangle, ArrowLeft, Clock, Music } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
+import { traduireErreurAuth } from '@/lib/erreursAuth';
 import { toast } from 'sonner';
 
 export const MedMngLogin = () => {
@@ -85,7 +86,7 @@ export const MedMngLogin = () => {
     const { error } = await signIn(email, password);
 
     if (error) {
-      setError(error.message);
+      setError(traduireErreurAuth(error));
     } else {
       // Réinitialiser le rate limiting en cas de succès
       recordSuccess();
@@ -101,7 +102,7 @@ export const MedMngLogin = () => {
     const result = await signInWithGoogle(suivant);
     
     if (result.error) {
-      setError(result.error.message);
+      setError(traduireErreurAuth(result.error));
     } else {
       logActivity({ activity_type: 'study', metadata: { action: 'login_success', method: provider } });
     }
@@ -114,9 +115,9 @@ export const MedMngLogin = () => {
     const { error } = await resetPassword(resetEmail);
     setResetLoading(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(traduireErreurAuth(error));
     } else {
-      toast.success('Email de réinitialisation envoyé !', { description: 'Vérifiez votre boîte de réception.' });
+      toast.success('E-mail de réinitialisation envoyé', { description: 'Vérifiez votre boîte de réception.' });
       setShowForgotPassword(false);
       setResetEmail('');
     }
@@ -134,10 +135,10 @@ export const MedMngLogin = () => {
             <CardDescription>Réinitialisation du mot de passe</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+            <p className="text-sm text-muted-foreground">Saisissez votre adresse e-mail pour recevoir un lien de réinitialisation.</p>
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="reset-email">Email</Label>
+                <Label htmlFor="reset-email">Adresse e-mail</Label>
                 <Input id="reset-email" type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} autoComplete="email" required />
               </div>
               <Button type="submit" className="w-full" disabled={resetLoading}>
@@ -192,7 +193,7 @@ export const MedMngLogin = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Adresse e-mail</Label>
               <Input
                 id="email"
                 type="email"

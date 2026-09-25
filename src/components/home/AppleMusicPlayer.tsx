@@ -22,9 +22,9 @@ export const AppleMusicPlayer = () => {
           className="text-center mb-16"
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            <TranslatedText text="Écoute." />{' '}
+            <TranslatedText text="Écoutez." />{' '}
             <span className="text-primary">
-              <TranslatedText text="Apprends." />
+              <TranslatedText text="Apprenez." />
             </span>
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">

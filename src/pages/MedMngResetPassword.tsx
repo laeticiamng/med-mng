@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Music } from 'lucide-react';
 import { toast } from 'sonner';
+import { traduireErreurAuth } from '@/lib/erreursAuth';
 
 export const MedMngResetPassword = () => {
   const { updatePassword } = useAuth();
@@ -37,10 +38,10 @@ export const MedMngResetPassword = () => {
     setLoading(false);
 
     if (error) {
-      setError(error.message);
+      setError(traduireErreurAuth(error));
     } else {
       setSuccess(true);
-      toast.success('Mot de passe mis à jour !');
+      toast.success('Mot de passe mis à jour');
     }
   };
 

@@ -23,6 +23,7 @@ export const ROUTE_PATHS = {
   ednItemMusique: '/edn-complete/:slug/musique',
   ednItemPlanches: '/edn-complete/:slug/planches',
   ednItemRecit: '/edn-complete/:slug/recit',
+  /** Ancien parcours immersif : redirigé vers `/edn-complete/:slug/apercu`. */
   ednImmersive: '/edn/:slug/immersive',
   ednMusicLibrary: '/edn/music-library',
   ecosIndex: '/ecos',
@@ -32,8 +33,9 @@ export const ROUTE_PATHS = {
   // Store) sans nettoyer ce fichier : 9 chemins déclarés ici n'avaient plus aucune
   // <Route> dans App.tsx, et ceux qui étaient encore liés (b2b, community, store)
   // renvoyaient une 404. Les 8 clés mortes ont été supprimées et leurs liens retirés.
-  // 'b2b' est conservé volontairement : la page pourra être restaurée après relecture
-  // de ses promesses commerciales (git show ca5d38cb^:src/pages/B2B.tsx).
+  // La clé 'b2b' a été retirée le 25/09/2026 : déclarée sans <Route>, /b2b tombait
+  // en 404 (la page pourra être restaurée après relecture de ses promesses
+  // commerciales : git show ca5d38cb^:src/pages/B2B.tsx).
   audit: '/audit',
   auditCompleteness: '/audit-completeness',
   migrationDashboard: '/migration-dashboard',
@@ -78,6 +80,7 @@ export const ROUTE_PATHS = {
   rlsDocumentation: '/rls-documentation',
   securityMonitoring: '/security-monitoring',
   statistics: '/statistics',
+  /** Ancienne page ; redirigée vers smartStudyPlanner. */
   studyPlanner: '/study-planner',
   homepage: '/homepage',
   achievements: '/achievements',
@@ -88,7 +91,6 @@ export const ROUTE_PATHS = {
   cookies: '/legal/cookies',
   faq: '/faq',
   about: '/about',
-  b2b: '/b2b',
   mesDonneesRgpd: '/mes-donnees-rgpd',
   installPwa: '/install',
   pwaAnalytics: '/pwa-analytics',
@@ -147,6 +149,8 @@ export const ROUTE_PATHS = {
 
 export const ROUTE_REDIRECTS = [
   ROUTE_PATHS.ednLegacy,
+  ROUTE_PATHS.ednImmersive,
+  ROUTE_PATHS.studyPlanner,
   ROUTE_PATHS.ednLegacyWithSlug,
   ROUTE_PATHS.ednItemsLegacy,
   ROUTE_PATHS.auditGeneral,

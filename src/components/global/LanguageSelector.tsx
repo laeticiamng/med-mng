@@ -22,7 +22,9 @@ export const LanguageSelector: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-40">
+    // bottom-24 sur mobile : la barre d'appel à l'action collante de l'accueil
+    // (bottom-0, pleine largeur) et le mini-lecteur recouvraient ce bouton.
+    <div className="fixed bottom-24 md:bottom-4 left-4 z-40">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
+import { traduireErreurAuth } from '@/lib/erreursAuth';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,7 +77,7 @@ export const MedMngSignup = () => {
       if (signUpError.message?.includes('already') || signUpError.status === 422) {
         setError('already_registered');
       } else {
-        setError(signUpError.message);
+        setError(traduireErreurAuth(signUpError));
       }
       setLoading(false);
       return;
@@ -104,7 +105,7 @@ export const MedMngSignup = () => {
     setError('');
     const result = await signInWithGoogle(suivant);
     if (result.error) {
-      setError(result.error.message);
+      setError(traduireErreurAuth(result.error));
     }
   };
 
@@ -121,7 +122,7 @@ export const MedMngSignup = () => {
               <AlertDescription>
                 {error === 'already_registered' ? (
                   <div className="space-y-2">
-                    <p>Un compte existe déjà avec cet email.</p>
+                    <p>Un compte existe déjà avec cette adresse e-mail.</p>
                     <Button
                       type="button"
                       variant="outline"
@@ -151,7 +152,7 @@ export const MedMngSignup = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Adresse e-mail</Label>
               <Input
                 id="email"
                 type="email"

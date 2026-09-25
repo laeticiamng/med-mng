@@ -5,14 +5,15 @@ import { PatientCard } from '@/components/ecos/PatientCard';
 import { StepContent } from '@/components/ecos/StepContent';
 import { StepProgress } from '@/components/ecos/StepProgress';
 import { Badge } from '@/components/ui/badge';
-import { scenarioData as fallbackScenario } from '@/data/ecosData';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useEcosTimer } from '@/hooks/useEcosTimer';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { FileText, Flame, HandIcon, Loader2, MessageCircle, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ROUTE_PATHS } from '@/config/routes';
+import { ArrowLeft, FileText, Flame, HandIcon, Loader2, MessageCircle, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 interface EcosScenarioData {
   sd_id: number | string;
@@ -22,9 +23,9 @@ interface EcosScenarioData {
 }
 
 // Parse HTML content to extract structured steps
-const parseHtmlToSteps = (html: string | null) => {
-  if (!html) return null;
-  
+const parseHtmlToSteps = (htmlSource: string | null) => {
+  // Sans contenu détaillé, la structure générique « Je dis / Je fais / Je conclus » reste proposée.
+  const html = htmlSource || '';
   const steps = [];
   
   // Extract "Je dis" section - questions from interrogatoire
@@ -115,13 +116,17 @@ const EcosScenario = () => {
       }
       
       try {
-        // Try to find by sd_id first, then by slug pattern
-        const sdId = slug.toUpperCase().startsWith('SD') ? slug.toUpperCase() : `SD${slug.padStart(3, '0')}`;
-        
+        // `sd_id` est un entier (1, 2, …) ; l'URL peut porter « 3 » ou « SD003 ».
+        // L'ancienne requête comparait la colonne à « SD003 » et faisait un ilike sur
+        // un entier : PostgREST répondait par une erreur (console) pour tout
+        // identifiant inconnu.
+        const numero = Number.parseInt(slug.replace(/\D/g, ''), 10);
+        if (!Number.isInteger(numero)) return;
+
         const { data, error } = await supabase
           .from('ecos_situations_uness')
           .select('sd_id, intitule_sd, competences_associees, contenu_complet_html')
-          .or(`sd_id.eq.${sdId},sd_id.ilike.%${slug}%`)
+          .eq('sd_id', numero)
           .limit(1)
           .maybeSingle();
 
@@ -145,9 +150,14 @@ const EcosScenario = () => {
     return comp;
   };
 
-  // Build scenario data from DB or fallback
+  // CONSTAT (25/09/2026) : une situation inconnue (identifiant erroné) affichait
+  // un scénario codé en dur (« M. Dupont, 52 ans », cardiologie) présenté comme
+  // réel, et toute situation de la base recevait un patient inventé
+  // (« 45 ans », « Médecine Générale »). Désormais : situation introuvable → message ;
+  // aucune donnée patient n'est inventée (l'âge et le sexe ne sont affichés que
+  // s'ils sont connus).
   const scenarioData = useMemo(() => {
-    if (!dbScenario) return fallbackScenario;
+    if (!dbScenario) return null;
     
     const parsedSteps = parseHtmlToSteps(dbScenario.contenu_complet_html);
     const competencesStr = normalizeCompetences(dbScenario.competences_associees);
@@ -155,17 +165,17 @@ const EcosScenario = () => {
     return {
       id: String(dbScenario.sd_id),
       title: dbScenario.intitule_sd,
-      specialty: 'Médecine Générale',
+      specialty: 'Situation de départ ECOS',
       duration: 15,
       pitch: `Situation clinique : ${dbScenario.intitule_sd}. Prenez en charge ce patient de manière structurée.`,
       patient: {
         name: 'Patient(e)',
-        age: 45,
-        sex: 'Non précisé',
+        age: null,
+        sex: null,
         avatar: '🏥',
         background: competencesStr || 'Consultez le dossier médical'
       },
-      steps: parsedSteps || fallbackScenario.steps
+      steps: parsedSteps
     };
   }, [dbScenario]);
 
@@ -198,7 +208,7 @@ const EcosScenario = () => {
       // Visiteur non connecté : il n’y a pas de compte où écrire. On le dit, sans planter.
       if (!currentUser) return 'anonymous';
 
-      const contentId = String(scenarioData.id);
+      const contentId = String(scenarioData?.id ?? slug ?? '');
 
       const { data: existing } = await (supabase as any)
         .from('user_progress')
@@ -255,6 +265,7 @@ const EcosScenario = () => {
   };
 
   const nextStep = async () => {
+    if (!scenarioData) return;
     if (currentStep < scenarioData.steps.length - 1) {
       setCurrentStep(currentStep + 1);
       
@@ -282,6 +293,25 @@ const EcosScenario = () => {
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
           <p className="text-muted-foreground">Chargement du scénario...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!scenarioData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 flex items-center justify-center px-4">
+        <div className="text-center space-y-4 max-w-md">
+          <h1 className="text-2xl font-bold text-foreground">Situation introuvable</h1>
+          <p className="text-muted-foreground">
+            Aucune situation ECOS ne correspond à « {slug} ».
+          </p>
+          <Button asChild>
+            <Link to={ROUTE_PATHS.ecosIndex}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Toutes les situations ECOS
+            </Link>
+          </Button>
         </div>
       </div>
     );

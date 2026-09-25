@@ -251,10 +251,11 @@ const DailyChallenges = () => {
                         Réclamer
                       </Button>
                     ) : !challenge.is_completed ? (
-                      <Button size="sm" variant="outline" className="gap-2">
+                      /* État du défi (pas une action) : affiché en badge, plus en bouton inerte. */
+                      <Badge variant="outline" className="gap-1.5 py-1">
                         <Target className="h-4 w-4" />
                         En cours
-                      </Button>
+                      </Badge>
                     ) : null}
                   </div>
                 </div>

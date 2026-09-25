@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, Music } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { TranslatedText } from '@/components/global/TranslatedText';
@@ -127,26 +127,18 @@ export const AudioDemoPlayer = () => {
 
   if (isLoading) return null;
 
-  // Aucun extrait en base : on le dit, plutôt que d'afficher un faux catalogue.
+  // Aucun extrait en base : le bloc n'est pas affiché. L'encart au-dessus
+  // explique déjà que chaque item est mis en chanson à la demande depuis le
+  // compte ; annoncer « aucun extrait pour l'instant » promettait un catalogue.
   if (tracks.length === 0 || isFallback) {
-    return (
-      <div className="mt-8 space-y-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Music className="h-4 w-4 text-primary" />
-          <span className="font-medium"><TranslatedText text="Aucun extrait audio en ligne pour l'instant" /></span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          <TranslatedText text="Les 367 items EDN sont disponibles avec leurs compétences officielles. Les chansons sont générées à la demande depuis votre compte : aucune piste pré-enregistrée n'est encore publiée." />
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div className="mt-8 space-y-4">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Volume2 className="h-4 w-4 text-primary" />
-        <span className="font-medium"><TranslatedText text="🎧 Écoute un extrait" /></span>
+        <span className="font-medium"><TranslatedText text="🎧 Écoutez un extrait" /></span>
       </div>
 
       {/* Track selector */}

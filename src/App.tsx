@@ -57,7 +57,6 @@ const EdnItemStats = lazy(() => import("./pages/edn-item/EdnItemStats"));
 const EdnItemMusique = lazy(() => import("./pages/edn-item/EdnItemMusique"));
 const EdnItemPlanches = lazy(() => import("./pages/edn-item/EdnItemPlanches"));
 const EdnItemRecit = lazy(() => import("./pages/edn-item/EdnItemRecit"));
-const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
 const SRSReview = lazy(() => import("./pages/SRSReview"));
@@ -134,7 +133,6 @@ const Generator = lazy(() => import("./pages/Generator"));
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
-const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
@@ -202,6 +200,16 @@ const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const EdnSlugRedirect = () => {
   const { slug } = useParams();
   return <Navigate to={`/edn-complete/${slug}`} replace />;
+};
+
+// 🔄 `/edn/:slug/immersive` (ancien parcours immersif) → l'aperçu de l'item.
+// CONSTAT (25/09/2026) : cette page n'était plus liée nulle part, son bouton
+// « Audio » ne lançait aucun son (simple bascule d'icône) et deux de ses huit
+// sections affichaient « en cours de développement ». La fiche d'item couvre
+// les mêmes contenus (rang A/B, paroles, quiz, planches, récit).
+const EdnImmersiveRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/edn-complete/${slug}/apercu`} replace />;
 };
 
 // 🔄 `/edn-complete/:slug` et tout segment inconnu → l'aperçu de l'item.
@@ -286,7 +294,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<EdnSlugRedirect />} />
                                     <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
-                                    <Route path={ROUTE_PATHS.ednImmersive} element={<S><EdnImmersive /></S>} />
+                                    <Route path={ROUTE_PATHS.ednImmersive} element={<EdnImmersiveRedirect />} />
                                     <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
 
                                     {/* Learning */}
@@ -419,7 +427,12 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.rlsDocumentation} element={<AdminRoute><S><RLSDocumentation /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.securityMonitoring} element={<AdminRoute><S><SecurityMonitoring /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.statistics} element={<ProtectedRoute><S><Statistics /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.studyPlanner} element={<ProtectedRoute><S><StudyPlanner /></S></ProtectedRoute>} />
+                                    {/* CONSTAT (25/09/2026) : /study-planner listait des sessions et objectifs
+                                        que rien dans l'application ne permettait de créer (tables jamais
+                                        alimentées côté utilisateur) ; ses boutons « Nouvelle session »,
+                                        « Nouvel objectif », modifier et supprimer n'avaient aucun gestionnaire.
+                                        Redirigé vers le planificateur réel. */}
+                                    <Route path={ROUTE_PATHS.studyPlanner} element={<Navigate to={ROUTE_PATHS.smartStudyPlanner} replace />} />
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />

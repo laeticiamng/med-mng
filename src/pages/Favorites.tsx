@@ -13,7 +13,6 @@ import {
     BookOpen,
     Calendar,
     Flame,
-    FolderPlus,
     Heart,
     Loader2,
     Music,
@@ -115,8 +114,8 @@ const Favorites: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-destructive/5 via-background to-destructive/10">
       <Helmet>
         <title>Mes Favoris - MED MNG</title>
-        <meta name="description" content="Gérez vos contenus favoris, collections personnalisées et éléments sauvegardés." />
-        <meta name="keywords" content="favoris, collections, sauvegarde, apprentissage médical" />
+        <meta name="description" content="Gérez vos contenus favoris et éléments sauvegardés." />
+        <meta name="keywords" content="favoris, sauvegarde, apprentissage médical" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-8">
@@ -139,15 +138,13 @@ const Favorites: React.FC = () => {
                 Mes Favoris
               </h1>
               <p className="text-muted-foreground mt-1">
-                Retrouvez tous vos contenus préférés et collections personnalisées
+                Retrouvez tous vos contenus préférés
               </p>
             </div>
           </div>
           
-          <Button className="flex items-center gap-2">
-            <FolderPlus className="w-4 h-4" />
-            Nouvelle Collection
-          </Button>
+          {/* CONSTAT (25/09/2026) : le bouton « Nouvelle Collection » n'avait aucun
+              gestionnaire et aucune fonctionnalité de collections n'existe. Retiré. */}
         </div>
 
         {/* Statistiques avec gamification */}

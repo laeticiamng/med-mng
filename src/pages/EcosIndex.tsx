@@ -221,7 +221,7 @@ const EcosIndex = () => {
             <p className="text-muted-foreground">
               {searchTerm 
                 ? 'Essayez un autre terme de recherche'
-                : 'Les situations ECOS seront bientôt disponibles'
+                : "Aucune situation ECOS n'est disponible pour le moment."
               }
             </p>
           </div>

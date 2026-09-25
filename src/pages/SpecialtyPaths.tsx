@@ -32,9 +32,13 @@ const SpecialtyPaths = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Parcours par Spécialité
           </h1>
+          {/* CONSTAT (25/09/2026) : la page promettait des « checkpoints de validation »
+              et une « certification de maîtrise » ; aucun quiz n'était posé et la
+              « certification » s'obtenait en cliquant. Le texte décrit ce qui existe :
+              un ordre de révision des items EDN par spécialité, avec suivi d'avancement. */}
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Progressez méthodiquement dans chaque spécialité médicale avec des checkpoints de validation 
-            et obtenez votre certification de maîtrise.
+            Un ordre de révision des items EDN pour chaque spécialité, avec des points d'étape
+            et le suivi de votre avancement.
           </p>
         </motion.div>
       </div>
@@ -43,8 +47,8 @@ const SpecialtyPaths = () => {
       <div className="grid grid-cols-3 gap-4 mb-10 max-w-lg mx-auto">
         {[
           { icon: BookOpen, label: 'Spécialités', value: paths?.length || '—' },
-          { icon: Trophy, label: 'Certifications', value: paths?.length || '—' },
-          { icon: Clock, label: 'Heures de contenu', value: paths?.reduce((acc, p) => acc + p.estimated_hours, 0) || '—' },
+          { icon: Target, label: 'Items EDN ordonnés', value: paths ? paths.reduce((acc, p) => acc + ((p.steps_count || 0) - (p.checkpoints_count || 0)), 0) : '—' },
+          { icon: Clock, label: 'Heures estimées', value: paths?.reduce((acc, p) => acc + p.estimated_hours, 0) || '—' },
         ].map(({ icon: Icon, label, value }) => (
           <div key={label} className="text-center p-4 rounded-xl bg-muted/30">
             <Icon className="h-5 w-5 mx-auto mb-1 text-primary" />
@@ -106,7 +110,7 @@ const SpecialtyPaths = () => {
                           </span>
                           <span className="flex items-center gap-1">
                             <Trophy className="h-3.5 w-3.5" />
-                            {path.checkpoints_count || 0} checkpoints
+                            {path.checkpoints_count || 0} points d'étape
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" />

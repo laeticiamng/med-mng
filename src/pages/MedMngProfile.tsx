@@ -22,7 +22,6 @@ import {
     Activity,
     Award,
     Calendar,
-    Camera,
     Crown,
     Flame,
     Heart,
@@ -195,13 +194,8 @@ const MedMngProfileComponent = () => {
                     {profile?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <Button 
-                  size="icon"
-                  variant="secondary"
-                  className="absolute -bottom-2 -right-2 rounded-full h-8 w-8"
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
+                {/* CONSTAT (25/09/2026) : le bouton « appareil photo » sur l'avatar
+                    n'avait aucun gestionnaire (pas de téléversement d'image). Retiré. */}
               </div>
               
               <div className="flex-1 text-center md:text-left">

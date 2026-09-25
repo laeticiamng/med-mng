@@ -1,23 +1,45 @@
-import { useParams, Link } from 'react-router-dom';
-import { 
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import {
   usePathDetail, useUserPathProgress, useUserStepProgresses,
-  useStartPath, useCompleteStep, useCertifyPath 
+  useStartPath, useCompleteStep, useCertifyPath
 } from '@/hooks/useSpecialtyPaths';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  ArrowLeft, CheckCircle2, Circle, Lock, Play, Trophy, 
-  Award, BookOpen, Clock, Flag, Sparkles
+import { ROUTE_PATHS } from '@/config/routes';
+import { avecSuivant } from '@/lib/cheminSuivant';
+import { cheminItemEdn } from '@/pages/edn-item/ednItemTabs';
+import {
+  ArrowLeft, CheckCircle2, Circle, Lock, Play,
+  Award, BookOpen, Clock, Flag, ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
+/**
+ * Détail d'un parcours par spécialité : une liste ordonnée d'items EDN à
+ * réviser, avec des points d'étape.
+ *
+ * CONSTAT (25/09/2026) :
+ *  - « Commencer » ne faisait rien pour un visiteur (mutation rejetée en
+ *    silence, aucun message) ; il mène désormais à la connexion, avec retour.
+ *  - « Étudier » n'ouvrait pas l'item : il marquait l'étape validée avec un
+ *    score de 100 sans rien étudier. « Valider » un checkpoint « quiz » avec un
+ *    « score minimum » faisait de même alors qu'aucun quiz n'était posé, et
+ *    « Obtenir la certification » délivrait un identifiant de certificat pour
+ *    ces clics. Désormais : « Ouvrir l'item » mène à la fiche, l'avancement
+ *    est déclaratif (« Marquer comme révisé »), et la fin du parcours est
+ *    présentée comme telle, sans certification.
+ */
 const SpecialtyPathDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const { data, isLoading } = usePathDetail(slug || '');
   const path = data?.path;
   const steps = data?.steps || [];
@@ -30,7 +52,7 @@ const SpecialtyPathDetail = () => {
   const completeStep = useCompleteStep();
   const certifyPath = useCertifyPath();
 
-  const [showCertificate, setShowCertificate] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   if (isLoading) {
     return (
@@ -50,7 +72,7 @@ const SpecialtyPathDetail = () => {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold mb-4">Parcours introuvable</h2>
-        <Link to="/parcours">
+        <Link to={ROUTE_PATHS.specialtyPaths}>
           <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Retour aux parcours</Button>
         </Link>
       </div>
@@ -59,9 +81,10 @@ const SpecialtyPathDetail = () => {
 
   const currentStepOrder = userProgress?.current_step_order || 0;
   const hasStarted = !!userProgress;
-  const isCertified = userProgress?.is_certified || false;
+  const isCompleted = userProgress?.is_certified || false;
   const completedSteps = stepProgresses?.filter(sp => sp.status === 'completed').length || 0;
   const progressPercent = steps.length > 0 ? (completedSteps / steps.length) * 100 : 0;
+  const itemsDuParcours = steps.filter(s => !s.is_checkpoint && s.item_code !== 'CHECKPOINT');
 
   const getStepStatus = (step: typeof steps[0]) => {
     const sp = stepProgresses?.find(p => p.step_id === step.id);
@@ -72,7 +95,12 @@ const SpecialtyPathDetail = () => {
   };
 
   const handleStartPath = () => {
-    if (path) startPath.mutate(path.id);
+    if (!user) {
+      // Le suivi d'un parcours est propre au compte : connexion, puis retour ici.
+      navigate(avecSuivant(ROUTE_PATHS.medMngLogin, location.pathname));
+      return;
+    }
+    startPath.mutate(path.id);
   };
 
   const handleCompleteStep = (step: typeof steps[0]) => {
@@ -80,14 +108,13 @@ const SpecialtyPathDetail = () => {
     completeStep.mutate({
       stepId: step.id,
       pathId: path.id,
-      score: 100,
       nextStepOrder: nextStep ? nextStep.step_order : step.step_order + 1,
     });
   };
 
-  const handleCertify = () => {
+  const handleFinish = () => {
     certifyPath.mutate(path.id, {
-      onSuccess: () => setShowCertificate(true),
+      onSuccess: () => setShowCompletion(true),
     });
   };
 
@@ -96,7 +123,7 @@ const SpecialtyPathDetail = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Back */}
-      <Link to="/parcours" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+      <Link to={ROUTE_PATHS.specialtyPaths} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" /> Tous les parcours
       </Link>
 
@@ -118,17 +145,17 @@ const SpecialtyPathDetail = () => {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">{path.name}</h1>
-                {isCertified && (
+                {isCompleted && (
                   <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
-                    <Award className="h-3 w-3 mr-1" /> Certifié
+                    <Award className="h-3 w-3 mr-1" /> Terminé
                   </Badge>
                 )}
               </div>
               <p className="text-muted-foreground mb-4">{path.description}</p>
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5"><BookOpen className="h-4 w-4" /> {steps.length} étapes</span>
-                <span className="flex items-center gap-1.5"><Flag className="h-4 w-4" /> {steps.filter(s => s.is_checkpoint).length} checkpoints</span>
-                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> ~{path.estimated_hours}h</span>
+                <span className="flex items-center gap-1.5"><BookOpen className="h-4 w-4" /> {itemsDuParcours.length} items EDN</span>
+                <span className="flex items-center gap-1.5"><Flag className="h-4 w-4" /> {steps.filter(s => s.is_checkpoint).length} points d'étape</span>
+                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> ~{path.estimated_hours} h estimées</span>
               </div>
 
               {/* Progress bar */}
@@ -140,6 +167,11 @@ const SpecialtyPathDetail = () => {
                   </div>
                   <Progress value={progressPercent} className="h-2.5" />
                 </div>
+              )}
+              {!hasStarted && !user && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Les items du parcours sont consultables librement ; le suivi de votre avancement demande un compte.
+                </p>
               )}
             </div>
 
@@ -153,17 +185,17 @@ const SpecialtyPathDetail = () => {
                   className="shadow-md"
                 >
                   <Play className="h-4 w-4 mr-2" />
-                  Commencer
+                  {user ? 'Commencer' : 'Se connecter pour suivre'}
                 </Button>
-              ) : allCompleted && !isCertified ? (
+              ) : allCompleted && !isCompleted ? (
                 <Button
                   size="lg"
-                  onClick={handleCertify}
+                  onClick={handleFinish}
                   disabled={certifyPath.isPending}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white shadow-md"
+                  className="shadow-md"
                 >
-                  <Trophy className="h-4 w-4 mr-2" />
-                  Obtenir la certification
+                  <Award className="h-4 w-4 mr-2" />
+                  Terminer le parcours
                 </Button>
               ) : null}
             </div>
@@ -180,9 +212,10 @@ const SpecialtyPathDetail = () => {
           {steps.map((step, index) => {
             const status = getStepStatus(step);
             const isCheckpoint = step.is_checkpoint;
-            const isCompleted = status === 'completed';
+            const isStepCompleted = status === 'completed';
             const isAvailable = status === 'available';
             const isLocked = status === 'locked';
+            const estUnItem = !isCheckpoint && step.item_code !== 'CHECKPOINT';
 
             return (
               <motion.div
@@ -195,36 +228,36 @@ const SpecialtyPathDetail = () => {
                 {/* Timeline node */}
                 <div className={cn(
                   "absolute left-4 w-7 h-7 rounded-full flex items-center justify-center z-10 border-2",
-                  isCompleted ? "bg-primary border-primary text-primary-foreground" :
+                  isStepCompleted ? "bg-primary border-primary text-primary-foreground" :
                   isAvailable ? "bg-background border-primary text-primary" :
                   isCheckpoint ? "bg-background border-yellow-500 text-yellow-500" :
                   "bg-muted border-muted-foreground/30 text-muted-foreground/50"
                 )}>
-                  {isCompleted ? <CheckCircle2 className="h-4 w-4" /> :
-                   isLocked ? <Lock className="h-3.5 w-3.5" /> :
+                  {isStepCompleted ? <CheckCircle2 className="h-4 w-4" /> :
+                   isLocked && hasStarted ? <Lock className="h-3.5 w-3.5" /> :
                    isCheckpoint ? <Flag className="h-3.5 w-3.5" /> :
                    <Circle className="h-3.5 w-3.5" />}
                 </div>
 
                 <Card className={cn(
                   "p-4 transition-all",
-                  isCompleted && "bg-primary/5 border-primary/20",
+                  isStepCompleted && "bg-primary/5 border-primary/20",
                   isAvailable && "border-primary/40 shadow-sm hover:shadow-md",
-                  isCheckpoint && !isCompleted && "border-yellow-500/30 bg-yellow-500/5",
-                  isLocked && "opacity-60"
+                  isCheckpoint && !isStepCompleted && "border-yellow-500/30 bg-yellow-500/5",
+                  isLocked && hasStarted && "opacity-60"
                 )}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         {isCheckpoint && (
                           <Badge variant="outline" className="text-[10px] border-yellow-500/50 text-yellow-600 h-5">
-                            Checkpoint
+                            Point d'étape
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground">
                           Étape {step.step_order}/{steps.length}
                         </span>
-                        {!isCheckpoint && step.item_code !== 'CHECKPOINT' && (
+                        {estUnItem && (
                           <Badge variant="secondary" className="text-[10px] h-5">
                             IC-{step.item_code}
                           </Badge>
@@ -232,8 +265,8 @@ const SpecialtyPathDetail = () => {
                       </div>
                       <h3 className={cn(
                         "font-medium",
-                        isCompleted && "text-primary",
-                        isLocked && "text-muted-foreground"
+                        isStepCompleted && "text-primary",
+                        isLocked && hasStarted && "text-muted-foreground"
                       )}>
                         {step.title}
                       </h3>
@@ -242,34 +275,41 @@ const SpecialtyPathDetail = () => {
                       )}
                       {isCheckpoint && (
                         <p className="text-xs text-muted-foreground mt-1">
-                          Score minimum : {step.min_score_percent}%
+                          Relisez les items précédents avant de poursuivre.
                         </p>
                       )}
                     </div>
 
                     {/* Step action */}
-                    <div className="flex-shrink-0 ml-4">
-                      {isCompleted ? (
+                    <div className="flex-shrink-0 flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                      {estUnItem && (
+                        <Button asChild size="sm" variant="outline">
+                          <Link to={cheminItemEdn(`IC-${step.item_code}`, 'apercu')}>
+                            <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Ouvrir l'item
+                          </Link>
+                        </Button>
+                      )}
+                      {isStepCompleted ? (
                         <div className="flex items-center gap-1.5 text-primary">
                           <CheckCircle2 className="h-5 w-5" />
-                          <span className="text-sm font-medium">Validé</span>
+                          <span className="text-sm font-medium">Révisé</span>
                         </div>
                       ) : isAvailable ? (
                         <Button
                           size="sm"
-                          variant={isCheckpoint ? "default" : "outline"}
+                          variant={isCheckpoint ? "default" : "secondary"}
                           onClick={() => handleCompleteStep(step)}
                           disabled={completeStep.isPending}
                         >
                           {isCheckpoint ? (
-                            <><Flag className="h-3.5 w-3.5 mr-1.5" /> Valider</>
+                            <><Flag className="h-3.5 w-3.5 mr-1.5" /> Passer ce point d'étape</>
                           ) : (
-                            <><Play className="h-3.5 w-3.5 mr-1.5" /> Étudier</>
+                            <><CheckCircle2 className="h-3.5 w-3.5 mr-1.5" /> Marquer comme révisé</>
                           )}
                         </Button>
-                      ) : (
-                        <Lock className="h-4 w-4 text-muted-foreground/40" />
-                      )}
+                      ) : hasStarted ? (
+                        <Lock className="h-4 w-4 text-muted-foreground/40" aria-label="Étape à venir" />
+                      ) : null}
                     </div>
                   </div>
                 </Card>
@@ -279,9 +319,9 @@ const SpecialtyPathDetail = () => {
         </div>
       </div>
 
-      {/* Certificate Modal */}
+      {/* Fin de parcours */}
       <AnimatePresence>
-        {(showCertificate || isCertified) && userProgress?.certificate_id && (
+        {(showCompletion || isCompleted) && userProgress?.completed_at && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -294,17 +334,13 @@ const SpecialtyPathDetail = () => {
                   <Award className="h-10 w-10 text-yellow-500" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2 text-foreground">
-                  Certification {path.name}
+                  Parcours {path.name} terminé
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Félicitations ! Vous avez complété l'ensemble du parcours de {path.name}.
+                  Vous avez marqué comme révisés les {itemsDuParcours.length} items de ce parcours.
                 </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border border-border">
-                  <Sparkles className="h-4 w-4 text-yellow-500" />
-                  <span className="font-mono text-sm">{userProgress.certificate_id}</span>
-                </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Certifié le {new Date(userProgress.completed_at || '').toLocaleDateString('fr-FR', { dateStyle: 'long' })}
+                  Terminé le {new Date(userProgress.completed_at).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
                 </p>
               </div>
             </Card>

@@ -85,9 +85,9 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       <DialogContent className="max-w-md p-0 bg-card border-border/50 overflow-hidden">
         {/* Accessible title and description for screen readers */}
         <VisuallyHidden>
-          <DialogTitle>Personnalisation de ton expérience musicale</DialogTitle>
+          <DialogTitle>Personnalisation de votre expérience musicale</DialogTitle>
           <DialogDescription>
-            Configure tes préférences de révision et ton style musical en 2 étapes rapides
+            Configurez vos préférences de révision et votre style musical en 2 étapes rapides
           </DialogDescription>
         </VisuallyHidden>
         
@@ -101,12 +101,12 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
             
             <div className="space-y-3">
               <h2 className="text-2xl font-bold text-foreground">
-                🎧 Apprends la médecine en musique
+                🎧 Apprenez la médecine en musique
               </h2>
               <p className="text-muted-foreground">
-                Écoute. Retiens. Sans t'épuiser.
+                Écoutez. Retenez. Sans vous épuiser.
                 <br />
-                <span className="text-foreground font-medium">30 secondes pour personnaliser ton expérience.</span>
+                <span className="text-foreground font-medium">30 secondes pour personnaliser votre expérience.</span>
               </p>
             </div>
 
@@ -124,7 +124,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
               className="text-muted-foreground text-sm"
               onClick={onClose}
             >
-              Je veux juste explorer
+              Explorer d'abord
             </Button>
           </div>
         )}
@@ -139,10 +139,10 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
             
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                📚 Tu révises quoi ?
+                📚 Que révisez-vous ?
               </h2>
               <p className="text-muted-foreground">
-                On adapte les musiques à ton objectif
+                Les musiques sont adaptées à votre objectif
               </p>
             </div>
             
@@ -181,10 +181,10 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
             
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                🎵 Tu préfères quel style ?
+                🎵 Quel style préférez-vous ?
               </h2>
               <p className="text-muted-foreground">
-                La musique qui te parle le plus
+                La musique qui vous parle le plus
               </p>
             </div>
             
@@ -230,16 +230,16 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
                 🎉 C'est prêt !
               </h2>
               <p className="text-lg text-muted-foreground">
-                Tu peux maintenant générer ta première musique de révision.
+                Vous pouvez maintenant générer votre première musique de révision.
               </p>
             </div>
 
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-4 text-left space-y-2">
               <p className="text-sm font-medium text-foreground">💡 Comment ça marche ?</p>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Choisis un item EDN ou une situation ECOS</li>
+                <li>• Choisissez un item EDN ou une situation ECOS</li>
                 <li>• L'IA génère une chanson avec les points clés</li>
-                <li>• Écoute en boucle → mémorisation passive</li>
+                <li>• Écoutez en boucle → mémorisation passive</li>
               </ul>
             </div>
 
