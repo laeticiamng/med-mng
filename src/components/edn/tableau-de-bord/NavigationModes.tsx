@@ -5,9 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ROUTE_PATHS } from '@/config/routes';
-import { useIAQuota } from '@/hooks/useIAQuota';
 import {
   BarChart3,
   Brain,
@@ -16,11 +14,9 @@ import {
   CreditCard,
   Gamepad2,
   History,
-  Info,
   Layers,
   Library,
   Music,
-  Sparkles,
   Target,
   type LucideIcon,
 } from 'lucide-react';
@@ -45,8 +41,11 @@ interface Groupe {
   entrees: Entree[];
 }
 
-// Toutes les entrées existantes sont conservées, avec les mêmes routes :
-// seul leur regroupement change.
+// Chaque entrée ouvre un écran branché sur les données réelles (vérifié le
+// 25/09/2026). Le solde « N crédits IA restants » et son infobulle ont été
+// retirés : ce chiffre additionnait d'anciens quotas musique + QCM + chat
+// (table user_quotas) que rien ne décompte et qui ne correspondent pas à
+// l'offre ; le vrai compteur (générations audio Premium) est dans « Abonnement ».
 const GROUPES: Groupe[] = [
   {
     id: 'reviser',
@@ -74,7 +73,7 @@ const GROUPES: Groupe[] = [
     entrees: [
       { libelle: 'Progression et statistiques', icon: BarChart3, route: ROUTE_PATHS.progressDashboard },
       { libelle: 'Plan et historique de révision', icon: History, onglet: 'revision' },
-      { libelle: 'Abonnement et crédits', icon: CreditCard, onglet: 'subscription' },
+      { libelle: 'Abonnement', description: 'Offre et générations audio du mois', icon: CreditCard, onglet: 'subscription' },
     ],
   },
 ];
@@ -154,37 +153,5 @@ export function NavigationModes({ onglet, onOnglet }: NavigationModesProps) {
         Planning IA
       </Button>
     </nav>
-  );
-}
-
-/**
- * Solde de crédits IA, affiché seulement s'il vient réellement du serveur
- * (compte connecté) : le « 80 » par défaut du hook n'est jamais montré.
- */
-export function CreditsIA({ connecte }: { connecte: boolean }) {
-  const { quota, quotaServeur } = useIAQuota();
-  if (!connecte || !quotaServeur) return null;
-  return (
-    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-      <span>
-        <strong className="font-semibold text-foreground">{quota}</strong> crédits IA restants
-      </span>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="À quoi servent les crédits IA ?">
-            <Info className="h-3.5 w-3.5" aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-72 text-sm">
-          <p className="font-medium">Crédits IA</p>
-          <p className="mt-1 text-muted-foreground">
-            Ils sont décomptés lorsque vous utilisez une fonction qui fait appel à l'IA ou au service musical
-            (par exemple la génération d'une chanson ou d'un QCM IA). Consulter les fiches officielles et réviser
-            vos items n'en consomme pas.
-          </p>
-        </PopoverContent>
-      </Popover>
-    </div>
   );
 }

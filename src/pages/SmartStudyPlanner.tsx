@@ -119,7 +119,18 @@ export default function SmartStudyPlanner() {
         return;
       }
 
-      setPlan(data);
+      // Le modèle invente parfois les dates (« 2023-10-24 ») : le jour N du
+      // planning est recalé sur aujourd'hui + N - 1, seule date qui ait un sens.
+      const aujourdHui = new Date();
+      const planDate: StudyPlan = {
+        ...data,
+        weekPlan: (data.weekPlan ?? []).map((jour: DayPlan, index: number) => {
+          const d = new Date(aujourdHui.getFullYear(), aujourdHui.getMonth(), aujourdHui.getDate() + index);
+          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T12:00:00`;
+          return { ...jour, day: index + 1, date: iso };
+        }),
+      };
+      setPlan(planDate);
       
       // Log activity and award points
       if (user) {
@@ -185,7 +196,7 @@ export default function SmartStudyPlanner() {
               </Badge>
               <Badge variant="outline" className="gap-1 py-1">
                 <Trophy className="h-3 w-3 text-primary" />
-                Niv. {Math.floor((gamificationStats.totalPoints || 0) / 100) + 1}
+                Niv. {gamificationStats.level}
               </Badge>
             </div>
           )}

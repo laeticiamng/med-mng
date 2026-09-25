@@ -12,7 +12,6 @@ import { StudyCalendar } from '@/components/learning/StudyCalendar';
 import { StudyCalendarSync } from '@/components/learning/StudyCalendarSync';
 import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
 import { OfflineSyncManager } from '@/components/pwa/OfflineSyncManager';
-import { SmartReminders } from '@/components/revision/SmartReminders';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +30,6 @@ import {
     Activity,
     AlertTriangle,
     Award,
-    Bell,
     BookOpen,
     Brain,
     Calendar,
@@ -156,10 +154,6 @@ export default function ProgressDashboard() {
             <TabsTrigger value="history" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
               <History className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
               <span className="text-[10px] sm:text-xs">Historique</span>
-            </TabsTrigger>
-            <TabsTrigger value="reminders" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
-              <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
-              <span className="text-[10px] sm:text-xs">Rappels</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="shrink-0 flex-col sm:flex-row gap-0.5 sm:gap-1 py-2 sm:py-1.5 px-2 sm:px-3">
               <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
@@ -374,9 +368,9 @@ export default function ProgressDashboard() {
             <RevisionHistory />
           </TabsContent>
 
-          <TabsContent value="reminders" className="space-y-6 mt-6">
-            <SmartReminders />
-          </TabsContent>
+          {/* Onglet « Rappels » retiré le 25/09/2026 : SmartReminders n'affichait que
+              des rappels de démonstration codés en dur (« 15 cartes à réviser »,
+              « streak 7 jours ») et ses réglages n'étaient enregistrés nulle part. */}
 
           <TabsContent value="settings" className="space-y-6 mt-6">
             <div className="grid md:grid-cols-2 gap-6">

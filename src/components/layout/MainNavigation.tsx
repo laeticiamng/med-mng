@@ -86,6 +86,8 @@ export const MainNavigation: React.FC = () => {
   }, [user?.id, loadStats]);
   
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
+  const serie = gamificationStats?.currentStreak || 0;
+  const points = gamificationStats?.currentXP || 0;
 
   const isActive = (path: string) => {
     if (path === ROUTE_PATHS.home) return location.pathname === ROUTE_PATHS.home;
@@ -201,33 +203,45 @@ export const MainNavigation: React.FC = () => {
               <GlobalSearchBar />
             </div>
             
+            {/* Série et niveau : calculés par useGamification à partir de
+                user_activity_log (jours consécutifs d'activité) et des points
+                de gamification_activities. Ils mènent à « Ma progression ». */}
             {user && gamificationStats && (
-              <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
-                <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs">
-                  <Flame className="h-3 w-3 text-warning" />
-                  {gamificationStats.currentStreak || 0}
+              <Link
+                to={ROUTE_PATHS.progressDashboard}
+                className="hidden md:flex items-center gap-1.5 sm:gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Série de ${serie} jour${serie > 1 ? 's' : ''} d'activité consécutif${serie > 1 ? 's' : ''}, niveau ${level} (${points} points). Voir ma progression`}
+                title={`Série : ${serie} jour${serie > 1 ? 's' : ''} d'activité consécutif${serie > 1 ? 's' : ''} · Niveau ${level} (${points} points)`}
+              >
+                <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs hover:bg-secondary">
+                  <Flame className="h-3 w-3 text-warning" aria-hidden="true" />
+                  {serie}
                 </Badge>
-                <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs">
-                  <Trophy className="h-3 w-3 text-primary" />
+                <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs hover:bg-secondary">
+                  <Trophy className="h-3 w-3 text-primary" aria-hidden="true" />
                   Niv.{level}
                 </Badge>
-              </div>
+              </Link>
             )}
             
             <ThemeToggle />
             
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="relative h-8 w-8 sm:h-9 sm:w-9 p-0"
-              aria-label="Notifications"
-              onClick={() => {
-                const event = new CustomEvent('toggle-notifications');
-                window.dispatchEvent(event);
-              }}
-            >
-              <Bell className="w-4 h-4" />
-            </Button>
+            {/* Notifications : propres au compte (table user_notifications), donc
+                proposées seulement une fois connecté. */}
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative h-8 w-8 sm:h-9 sm:w-9 p-0"
+                aria-label="Notifications"
+                onClick={() => {
+                  const event = new CustomEvent('toggle-notifications');
+                  window.dispatchEvent(event);
+                }}
+              >
+                <Bell className="w-4 h-4" />
+              </Button>
+            )}
 
             {user ? (
               <DropdownMenu>

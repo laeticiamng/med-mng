@@ -33,7 +33,6 @@ describe('Sitemap', () => {
       '/med-mng/signup',
       '/edn-complete',
       '/edn/music-library',
-      '/ecos',
     ];
     for (const route of requiredRoutes) {
       expect(sitemapContent).toContain(route);

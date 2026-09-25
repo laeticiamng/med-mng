@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { BookOpen, Brain, FileText, Loader2, Music, Search, Users, X } from 'lucide-react';
+import { BookOpen, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ interface SearchResult {
   id: string;
   title: string;
   description?: string;
-  category: 'edn' | 'quiz' | 'music' | 'clinical' | 'community';
+  category: 'edn' | 'clinical';
   url: string;
   icon?: React.ReactNode;
   relevance: number;
@@ -22,10 +22,7 @@ interface SearchResult {
 
 const CATEGORY_CONFIG = {
   edn: { icon: FileText, label: 'EDN', color: 'bg-primary/20 text-primary' },
-  quiz: { icon: Brain, label: 'Quiz', color: 'bg-warning/20 text-warning' },
-  music: { icon: Music, label: 'Musique', color: 'bg-success/20 text-success' },
   clinical: { icon: BookOpen, label: 'Cas cliniques', color: 'bg-accent/20 text-accent-foreground' },
-  community: { icon: Users, label: 'Communauté', color: 'bg-secondary/20 text-secondary-foreground' },
 };
 
 export const GlobalSearchBar: React.FC = () => {
@@ -67,69 +64,46 @@ export const GlobalSearchBar: React.FC = () => {
     const searchResults: SearchResult[] = [];
 
     try {
-      // Search EDN items
-      const { data: ednItems } = await supabase
-        .from('edn_items_immersive')
-        .select('id, item_code, title, slug')
-        .or(`title.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
-        .limit(5);
+      // Items EDN : table canonique (367 items actifs), recherche par numéro,
+      // code, titre ou discipline. « 230 » trouve IC-230 ; « cardio » trouve
+      // les items de cardiologie et ceux dont le titre contient « cardio ».
+      //
+      // Retirés le 25/09/2026 : les catégories Quiz, Musique et Communauté.
+      // Elles menaient à /music-library et /community (aucune route : 404) ou
+      // à une page générique, et la requête « Musique » visait une colonne
+      // item_code absente de generated_music_tracks.
+      const q = searchQuery.trim().replace(/[%,()*]/g, ' ').trim();
+      const numero = /^(?:ic[- ]?)?0*(\d{1,3})$/i.exec(q)?.[1];
+      const requete = supabase
+        .from('edn_items_complete')
+        .select('id, item_code, title, slug, specialite')
+        .eq('status', 'active');
+      const { data: ednItems } = numero
+        ? await requete.eq('item_code', `IC-${numero}`).limit(1)
+        : await requete
+            .or(`title.ilike.%${q}%,item_code.ilike.%${q}%,specialite.ilike.%${q}%`)
+            .order('item_code')
+            .limit(8);
 
       if (ednItems) {
+        const qMin = q.toLowerCase();
         ednItems.forEach((item: any) => {
           searchResults.push({
             id: item.id,
             title: `${item.item_code} - ${item.title}`,
+            description: item.specialite || undefined,
             category: 'edn',
-            url: `/edn/${item.slug}`,
-            relevance: item.title.toLowerCase().includes(searchQuery.toLowerCase()) ? 100 : 50,
+            url: `/edn-complete/${item.slug || item.item_code.toLowerCase()}`,
+            relevance: item.title.toLowerCase().includes(qMin) ? 100 : 50,
           });
         });
       }
 
-      // Search quizzes
-      const { data: quizzes } = await supabase
-        .from('ai_exam_history')
-        .select('id, exam_type, created_at')
-        .ilike('exam_type', `%${searchQuery}%`)
-        .limit(3);
-
-      if (quizzes) {
-        quizzes.forEach((quiz: any) => {
-          searchResults.push({
-            id: quiz.id,
-            title: `Quiz: ${quiz.exam_type}`,
-            description: `Créé le ${new Date(quiz.created_at).toLocaleDateString('fr-FR')}`,
-            category: 'quiz',
-            url: `/exam-mode`,
-            relevance: 40,
-          });
-        });
-      }
-
-      // Search generated music
-      const { data: music } = await supabase
-        .from('generated_music_tracks')
-        .select('id, title, item_code')
-        .or(`title.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
-        .limit(3);
-
-      if (music) {
-        music.forEach((track: any) => {
-          searchResults.push({
-            id: track.id,
-            title: track.title || `Musique ${track.item_code}`,
-            category: 'music',
-            url: `/music-library`,
-            relevance: 30,
-          });
-        });
-      }
-
-      // Search clinical cases
+      // Cas cliniques (lecture soumise aux droits de l'utilisateur).
       const { data: cases } = await supabase
         .from('ai_clinical_cases')
         .select('id, title, specialty')
-        .or(`title.ilike.%${searchQuery}%,specialty.ilike.%${searchQuery}%`)
+        .or(`title.ilike.%${q}%,specialty.ilike.%${q}%`)
         .limit(3);
 
       if (cases) {
@@ -141,26 +115,6 @@ export const GlobalSearchBar: React.FC = () => {
             category: 'clinical',
             url: `/clinical-cases`,
             relevance: 35,
-          });
-        });
-      }
-
-      // Search community posts
-      const { data: posts } = await supabase
-        .from('community_posts')
-        .select('id, title, content')
-        .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
-        .limit(3);
-
-      if (posts) {
-        posts.forEach((post: any) => {
-          searchResults.push({
-            id: post.id,
-            title: post.title,
-            description: post.content?.substring(0, 50) + '...',
-            category: 'community',
-            url: `/community`,
-            relevance: 25,
           });
         });
       }
@@ -226,7 +180,7 @@ export const GlobalSearchBar: React.FC = () => {
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Rechercher EDN, quiz, musique, cas cliniques..."
+            placeholder="Numéro, titre ou discipline d'un item EDN…"
             className="border-0 focus-visible:ring-0 text-lg"
           />
           {query && (
@@ -302,7 +256,7 @@ export const GlobalSearchBar: React.FC = () => {
             <span>↵ Sélectionner</span>
             <span>Esc Fermer</span>
           </div>
-          <span>{results.length} résultats</span>
+          <span>{results.length} résultat{results.length > 1 ? 's' : ''}</span>
         </div>
       </DialogContent>
     </Dialog>

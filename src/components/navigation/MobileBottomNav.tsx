@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Target, CreditCard, User, Flame, Star } from 'lucide-react';
+import { Home, BookOpen, CreditCard, User, Flame, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification } from '@/hooks/useGamification';
@@ -23,11 +23,6 @@ const navItems: BottomNavItem[] = [
     to: ROUTE_PATHS.ednComplete,
     icon: <BookOpen className="h-5 w-5" />,
     label: 'Items'
-  },
-  {
-    to: ROUTE_PATHS.ecosIndex,
-    icon: <Target className="h-5 w-5" />,
-    label: 'ECOS'
   },
   {
     to: ROUTE_PATHS.medMngPricing,

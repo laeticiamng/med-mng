@@ -5,7 +5,7 @@ import { OfflineStatusBar } from "@/components/edn/OfflineStatusBar";
 import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { EdnItemSkeletonGrid } from "@/components/edn/EdnItemSkeleton";
-import { CreditsIA, NavigationModes, type OngletEdn } from "@/components/edn/tableau-de-bord/NavigationModes";
+import { NavigationModes, type OngletEdn } from "@/components/edn/tableau-de-bord/NavigationModes";
 import {
   BandeauVisiteur,
   LigneOffre,
@@ -15,9 +15,7 @@ import {
 import { MVPFooter } from "@/components/layout/MVPFooter";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,7 +27,6 @@ import { useEdnFavorites } from "@/hooks/useEdnFavorites";
 import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
 import { useEdnNotes } from "@/hooks/useEdnNotes";
 import { useEdnOffline } from "@/hooks/useEdnOffline";
-import { useIAQuota } from "@/hooks/useIAQuota";
 import { useProgressionEdn } from "@/hooks/useProgressionEdn";
 import { ProfileSubscription } from "@/components/med-mng/profile/ProfileSubscription";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
@@ -42,11 +39,22 @@ import {
   type StatutItem,
 } from '@/lib/recommandation';
 import {
+  aParolesRedigees,
+  appartientADiscipline,
+  comparateur,
+  correspondContenu,
+  correspondRecherche,
+  LIBELLES_TRI,
+  listerDisciplines,
+  listerOptionsContenu,
+  numeroItem,
+  type FiltreContenu,
+  type Tri,
+} from '@/lib/bibliothequeEdn';
+import {
     AlertTriangle,
     BookOpen,
     Brain,
-    FileText,
-    Music,
     Search,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -80,32 +88,12 @@ interface EdnItem {
 }
 
 type FiltreStatut = 'all' | StatutItem | 'favorites';
-type FiltreRang = 'all' | 'rangA' | 'rangB' | 'complete';
-type FiltreContenu = 'all' | 'withMusic' | 'noMusic' | 'highCompetences' | 'lowCompetences';
-type Tri = 'item_code' | 'competences' | 'updated_at' | 'derniere_revision';
 
 const ITEMS_PER_PAGE = 30;
 const MAX_A_REVOIR = 4;
 
-// Liste des spécialités médicales
-const SPECIALTIES = [
-  'Cardiologie', 'Pneumologie', 'Neurologie', 'Gastro-entérologie', 'Endocrinologie',
-  'Néphrologie', 'Rhumatologie', 'Dermatologie', 'Ophtalmologie', 'ORL', 'Pédiatrie',
-  'Gynécologie', 'Psychiatrie', 'Urgences', 'Infectiologie', 'Hématologie', 'Oncologie', 'Gériatrie'
-];
-
-// Fonction pour extraire le numéro de l'item_code (ex: "IC-1" -> 1, "IC-10" -> 10)
-const getItemNumber = (itemCode: string): number => {
-  const match = itemCode.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : 0;
-};
-
-// Normaliser la recherche (accents, casse) pour trouver "cardiologie" → "Cardiologie"
-const normalizeText = (text: string) =>
-  text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-
-const totalCompetences = (item: EdnItem) =>
-  (item.competences_count_rang_a || 0) + (item.competences_count_rang_b || 0);
+// Numéro de l'item_code (ex. « IC-10 » → 10)
+const getItemNumber = numeroItem;
 
 /** Libellé visible au-dessus d'un filtre (reste affiché quelle que soit la valeur choisie). */
 const Filtre = ({ id, libelle, children }: { id: string; libelle: string; children: ReactNode }) => (
@@ -121,10 +109,10 @@ export default function EdnComplete() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filtreStatut, setFiltreStatut] = useState<FiltreStatut>('all');
-  const [filtreRang, setFiltreRang] = useState<FiltreRang>('all');
   const [filtreContenu, setFiltreContenu] = useState<FiltreContenu>('all');
+  // Clé normalisée d'une discipline réellement présente dans les données (ou « all »).
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
-  const [sortBy, setSortBy] = useState<Tri>('item_code');
+  const [sortBy, setSortBy] = useState<Tri>('numero');
 
   const [activeTab, setActiveTab] = useState<OngletEdn>('items');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
@@ -135,7 +123,6 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
 
   // Hooks qui font des appels Supabase
-  const { quota } = useIAQuota();
   const { aAccesPremium, chargement: chargementAcces, connecte } = useAccesPremium();
   const progression = useProgressionEdn();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
@@ -149,7 +136,8 @@ export default function EdnComplete() {
   const stats = useMemo(() => {
     const totalOicRangA = ednItems.reduce((sum, i) => sum + (i.competences_count_rang_a || 0), 0);
     const totalOicRangB = ednItems.reduce((sum, i) => sum + (i.competences_count_rang_b || 0), 0);
-    const withMusic = ednItems.filter(i => i.paroles_musicales && i.paroles_musicales.length > 0).length;
+    // Paroles réellement rédigées (pas une suite de mots-clés), même règle que l'écran Musique.
+    const withMusic = ednItems.filter(aParolesRedigees).length;
     return { total: ednItems.length, totalOicRangA, totalOicRangB, withMusic };
   }, [ednItems]);
 
@@ -251,80 +239,43 @@ export default function EdnComplete() {
   }, [itemParCode, openItemModal]);
 
   // ---- Bibliothèque : filtres et tri --------------------------------------
+  // Listes construites à partir des données réellement chargées (cf. src/lib/bibliothequeEdn.ts).
+  const disciplines = useMemo(() => listerDisciplines(allItems), [allItems]);
+  const optionsContenu = useMemo(() => listerOptionsContenu(allItems), [allItems]);
+
   const filteredItems = useMemo(() => {
-    const searchNormalized = normalizeText(searchTerm);
+    const derniereActivite = (code: string) =>
+      etats.get(normaliserCodeItem(code))?.derniereActivite?.getTime() ?? 0;
 
     return allItems.filter(item => {
-      // Recherche étendue : titre, code, subtitle, mots-clés, spécialité, objectifs OIC
-      const matchesSearch = !searchNormalized ||
-        normalizeText(item.title).includes(searchNormalized) ||
-        normalizeText(item.item_code).includes(searchNormalized) ||
-        String(getItemNumber(item.item_code)) === searchNormalized ||
-        (item.subtitle && normalizeText(item.subtitle).includes(searchNormalized)) ||
-        (item.specialite && normalizeText(item.specialite).includes(searchNormalized)) ||
-        (item.mots_cles && item.mots_cles.some(mot => normalizeText(mot).includes(searchNormalized))) ||
-        (item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) &&
-          item.competences_oic_rang_a.some((c: any) =>
-            (c?.objectif_id && normalizeText(c.objectif_id).includes(searchNormalized)) ||
-            (c?.intitule && normalizeText(c.intitule).includes(searchNormalized))
-          )) ||
-        (item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) &&
-          item.competences_oic_rang_b.some((c: any) =>
-            (c?.objectif_id && normalizeText(c.objectif_id).includes(searchNormalized)) ||
-            (c?.intitule && normalizeText(c.intitule).includes(searchNormalized))
-          ));
-      if (!matchesSearch) return false;
-
-      const matchesSpecialty = selectedSpecialty === 'all' ||
-        normalizeText(item.title).includes(normalizeText(selectedSpecialty)) ||
-        (item.specialite && normalizeText(item.specialite).includes(normalizeText(selectedSpecialty))) ||
-        (item.mots_cles && item.mots_cles.some(mot => normalizeText(mot).includes(normalizeText(selectedSpecialty))));
-      if (!matchesSpecialty) return false;
-
-      const a = item.competences_count_rang_a || 0;
-      const b = item.competences_count_rang_b || 0;
-      if (filtreRang === 'rangA' && a === 0) return false;
-      if (filtreRang === 'rangB' && b === 0) return false;
-      if (filtreRang === 'complete' && !(a > 0 && b > 0)) return false;
-
-      const aMusique = Boolean(item.paroles_musicales && item.paroles_musicales.length > 0);
-      if (filtreContenu === 'withMusic' && !aMusique) return false;
-      if (filtreContenu === 'noMusic' && aMusique) return false;
-      if (filtreContenu === 'highCompetences' && a + b < 10) return false;
-      if (filtreContenu === 'lowCompetences' && a + b >= 5) return false;
-
+      if (!correspondRecherche(item, searchTerm)) return false;
+      if (!appartientADiscipline(item, selectedSpecialty)) return false;
+      if (!correspondContenu(item, filtreContenu)) return false;
       if (filtreStatut === 'favorites') return isFavorite(item.item_code);
       if (filtreStatut !== 'all') return statutItem(item.item_code) === filtreStatut;
       return true;
-    }).sort((a, b) => {
-      switch (sortBy) {
-        case 'competences':
-          return totalCompetences(b) - totalCompetences(a);
-        case 'updated_at':
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        case 'derniere_revision': {
-          const da = etats.get(normaliserCodeItem(a.item_code))?.derniereActivite?.getTime() ?? 0;
-          const db = etats.get(normaliserCodeItem(b.item_code))?.derniereActivite?.getTime() ?? 0;
-          return db - da || getItemNumber(a.item_code) - getItemNumber(b.item_code);
-        }
-        default:
-          return getItemNumber(a.item_code) - getItemNumber(b.item_code);
-      }
-    });
-  }, [allItems, searchTerm, filtreStatut, filtreRang, filtreContenu, selectedSpecialty, sortBy, isFavorite, statutItem, etats]);
+    }).sort(comparateur(sortBy, derniereActivite));
+  }, [allItems, searchTerm, filtreStatut, filtreContenu, selectedSpecialty, sortBy, isFavorite, statutItem, etats]);
+
+  // Une discipline absente des données rechargées (cache périmé) ne doit pas laisser « 0 item ».
+  useEffect(() => {
+    if (selectedSpecialty !== 'all' && disciplines.length > 0 && !disciplines.some(d => d.cle === selectedSpecialty)) {
+      setSelectedSpecialty('all');
+    }
+  }, [disciplines, selectedSpecialty]);
 
   // Sans compte, les statuts et favoris ne sont pas calculables : on revient à « Tous ».
   useEffect(() => {
     if (!connecte) {
       setFiltreStatut('all');
-      setSortBy(prev => (prev === 'derniere_revision' ? 'item_code' : prev));
+      setSortBy(prev => (prev === 'derniere_revision' ? 'numero' : prev));
     }
   }, [connecte]);
 
   // Reset pagination when filters change
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [searchTerm, filtreStatut, filtreRang, filtreContenu, selectedSpecialty, sortBy]);
+  }, [searchTerm, filtreStatut, filtreContenu, selectedSpecialty, sortBy]);
 
   const visibleItems = useMemo(() => filteredItems.slice(0, visibleCount), [filteredItems, visibleCount]);
   const hasMore = visibleCount < filteredItems.length;
@@ -349,11 +300,10 @@ export default function EdnComplete() {
     bibliothequeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const filtresActifs = searchTerm || filtreStatut !== 'all' || filtreRang !== 'all' || filtreContenu !== 'all' || selectedSpecialty !== 'all';
+  const filtresActifs = searchTerm || filtreStatut !== 'all' || filtreContenu !== 'all' || selectedSpecialty !== 'all';
   const reinitialiserFiltres = () => {
     setSearchTerm('');
     setFiltreStatut('all');
-    setFiltreRang('all');
     setFiltreContenu('all');
     setSelectedSpecialty('all');
   };
@@ -442,7 +392,6 @@ export default function EdnComplete() {
               </div>
               <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <NavigationModes onglet={activeTab} onOnglet={setActiveTab} />
-                <CreditsIA connecte={connecte} />
               </div>
             </div>
           </div>
@@ -526,16 +475,16 @@ export default function EdnComplete() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
                     <Filtre id="filtre-discipline" libelle="Discipline">
                       <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
                         <SelectTrigger id="filtre-discipline" className="h-9">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Toutes</SelectItem>
-                          {SPECIALTIES.map(spec => (
-                            <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                          <SelectItem value="all">Toutes ({stats.total})</SelectItem>
+                          {disciplines.map(d => (
+                            <SelectItem key={d.cle} value={d.cle}>{d.libelle} ({d.nombre})</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -563,20 +512,6 @@ export default function EdnComplete() {
                       </Filtre>
                     )}
 
-                    <Filtre id="filtre-rang" libelle="Rang">
-                      <Select value={filtreRang} onValueChange={(v) => setFiltreRang(v as FiltreRang)}>
-                        <SelectTrigger id="filtre-rang" className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tous</SelectItem>
-                          <SelectItem value="rangA">Avec rang A</SelectItem>
-                          <SelectItem value="rangB">Avec rang B</SelectItem>
-                          <SelectItem value="complete">Rang A et rang B</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Filtre>
-
                     <Filtre id="filtre-contenu" libelle="Contenu">
                       <Select value={filtreContenu} onValueChange={(v) => setFiltreContenu(v as FiltreContenu)}>
                         <SelectTrigger id="filtre-contenu" className="h-9">
@@ -584,10 +519,9 @@ export default function EdnComplete() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Tout</SelectItem>
-                          <SelectItem value="withMusic">Avec musique</SelectItem>
-                          <SelectItem value="noMusic">Sans musique</SelectItem>
-                          <SelectItem value="highCompetences">10 compétences ou plus</SelectItem>
-                          <SelectItem value="lowCompetences">Moins de 5 compétences</SelectItem>
+                          {optionsContenu.map(o => (
+                            <SelectItem key={o.valeur} value={o.valeur}>{o.libelle} ({o.nombre})</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </Filtre>
@@ -598,10 +532,11 @@ export default function EdnComplete() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="item_code">Numéro d'item</SelectItem>
-                          <SelectItem value="competences">Nombre de compétences</SelectItem>
-                          <SelectItem value="updated_at">Mis à jour récemment</SelectItem>
-                          {suiviDisponible && <SelectItem value="derniere_revision">Dernière révision</SelectItem>}
+                          <SelectItem value="numero">{LIBELLES_TRI.numero}</SelectItem>
+                          <SelectItem value="titre">{LIBELLES_TRI.titre}</SelectItem>
+                          <SelectItem value="competences">{LIBELLES_TRI.competences}</SelectItem>
+                          <SelectItem value="rangA">{LIBELLES_TRI.rangA}</SelectItem>
+                          {suiviDisponible && <SelectItem value="derniere_revision">{LIBELLES_TRI.derniere_revision}</SelectItem>}
                         </SelectContent>
                       </Select>
                     </Filtre>
@@ -647,7 +582,9 @@ export default function EdnComplete() {
 
             <TabsContent value="revision" className="mt-0">
               <div className="space-y-6">
-                <RevisionGuide />
+                <RevisionGuide
+                  onOpenItem={(code) => openItemModal(itemParCode.get(normaliserCodeItem(code)) ?? { slug: '', item_code: code })}
+                />
                 <RevisionDashboard />
               </div>
             </TabsContent>
@@ -658,69 +595,14 @@ export default function EdnComplete() {
 
             <TabsContent value="subscription" className="mt-0">
               <div className="space-y-6">
-                {/* Abonnement : même source et même vue que le profil */}
+                {/* Abonnement : même source et même vue que le profil.
+                    Retirés le 25/09/2026 : le tableau « Coût : 5 crédits par chanson,
+                    2 par QCM, 10 par BD » (barème de useIAQuota, dont la fonction de
+                    décompte n'est appelée par aucun écran ; la génération de BD n'existe
+                    pas) et l'alerte « il vous
+                    reste N crédits » calculée sur un ancien quota musique + QCM + chat
+                    sans rapport avec l'offre (Premium : générations audio mensuelles). */}
                 <ProfileSubscription />
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Utilisation des fonctionnalités</CardTitle>
-                    <CardDescription>
-                      Découvrez comment optimiser votre apprentissage avec nos outils IA
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 bg-primary/5 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Music className="h-5 w-5 text-primary" aria-hidden="true" />
-                          <span className="font-medium">Musique IA</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Générez des chansons mnémotechniques personnalisées
-                        </p>
-                        <p className="text-xs mt-2 text-primary">
-                          Coût : 5 crédits par génération
-                        </p>
-                      </div>
-
-                      <div className="p-4 bg-success/5 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Brain className="h-5 w-5 text-success" aria-hidden="true" />
-                          <span className="font-medium">QCM IA</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Créez des QCM adaptatifs intelligents
-                        </p>
-                        <p className="text-xs mt-2 text-success">
-                          Coût : 2 crédits par QCM
-                        </p>
-                      </div>
-
-                      <div className="p-4 bg-accent/10 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <FileText className="h-5 w-5 text-accent-foreground" aria-hidden="true" />
-                          <span className="font-medium">Bandes dessinées</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Transformez les concepts en BD éducatives
-                        </p>
-                        <p className="text-xs mt-2 text-accent-foreground">
-                          Coût : 10 crédits par BD
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {connecte && quota <= 5 && (
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                    <AlertDescription>
-                      Attention : il vous reste seulement {quota} crédits.
-                      Envisagez un abonnement pour continuer à utiliser les fonctionnalités IA.
-                    </AlertDescription>
-                  </Alert>
-                )}
               </div>
             </TabsContent>
           </div>

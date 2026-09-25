@@ -37,11 +37,12 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre)
+// Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre).
+// ECOS retiré de la navigation le 25/09/2026 (décision produit) : la route /ecos
+// reste en place pour les liens existants, mais n'est plus proposée.
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
-  { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Target },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 

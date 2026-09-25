@@ -58,14 +58,6 @@
   </url>
   <!-- Pages d'apprentissage (protected mais indexables pour SEO) -->
 
-  <!-- ECOS -->
-  <url>
-    <loc>https://medmng.com/ecos</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
   <!-- Pages légales additionnelles -->
   <url>
     <loc>https://medmng.com/legal/cgv</loc>

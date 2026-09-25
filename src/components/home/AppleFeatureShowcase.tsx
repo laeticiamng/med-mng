@@ -1,7 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { 
-  Headphones, Music, Brain, Repeat, BookOpen, Target, Sparkles, ArrowRight
+  Headphones, Music, Brain, Repeat, BookOpen, Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -102,11 +102,6 @@ export const AppleFeatureShowcase = () => {
             <Button size="lg" onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg glow-pulse transition-all hover:scale-105 w-full sm:w-auto">
               <BookOpen className="h-5 w-5 mr-2" />
               <TranslatedText text="Explorer les 367 items" />
-            </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate(ROUTE_PATHS.ecosIndex)} className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 transition-all hover:scale-105 w-full sm:w-auto">
-              <Target className="h-5 w-5 mr-2" />
-              <TranslatedText text="Simulations ECOS" />
-              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </div>
         </motion.div>

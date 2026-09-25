@@ -98,7 +98,7 @@ const PUBLIC_ROUTES: string[] = [
   '/exam-mode',
   '/clinical-cases',
   '/flashcards',
-  '/ecos',
+  // '/ecos' retiré le 25/09/2026 : ECOS n'est plus proposé dans la navigation.
   '/leaderboard',
   '/daily-challenges',
   // CONSTAT : ce sitemap déclarait encore /pomodoro, /karaoke, /shared-music, /store et

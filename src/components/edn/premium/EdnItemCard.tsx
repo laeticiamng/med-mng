@@ -153,7 +153,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   const titreComplet = `${itemNumber}. ${finalItem.title}`;
 
   return (
-    <Card className="group relative flex flex-col overflow-hidden border bg-card text-card-foreground transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <Card data-item-code={finalItem.item_code} className="group relative flex flex-col overflow-hidden border bg-card text-card-foreground transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
       {/* Accent : bandeau fin, le fond de carte reste clair */}
       <div className="h-1 bg-gradient-to-r from-accent to-primary" aria-hidden="true" />
 

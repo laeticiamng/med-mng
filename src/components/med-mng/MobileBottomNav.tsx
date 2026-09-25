@@ -4,7 +4,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { BookOpen, CreditCard, Flame, Home, Target, User } from 'lucide-react';
+import { BookOpen, CreditCard, Flame, Home, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -82,12 +82,6 @@ export const MobileBottomNav: React.FC = () => {
       label: "Items",
       path: ROUTE_PATHS.ednComplete,
       onClick: () => navigate(ROUTE_PATHS.ednComplete)
-    },
-    {
-      icon: <Target className="h-5 w-5" />,
-      label: "ECOS",
-      path: ROUTE_PATHS.ecosIndex,
-      onClick: () => navigate(ROUTE_PATHS.ecosIndex)
     },
     {
       icon: <CreditCard className="h-5 w-5" />,

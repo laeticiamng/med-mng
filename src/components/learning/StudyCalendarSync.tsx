@@ -1,21 +1,15 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Check, Download, ExternalLink, Link2, RefreshCw } from 'lucide-react';
+import { Calendar, Download } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 export function StudyCalendarSync() {
   const { toast } = useToast();
   const { getReviewForecast, stats } = useSRS();
-  const [syncEnabled, setSyncEnabled] = useState(false);
-  const [_googleConnected, _setGoogleConnected] = useState(false);
-  const [icalUrl, setIcalUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
   /**
@@ -29,7 +23,7 @@ export function StudyCalendarSync() {
     const forecast = await getReviewForecast(user.id, 30);
     
     // Create iCal content
-    let ical = [
+    const ical = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//MED-MNG//Study Calendar//FR',
@@ -38,11 +32,6 @@ export function StudyCalendarSync() {
       'X-WR-CALNAME:MED-MNG Révisions',
       'X-WR-TIMEZONE:Europe/Paris'
     ];
-
-    // Add timezone definition
-    ical.push('BEGIN:VTIMEZONE');
-    ical.push('TZID:Europe/Paris');
-    ical.push('END:VTIMEZONE');
 
     // Add events for each day with reviews
     forecast.forEach((day, _index) => {
@@ -65,7 +54,7 @@ export function StudyCalendarSync() {
         ical.push(`DTEND:${dtend}`);
         ical.push(`SUMMARY:📚 MED-MNG: ${day.count} items à réviser`);
         ical.push(`DESCRIPTION:Vous avez ${day.count} items EDN à réviser aujourd'hui.\\nConnectez-vous à MED-MNG pour commencer !`);
-        ical.push('LOCATION:https://med-mng.com/srs-review');
+        ical.push(`LOCATION:${window.location.origin}/srs-review`);
         ical.push('STATUS:CONFIRMED');
         ical.push('TRANSP:OPAQUE');
         ical.push('BEGIN:VALARM');
@@ -95,7 +84,7 @@ export function StudyCalendarSync() {
       ical.push(`DTEND:${formatICalDate(endExamDate)}`);
       ical.push('SUMMARY:🎯 MED-MNG: Examen blanc hebdomadaire');
       ical.push('DESCRIPTION:Session d\'examen blanc recommandee pour tester vos connaissances. Mode examen IA disponible !');
-      ical.push('LOCATION:https://med-mng.com/exam-mode');
+      ical.push(`LOCATION:${window.location.origin}/exam-mode`);
       ical.push('STATUS:CONFIRMED');
       ical.push('END:VEVENT');
     }
@@ -155,137 +144,32 @@ export function StudyCalendarSync() {
     }
   };
 
-  /**
-   * Generate subscribable iCal URL
-   */
-  const generateICalUrl = async () => {
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Connexion requise",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // In production, this would be a real URL from an edge function
-      const baseUrl = window.location.origin;
-      const url = `${baseUrl}/api/calendar/${user.id}.ics`;
-      setIcalUrl(url);
-
-      toast({
-        title: "URL générée",
-        description: "Copiez cette URL pour synchroniser automatiquement"
-      });
-    } catch (error) {
-      console.error('Error generating URL:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Copy URL to clipboard
-   */
-  const copyUrl = async () => {
-    if (!icalUrl) return;
-    await navigator.clipboard.writeText(icalUrl);
-    toast({
-      title: "Copié !",
-      description: "URL copiée dans le presse-papier"
-    });
-  };
-
-  /**
-   * Open Google Calendar add subscription
-   */
-  const addToGoogleCalendar = () => {
-    const googleUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(icalUrl || window.location.origin + '/api/calendar.ics')}`;
-    window.open(googleUrl, '_blank');
-  };
-
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Calendar className="h-5 w-5 text-primary" />
-          Synchronisation Calendrier
+          Exporter vers votre calendrier
         </CardTitle>
         <CardDescription>
-          Synchronisez vos sessions de révision avec votre calendrier
+          Vos révisions prévues sur 30 jours, à importer dans votre agenda
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Sync toggle */}
-        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-          <div className="flex items-center gap-3">
-            <RefreshCw className={`h-4 w-4 ${syncEnabled ? 'text-success' : 'text-muted-foreground'}`} />
-            <div>
-              <p className="text-sm font-medium">Synchronisation automatique</p>
-              <p className="text-xs text-muted-foreground">Mises à jour en temps réel</p>
-            </div>
-          </div>
-          <Switch
-            checked={syncEnabled}
-            onCheckedChange={setSyncEnabled}
-          />
-        </div>
-
-        {/* Export options */}
-        <div className="grid gap-3">
-          {/* iCal download */}
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2"
-            onClick={downloadICal}
-            disabled={loading}
-          >
-            <Download className="h-4 w-4" />
-            Télécharger fichier .ics
-            <Badge variant="secondary" className="ml-auto text-xs">Apple/Outlook</Badge>
-          </Button>
-
-          {/* Generate URL */}
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2"
-            onClick={generateICalUrl}
-            disabled={loading}
-          >
-            <Link2 className="h-4 w-4" />
-            Générer URL de synchronisation
-          </Button>
-
-          {/* URL display */}
-          {icalUrl && (
-            <div className="space-y-2">
-              <Label className="text-xs">URL iCal (pour abonnement)</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={icalUrl}
-                  readOnly
-                  className="text-xs font-mono"
-                />
-                <Button size="sm" variant="ghost" onClick={copyUrl}>
-                  <Check className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Google Calendar */}
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2"
-            onClick={addToGoogleCalendar}
-          >
-            <ExternalLink className="h-4 w-4" />
-            Ajouter à Google Calendar
-            <Badge variant="secondary" className="ml-auto text-xs">Recommandé</Badge>
-          </Button>
-        </div>
+        {/* Retirés le 25/09/2026 : l'interrupteur « Synchronisation automatique »
+            (sans effet), l'« URL de synchronisation » (/api/calendar/<id>.ics :
+            aucune route ne la sert) et « Ajouter à Google Calendar » (qui
+            s'abonnait à cette URL inexistante). Reste l'export réel en .ics. */}
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2"
+          onClick={downloadICal}
+          disabled={loading}
+        >
+          <Download className="h-4 w-4" />
+          Télécharger le fichier .ics
+          <Badge variant="secondary" className="ml-auto text-xs">Apple, Google, Outlook</Badge>
+        </Button>
 
         {/* Stats preview */}
         {stats && (
@@ -294,7 +178,7 @@ export function StudyCalendarSync() {
               <span className="font-medium text-primary">{stats.dueToday}</span> items à réviser aujourd'hui
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Ces sessions seront ajoutées à votre calendrier
+              Le fichier reflète les révisions prévues au moment du téléchargement
             </p>
           </div>
         )}

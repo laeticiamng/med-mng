@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, BookOpen, Brain, CheckCircle, Clock, Flame, Music, Play, Star, Target } from 'lucide-react';
+import { AlertTriangle, BookOpen, Brain, CheckCircle, Clock, Flame, Music, Star, Target } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface RevisionGuideProps {
@@ -125,21 +125,15 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
     {
       id: 2,
       icon: Music,
-      title: '🎵 Écouter la musique',
-      description: 'Mémorisez avec les musiques mnémotechniques',
+      title: '🎵 Lire la chanson',
+      description: 'Mémorisez avec les paroles mnémotechniques de l\'item',
       duration: '5-10 min',
       color: 'text-accent'
     },
+    // L'étape « Voir la scène 3D » a été retirée : l'écran Scène n'existe plus
+    // (retiré le 18/09/2026, cf. src/pages/edn-item/ednItemTabs.ts).
     {
       id: 3,
-      icon: Play,
-      title: '🎬 Voir la scène 3D',
-      description: 'Visualisez le contenu en immersif (si disponible)',
-      duration: '10-15 min',
-      color: 'text-success'
-    },
-    {
-      id: 4,
       icon: Brain,
       title: '✅ Tester vos connaissances',
       description: 'Faites le quiz pour valider votre apprentissage',
@@ -160,7 +154,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
       title: 'Révision Complète',
       duration: '1-2h',
       description: 'Pour une maîtrise approfondie du sujet',
-      steps: ['Contenu complet', 'Musique', 'Scène 3D', 'Quiz complet'],
+      steps: ['Contenu complet', 'Chanson (paroles)', 'Quiz complet'],
       badge: 'Recommandé'
     }
   ];
