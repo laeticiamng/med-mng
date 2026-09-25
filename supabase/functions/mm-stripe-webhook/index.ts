@@ -124,7 +124,9 @@ serve(async (req) => {
   if (!signature) return new Response("Signature absente", { status: 400 });
 
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  // Compte Stripe partagé avec EmotionsCare : chaque point de terminaison webhook a sa propre
+  // clé de signature. MED MNG lit MM_STRIPE_WEBHOOK_SECRET, avec repli sur STRIPE_WEBHOOK_SECRET.
+  const webhookSecret = Deno.env.get("MM_STRIPE_WEBHOOK_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
   if (!stripeKey || !webhookSecret) {
     console.error("[MM-STRIPE-WEBHOOK] Configuration Stripe manquante");
     return new Response("Configuration manquante", { status: 500 });
