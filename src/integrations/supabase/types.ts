@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -309,6 +309,45 @@ export type Database = {
           reduce_motion?: boolean | null
           screen_reader_optimized?: boolean | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      account_deletion_requests: {
+        Row: {
+          cancelled_at: string | null
+          error: string | null
+          grace_period_days: number | null
+          id: string
+          processed_at: string | null
+          reason: string | null
+          requested_at: string
+          scheduled_deletion_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          error?: string | null
+          grace_period_days?: number | null
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          scheduled_deletion_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          error?: string | null
+          grace_period_days?: number | null
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          scheduled_deletion_at?: string | null
+          status?: string
           user_id?: string
         }
         Relationships: []
@@ -3595,13 +3634,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "brain_annotations_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "brain_annotations_region_id_fkey"
             columns: ["region_id"]
             isOneToOne: false
@@ -3721,13 +3753,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "brain_scans_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       brain_view_sessions: {
@@ -3777,13 +3802,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "brain_view_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4058,6 +4076,9 @@ export type Database = {
           cycles_completed: number | null
           duration_seconds: number
           id: string
+          mood_after: number | null
+          mood_before: number | null
+          mood_delta: number | null
           pattern_name: string
           session_date: string | null
           user_id: string | null
@@ -4068,6 +4089,9 @@ export type Database = {
           cycles_completed?: number | null
           duration_seconds: number
           id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          mood_delta?: number | null
           pattern_name: string
           session_date?: string | null
           user_id?: string | null
@@ -4078,6 +4102,9 @@ export type Database = {
           cycles_completed?: number | null
           duration_seconds?: number
           id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          mood_delta?: number | null
           pattern_name?: string
           session_date?: string | null
           user_id?: string | null
@@ -8656,13 +8683,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "emotion_brain_mappings_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "emotion_brain_mappings_scan_id_fkey"
             columns: ["scan_id"]
             isOneToOne: false
@@ -11622,6 +11642,48 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           webhook_token?: string
+        }
+        Relationships: []
+      }
+      governance_audits: {
+        Row: {
+          audit_type: string
+          created_at: string
+          findings: Json
+          id: string
+          metadata: Json
+          score: number | null
+          severity: string
+          summary: string | null
+          title: string
+          triggered_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          audit_type: string
+          created_at?: string
+          findings?: Json
+          id?: string
+          metadata?: Json
+          score?: number | null
+          severity?: string
+          summary?: string | null
+          title: string
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audit_type?: string
+          created_at?: string
+          findings?: Json
+          id?: string
+          metadata?: Json
+          score?: number | null
+          severity?: string
+          summary?: string | null
+          title?: string
+          triggered_by?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -16338,6 +16400,54 @@ export type Database = {
         }
         Relationships: []
       }
+      module_lifecycle: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_name: string
+          id: string
+          kill_switch_enabled: boolean
+          last_reviewed_at: string | null
+          metadata: Json
+          module_key: string
+          owner: string | null
+          rollout_percentage: number
+          status: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_name: string
+          id?: string
+          kill_switch_enabled?: boolean
+          last_reviewed_at?: string | null
+          metadata?: Json
+          module_key: string
+          owner?: string | null
+          rollout_percentage?: number
+          status?: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          id?: string
+          kill_switch_enabled?: boolean
+          last_reviewed_at?: string | null
+          metadata?: Json
+          module_key?: string
+          owner?: string | null
+          rollout_percentage?: number
+          status?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       module_progress: {
         Row: {
           created_at: string
@@ -16531,13 +16641,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mood_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -18564,7 +18667,6 @@ export type Database = {
       }
       oic_extraction_progress: {
         Row: {
-          auth_cookies: string | null
           created_at: string | null
           current_page_url: string | null
           error_message: string | null
@@ -18580,7 +18682,6 @@ export type Database = {
           total_pages: number | null
         }
         Insert: {
-          auth_cookies?: string | null
           created_at?: string | null
           current_page_url?: string | null
           error_message?: string | null
@@ -18596,7 +18697,6 @@ export type Database = {
           total_pages?: number | null
         }
         Update: {
-          auth_cookies?: string | null
           created_at?: string | null
           current_page_url?: string | null
           error_message?: string | null
@@ -19301,13 +19401,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "organization_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -20870,6 +20963,127 @@ export type Database = {
           },
         ]
       }
+      pulse_programs: {
+        Row: {
+          code: string
+          contextual_items: boolean
+          country_code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          headcount: number | null
+          id: string
+          is_active: boolean
+          language: string
+          name: string
+          org_id: string
+          support_contact: string | null
+          teams: Json
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          contextual_items?: boolean
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          headcount?: number | null
+          id?: string
+          is_active?: boolean
+          language?: string
+          name: string
+          org_id: string
+          support_contact?: string | null
+          teams?: Json
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          contextual_items?: boolean
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          headcount?: number | null
+          id?: string
+          is_active?: boolean
+          language?: string
+          name?: string
+          org_id?: string
+          support_contact?: string | null
+          teams?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_programs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_responses: {
+        Row: {
+          consent_at: string | null
+          consent_version: string | null
+          id: string
+          org_id: string
+          period: string
+          program_id: string
+          respondent_hash: string
+          safety: number | null
+          submitted_at: string
+          support: number | null
+          team: string | null
+          who5_items: Json
+          who5_raw: number
+          workload: number | null
+        }
+        Insert: {
+          consent_at?: string | null
+          consent_version?: string | null
+          id?: string
+          org_id: string
+          period: string
+          program_id: string
+          respondent_hash: string
+          safety?: number | null
+          submitted_at?: string
+          support?: number | null
+          team?: string | null
+          who5_items: Json
+          who5_raw: number
+          workload?: number | null
+        }
+        Update: {
+          consent_at?: string | null
+          consent_version?: string | null
+          id?: string
+          org_id?: string
+          period?: string
+          program_id?: string
+          respondent_hash?: string
+          safety?: number | null
+          submitted_at?: string
+          support?: number | null
+          team?: string | null
+          who5_items?: Json
+          who5_raw?: number
+          workload?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_responses_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchase_history: {
         Row: {
           created_at: string | null
@@ -22027,6 +22241,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      route_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_state: Json | null
+          performed_by: string | null
+          previous_state: Json | null
+          reason: string | null
+          route_name: string | null
+          route_path: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_state?: Json | null
+          performed_by?: string | null
+          previous_state?: Json | null
+          reason?: string | null
+          route_name?: string | null
+          route_path: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_state?: Json | null
+          performed_by?: string | null
+          previous_state?: Json | null
+          reason?: string | null
+          route_name?: string | null
+          route_path?: string
+        }
+        Relationships: []
       }
       route_metadata: {
         Row: {
@@ -23392,6 +23642,48 @@ export type Database = {
         }
         Relationships: []
       }
+      slo_metrics: {
+        Row: {
+          id: string
+          metadata: Json
+          metric_type: string
+          module_key: string
+          recorded_at: string
+          status: string | null
+          target: number | null
+          unit: string
+          value: number
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          id?: string
+          metadata?: Json
+          metric_type: string
+          module_key: string
+          recorded_at?: string
+          status?: string | null
+          target?: number | null
+          unit?: string
+          value: number
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          id?: string
+          metadata?: Json
+          metric_type?: string
+          module_key?: string
+          recorded_at?: string
+          status?: string | null
+          target?: number | null
+          unit?: string
+          value?: number
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       social_post_comments: {
         Row: {
           content: string
@@ -24433,13 +24725,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -30734,42 +31019,6 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles_public: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          email: string | null
-          id: string | null
-          location: string | null
-          name: string | null
-          phone: string | null
-          website: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          email?: never
-          id?: string | null
-          location?: string | null
-          name?: string | null
-          phone?: never
-          website?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          email?: never
-          id?: string | null
-          location?: string | null
-          name?: string | null
-          phone?: never
-          website?: string | null
-        }
-        Relationships: []
-      }
       security_compliance_report: {
         Row: {
           compliance_pct: number | null
@@ -30939,6 +31188,14 @@ export type Database = {
         Returns: Json
       }
       calculate_who5_score: { Args: { responses: Json }; Returns: number }
+      can_view_group_session_message: {
+        Args: { p_message: string; p_user: string }
+        Returns: boolean
+      }
+      can_view_match_chat: {
+        Args: { p_match: string; p_user: string }
+        Returns: boolean
+      }
       check_music_generation_quota: {
         Args: { user_uuid: string }
         Returns: {
@@ -31049,6 +31306,7 @@ export type Database = {
         Args: { status_param: Database["public"]["Enums"]["invitation_status"] }
         Returns: number
       }
+      count_org_members: { Args: { p_org_id: string }; Returns: number }
       create_activity_log_cleanup_job: { Args: never; Returns: undefined }
       create_generation_alert: {
         Args: {
@@ -31095,6 +31353,7 @@ export type Database = {
         Args: { p_ciphertext: string; p_key_name?: string }
         Returns: string
       }
+      delete_user_personal_data: { Args: { p_user_id: string }; Returns: Json }
       detect_and_fix_redundancies: {
         Args: never
         Returns: {
@@ -31142,6 +31401,7 @@ export type Database = {
         Args: { end_item: number; specialty_name: string; start_item: number }
         Returns: number
       }
+      export_user_personal_data: { Args: { p_user_id: string }; Returns: Json }
       final_security_check: { Args: never; Returns: Json }
       fix_all_edn_items_complete_oic_correction: {
         Args: never
@@ -31606,6 +31866,30 @@ export type Database = {
           total_pseudonymized: number
         }[]
       }
+      get_public_profiles: {
+        Args: {
+          p_exclude?: string
+          p_ids?: string[]
+          p_limit?: number
+          p_search?: string
+        }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          full_name: string
+          id: string
+          name: string
+          user_id: string
+        }[]
+      }
+      get_public_user_profiles: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          user_id: string
+        }[]
+      }
       get_rate_limit_status: {
         Args: {
           p_identifier: string
@@ -32020,6 +32304,26 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_authenticated: { Args: never; Returns: boolean }
+      is_buddy_match_member: {
+        Args: { p_match: string; p_user: string }
+        Returns: boolean
+      }
+      is_community_group_member: {
+        Args: { p_group: string; p_user: string }
+        Returns: boolean
+      }
+      is_community_room_member: {
+        Args: { p_room: string; p_user: string }
+        Returns: boolean
+      }
+      is_group_session_participant: {
+        Args: { p_session: string; p_user: string }
+        Returns: boolean
+      }
+      is_guild_member: {
+        Args: { p_guild: string; p_user: string }
+        Returns: boolean
+      }
       is_manager_of_org: { Args: { p_org_id: string }; Returns: boolean }
       is_org_admin: {
         Args: { _org_id: string; _user_id: string }
@@ -32048,6 +32352,14 @@ export type Database = {
       }
       is_room_member: {
         Args: { p_room_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_study_group_member: {
+        Args: { p_group: string; p_user: string }
+        Returns: boolean
+      }
+      is_team_session_member: {
+        Args: { p_session: string; p_user: string }
         Returns: boolean
       }
       list_changes: {
@@ -32379,6 +32691,48 @@ export type Database = {
         }[]
       }
       panic_overlay_get_state: { Args: never; Returns: Json }
+      pulse_create_establishment: { Args: { p_name: string }; Returns: string }
+      pulse_delete_program_data: {
+        Args: { p_program_id: string }
+        Returns: number
+      }
+      pulse_is_org_manager: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      pulse_participation: {
+        Args: { p_org_id: string }
+        Returns: {
+          n: number
+          period: string
+        }[]
+      }
+      pulse_program_public: {
+        Args: { p_code: string }
+        Returns: {
+          contextual_items: boolean
+          country_code: string
+          id: string
+          language: string
+          name: string
+          support_contact: string
+          teams: Json
+        }[]
+      }
+      pulse_rollups: {
+        Args: { p_min_n?: number; p_org_id: string }
+        Returns: {
+          n: number
+          period: string
+          safety_mean: number
+          support_mean: number
+          team: string
+          who5_low_pct: number
+          who5_mean_pct: number
+          who5_screen_pct: number
+          workload_mean: number
+        }[]
+      }
       refill_emotional_energy: { Args: never; Returns: undefined }
       refresh_analytics_dashboards: { Args: never; Returns: undefined }
       refresh_dashboard_stats: { Args: never; Returns: undefined }
@@ -32399,6 +32753,14 @@ export type Database = {
           sample_finding: string
           suspicious_data_count: number
           table_name: string
+        }[]
+      }
+      search_public_user_profiles: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          user_id: string
         }[]
       }
       secure_generate_music: {
@@ -32548,6 +32910,7 @@ export type Database = {
       }
       validate_edn_item_data: { Args: { item_data: Json }; Returns: boolean }
       validate_music_lyrics: { Args: { lyrics_data: Json }; Returns: boolean }
+      verified_email: { Args: never; Returns: string }
       verify_competences_completeness: {
         Args: never
         Returns: {
@@ -32590,6 +32953,18 @@ export type Database = {
           without_content: number
         }[]
       }
+      verify_org_access_code: {
+        Args: { p_code: string }
+        Returns: {
+          code_id: string
+          current_uses: number
+          expires_at: string
+          max_uses: number
+          org_id: string
+          org_logo_url: string
+          org_name: string
+        }[]
+      }
     }
     Enums: {
       app_role:
@@ -32629,12 +33004,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -32658,11 +33033,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -32683,11 +33058,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -32708,11 +33083,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -32725,11 +33100,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
