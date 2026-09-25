@@ -53,7 +53,14 @@ const MedMngPlayerComponent = () => {
   });
 
   const song = library?.find(s => s.id === songId);
-  const streamUrl = songId ? medMngApi.getSongStreamUrl(songId) : null;
+  // Source audio : l'URL Suno enregistrée par mm-suno-callback (meta.audio_url),
+  // sinon le CDN Suno d'après l'identifiant de piste. Le proxy de streaming de
+  // med-mng-api exige un en-tête d'authentification qu'un élément <audio> ne
+  // peut pas envoyer : il ne sert plus de source.
+  const streamUrl = song
+    ? (song.meta?.audio_url as string | undefined) || (song.suno_audio_id ? `https://cdn1.suno.ai/${song.suno_audio_id}.mp3` : null)
+    : null;
+  const parolesTexte: string | null = typeof lyrics?.text === 'string' && lyrics.text.trim() ? lyrics.text : null;
 
   useEffect(() => {
     if (streamUrl && audioRef.current) {
@@ -224,6 +231,8 @@ const MedMngPlayerComponent = () => {
                     </h1>
                     <p className="text-muted-foreground mb-4">
                       Créé le {new Date(song.created_at).toLocaleDateString('fr-FR')}
+                      {song.meta?.styleLibelle || song.meta?.style ? ` · ${song.meta?.styleLibelle || song.meta?.style}` : ''}
+                      {song.meta?.rang ? ` · ${song.meta.rang === 'AB' ? 'Rang A+B' : `Rang ${song.meta.rang}`}` : ''}
                     </p>
                     <div className="flex items-center gap-4">
                       <Button
@@ -330,24 +339,28 @@ const MedMngPlayerComponent = () => {
                 </CardContent>
               </Card>
 
-              {/* Lyrics */}
-              {lyrics && (
+              {/* Paroles : texte chanté enregistré avec la chanson (lyrics.text), ou segments horodatés si présents */}
+              {(parolesTexte || lyrics?.segments) && (
                 <Card>
                   <CardContent className="p-6">
                     <h2 className="text-lg font-semibold mb-4">Paroles</h2>
                     <div className="space-y-2 text-sm">
-                      {lyrics.segments?.map((segment: any, index: number) => (
-                        <div 
-                          key={index}
-                          className={`p-2 rounded ${
-                            currentTime >= segment.start && currentTime <= segment.end
-                              ? 'bg-primary/10 text-primary'
-                              : 'text-muted-foreground'
-                          }`}
-                        >
-                          {segment.text}
-                        </div>
-                      )) || (
+                      {Array.isArray(lyrics?.segments) && lyrics.segments.length > 0 ? (
+                        lyrics.segments.map((segment: any, index: number) => (
+                          <div 
+                            key={index}
+                            className={`p-2 rounded ${
+                              currentTime >= segment.start && currentTime <= segment.end
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-muted-foreground'
+                            }`}
+                          >
+                            {segment.text}
+                          </div>
+                        ))
+                      ) : parolesTexte ? (
+                        <pre className="whitespace-pre-wrap font-sans text-muted-foreground max-h-[28rem] overflow-y-auto">{parolesTexte}</pre>
+                      ) : (
                         <p className="text-muted-foreground">Paroles non disponibles</p>
                       )}
                     </div>

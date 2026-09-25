@@ -60,6 +60,17 @@ Ce document centralise l'inventaire des Edge Functions actives et les fonctions 
 - `secure-edn-extraction` — Extraction sécurisée EDN
 - `transform-edn-sections` — Transformation sections EDN
 
+### Génération audio MED MNG (Suno, préfixe `mm-`)
+Chaîne complète (25/09/2026, docs.sunoapi.org/suno-api/generate-music) :
+
+1. `mm-generate-music` — POST `{ lyrics, style (slug du catalogue), rang A|B|AB, itemCode, itemTitle, vocalGender?, negativeTags?, styleWeight?, weirdnessConstraint?, duration? }` avec le JWT.
+   Vérifie l'abonnement MED MNG Premium (administrateurs exemptés) et le quota mensuel (30, compté sur `generated_music_tracks`, échecs exclus) ; impose le modèle (`SUNO_MODEL` : V6 par défaut, V6_WILD, V6_MINI, V4_5ALL) ; envoie à `api.sunoapi.org/api/v1/generate` en mode custom : paroles dans `lyrics` (≤ 5 000, coupées à la fin d'une ligne), `style` = tags anglais du catalogue + voix + « french lyrics », `title` = code · intitulé court de l'item — rang (≤ 80), `negativeTags` cohérents avec le style, `styleWeight` 0,7 / `weirdnessConstraint` 0,3 / `variety` 1, `duration` explicite (lignes chantées × 4,5 s + 15 s, bornée 90–300 s). Refus Suno → `{ success:false, error (français), code }` (422 contenu refusé, 503 saturé/maintenance, 429 trop de demandes, 502 sinon). Crée la ligne principale `generated_music_tracks` (`suno_track_id = task_id`, `generation_status = generating`).
+   Construction de la requête : `_shared/mm-suno-requete.ts` (module pur, testé par `src/tests/mmSunoRequete.test.ts`, partagé avec le front via `src/config/stylesMusicaux.ts`).
+2. `mm-suno-callback` — reçoit les callbacks Suno (`verify_jwt = false`) : `text` (rien), `first`/`complete` (ligne principale → `completed` + `audio_url`, `med_mng_songs` + `med_mng_user_songs` (bibliothèque) + `user_generated_music` (historique), une ligne par piste), `error` ou code ≠ 200 (400 contenu refusé, 451 téléchargement, 500) → ligne principale `failed` + `metadata.error` en français, non décomptée. Idempotent par `task_id` + type. Écritures dans `_shared/mm-suno-enregistrement.ts`.
+3. `mm-music-status` — POST `{ taskId }` avec le JWT (propriétaire ou admin) : état lu dans `generated_music_tracks` ; après 45 s sans callback, interroge `GET /generate/record-info` (aucune génération) et enregistre le résultat par le même chemin que le callback ; au-delà de 15 min → `failed` (non décomptée). Remplace, pour MED MNG, l'action `get_status` de `ai-audio` (fonction partagée EmotionsCare, non modifiée).
+
+Front : `src/pages/Generator.tsx` (rendu sur /med-mng/create) → `useSunoMusicGeneration` (lecture directe de `generated_music_tracks` sous RLS, puis `mm-music-status`) → lecteur + bibliothèque /med-mng/library.
+
 ### Musique / streaming
 - `generate-music` — Génération musicale
 - `lyrics-sync-manager` — Synchronisation paroles

@@ -1,375 +1,285 @@
-// Generator page - Music Generation Module v2.1
-// Fixed: Dynamic import issue
-import { GenerateLyricsButton } from '@/components/generator/GenerateLyricsButton';
+// Générateur audio MED MNG (/med-mng/create et /generator)
+//
+// Chemin complet : paroles du rang choisi (RPC mm_contenu_immersif_item via
+// useEdnItemLyrics) → mm-generate-music (abonnement/quota, modèle imposé,
+// durée calculée) → mm-suno-callback → generated_music_tracks → lecteur ici,
+// bibliothèque /med-mng/library (med_mng_songs) alimentée par le callback.
 import { GenerationHistory } from '@/components/generator/GenerationHistory';
 import { useGenerationNotifications } from '@/components/generator/GenerationNotificationHandler';
 import { GenerationProgress } from '@/components/generator/GenerationProgress';
-import { useGenerationSuccessHandler } from '@/components/generator/GenerationSuccessHandler';
-import { GeneratorForm } from '@/components/generator/GeneratorForm';
-import { GeneratorStatusBar } from '@/components/generator/GeneratorStatusBar';
+import { GeneratorForm, parolesPourRang } from '@/components/generator/GeneratorForm';
 import { LyricsExportButton } from '@/components/generator/LyricsExportButton';
 import { MobileHistoryDrawer } from '@/components/generator/MobileHistoryDrawer';
-import { ModelSelector, type SunoModel } from '@/components/generator/ModelSelector';
-import { NetworkStatusIndicator } from '@/components/generator/NetworkStatusIndicator';
-import { OfflineQueueIndicator } from '@/components/generator/OfflineQueueIndicator';
 import { PlaylistManager } from '@/components/generator/PlaylistManager';
 import { PlaylistQuickAdd } from '@/components/generator/PlaylistQuickAdd';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
-import { QuotaWarningBanner } from '@/components/generator/QuotaWarningBanner';
-import { RealtimeIndicator } from '@/components/generator/RealtimeIndicator';
-import { SunoCreditsDisplay } from '@/components/generator/SunoCreditsDisplay';
 import { GeneratorMusicPlayer } from '@/components/music/GeneratorMusicPlayer';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumCard } from '@/components/ui/premium-card';
+import { FORMULES_PREMIUM, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
+import { libelleStyle, normaliserSlugStyle } from '@/config/stylesMusicaux';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
-import { useEcosLyrics } from '@/hooks/useEcosLyrics';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
 import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
-import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useAccesPremium } from '@/hooks/useAccesPremium';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
-import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useSunoCredits } from '@/hooks/useSunoCredits';
-import { supabase } from '@/integrations/supabase/client';
+import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
 import { MedicalDisclaimer } from '@/components/legal';
-import { ArrowLeft, Music, Settings2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Lock, Music, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+
+type RangGeneration = 'A' | 'B' | 'AB';
+
+interface ChansonGeneree {
+  id: number;
+  taskId: string;
+  title: string;
+  audioUrl: string;
+  style: string;
+  styleLibelle: string;
+  rang: RangGeneration;
+  duration?: number;
+  itemCode: string;
+  lyrics: string;
+}
 
 const Generator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
-  const { musicQuota, incrementMusicUsage, canSaveMusic, getUsageDisplay } = useSubscription();
+  const { musicQuota, rafraichirQuota, loading: chargementAbonnement } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
   const { logActivity } = useActivityTracking();
   const { addPoints, loadStats } = useGamification();
   const { preferences, savePreferences } = useGeneratorPreferences();
-  
-  // État avec restauration des préférences
-  const [contentType, setContentType] = useState('');
+  const { aAccesPremium, estAdmin, peutVoirItem, chargement: chargementAcces } = useAccesPremium();
+
   const [selectedItem, setSelectedItem] = useState('');
   const [selectedRang, setSelectedRang] = useState('');
-  const [selectedSituation, setSelectedSituation] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
-  const [generatedSong, setGeneratedSong] = useState(null);
+  const [generatedSong, setGeneratedSong] = useState<ChansonGeneree | null>(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
-  const [selectedModel, setSelectedModel] = useState<SunoModel>('V4_5ALL');
-  const [isReconnecting, setIsReconnecting] = useState(false);
-  
-  // ✅ Hook réseau pour file d'attente hors-ligne
-  // ✅ Hook file d'attente hors-ligne
-  const offlineQueue = useOfflineQueue();
-  
-  // ✅ Hook notifications enrichi
-  const { handleGenerationComplete, requestNotificationPermission } = useGenerationNotifications();
-  
-  // ✅ Hook crédits Suno avec rafraîchissement après génération
-  const { refreshAfterGeneration, invalidateCache: _refreshCredits } = useSunoCredits();
+  const [bibliotheque, setBibliotheque] = useState<'inconnue' | 'verification' | 'enregistree' | 'absente'>('inconnue');
 
-  // Hook temps réel pour les mises à jour automatiques
-  const { isConnected: realtimeConnected, reconnect: reconnectRealtime } = useRealtimeGeneration({
+  const { handleGenerationComplete, requestNotificationPermission } = useGenerationNotifications();
+
+  useRealtimeGeneration({
     userId: user?.id,
     onGenerationComplete: (track) => {
       handleGenerationComplete(track);
-      refreshAfterGeneration(); // ✅ Rafraîchir les crédits automatiquement
+      rafraichirQuota();
     },
     enabled: !!user
   });
 
-  // ✅ Handler de reconnexion realtime
-  const handleReconnect = useCallback(async () => {
-    setIsReconnecting(true);
-    try {
-      await reconnectRealtime?.();
-      toast.success('Reconnecté !');
-    } catch {
-      toast.error('Échec de reconnexion');
-    } finally {
-      setIsReconnecting(false);
-    }
-  }, [reconnectRealtime]);
-  
-  // ✅ Handler de succès qui rafraîchit les crédits
-  useGenerationSuccessHandler({
-    generatedSong,
-    onCreditsRefreshed: () => {
-      if (import.meta.env.DEV) console.log('[Generator] Crédits rafraîchis après génération');
-    }
-  });
-  
-  // Restaurer les préférences au montage
+  // Restaurer les préférences (style : uniquement s'il existe encore dans le catalogue).
   useEffect(() => {
     if (preferences) {
-      if (preferences.contentType) setContentType(preferences.contentType);
       if (preferences.selectedItem) setSelectedItem(preferences.selectedItem);
       if (preferences.selectedRang) setSelectedRang(preferences.selectedRang);
-      if (preferences.selectedStyle) setSelectedStyle(preferences.selectedStyle);
+      if (preferences.selectedStyle) setSelectedStyle(normaliserSlugStyle(preferences.selectedStyle));
     }
   }, [preferences]);
-  
-  // Sauvegarder les préférences quand elles changent
+
   useEffect(() => {
-    if (contentType || selectedItem || selectedRang || selectedStyle) {
+    if (selectedItem || selectedRang || selectedStyle) {
       savePreferences({
-        contentType,
+        contentType: 'edn',
         selectedItem,
         selectedRang,
         selectedStyle,
       });
     }
-  }, [contentType, selectedItem, selectedRang, selectedStyle, savePreferences]);
-  
-  // ✅ Demander permission notifications de manière non-intrusive
+  }, [selectedItem, selectedRang, selectedStyle, savePreferences]);
+
   useEffect(() => {
-    // Attendre 5 secondes après le montage pour éviter d'être intrusif
     const timer = setTimeout(() => {
       requestNotificationPermission();
     }, 5000);
     return () => clearTimeout(timer);
   }, [requestNotificationPermission]);
 
-  // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
-  
+
   const {
     lyrics: ednLyricsBrutes,
     loading: lyricsLoading,
     error: lyricsError,
     verrouille: parolesVerrouillees,
-  } = useEdnItemLyrics(contentType === 'edn' ? selectedItem : null);
+  } = useEdnItemLyrics(selectedItem || null);
   // Paroles hors items d'essai : réservées à MED MNG Premium. Le serveur (RPC
   // mm_contenu_immersif_item) fait foi (`parolesVerrouillees`) ; la règle
   // côté client évite seulement d'afficher des paroles avant sa réponse.
-  const { aAccesPremium, peutVoirItem } = useAccesPremium();
   const ednLyrics = (selectedItem && !peutVoirItem(selectedItem)) || parolesVerrouillees ? null : ednLyricsBrutes;
-  
-  // Hook pour les paroles ECOS
-  const { lyrics: ecosLyrics, loading: ecosLyricsLoading, error: ecosLyricsError } = useEcosLyrics(
-    contentType === 'ecos' ? selectedSituation : null
-  );
-  
-  const remainingFree = getRemainingGenerations();
-  const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB || musicGeneration.isGenerating?.rangAB;
+
+  const isGenerating = Boolean(musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB || musicGeneration.isGenerating?.rangAB);
   const pollingProgress = musicGeneration.pollingProgress || 0;
+  const peutGenererSelonQuota = aAccesPremium && (musicQuota ? musicQuota.can_generate : true);
 
+  // Item, rang et style choisis, paroles de l'item accessibles (item d'essai ou Premium).
+  // Un rang sans paroles rédigées reste générable : elles sont reconstruites
+  // depuis les compétences OIC officielles (generer-paroles-item) au lancement.
   const canGenerate = useCallback(() => {
-    if (contentType === 'edn') {
-      // Vérifier les paroles par rang ou le legacy paroles_musicales
-      const hasLyricsA = ednLyrics?.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0;
-      const hasLyricsB = ednLyrics?.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0;
-      const hasLyricsAB = ednLyrics?.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0;
-      const hasLegacy = ednLyrics?.paroles_musicales && ednLyrics.paroles_musicales.length > 0;
-      
-      const hasLyrics = ednLyrics && (
-        (selectedRang === 'A' && (hasLyricsA || hasLegacy)) ||
-        (selectedRang === 'B' && (hasLyricsB || hasLegacy)) ||
-        (selectedRang === 'AB' && (hasLyricsAB || hasLegacy)) ||
-        hasLegacy
-      );
-      
-      return !!(selectedItem && selectedRang && selectedStyle && hasLyrics);
-    }
-    if (contentType === 'ecos') {
-      // Vérifier que les paroles ECOS sont disponibles
-      const hasEcosLyrics = ecosLyrics?.paroles && ecosLyrics.paroles.length > 0;
-      return !!(selectedSituation && selectedStyle && hasEcosLyrics);
-    }
-    return false;
-  }, [contentType, selectedItem, selectedRang, selectedStyle, ednLyrics, selectedSituation, ecosLyrics]);
+    if (!selectedItem || !selectedRang || !selectedStyle) return false;
+    return Boolean(ednLyrics);
+  }, [selectedItem, selectedRang, selectedStyle, ednLyrics]);
 
-  // ✅ Handler de génération avec support des paramètres avancés
-  // IMPORTANT: La connexion est requise même pour les générations gratuites
-  // afin de pouvoir tracker les crédits utilisés par utilisateur
   const handleGenerate = useCallback(async (advancedParams?: Partial<AdvancedSunoParams>) => {
-    // ✅ Vérifier d'abord si l'utilisateur est connecté (obligatoire même pour les essais gratuits)
     if (!user) {
-      toast.error('Connectez-vous pour utiliser le générateur audio (inclus dans MED MNG Premium).', {
+      toast.error(`Connectez-vous pour utiliser le générateur audio (inclus dans ${NOM_OFFRE_PREMIUM}).`, {
         action: { label: 'Se connecter', onClick: () => navigate(ROUTE_PATHS.medMngLogin) },
         duration: 5000
       });
       return;
     }
 
-    if (!canGenerate()) {
-      toast.error('Veuillez sélectionner tous les paramètres requis');
+    if (!canGenerate() || !ednLyrics) {
+      toast.error('Choisissez un item, un rang et un style musical.');
       return;
     }
 
-    // ✅ Génération audio réservée à MED MNG Premium (contrôle définitif côté serveur)
+    // Génération audio réservée à MED MNG Premium (contrôle définitif côté serveur).
     if (!aAccesPremium) {
-      toast.error('La génération audio est incluse dans MED MNG Premium (69 €/an ou 9,90 €/mois).', {
+      toast.error(`La génération audio est incluse dans ${NOM_OFFRE_PREMIUM} (${FORMULES_PREMIUM.annuel.prixAffiche} ou ${FORMULES_PREMIUM.mensuel.prixAffiche}).`, {
         action: { label: "Voir l'offre", onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
       });
       return;
     }
     if (musicQuota && !musicQuota.can_generate) {
-      toast.error('Vous avez utilisé vos générations audio de ce mois. Le compteur repart le 1er du mois prochain.');
+      toast.error(`Vous avez utilisé vos ${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio de ce mois. Le compteur repart le 1er du mois prochain.`);
       return;
     }
 
+    const rang = selectedRang as RangGeneration;
+
     try {
-      let lyricsToUse: string[] = [];
-      let titlePrefix = '';
+      let lyricsToUse = parolesPourRang(ednLyrics, rang);
 
-      if (contentType === 'edn' && ednLyrics) {
-        // Utiliser les paroles par rang en priorité
-        if (selectedRang === 'A' && ednLyrics.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0) {
-          lyricsToUse = ednLyrics.paroles_rang_a;
-        } else if (selectedRang === 'B' && ednLyrics.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0) {
-          lyricsToUse = ednLyrics.paroles_rang_b;
-        } else if (selectedRang === 'AB' && ednLyrics.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0) {
-          lyricsToUse = ednLyrics.paroles_rang_ab;
-        } else if (ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0) {
-          // Fallback vers legacy paroles_musicales
-          lyricsToUse = ednLyrics.paroles_musicales;
+      // Les colonnes `paroles_rang_*` ne contiennent, pour une partie des items,
+      // qu'une suite de mots-clés sans verbe ni ponctuation. Envoyer ça à Suno
+      // consomme une génération pour un résultat inchantable : on repart alors
+      // des compétences OIC officielles de l'item (generer-paroles-item).
+      if (lyricsToUse.length === 0 || !parolesSontRedigees(lyricsToUse)) {
+        toast.info(`Paroles du ${rang === 'AB' ? 'rang A+B' : `rang ${rang}`} reconstruites depuis les compétences OIC officielles de l'item.`);
+        try {
+          lyricsToUse = rang === 'AB'
+            ? await generateMixedLyrics(selectedItem)
+            : await generateComprehensiveLyrics(selectedItem, rang);
+        } catch (erreurParoles) {
+          const message = erreurParoles instanceof Error ? erreurParoles.message : String(erreurParoles);
+          toast.error(`Impossible de préparer les paroles du ${rang === 'AB' ? 'rang A+B' : `rang ${rang}`} : ${message}`);
+          return;
         }
-        titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
-      } else if (contentType === 'ecos' && ecosLyrics) {
-        // Utiliser les paroles générées à partir du scénario ECOS
-        lyricsToUse = ecosLyrics.paroles;
-        titlePrefix = `${ecosLyrics.scenario.scenario_code} - ${ecosLyrics.scenario.title}`;
-      }
-
-      const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
-
-      // Les colonnes `paroles_rang_*` d'`edn_items_complete` ne contiennent, pour
-      // 345 des 367 items, qu'une suite de mots-clés sans verbe ni ponctuation
-      // (« nbsp nbsp migraine évaluer »). Envoyer ça à Suno consomme des crédits
-      // payants pour un résultat inchantable : on repart alors des compétences
-      // OIC officielles de l'item, comme le fait l'onglet Musique.
-      if (contentType === 'edn' && selectedItem && !parolesSontRedigees(lyricsToUse)) {
-        toast.info('Paroles reconstruites depuis les compétences OIC officielles de l\'item.');
-        lyricsToUse = rang === 'AB'
-          ? await generateMixedLyrics(selectedItem)
-          : await generateComprehensiveLyrics(selectedItem, rang);
       }
 
       if (lyricsToUse.length === 0) {
-        toast.error('Aucune parole disponible pour cet item');
+        toast.error(`Aucune parole disponible pour le ${rang === 'AB' ? 'rang A+B' : `rang ${rang}`} de cet item.`);
         return;
       }
 
-      const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
-      
-      // Marquer le début de la génération
       setGenerationStartTime(Date.now());
-      
-      // ✅ Log des paramètres avancés si présents
-      if (advancedParams && Object.keys(advancedParams).length > 0) {
-        if (import.meta.env.DEV) console.log('[Generator] Paramètres avancés Suno:', advancedParams);
-      }
-      
-      const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
-      // ✅ Passer les paramètres avancés à l'API Suno
-      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240, "V4_5ALL", advancedParams);
-      toast.dismiss(loadingToast);
-      
-      // Réinitialiser le temps de génération
+      setGeneratedSong(null);
+      setBibliotheque('inconnue');
+
+      const resultat = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, {
+        itemCode: selectedItem,
+        itemTitle: ednLyrics.title,
+        advancedParams,
+      });
+
       setGenerationStartTime(null);
-      
-      if (user) {
-        await incrementMusicUsage();
-      }
-      
-      const song = {
+      const taskId = resultat.taskId;
+
+      const song: ChansonGeneree = {
         id: Date.now(),
-        title: `${titlePrefix} - ${selectedStyle}`,
-        audioUrl,
+        taskId,
+        title: resultat.titre || `${ednLyrics.title} — ${rang === 'AB' ? 'Rang A+B' : `Rang ${rang}`}`,
+        audioUrl: resultat.audioUrl,
         style: selectedStyle,
+        styleLibelle: libelleStyle(selectedStyle),
         rang,
-        duration: 240,
-        itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
-        lyrics: lyricsToUse[lyricsIndex]
+        duration: resultat.dureeDemandee,
+        itemCode: selectedItem,
+        lyrics: lyricsToUse.join('\n')
       };
-
       setGeneratedSong(song);
-      toast.success('🎵 Musique générée avec succès !');
+      rafraichirQuota();
 
-      // Track activity and award points
-      if (user) {
-        await logActivity({
-          activity_type: 'music_generation',
-          count: 1,
-          metadata: { 
-            itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
-            style: selectedStyle,
-            rang,
-            advancedParams: advancedParams ? Object.keys(advancedParams) : []
-          }
-        });
-        
-        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
-        loadStats(user.id);
+      // Le callback a normalement déjà enregistré la chanson dans la bibliothèque ; on le vérifie.
+      if (taskId) {
+        setBibliotheque('verification');
+        const biblio = await assurerChansonEnBibliotheque(user.id, taskId);
+        setBibliotheque(biblio.etat === 'impossible' ? 'absente' : 'enregistree');
+        if (biblio.etat === 'impossible' && import.meta.env.DEV) {
+          console.warn('[Generator] Bibliothèque :', biblio.raison);
+        }
       }
+
+      await logActivity({
+        activity_type: 'music_generation',
+        count: 1,
+        metadata: {
+          itemCode: selectedItem,
+          style: selectedStyle,
+          rang,
+          advancedParams: advancedParams ? Object.keys(advancedParams) : []
+        }
+      });
+      await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
+      loadStats(user.id);
 
     } catch (error) {
+      // Le hook a déjà affiché le message (français, jamais technique).
       if (import.meta.env.DEV) console.error('Erreur génération:', error);
       setGenerationStartTime(null);
-      const message = error instanceof Error ? error.message : String(error);
-      toast.error(`Échec de la génération musicale : ${message}`);
+      rafraichirQuota();
     }
-  }, [canGenerate, user, aAccesPremium, musicQuota?.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
+  }, [canGenerate, user, aAccesPremium, musicQuota, ednLyrics, selectedItem, selectedRang, selectedStyle, musicGeneration, rafraichirQuota, navigate, logActivity, addPoints, loadStats]);
 
-  const handleAddToLibrary = useCallback(async () => {
+  /** La chanson est enregistrée par le serveur : on vérifie une dernière fois, puis on ouvre la bibliothèque. */
+  const handleOuvrirBibliotheque = useCallback(async () => {
     if (!generatedSong) return;
     if (!user) {
-      toast.error('Connectez-vous pour sauvegarder vos musiques');
+      toast.error('Connectez-vous pour retrouver vos chansons');
       return;
     }
-    if (!canSaveMusic()) {
-      toast.error('Votre abonnement ne permet pas de sauvegarder.');
-      return;
+    if (generatedSong.taskId && bibliotheque !== 'enregistree') {
+      const resultat = await assurerChansonEnBibliotheque(user.id, generatedSong.taskId);
+      if (resultat.etat === 'impossible') {
+        toast.error(`Impossible d'enregistrer la chanson dans votre bibliothèque : ${resultat.raison}`);
+        return;
+      }
+      setBibliotheque('enregistree');
     }
-
-    try {
-      const musicId = `gen_${Date.now()}_${generatedSong.itemCode.replace(/[^a-zA-Z0-9]/g, '')}`;
-
-      const { error } = await supabase
-        .from('user_generated_music')
-        .insert({
-          user_id: user.id,
-          title: generatedSong.title,
-          audio_url: generatedSong.audioUrl,
-          music_style: generatedSong.style,
-          rang: generatedSong.rang,
-          item_code: generatedSong.itemCode,
-          music_id: musicId,
-          is_favorite: false
-        } as any);
-
-      if (error) throw error;
-      toast.success('✨ Chanson ajoutée à votre bibliothèque !');
-    } catch (err) {
-      if (import.meta.env.DEV) console.error('Erreur sauvegarde bibliothèque:', err);
-      toast.error('Erreur lors de la sauvegarde');
-    }
-  }, [generatedSong, user, canSaveMusic]);
+    navigate(ROUTE_PATHS.medMngMusicLibrary);
+  }, [generatedSong, user, bibliotheque, navigate]);
 
   const resetForm = useCallback(() => {
-    setContentType('');
     setSelectedItem('');
     setSelectedRang('');
-    setSelectedSituation('');
     setSelectedStyle('');
     setGeneratedSong(null);
+    setBibliotheque('inconnue');
   }, []);
+
+  const afficherEncartPremium = Boolean(user) && !chargementAcces && !chargementAbonnement && !aAccesPremium;
 
   return (
     <PremiumBackground variant="amber">
-      {/* Header premium */}
       <div className="bg-card/70 backdrop-blur-xl border-b border-border shadow-lg" role="banner">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
@@ -383,10 +293,10 @@ const Generator = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate">
-                  <TranslatedText text="Générateur Musical" />
+                  <TranslatedText text="Créer une chanson" />
                 </h1>
                 <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium truncate" role="doc-subtitle">
-                  <TranslatedText text="Transformez vos cours en musique" />
+                  <TranslatedText text="Les paroles d'un item EDN, chantées dans le style de votre choix" />
                 </p>
               </div>
             </div>
@@ -396,119 +306,60 @@ const Generator = () => {
 
       <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
-          {/* ✅ Indicateurs réseau + temps réel + Crédits Suno */}
-          <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
-            <GeneratorStatusBar 
-              isConnected={realtimeConnected}
-              musicQuota={musicQuota}
-              className="flex-1 min-w-0"
-            />
-            <div className="flex items-center gap-2 shrink-0">
-              {/* ✅ Indicateur temps réel amélioré */}
-              <RealtimeIndicator 
-                isConnected={realtimeConnected}
-                isReconnecting={isReconnecting}
-                onRetry={handleReconnect}
-                showRetry={!realtimeConnected}
-                className="hidden sm:flex"
-              />
-              {/* ✅ Affichage des crédits Suno */}
-              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} className="hidden sm:flex" />
-              <NetworkStatusIndicator showLabel notifyOnChange className="hidden xs:flex" />
-            </div>
-          </div>
-          
-          {/* ✅ Indicateur file d'attente hors-ligne avec données du hook */}
-          <OfflineQueueIndicator 
-            queue={offlineQueue.queue.map(q => ({
-              id: q.id,
-              title: q.payload?.title || 'Génération',
-              style: q.payload?.style || '',
-              rang: q.payload?.rang || 'A',
-              timestamp: q.createdAt,
-              status: q.status
-            }))}
-            onSync={offlineQueue.syncAll}
-            onClear={offlineQueue.clearQueue}
-            className="mb-4" 
-          />
-
-          {/* ✅ Bannière d'avertissement quota/crédits */}
-          <QuotaWarningBanner
-            usagePercentage={musicQuota?.current_usage && musicQuota?.quota_limit ? (musicQuota.current_usage / musicQuota.quota_limit) * 100 : 0}
-            hasNoCredits={false}
-            hasLowCredits={musicQuota?.current_usage && musicQuota?.quota_limit ? (musicQuota.quota_limit - musicQuota.current_usage) <= 5 : false}
-            className="mb-4"
-          />
+          {afficherEncartPremium && (
+            <Alert className="mb-6 border-primary/30 bg-primary/5">
+              <Lock className="h-4 w-4 text-primary" />
+              <AlertTitle>Génération audio : {NOM_OFFRE_PREMIUM}</AlertTitle>
+              <AlertDescription className="space-y-3">
+                <p>
+                  {QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois et le contenu immersif des {NOMBRE_ITEMS_TOTAL} items
+                  (paroles, récits, planches, quiz) sont inclus dans {NOM_OFFRE_PREMIUM} :
+                  {' '}{FORMULES_PREMIUM.annuel.prixAffiche} ({FORMULES_PREMIUM.annuel.equivalentMensuel}) ou {FORMULES_PREMIUM.mensuel.prixAffiche}.
+                  Chaque chanson générée est sauvegardée dans votre bibliothèque.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild size="sm">
+                    <Link to={ROUTE_PATHS.medMngPricing}>Voir l'offre Premium</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <Link to={ROUTE_PATHS.ednComplete}>Explorer les items EDN</Link>
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1">
               <QuotaDisplay
                 user={user}
-                remainingFree={remainingFree}
-                maxFreeGenerations={maxFreeGenerations}
                 musicQuota={musicQuota}
-                getUsageDisplay={getUsageDisplay}
-                onRefresh={async () => {
-                  if (user) {
-                    await loadStats(user.id);
-                  }
-                }}
+                aAccesPremium={aAccesPremium}
+                estAdmin={estAdmin}
+                onRefresh={rafraichirQuota}
               />
             </div>
-            
-          {/* ✅ Sélecteur de modèle + Génération de paroles IA */}
-            <PremiumCard variant="glass" className="p-4 flex flex-col gap-3 sm:w-72">
-              <div className="flex items-center gap-2 mb-1">
-                <Settings2 className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Options avancées</span>
-              </div>
-              <ModelSelector 
-                value={selectedModel}
-                onChange={setSelectedModel}
-                disabled={!!isGenerating}
-                compact={false}
-              />
-              <GenerateLyricsButton 
-                disabled={!!isGenerating}
-                variant="outline"
-                size="sm"
-              />
-              {/* ✅ Export paroles si disponibles */}
-              {(ednLyrics || ecosLyrics) && (
+
+            {ednLyrics && selectedRang && (
+              <PremiumCard variant="glass" className="p-4 flex flex-col gap-3 sm:w-72">
+                <span className="text-sm font-medium">Paroles du rang choisi</span>
                 <LyricsExportButton
-                  lyrics={
-                    contentType === 'edn' && ednLyrics
-                      ? (ednLyrics.paroles_rang_a || ednLyrics.paroles_musicales || []).join('\n\n')
-                      : contentType === 'ecos' && ecosLyrics
-                        ? ecosLyrics.paroles.join('\n\n')
-                        : ''
-                  }
-                  title={
-                    contentType === 'edn' && ednLyrics
-                      ? ednLyrics.title
-                      : contentType === 'ecos' && ecosLyrics
-                        ? ecosLyrics.scenario.title
-                        : 'Paroles'
-                  }
+                  lyrics={parolesPourRang(ednLyrics, selectedRang).join('\n')}
+                  title={ednLyrics.title}
                   rang={selectedRang}
                   style={selectedStyle}
                   variant="outline"
                   size="sm"
                 />
-              )}
-            </PremiumCard>
+              </PremiumCard>
+            )}
           </div>
 
           <GeneratorForm
-            contentType={contentType}
-            setContentType={setContentType}
             selectedItem={selectedItem}
             setSelectedItem={setSelectedItem}
             selectedRang={selectedRang}
             setSelectedRang={setSelectedRang}
-            selectedSituation={selectedSituation}
-            setSelectedSituation={setSelectedSituation}
             selectedStyle={selectedStyle}
             setSelectedStyle={setSelectedStyle}
             allEdnItems={allEdnItems}
@@ -517,42 +368,48 @@ const Generator = () => {
             ednLyrics={ednLyrics}
             lyricsLoading={lyricsLoading}
             lyricsError={lyricsError}
-            ecosLyrics={ecosLyrics}
-            ecosLyricsLoading={ecosLyricsLoading}
-            ecosLyricsError={ecosLyricsError}
             canGenerate={canGenerate}
             handleGenerate={handleGenerate}
             resetForm={resetForm}
             isGenerating={isGenerating}
             user={user}
-            remainingFree={remainingFree}
-            canGenerateMusic={() => musicQuota?.can_generate ?? false}
+            canGenerateMusic={() => peutGenererSelonQuota}
           />
 
-          {/* Barre de progression pendant la génération */}
-          <GenerationProgress 
-            progress={pollingProgress} 
-            isGenerating={!!isGenerating}
-            message="Votre musique est en cours de création"
+          <GenerationProgress
+            progress={pollingProgress}
+            isGenerating={isGenerating}
+            message={musicGeneration.etape?.etape === 'envoi'
+              ? 'Envoi de la demande au service de génération…'
+              : 'Votre chanson est en cours de création (1 à 3 minutes). Elle sera ajoutée à votre bibliothèque dès qu\'elle est prête.'}
             onCancel={() => {
-              // Déterminer quel rang est en cours de génération
-              const activeRang = musicGeneration.isGenerating?.rangA ? 'A' 
-                : musicGeneration.isGenerating?.rangB ? 'B' 
-                : musicGeneration.isGenerating?.rangAB ? 'AB' 
+              const activeRang = musicGeneration.isGenerating?.rangA ? 'A'
+                : musicGeneration.isGenerating?.rangB ? 'B'
+                : musicGeneration.isGenerating?.rangAB ? 'AB'
                 : undefined;
               musicGeneration.cancelGeneration(activeRang);
               setGenerationStartTime(null);
             }}
             startTime={generationStartTime || undefined}
+            taskId={musicGeneration.etape?.taskId}
+            rang={selectedRang === 'A' || selectedRang === 'B' || selectedRang === 'AB' ? selectedRang : undefined}
           />
 
-          <GeneratorMusicPlayer 
-            generatedSong={generatedSong} 
-            onAddToLibrary={handleAddToLibrary}
+          {generatedSong && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              {bibliotheque === 'enregistree' && 'Chanson prête et enregistrée dans votre bibliothèque.'}
+              {bibliotheque === 'verification' && 'Chanson prête — enregistrement dans votre bibliothèque…'}
+              {bibliotheque === 'absente' && "Chanson prête. L'enregistrement en bibliothèque a échoué : utilisez le bouton « Ma bibliothèque » pour réessayer."}
+            </p>
+          )}
+
+          <GeneratorMusicPlayer
+            generatedSong={generatedSong}
+            onAddToLibrary={handleOuvrirBibliotheque}
+            libraryLabel={bibliotheque === 'enregistree' ? 'Ma bibliothèque' : 'Enregistrer en bibliothèque'}
             onRetry={handleGenerate}
           />
 
-          {/* ✅ Ajout rapide à une playlist après génération */}
           {generatedSong && (
             <PlaylistQuickAdd
               trackId={String(generatedSong.id)}
@@ -562,21 +419,17 @@ const Generator = () => {
             />
           )}
 
-          {/* ✅ Gestionnaire de playlists + Historique des générations */}
           <div className="my-8 grid grid-cols-1 lg:grid-cols-4 gap-4">
-            {/* Sidebar playlists */}
             <div className="lg:col-span-1">
               <PremiumCard variant="glass" className="p-4 sticky top-4">
                 <PlaylistManager className="mb-4" />
               </PremiumCard>
             </div>
-            {/* Historique principal */}
             <div className="lg:col-span-3">
               <GenerationHistory />
             </div>
           </div>
-          
-          {/* ✅ Drawer mobile pour l'historique récent */}
+
           <MobileHistoryDrawer />
 
           <PremiumCard variant="glass" className="p-4 sm:p-6 md:p-8" role="region" aria-labelledby="help-heading">
@@ -584,42 +437,41 @@ const Generator = () => {
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-accent rounded-lg sm:rounded-xl flex items-center justify-center shrink-0" aria-hidden="true">
                 <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
               </div>
-              <span className="break-word"><TranslatedText text="Comment utiliser le générateur ?" /></span>
+              <span className="break-word"><TranslatedText text="Comment ça marche ?" /></span>
             </h3>
             <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 text-muted-foreground text-sm sm:text-base">
               <div className="space-y-4">
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</span>
-                  <TranslatedText text="Choisissez le type de contenu (EDN ou ECOS)" />
+                  <TranslatedText text={`Choisissez un item parmi les ${NOMBRE_ITEMS_TOTAL} items EDN`} />
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-success text-success-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</span>
-                  <TranslatedText text="Pour EDN : sélectionnez parmi les 367 items disponibles" />
+                  <TranslatedText text="Sélectionnez le rang A, le rang B ou A+B : ce sont les paroles de ce rang qui seront chantées" />
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">3</span>
-                  <TranslatedText text="Pour ECOS : choisissez une des 3 situations de départ" />
+                  <TranslatedText text="Choisissez un style musical (rap, pop, lo-fi, chanson française…)" />
                 </p>
               </div>
               <div className="space-y-4">
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-warning text-warning-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">4</span>
-                  <TranslatedText text="Sélectionnez le rang A, B ou A+B pour EDN" />
+                  <TranslatedText text="La durée est calculée d'après les paroles (1 min 30 à 5 min) ; la génération prend 1 à 3 minutes" />
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">5</span>
-                  <TranslatedText text="Choisissez votre style musical préféré" />
+                  <TranslatedText text="La chanson est sauvegardée automatiquement dans votre bibliothèque" />
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">6</span>
-                  <TranslatedText text="Les paroles seront automatiquement intégrées !" />
+                  <TranslatedText text={`${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois avec ${NOM_OFFRE_PREMIUM} ; une génération qui échoue n'est pas décomptée`} />
                 </p>
               </div>
             </div>
           </PremiumCard>
         </div>
-        
-        {/* Disclaimer médical */}
+
         <div className="max-w-6xl mx-auto mt-6 px-2 md:px-4">
           <MedicalDisclaimer variant="minimal" />
         </div>

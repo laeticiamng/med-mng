@@ -4,9 +4,12 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { estItemGratuit } from '@/config/offre';
 
 /**
- * Accès au contenu immersif (paroles, récit, planches, quiz).
+ * Accès au contenu immersif (paroles, récit, planches, quiz) et au générateur audio.
  *
- *  - `aAccesPremium` : abonnement MED MNG Premium actif ;
+ *  - `aAccesPremium` : abonnement MED MNG Premium actif OU administrateur
+ *    (user_roles, role = admin) — même règle que le serveur (RPC
+ *    mm_a_acces_premium, mm-generate-music), qui reste seul à faire foi ;
+ *  - `estAdmin` : administrateur ;
  *  - `peutVoirItem(code)` : item d'essai (ITEMS_GRATUITS) ou accès Premium.
  *
  * Tant que la vérification est en cours (`chargement`), `peutVoirItem`
@@ -18,7 +21,7 @@ import { estItemGratuit } from '@/config/offre';
  */
 export function useAccesPremium() {
   const { user, loading: chargementAuth } = useAuth();
-  const { isSubscriptionActive, loading: chargementAbonnement } = useSubscription();
+  const { isSubscriptionActive, estAdmin, loading: chargementAbonnement } = useSubscription();
 
   const aAccesPremium = Boolean(user) && isSubscriptionActive();
   const chargement = chargementAuth || (Boolean(user) && chargementAbonnement);
@@ -28,5 +31,5 @@ export function useAccesPremium() {
     [aAccesPremium]
   );
 
-  return { aAccesPremium, peutVoirItem, chargement, connecte: Boolean(user) };
+  return { aAccesPremium, estAdmin: Boolean(user) && estAdmin, peutVoirItem, chargement, connecte: Boolean(user) };
 }

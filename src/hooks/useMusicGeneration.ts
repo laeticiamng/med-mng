@@ -55,10 +55,9 @@ export const useMusicGeneration = () => {
 
       // Use unified audioApi router
       const response = await audioApi.generateMusic({
-        title: `${itemCode} Rang ${rang} - Compétences Médicales`,
         lyrics: prompt,
-        style: 'educatif-medical',
-        rang,
+        style: 'comptine',
+        rang: rang === 'Mix' ? 'AB' : rang,
         itemCode,
       });
 

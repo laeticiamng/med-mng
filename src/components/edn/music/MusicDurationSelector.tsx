@@ -28,16 +28,16 @@ export const MusicDurationSelector = ({
         <Slider
           value={[duration]}
           onValueChange={(values) => onDurationChange(values[0])}
-          min={60}
-          max={600}
+          min={90}
+          max={300}
           step={30}
           disabled={disabled}
           className="w-full"
         />
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
-          <span>1:00</span>
+          <span>1:30</span>
+          <span>3:00</span>
           <span>5:00</span>
-          <span>10:00</span>
         </div>
       </div>
     </div>

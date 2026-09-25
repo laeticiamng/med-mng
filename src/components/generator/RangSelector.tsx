@@ -7,6 +7,11 @@ import { CheckCircle2, Star, Zap, Crown } from 'lucide-react';
 interface RangSelectorProps {
   selectedRang: string;
   setSelectedRang: (rang: string) => void;
+  /**
+   * Paroles rédigées disponibles par rang. Un rang sans paroles prêtes reste
+   * sélectionnable : ses paroles sont alors reconstruites depuis les
+   * compétences OIC officielles de l'item au moment de la génération.
+   */
   lyricsAvailability?: {
     hasA: boolean;
     hasB: boolean;
@@ -87,8 +92,8 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
               variant={isSelected ? 'elevated' : 'default'}
               className={`cursor-pointer transition-all duration-300 p-2 sm:p-4 text-center hover-scale relative overflow-hidden min-h-[100px] sm:min-h-[140px] ${
                 isSelected ? `ring-2 ${rang.colorClass}` : 'hover:shadow-lg'
-              } ${!available ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => available && setSelectedRang(rang.value)}
+              } ${!available ? 'opacity-80' : ''}`}
+              onClick={() => setSelectedRang(rang.value)}
             >
               {/* Indicateur de sélection */}
               {isSelected && (
@@ -108,9 +113,10 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
                 <Badge 
                   variant={available ? rang.badgeVariant : "secondary"} 
                   className={`mt-1 sm:mt-2 text-xs ${!available ? 'bg-muted text-muted-foreground' : ''}`}
+                  title={available ? 'Paroles rédigées disponibles' : 'Paroles reconstruites depuis les compétences OIC à la génération'}
                 >
-                  <span className="hidden sm:inline">{available ? '✓ Disponible' : '✗ Non dispo'}</span>
-                  <span className="sm:hidden">{available ? '✓' : '✗'}</span>
+                  <span className="hidden sm:inline">{available ? '✓ Paroles prêtes' : 'Paroles à reconstruire'}</span>
+                  <span className="sm:hidden">{available ? '✓' : 'OIC'}</span>
                 </Badge>
               )}
             </PremiumCard>

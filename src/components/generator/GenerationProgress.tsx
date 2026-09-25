@@ -141,7 +141,7 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
             </Badge>
             {rang && (
               <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
-                Rang {rang}
+                Rang {rang === 'AB' ? 'A+B' : rang}
               </Badge>
             )}
           </h3>

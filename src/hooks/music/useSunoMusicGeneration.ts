@@ -1,6 +1,11 @@
 /**
- * 🎵 Hook principal pour la génération musicale Suno
- * ✅ CORRIGÉ: Timeout augmenté, polling BDD amélioré, rafraîchissement crédits
+ * 🎵 Hook principal de génération audio MED MNG (mm-generate-music + suivi).
+ *
+ * Chemin complet : mm-generate-music (taskId) → mm-suno-callback met à jour
+ * generated_music_tracks (ligne principale task_id) → ce hook lit la table
+ * (RLS : ses propres lignes) et, en secours, mm-music-status (rattrapage si un
+ * callback s'est perdu) → URL audio → lecteur ; la bibliothèque
+ * (med_mng_songs / med_mng_user_songs) est alimentée par le callback.
  */
 
 import { useToast } from '@/hooks/use-toast';
@@ -10,43 +15,75 @@ import { useCallback, useRef, useState } from 'react';
 import { callSunoApi } from '../musicGenerationApi';
 import {
     createRequestBody,
+    formaterDuree,
     getSuccessMessage,
-    prepareStyleConfiguration,
-    validateGenerationInput
+    validateGenerationInput,
+    type ParametresAvances,
 } from '../musicGenerationUtils';
 import { useMusicGenerationState } from '../useMusicGenerationState';
 import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 
-// ✅ Constantes alignées avec useMusicPolling.ts
-const MAX_POLL_ATTEMPTS = 120; // ~8 minutes max (120 * 4s en moyenne)
-const FAST_POLL_INTERVAL = 2000; // 2s - Début rapide (0-30s)
-const POLL_INTERVAL = 4000; // 4s - Normal (30s-2min)
-const SLOW_POLL_INTERVAL = 6000; // 6s - Lent (2min+)
-const RETRY_POLL_ATTEMPTS = 3;
-const ABSOLUTE_TIMEOUT = 8 * 60 * 1000; // 8 minutes - aligné avec UI
+const MAX_POLL_ATTEMPTS = 150;
+const FAST_POLL_INTERVAL = 2000; // 0-30 s
+const POLL_INTERVAL = 4000;      // 30 s – 2 min
+const SLOW_POLL_INTERVAL = 6000; // 2 min et plus
+const ABSOLUTE_TIMEOUT = 10 * 60 * 1000; // 10 minutes (mm-music-status abandonne à 15 min)
+/** Avant ce délai, seule la table est lue (le callback Suno arrive en général en 1–3 min). */
+const DELAI_AVANT_STATUT_SERVEUR = 45_000;
 
 const MESSAGE_INDISPONIBLE = 'Service momentanément indisponible, réessayez plus tard.';
+const MESSAGE_SUIVI_INTERROMPU = 'Suivi interrompu : si la chanson aboutit, elle apparaîtra dans votre bibliothèque.';
 
 /**
  * Message affiché à l'utilisateur : on garde les messages métier en français
- * renvoyés par mm-generate-music (abonnement requis, quota atteint…) et on
- * remplace tout message technique (402/429 du fournisseur, « non-2xx »,
- * trackId, fetch…) par un message d'indisponibilité clair.
+ * renvoyés par mm-generate-music / mm-music-status (abonnement requis, quota
+ * atteint, refus du service…) et on remplace tout message technique
+ * (codes HTTP, « non-2xx », trackId, fetch…) par un message d'indisponibilité.
  */
-const messageErreurGeneration = (error: unknown): string => {
+export const messageErreurGeneration = (error: unknown): string => {
   const brut = error instanceof Error ? error.message : '';
   if (!brut) return "Impossible de générer la musique. Veuillez réessayer.";
   const technique = /\b(402|429|4\d\d|5\d\d)\b|non-2xx|edge function|fetch|trackid|suno|payment|credit|rate limit|url audio|undefined|null/i;
   return technique.test(brut) ? MESSAGE_INDISPONIBLE : brut;
 };
 
+export interface OptionsGeneration {
+  itemCode?: string;
+  /** Titre officiel de l'item → titre court de la chanson (côté serveur). */
+  itemTitle?: string;
+  /** Durée souhaitée (secondes, 10–360) ; absente → calculée d'après les paroles. */
+  dureeDemandee?: number;
+  advancedParams?: Partial<ParametresAvances>;
+}
+
+export interface EtapeGeneration {
+  etape: 'envoi' | 'en_cours' | 'prete' | 'echec';
+  taskId?: string;
+  titre?: string;
+  dureeDemandee?: number;
+  parolesTronquees?: boolean;
+  lignesRetirees?: number;
+}
+
+export interface ResultatGeneration {
+  audioUrl: string;
+  taskId: string;
+  titre?: string;
+  dureeDemandee?: number;
+  parolesTronquees?: boolean;
+  lignesRetirees?: number;
+}
+
 export const useSunoMusicGeneration = () => {
   const { toast } = useToast();
   const [pollingProgress, setPollingProgress] = useState<number>(0);
+  const [etape, setEtape] = useState<EtapeGeneration | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const abortRef = useRef<boolean>(false); // Flag pour arrêter le polling
-  
+  const abortRef = useRef<boolean>(false);
+  /** Rejet de l'attente en cours (cancelGeneration), pour que generateMusicInLanguage se termine. */
+  const rejetEnCoursRef = useRef<((raison: Error) => void) | null>(null);
+
   const {
     isGenerating,
     generatedAudio,
@@ -59,257 +96,233 @@ export const useSunoMusicGeneration = () => {
     markAsGenerating,
     unmarkAsGenerating
   } = useMusicGenerationState();
-  
+
   const { currentLanguage, translateLyricsIfNeeded } = useMusicTranslation();
   const { validateAndNormalizeAudioUrl } = useMusicValidation();
 
-  // Fonction de polling pour récupérer l'audio URL avec retry réseau
+  /** Attend l'audio : table (RLS) puis mm-music-status ; résout avec l'URL audio ou rejette (échec / délai). */
   const pollForAudioUrl = useCallback(async (
-    taskId: string, 
+    taskId: string,
     rang: 'A' | 'B' | 'AB'
   ): Promise<string> => {
     return new Promise((resolve, reject) => {
       let attempts = 0;
       let networkRetries = 0;
-      abortRef.current = false; // Reset le flag d'arrêt
-      
-      // Timeout absolu de sécurité (8 minutes max - aligné avec UI)
+      abortRef.current = false;
+      rejetEnCoursRef.current = reject;
+      const pollingStartTime = Date.now();
+
+      const arreter = () => {
+        clearTimeout(absoluteTimeout);
+        if (pollingRef.current) clearTimeout(pollingRef.current);
+        rejetEnCoursRef.current = null;
+      };
+
       const absoluteTimeout = setTimeout(() => {
         abortRef.current = true;
         if (pollingRef.current) clearTimeout(pollingRef.current);
-        reject(new Error('Timeout: génération trop longue (8 min max). Réessayez.'));
+        reject(new Error('La génération prend trop de temps (10 min). Elle apparaîtra dans votre bibliothèque si elle aboutit ; sinon elle ne vous est pas décomptée.'));
       }, ABSOLUTE_TIMEOUT);
 
-      // ✅ Utiliser un timestamp réel pour calculer le progress
-      const pollingStartTime = Date.now();
-      
+      const terminerAvecAudio = (url: string) => {
+        setPollingProgress(100);
+        arreter();
+        setAudioUrl(rang, url);
+        resolve(url);
+      };
+
       const checkStatus = async () => {
-        // Vérifier si annulé
         if (abortRef.current) {
           clearTimeout(absoluteTimeout);
+          reject(new Error(MESSAGE_SUIVI_INTERROMPU));
           return;
         }
-        
         attempts++;
-        
-        // ✅ CORRECTION: Utiliser le temps réel écoulé au lieu de attempts * interval
+
+        // Progression estimée d'après le temps réel écoulé (Suno : 1 à 3 minutes en général).
         const realElapsedMs = Date.now() - pollingStartTime;
         let estimatedProgress: number;
-        
-        // Phase 1 (0-30s): 0-30%, Phase 2 (30-60s): 30-50%, Phase 3 (60-120s): 50-80%, Phase 4 (120s+): 80-95%
         if (realElapsedMs < 30000) {
-          estimatedProgress = (realElapsedMs / 30000) * 30; // 0-30%
+          estimatedProgress = (realElapsedMs / 30000) * 30;
         } else if (realElapsedMs < 60000) {
-          estimatedProgress = 30 + ((realElapsedMs - 30000) / 30000) * 20; // 30-50%
+          estimatedProgress = 30 + ((realElapsedMs - 30000) / 30000) * 20;
         } else if (realElapsedMs < 120000) {
-          estimatedProgress = 50 + ((realElapsedMs - 60000) / 60000) * 30; // 50-80%
+          estimatedProgress = 50 + ((realElapsedMs - 60000) / 60000) * 30;
         } else {
-          estimatedProgress = 80 + Math.min(((realElapsedMs - 120000) / 180000) * 15, 15); // 80-95%
+          estimatedProgress = 80 + Math.min(((realElapsedMs - 120000) / 180000) * 15, 15);
         }
-        
-        // ✅ Mettre à jour le progress AVANT les appels réseau
         setPollingProgress(Math.min(Math.round(estimatedProgress), 95));
-        if (import.meta.env.DEV) console.log('[useSunoMusicGeneration] Progress update:', { 
-          attempts, 
-          realElapsedMs, 
-          estimatedProgress: Math.round(estimatedProgress) 
-        });
 
         try {
-          // 1. ✅ AMÉLIORATION: Vérifier d'abord en BDD avec ORDER BY pour avoir le plus récent
+          // 1. Notre table (mise à jour par mm-suno-callback), lecture directe sous RLS.
           const { data: dbTrack } = await supabase
             .from('generated_music_tracks')
-            .select('audio_url, stream_url, generation_status, metadata, updated_at')
+            .select('audio_url, generation_status, metadata, updated_at')
             .eq('task_id', taskId)
+            .eq('suno_track_id', taskId)
             .order('updated_at', { ascending: false })
             .limit(1)
             .maybeSingle();
 
-          if (import.meta.env.DEV) console.log('[useSunoMusicGeneration] Polling BDD:', {
-            attempt: attempts,
-            taskId,
-            status: dbTrack?.generation_status,
-            hasAudio: !!dbTrack?.audio_url
-          });
-
           if (dbTrack?.audio_url && dbTrack.generation_status === 'completed') {
-            setPollingProgress(100);
-            clearTimeout(absoluteTimeout);
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            setAudioUrl(rang, dbTrack.audio_url);
-            resolve(dbTrack.audio_url);
+            terminerAvecAudio(dbTrack.audio_url);
             return;
           }
-          
-          // Si le statut est 'failed' en BDD, arrêter immédiatement
           if (dbTrack?.generation_status === 'failed') {
-            clearTimeout(absoluteTimeout);
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            const errorMsg = (dbTrack.metadata as any)?.error || 'Génération échouée';
-            reject(new Error(errorMsg));
+            arreter();
+            const meta = (dbTrack.metadata ?? {}) as { error?: string };
+            reject(new Error(meta.error || 'La génération a échoué. Elle ne vous est pas décomptée : réessayez.'));
             return;
           }
 
-          // 2. Sinon appeler le routeur unifié ai-audio
-          const statusResponse = await audioApi.getStatus(taskId);
-          const data = statusResponse.data;
-          const error = statusResponse.success ? null : { message: statusResponse.error };
-
-          if (error) {
-            networkRetries++;
-
-            if (networkRetries >= RETRY_POLL_ATTEMPTS) {
-              networkRetries = 0;
-            }
-
-            if (attempts >= MAX_POLL_ATTEMPTS) {
-              clearTimeout(absoluteTimeout);
-              if (pollingRef.current) clearTimeout(pollingRef.current);
-              reject(new Error('Timeout: génération trop longue'));
-              return;
-            }
-          } else {
-            networkRetries = 0;
-
-            if (data?.status === 'completed' && data.audioUrl) {
-              setPollingProgress(100);
-              clearTimeout(absoluteTimeout);
-              if (pollingRef.current) clearTimeout(pollingRef.current);
-              setAudioUrl(rang, data.audioUrl);
-              resolve(data.audioUrl);
-              return;
-            }
-
-            if (data?.status === 'failed') {
-              clearTimeout(absoluteTimeout);
-              if (pollingRef.current) clearTimeout(pollingRef.current);
-              reject(new Error((data as any)?.error || 'Génération échouée'));
-              return;
-            }
-          }
-
-          // Vérifier si on a dépassé le max d'attempts
-          if (attempts >= MAX_POLL_ATTEMPTS) {
-            clearTimeout(absoluteTimeout);
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            reject(new Error('Timeout: génération trop longue. Réessayez.'));
-            return;
-          }
-          
-          // Continuer le polling seulement si pas annulé
-          // ✅ Polling adaptatif amélioré
-          if (!abortRef.current) {
-            let interval: number;
-            const elapsedTime = attempts * POLL_INTERVAL;
-            
-            if (attempts < 6) {
-              // Premières 18 secondes: polling rapide
-              interval = FAST_POLL_INTERVAL;
-            } else if (elapsedTime > 120000 || networkRetries > 1) {
-              // Après 2 min ou si erreurs réseau: polling lent
-              interval = SLOW_POLL_INTERVAL;
+          // 2. Après 45 s : mm-music-status (rattrapage auprès de Suno si le callback s'est perdu).
+          if (realElapsedMs >= DELAI_AVANT_STATUT_SERVEUR) {
+            const statusResponse = await audioApi.getStatus(taskId);
+            if (!statusResponse.success) {
+              networkRetries++;
             } else {
-              interval = POLL_INTERVAL;
+              networkRetries = 0;
+              const data = statusResponse.data;
+              if (data?.status === 'completed' && data.audioUrl) {
+                terminerAvecAudio(data.audioUrl);
+                return;
+              }
+              if (data?.status === 'failed') {
+                arreter();
+                reject(new Error(data.error || 'La génération a échoué. Elle ne vous est pas décomptée : réessayez.'));
+                return;
+              }
             }
-            
+          }
+
+          if (attempts >= MAX_POLL_ATTEMPTS) {
+            arreter();
+            reject(new Error('La génération prend trop de temps. Elle apparaîtra dans votre bibliothèque si elle aboutit ; sinon elle ne vous est pas décomptée.'));
+            return;
+          }
+
+          if (!abortRef.current) {
+            const interval = realElapsedMs < 30000
+              ? FAST_POLL_INTERVAL
+              : (realElapsedMs > 120000 || networkRetries > 1) ? SLOW_POLL_INTERVAL : POLL_INTERVAL;
             pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         } catch (err) {
           networkRetries++;
-          
           if (attempts >= MAX_POLL_ATTEMPTS || abortRef.current) {
-            clearTimeout(absoluteTimeout);
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            reject(err);
+            arreter();
+            reject(abortRef.current ? new Error(MESSAGE_SUIVI_INTERROMPU) : err);
             return;
           }
-          
-          // Réessayer si pas annulé avec polling adaptatif
           if (!abortRef.current) {
             const interval = networkRetries > 1 ? SLOW_POLL_INTERVAL : POLL_INTERVAL;
             pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         }
       };
-      
-      // Premier check après 2 secondes
+
       pollingRef.current = setTimeout(checkStatus, 2000) as unknown as NodeJS.Timeout;
     });
   }, [setAudioUrl]);
 
+  /**
+   * Lance la génération d'un rang et attend l'audio.
+   * `paroles` : lignes du rang choisi (paroles_rang_a / _b / _ab de la RPC
+   * mm_contenu_immersif_item) ; le serveur coupe à 5 000 caractères si besoin.
+   * Résout avec l'URL audio, le taskId et le titre construit par le serveur.
+   */
   const generateMusicInLanguage = async (
-    rang: 'A' | 'B' | 'AB', 
-    paroles: string[], 
-    selectedStyle: string, 
-    duration: number = 240,
-    model: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL",
-    advancedParams?: {
-      vocalGender?: 'male' | 'female' | 'mixed';
-      negativeTags?: string;
-      styleWeight?: number;
-      weirdnessConstraint?: number;
-    }
-  ): Promise<string> => {
-    
+    rang: 'A' | 'B' | 'AB',
+    paroles: string[],
+    selectedStyle: string,
+    options: OptionsGeneration = {}
+  ): Promise<ResultatGeneration> => {
+
     if (isAlreadyGenerating(rang)) {
-      throw new Error('Génération déjà en cours pour ce rang');
+      throw new Error('Une génération est déjà en cours pour ce rang.');
     }
 
     try {
-      const parolesText = validateGenerationInput(paroles, selectedStyle, rang);
-      
+      const preparees = validateGenerationInput(paroles, selectedStyle, rang);
+
       markAsGenerating(rang);
       setGeneratingState(rang, true);
       setLastError('');
       setPollingProgress(0);
-      
-      const translatedLyrics = await translateLyricsIfNeeded(parolesText);
-      const { isComposition, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
-      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model, undefined, advancedParams);
+      setEtape({ etape: 'envoi' });
 
-      // Étape 1: Appeler l'API Suno pour démarrer la génération
-      const response = await callSunoApi(requestBody);
-
-      if (!response.trackId) {
-        throw new Error('Aucun trackId reçu de l\'API Suno');
+      if (preparees.tronque) {
+        toast({
+          title: 'Paroles raccourcies',
+          description: `Les paroles dépassent la limite du service (5 000 caractères) : les ${preparees.lignesRetirees} dernières lignes ne seront pas chantées.`,
+        });
       }
 
-      toast({
-        title: "🎵 Génération en cours",
-        description: `Musique Rang ${rang} - Patientez 2-3 minutes...`,
-        variant: "default"
+      const translatedLyrics = await translateLyricsIfNeeded(preparees.texte);
+      const requestBody = createRequestBody(
+        translatedLyrics,
+        selectedStyle,
+        rang,
+        currentLanguage,
+        options.itemCode || 'EDN',
+        options.itemTitle,
+        options.advancedParams
+      );
+      if (typeof options.dureeDemandee === 'number') {
+        (requestBody as typeof requestBody & { duration?: number }).duration = options.dureeDemandee;
+      }
+
+      // Étape 1 : mm-generate-music (contrôles serveur, envoi à Suno) → taskId.
+      const response = await callSunoApi(requestBody);
+      setEtape({
+        etape: 'en_cours',
+        taskId: response.trackId,
+        titre: response.titre,
+        dureeDemandee: response.dureeDemandee,
+        parolesTronquees: response.parolesTronquees,
+        lignesRetirees: response.lignesRetirees,
       });
 
-      // Étape 2: Polling pour récupérer l'audio URL
+      const dureeTexte = formaterDuree(response.dureeDemandee ?? preparees.dureeEstimee);
+      toast({
+        title: 'Génération lancée',
+        description: `${rang === 'AB' ? 'Rang A+B' : `Rang ${rang}`} · environ ${dureeTexte} · patientez 1 à 3 minutes.`,
+      });
+
+      // Étape 2 : attendre l'audio (table + mm-music-status).
       const audioUrl = await pollForAudioUrl(response.trackId, rang);
 
-      // Étape 3: Valider l'URL
+      // Étape 3 : valider l'URL.
       const validatedUrl = validateAndNormalizeAudioUrl(audioUrl);
-      
       if (!validatedUrl) {
-        throw new Error('URL audio invalide reçue');
+        throw new Error('Le service a renvoyé un fichier audio inutilisable. Réessayez.');
       }
 
-      const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
-      toast({
-        title: successMessage.title,
-        description: successMessage.description,
-        variant: "default"
-      });
+      setEtape((e) => ({ ...(e ?? { etape: 'prete' }), etape: 'prete' }));
+      const successMessage = getSuccessMessage(rang, dureeTexte, currentLanguage);
+      toast({ title: successMessage.title, description: successMessage.description });
 
-      return validatedUrl;
-      
+      return {
+        audioUrl: validatedUrl,
+        taskId: response.trackId,
+        titre: response.titre,
+        dureeDemandee: response.dureeDemandee,
+        parolesTronquees: response.parolesTronquees,
+        lignesRetirees: response.lignesRetirees,
+      };
+
     } catch (error) {
       const errorMessage = messageErreurGeneration(error);
       setLastError(errorMessage);
+      setEtape({ etape: 'echec' });
+      const interrompu = errorMessage === MESSAGE_SUIVI_INTERROMPU;
       toast({
-        title: "Erreur de génération",
+        title: interrompu ? 'Suivi interrompu' : 'Génération impossible',
         description: errorMessage,
-        variant: "destructive"
+        variant: interrompu ? 'default' : 'destructive'
       });
-      throw error;
+      throw new Error(errorMessage);
     } finally {
-      // Nettoyage - utiliser clearTimeout car on utilise setTimeout dans le polling
       if (pollingRef.current) {
         clearTimeout(pollingRef.current);
         pollingRef.current = null;
@@ -320,31 +333,30 @@ export const useSunoMusicGeneration = () => {
     }
   };
 
-  // Arrêter le polling en cours et réinitialiser tous les états
+  /** Arrête le suivi (la génération côté Suno continue et sera dans la bibliothèque si elle aboutit). */
   const cancelGeneration = useCallback((rang?: 'A' | 'B' | 'AB') => {
-    // Forcer l'arrêt du polling via le flag
     abortRef.current = true;
-    
-    // Arrêter le polling
     if (pollingRef.current) {
       clearTimeout(pollingRef.current);
       pollingRef.current = null;
     }
+    if (rejetEnCoursRef.current) {
+      const rejeter = rejetEnCoursRef.current;
+      rejetEnCoursRef.current = null;
+      rejeter(new Error(MESSAGE_SUIVI_INTERROMPU));
+    }
     setPollingProgress(0);
-    
-    // Réinitialiser l'état de génération pour le rang spécifié ou tous les rangs
     if (rang) {
       unmarkAsGenerating(rang);
       setGeneratingState(rang, false);
     } else {
-      // Annuler tous les rangs
       (['A', 'B', 'AB'] as const).forEach((r) => {
         unmarkAsGenerating(r);
         setGeneratingState(r, false);
       });
     }
-    
-    setLastError('Génération annulée');
+    setEtape(null);
+    setLastError(MESSAGE_SUIVI_INTERROMPU);
   }, [unmarkAsGenerating, setGeneratingState, setLastError]);
 
   return {
@@ -352,6 +364,7 @@ export const useSunoMusicGeneration = () => {
     generatedAudio,
     generationProgress,
     lastError,
+    etape,
     generateMusicInLanguage,
     currentLanguage,
     pollingProgress,

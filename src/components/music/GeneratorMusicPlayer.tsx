@@ -15,12 +15,15 @@ import { DebugAudioButton } from '@/components/DebugAudioButton';
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
   onAddToLibrary: () => void;
+  /** Libellé du bouton bibliothèque (la chanson est déjà enregistrée par le serveur en général). */
+  libraryLabel?: string;
   onRetry?: () => void;
 }
 
 export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   generatedSong,
   onAddToLibrary,
+  libraryLabel = 'Bibliothèque',
   onRetry
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
@@ -233,7 +236,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const handleShare = async () => {
     const shareData = {
       title: generatedSong.title || 'Musique générée',
-      text: `Écoutez cette musique générée avec EDN Melody ! Style: ${generatedSong.style || 'Personnalisé'}`,
+      text: `Écoutez cette chanson générée avec MED MNG ! Style : ${generatedSong.styleLibelle || generatedSong.style || 'Personnalisé'}`,
       url: finalAudioUrl
     };
 
@@ -356,7 +359,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             )}
           </div>
           <p className="text-sm text-muted-foreground mb-3 sm:mb-4">
-            Style: {generatedSong.style || 'Personnalisé'}
+            Style : {generatedSong.styleLibelle || generatedSong.style || 'Personnalisé'}
+            {generatedSong.rang ? ` · ${generatedSong.rang === 'AB' ? 'Rang A+B' : `Rang ${generatedSong.rang}`}` : ''}
           </p>
           
           {/* Barre de progression si génération en cours */}
@@ -416,8 +420,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             disabled={isGenerating && !audioUrl}
           >
             <Library className="h-4 w-4 mr-1.5" />
-            <span className="hidden sm:inline">Bibliothèque</span>
-            <span className="sm:hidden">+ Lib</span>
+            <span className="hidden sm:inline">{libraryLabel}</span>
+            <span className="sm:hidden">Bibliothèque</span>
           </Button>
           
           {/* Boutons icônes - 2ème ligne sur mobile */}

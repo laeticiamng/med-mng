@@ -1,64 +1,49 @@
-import { useSunoMusicGeneration } from './music/useSunoMusicGeneration';
-import { useSubscription } from './useSubscription';
+import { useSunoMusicGeneration, type OptionsGeneration, type ResultatGeneration } from './music/useSunoMusicGeneration';
 import { useCallback, useMemo } from 'react';
 
-interface AdvancedSunoParams {
-  vocalGender?: 'male' | 'female' | 'mixed';
-  negativeTags?: string;
-  styleWeight?: number;
-  weirdnessConstraint?: number;
-}
+export type { OptionsGeneration, ResultatGeneration };
 
+/**
+ * Génération audio avec traduction éventuelle des paroles (langue de
+ * l'interface). Le modèle Suno est imposé par le serveur (mm-generate-music),
+ * la durée calculée d'après les paroles : rien de tout cela ne se choisit ici.
+ */
 export const useMusicGenerationWithTranslation = () => {
   const sunoGeneration = useSunoMusicGeneration();
-  const { getSunoModel } = useSubscription();
 
   const generateMusicInLanguage = useCallback(async (
     rang: 'A' | 'B' | 'AB',
-    paroles: string[], 
-    selectedStyle: string, 
-    duration: number = 240,
-    modelOverride?: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5",
-    advancedParams?: Partial<AdvancedSunoParams>
-  ): Promise<string> => {
-    // Validation des paroles avant génération
+    paroles: string[],
+    selectedStyle: string,
+    options: OptionsGeneration = {}
+  ): Promise<ResultatGeneration> => {
     if (!paroles || paroles.length === 0) {
       throw new Error('Aucune parole fournie pour la génération');
     }
-    
-    const validLyrics = paroles.filter(line => line && line.trim().length > 0);
+
+    const validLyrics = paroles.filter(line => typeof line === 'string' && line.trim().length > 0);
     if (validLyrics.length === 0) {
       throw new Error('Les paroles sont vides ou invalides');
     }
-    
+
     try {
-      // Récupérer le modèle selon l'abonnement ou utiliser l'override
-      const model = modelOverride || getSunoModel();
-      
-      // ✅ Passer les paramètres avancés à l'API Suno
-      const audioUrl = await sunoGeneration.generateMusicInLanguage(rang, validLyrics, selectedStyle, duration, model, advancedParams);
-      
-      return audioUrl;
-      
+      return await sunoGeneration.generateMusicInLanguage(rang, validLyrics, selectedStyle, options);
     } catch (error) {
-      console.error('[useMusicGenerationWithTranslation] Erreur génération:', error);
+      if (import.meta.env.DEV) console.error('[useMusicGenerationWithTranslation] Erreur génération:', error);
       throw error;
     }
-  }, [sunoGeneration, getSunoModel]);
+  }, [sunoGeneration]);
 
-  // Expose cancelGeneration avec le bon type
   const cancelGeneration = useCallback((rang?: 'A' | 'B' | 'AB') => {
     sunoGeneration.cancelGeneration(rang);
   }, [sunoGeneration]);
 
-  // État de génération calculé avec useMemo pour éviter recalculs
-  const isGeneratingAny = useMemo(() => 
-    sunoGeneration.isGenerating?.rangA || 
-    sunoGeneration.isGenerating?.rangB || 
+  const isGeneratingAny = useMemo(() =>
+    sunoGeneration.isGenerating?.rangA ||
+    sunoGeneration.isGenerating?.rangB ||
     sunoGeneration.isGenerating?.rangAB,
   [sunoGeneration.isGenerating]);
 
-  // Vérifier si un rang spécifique est en génération
   const isGeneratingRang = useCallback((rang: 'A' | 'B' | 'AB') => {
     switch (rang) {
       case 'A': return sunoGeneration.isGenerating?.rangA || false;
@@ -76,4 +61,3 @@ export const useMusicGenerationWithTranslation = () => {
     isGeneratingRang
   };
 };
-

@@ -56,7 +56,7 @@ export async function checkIdempotency(
       console.log(`⏭️ Operation ${operationKey} already completed, skipping`);
       return { canProceed: false, existingResult: existing.result };
     }
-    
+
     if (existing.status === 'processing') {
       const age = Date.now() - new Date(existing.created_at).getTime();
       if (age < 60000) { // Moins d'1 minute
@@ -66,6 +66,17 @@ export async function checkIdempotency(
       // Si > 1 minute en "processing", considérer comme abandonné et réessayer
       console.log(`🔄 Operation ${operationKey} timed out, retrying`);
     }
+
+    // Record 'failed' ou 'processing' abandonné : on le réarme au lieu d'insérer
+    // (l'insertion échouerait sur la clé unique et bloquerait toute reprise).
+    const { error: updateError } = await supabase
+      .from('idempotency_records')
+      .update({ status: 'processing', created_at: new Date().toISOString(), completed_at: null, result: null })
+      .eq('operation_key', operationKey);
+    if (updateError) {
+      console.error('Failed to re-arm idempotency record:', updateError);
+    }
+    return { canProceed: true };
   }
 
   // Insérer un nouveau record "processing"

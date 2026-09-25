@@ -68,7 +68,6 @@ export * from './useMusicMetrics';
 export * from './usePlayer';
 export * from './usePlaylistPlayer';
 export * from './usePlaylists';
-export * from './useSongGeneration';
 export * from './useSpotifyAI';
 export * from './useSupabaseMusicTracks';
 export * from './useSynchronizedLyrics';

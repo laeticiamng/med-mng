@@ -103,13 +103,13 @@ export class SecureOpenAIClient {
  */
 export class SecureSunoClient {
   async generateMusic(request: SunoGenerationRequest) {
+    // mm-generate-music impose le modèle et le mode (custom, avec voix) : seuls
+    // les champs utiles sont transmis.
     const result = await audioApi.generateMusic({
-      lyrics: request.prompt,
-      style: request.style,
-      customMode: request.customMode,
-      instrumental: request.instrumental,
-      model: request.model,
-      title: request.title,
+      lyrics: request.prompt || '',
+      style: request.style || '',
+      rang: 'A',
+      itemCode: 'EDN',
       negativeTags: request.negativeTags,
       vocalGender: request.vocalGender,
       styleWeight: request.styleWeight

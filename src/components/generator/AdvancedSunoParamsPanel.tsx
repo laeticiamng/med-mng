@@ -1,6 +1,7 @@
 /**
- * Panel de paramètres avancés Suno V4.5+
- * ✅ AMÉLIORÉ: Ajout audioWeight slider + meilleurs labels
+ * Panneau des paramètres avancés du générateur audio.
+ * Chaque réglage est transmis au serveur (mm-generate-music) et a un effet réel :
+ * voix (m/f), sons à éviter, intensité du style, originalité.
  */
 
 import React from 'react';
@@ -15,7 +16,12 @@ import { Badge } from '@/components/ui/badge';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { type VocalGender, type AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
+import {
+  STYLE_WEIGHT_DEFAUT,
+  WEIRDNESS_DEFAUT,
+  type VocalGender,
+  type AdvancedSunoParams,
+} from '@/hooks/music/useAdvancedSunoParams';
 
 interface AdvancedSunoParamsPanelProps {
   params: AdvancedSunoParams;
@@ -25,18 +31,17 @@ interface AdvancedSunoParamsPanelProps {
   onSetNegativeTags: (tags: string) => void;
   onSetStyleWeight: (weight: number) => void;
   onSetWeirdnessConstraint: (constraint: number) => void;
-  onSetAudioWeight?: (weight: number) => void;
   onReset: () => void;
 }
 
-// Tooltips explicatifs pour chaque paramètre
 const PARAM_TOOLTIPS = {
-  vocalGender: "Choisir le type de voix préféré pour la génération. 'Auto' laisse l'IA décider.",
-  negativeTags: "Styles ou sons à éviter dans la génération. Exemples: autotune, distortion, noise, screaming",
-  styleWeight: "Contrôle l'intensité du style musical. Plus élevé = style plus prononcé mais moins de variations.",
-  weirdnessConstraint: "Niveau d'expérimentation. Plus élevé = résultats plus originaux mais potentiellement moins cohérents.",
-  audioWeight: "Influence de l'audio de référence (si fourni). Plus élevé = plus proche de la référence."
+  vocalGender: "Voix masculine ou féminine. « Au choix » laisse le service décider.",
+  negativeTags: "Sons ou styles à éviter, en anglais, séparés par des virgules (ex. : autotune, distortion, noise). Ils s'ajoutent aux exclusions déjà prévues pour le style.",
+  styleWeight: "Fidélité au style choisi. Plus élevé = style plus marqué, moins de surprises (défaut 70 %).",
+  weirdnessConstraint: "Originalité. Plus élevé = résultat plus inattendu, parfois moins lisible pour réviser (défaut 30 %)."
 };
+
+const SUGGESTIONS_EXCLUSIONS = ['autotune', 'distortion', 'noise', 'whispering'];
 
 export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = ({
   params,
@@ -46,32 +51,29 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
   onSetNegativeTags,
   onSetStyleWeight,
   onSetWeirdnessConstraint,
-  onSetAudioWeight,
   onReset
 }) => {
-  // Compter les paramètres modifiés
+  const styleWeight = params.styleWeight ?? STYLE_WEIGHT_DEFAUT;
+  const weirdness = params.weirdnessConstraint ?? WEIRDNESS_DEFAUT;
+
   const modifiedCount = [
     params.vocalGender,
     params.negativeTags?.trim(),
-    params.styleWeight !== 50 ? params.styleWeight : null,
-    params.weirdnessConstraint !== 30 ? params.weirdnessConstraint : null,
-    params.audioWeight !== 50 ? params.audioWeight : null
+    styleWeight !== STYLE_WEIGHT_DEFAUT ? styleWeight : null,
+    weirdness !== WEIRDNESS_DEFAUT ? weirdness : null,
   ].filter(Boolean).length;
 
   return (
     <Collapsible open={isEnabled} onOpenChange={onToggleEnabled}>
       <CollapsibleTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="w-full justify-between text-muted-foreground hover:text-foreground"
         >
           <span className="flex items-center gap-2">
             <Sliders className="h-4 w-4" />
-            <TranslatedText text="Paramètres avancés Suno" />
-            {isEnabled && (
-              <Badge variant="secondary" className="text-xs">V4.5+</Badge>
-            )}
+            <TranslatedText text="Réglages avancés (voix, exclusions, intensité)" />
             {modifiedCount > 0 && (
               <Badge variant="default" className="text-xs">{modifiedCount} modifié{modifiedCount > 1 ? 's' : ''}</Badge>
             )}
@@ -79,51 +81,50 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
           {isEnabled ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
       </CollapsibleTrigger>
-      
+
       <CollapsibleContent>
         <PremiumCard variant="glass" className="p-4 mt-2 space-y-5">
           <TooltipProvider>
-            {/* Vocal Gender */}
+            {/* Voix */}
             <div className="space-y-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Label className="flex items-center gap-2 cursor-help">
                     <Mic2 className="h-4 w-4" />
-                    <TranslatedText text="Genre vocal" />
+                    <TranslatedText text="Voix" />
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
                   <p className="text-xs">{PARAM_TOOLTIPS.vocalGender}</p>
                 </TooltipContent>
               </Tooltip>
-              <Select 
-                value={params.vocalGender || 'auto'} 
-                onValueChange={(v) => onSetVocalGender(v === 'auto' ? undefined : v as VocalGender)}
+              <Select
+                value={params.vocalGender || 'auto'}
+                onValueChange={(v) => onSetVocalGender(v === 'm' || v === 'f' ? v : undefined)}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Auto-détection" />
+                <SelectTrigger className="w-full" aria-label="Voix">
+                  <SelectValue placeholder="Au choix du service" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="auto">
                     <span className="flex items-center gap-2">
                       <Wand2 className="h-3 w-3" />
-                      Auto-détection (recommandé)
+                      Au choix du service (recommandé)
                     </span>
                   </SelectItem>
-                  <SelectItem value="male">Masculin</SelectItem>
-                  <SelectItem value="female">Féminin</SelectItem>
-                  <SelectItem value="mixed">Mixte / Duo</SelectItem>
+                  <SelectItem value="m">Voix masculine</SelectItem>
+                  <SelectItem value="f">Voix féminine</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Negative Tags */}
+            {/* Exclusions */}
             <div className="space-y-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Label className="flex items-center gap-2 cursor-help">
                     <Music2 className="h-4 w-4" />
-                    <TranslatedText text="Tags à éviter" />
+                    <TranslatedText text="Sons à éviter" />
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
@@ -133,11 +134,12 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
               <Input
                 value={params.negativeTags || ''}
                 onChange={(e) => onSetNegativeTags(e.target.value)}
-                placeholder="ex: autotune, distortion, noise"
+                placeholder="ex. : autotune, distortion, noise"
                 className="text-sm"
+                maxLength={300}
               />
               <div className="flex flex-wrap gap-1">
-                {['autotune', 'distortion', 'screaming', 'noise'].map(tag => (
+                {SUGGESTIONS_EXCLUSIONS.map(tag => (
                   <Button
                     key={tag}
                     variant="ghost"
@@ -157,16 +159,16 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
               </div>
             </div>
 
-            {/* Style Weight */}
+            {/* Intensité du style */}
             <div className="space-y-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center justify-between cursor-help">
                     <Label className="flex items-center gap-2">
                       <Gauge className="h-4 w-4" />
-                      <TranslatedText text="Intensité du style" />
+                      <TranslatedText text="Fidélité au style" />
                     </Label>
-                    <span className="text-sm font-medium text-primary">{params.styleWeight}%</span>
+                    <span className="text-sm font-medium text-primary">{styleWeight} %</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
@@ -174,27 +176,28 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
                 </TooltipContent>
               </Tooltip>
               <Slider
-                value={[params.styleWeight || 50]}
+                value={[styleWeight]}
                 onValueChange={([v]) => onSetStyleWeight(v)}
                 min={0}
                 max={100}
                 step={5}
                 className="w-full"
+                aria-label="Fidélité au style"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Subtil (0%)</span>
-                <span>Équilibré</span>
-                <span>Prononcé (100%)</span>
+                <span>Libre (0 %)</span>
+                <span>Défaut 70 %</span>
+                <span>Très marqué (100 %)</span>
               </div>
             </div>
 
-            {/* Weirdness Constraint */}
+            {/* Originalité */}
             <div className="space-y-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center justify-between cursor-help">
-                    <Label><TranslatedText text="Originalité / Créativité" /></Label>
-                    <span className="text-sm font-medium text-primary">{params.weirdnessConstraint}%</span>
+                    <Label><TranslatedText text="Originalité" /></Label>
+                    <span className="text-sm font-medium text-primary">{weirdness} %</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
@@ -202,52 +205,22 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
                 </TooltipContent>
               </Tooltip>
               <Slider
-                value={[params.weirdnessConstraint || 30]}
+                value={[weirdness]}
                 onValueChange={([v]) => onSetWeirdnessConstraint(v)}
                 min={0}
                 max={100}
                 step={5}
                 className="w-full"
+                aria-label="Originalité"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Classique (0%)</span>
-                <span>Équilibré</span>
-                <span>Expérimental (100%)</span>
+                <span>Classique (0 %)</span>
+                <span>Défaut 30 %</span>
+                <span>Expérimental (100 %)</span>
               </div>
             </div>
-
-            {/* Audio Weight (si callback fourni) */}
-            {onSetAudioWeight && (
-              <div className="space-y-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center justify-between cursor-help">
-                      <Label><TranslatedText text="Poids audio référence" /></Label>
-                      <span className="text-sm font-medium text-primary">{params.audioWeight || 50}%</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs">
-                    <p className="text-xs">{PARAM_TOOLTIPS.audioWeight}</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Slider
-                  value={[params.audioWeight || 50]}
-                  onValueChange={([v]) => onSetAudioWeight(v)}
-                  min={0}
-                  max={100}
-                  step={5}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Libre (0%)</span>
-                  <span>Équilibré</span>
-                  <span>Fidèle (100%)</span>
-                </div>
-              </div>
-            )}
           </TooltipProvider>
 
-          {/* Reset Button */}
           <Button
             variant="outline"
             size="sm"
@@ -255,7 +228,7 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
             className="w-full"
             disabled={modifiedCount === 0}
           >
-            <TranslatedText text="Réinitialiser les paramètres" />
+            <TranslatedText text="Réinitialiser les réglages" />
             {modifiedCount > 0 && ` (${modifiedCount})`}
           </Button>
         </PremiumCard>

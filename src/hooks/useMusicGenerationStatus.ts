@@ -57,18 +57,18 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         return statusData;
       }
 
-      // Si pas trouvé en BDD, vérifier via l'API de statut
-      const { data, error } = await supabase.functions.invoke('ai-audio', {
-        body: { action: 'get_status', taskId }
-      });
+      // Si pas trouvé en BDD (ligne non visible), vérifier via mm-music-status (lecture seule)
+      const reponse = await audioApi.getStatus(taskId);
+      const data = reponse.success ? reponse.data : null;
 
-      if (data && !error) {
+      if (data) {
         const statusData: MusicGenerationStatus = {
           taskId: taskId,
           status: data.status,
           audioUrl: data.audioUrl,
           streamUrl: data.streamUrl,
           imageUrl: data.imageUrl,
+          error: data.error,
           progress: getProgressFromStatus(data.status, data.metadata?.progress),
           metadata: data.metadata
         };

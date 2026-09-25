@@ -1,130 +1,124 @@
+import { LIMITES_SUNO, calculerDureeSecondes, tronquerParoles } from '@/config/stylesMusicaux';
 
+export type RangGeneration = 'A' | 'B' | 'AB';
+
+export interface ParametresAvances {
+  vocalGender?: 'm' | 'f';
+  negativeTags?: string;
+  /** 0–100 (%) côté interface. */
+  styleWeight?: number;
+  /** 0–100 (%) côté interface. */
+  weirdnessConstraint?: number;
+}
+
+export interface ParolesPreparees {
+  /** Texte envoyé (coupé à la fin d'une ligne si > 5 000 caractères). */
+  texte: string;
+  tronque: boolean;
+  lignesRetirees: number;
+  /** Durée que le serveur demandera à Suno (secondes). */
+  dureeEstimee: number;
+}
+
+/**
+ * Valide et prépare les paroles d'un rang : tableau de lignes (format de la
+ * RPC mm_contenu_immersif_item : « [Couplet 1] », vers, « [Refrain] »…) joint
+ * en texte, coupé proprement à la limite Suno V6 (5 000 caractères) — jamais
+ * plus tôt, pour ne pas perdre un tiers de la chanson comme avant.
+ */
 export const validateGenerationInput = (
-  paroles: string[], 
-  selectedStyle: string, 
-  rang: 'A' | 'B' | 'AB'
-) => {
+  paroles: string[] | string,
+  selectedStyle: string,
+  rang: RangGeneration
+): ParolesPreparees => {
   if (!selectedStyle) {
-    throw new Error('Style musical requis');
+    throw new Error('Choisissez un style musical.');
   }
 
-  if (!paroles || paroles.length === 0) {
-    throw new Error('Paroles manquantes');
+  const lignes = Array.isArray(paroles) ? paroles : [String(paroles ?? '')];
+  const preparees = tronquerParoles(lignes.filter((l) => typeof l === 'string'), LIMITES_SUNO.paroles);
+
+  if (!preparees.texte.trim()) {
+    throw new Error(`Aucune parole disponible pour le ${rang === 'AB' ? 'rang A+B' : `rang ${rang}`}.`);
   }
-
-  // ✅ CORRECTION : Gérer correctement le format des paroles avec limite Suno
-  let parolesText: string;
-  
-  if (rang === 'AB') {
-    // Pour le Mix A+B, combiner mais limiter
-    const allParoles = Array.isArray(paroles) ? paroles.join('\n') : String(paroles);
-    parolesText = allParoles.length > 2800 ? allParoles.substring(0, 2800) + '\n...' : allParoles;
-  } else {
-    // Pour A ou B, vérifier si c'est un tableau indexé ou un tableau de lignes
-    if (typeof paroles[0] === 'string' && paroles.length > 2) {
-      // C'est un tableau de lignes de paroles (format generateComprehensiveLyrics)
-      const fullText = paroles.join('\n');
-      parolesText = fullText.length > 2800 ? fullText.substring(0, 2800) + '\n...' : fullText;
-    } else {
-      // C'est un tableau indexé [parolesA, parolesB]
-      const parolesIndex = rang === 'A' ? 0 : 1;
-      const rawText = paroles[parolesIndex];
-      parolesText = rawText?.length > 2800 ? rawText.substring(0, 2800) + '\n...' : rawText;
-    }
-  }
-
-  if (!parolesText || parolesText.trim() === '') {
-    throw new Error(`Aucune parole disponible pour le Rang ${rang}`);
-  }
-
-  return parolesText;
-};
-
-export const prepareStyleConfiguration = (selectedStyle: string, duration: number) => {
-  const isComposition = selectedStyle.includes('+');
-  const adjustedDuration = isComposition 
-    ? duration + (selectedStyle.split('+').length - 1) * 30 
-    : duration;
-
-  const minutes = Math.floor(adjustedDuration / 60);
-  const seconds = adjustedDuration % 60;
-  const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
   return {
-    isComposition,
-    styleDescription: selectedStyle,
-    adjustedDuration,
-    durationText
+    texte: preparees.texte,
+    tronque: preparees.tronque,
+    lignesRetirees: preparees.lignesRetirees,
+    dureeEstimee: calculerDureeSecondes(preparees.texte),
   };
 };
 
+export const formaterDuree = (secondes: number): string => {
+  const minutes = Math.floor(secondes / 60);
+  return `${minutes}:${String(secondes % 60).padStart(2, '0')}`;
+};
+
+export interface CorpsRequeteGeneration {
+  lyrics: string;
+  style: string;
+  rang: RangGeneration;
+  itemCode: string;
+  itemTitle?: string;
+  language: string;
+  vocalGender?: 'm' | 'f';
+  negativeTags?: string;
+  /** 0–1 */
+  styleWeight?: number;
+  /** 0–1 */
+  weirdnessConstraint?: number;
+}
+
+/**
+ * Corps envoyé à mm-generate-music. Le serveur impose le modèle, calcule la
+ * durée d'après les paroles, construit le style Suno et le titre
+ * (intitulé court de l'item + rang) : on n'envoie que l'utile.
+ */
 export const createRequestBody = (
   parolesText: string,
   selectedStyle: string,
-  rang: 'A' | 'B' | 'AB' | 'TRANSPOSE',
-  adjustedDuration: number,
+  rang: RangGeneration,
   currentLanguage: string,
-  isComposition: boolean,
-  model: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL",
-  itemCode?: string,
-  advancedParams?: {
-    vocalGender?: 'male' | 'female' | 'mixed';
-    negativeTags?: string;
-    styleWeight?: number;
-    weirdnessConstraint?: number;
-  }
-) => {
-  // ✅ CORRECTION: Structure complète avec paramètres avancés pour l'API Suno
-  const baseRequest: any = {
+  itemCode: string,
+  itemTitle?: string,
+  advancedParams?: Partial<ParametresAvances>
+): CorpsRequeteGeneration => {
+  const corps: CorpsRequeteGeneration = {
     lyrics: parolesText,
     style: selectedStyle,
-    rang: rang,
-    duration: adjustedDuration,
-    language: currentLanguage,
-    fastMode: true,
-    itemCode: itemCode || 'EDN',
-    // Paramètres Suno optimisés
-    customMode: true,
-    instrumental: false, // Car on a des paroles
-    model: model,
-    title: `${rang === 'AB' ? 'Mix A+B' : `Rang ${rang}`} - ${itemCode || 'EDN'} - ${selectedStyle}`,
-    composition: isComposition ? {
-      styles: selectedStyle.split('+'),
-      fusion_mode: true,
-      enhanced_duration: true as const
-    } : undefined
+    rang,
+    itemCode,
+    itemTitle: itemTitle?.trim() || undefined,
+    language: currentLanguage || 'fr',
   };
 
-  // ✅ Ajouter les paramètres avancés si fournis
   if (advancedParams) {
-    if (advancedParams.vocalGender) {
-      baseRequest.vocalGender = advancedParams.vocalGender;
+    if (advancedParams.vocalGender === 'm' || advancedParams.vocalGender === 'f') {
+      corps.vocalGender = advancedParams.vocalGender;
     }
-    if (advancedParams.negativeTags) {
-      baseRequest.negativeTags = advancedParams.negativeTags;
+    if (advancedParams.negativeTags?.trim()) {
+      corps.negativeTags = advancedParams.negativeTags.trim();
     }
-    if (advancedParams.styleWeight !== undefined && advancedParams.styleWeight !== 50) {
-      baseRequest.styleWeight = advancedParams.styleWeight;
+    if (typeof advancedParams.styleWeight === 'number') {
+      corps.styleWeight = Math.round(Math.min(100, Math.max(0, advancedParams.styleWeight))) / 100;
     }
-    if (advancedParams.weirdnessConstraint !== undefined && advancedParams.weirdnessConstraint !== 30) {
-      baseRequest.weirdnessConstraint = advancedParams.weirdnessConstraint;
+    if (typeof advancedParams.weirdnessConstraint === 'number') {
+      corps.weirdnessConstraint = Math.round(Math.min(100, Math.max(0, advancedParams.weirdnessConstraint))) / 100;
     }
   }
 
-  return baseRequest;
+  return corps;
 };
 
 export const getSuccessMessage = (
-  rang: 'A' | 'B' | 'AB',
+  rang: RangGeneration,
   durationText: string,
-  currentLanguage: string,
-  isComposition: boolean
+  currentLanguage: string
 ) => {
   const languageName = currentLanguage === 'fr' ? 'français' : currentLanguage;
-  const compositionText = isComposition ? ' (Composition Premium)' : '';
-  
   return {
-    title: `🎉 Musique Suno ${rang === 'AB' ? 'Mix A+B' : `Rang ${rang}`} générée !${compositionText}`,
-    description: `Chanson de ${durationText} avec paroles chantées générée en ${languageName} via Suno AI !`
+    title: `Chanson ${rang === 'AB' ? 'rang A+B' : `rang ${rang}`} prête`,
+    description: `Environ ${durationText}, chantée en ${languageName}. Elle est enregistrée dans votre bibliothèque.`
   };
 };

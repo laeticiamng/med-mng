@@ -47,7 +47,6 @@ export { useMusicGenerationStatus } from '../useMusicGenerationStatus';
 export { useMusicGenerationWithTranslation } from '../useMusicGenerationWithTranslation';
 export { useMusicLibrary } from '../useMusicLibrary';
 export { useMusicMetrics } from '../useMusicMetrics';
-export { useSongGeneration } from '../useSongGeneration';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HOOKS SUNO (Provider-specific)

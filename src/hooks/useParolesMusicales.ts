@@ -15,7 +15,8 @@ export const useParolesMusicales = (
     item_code?: string 
   }
 ) => {
-  const [selectedStyle, setSelectedStyle] = useState<string>('lofi-piano');
+  const [selectedStyle, setSelectedStyle] = useState<string>('lofi');
+  /** Durée demandée (secondes) ; le serveur la borne à 90–300 s. */
   const [musicDuration, setMusicDuration] = useState<number>(240);
   const { toast } = useToast();
 
@@ -82,7 +83,10 @@ export const useParolesMusicales = (
       // a déjà attendu la fin) et non avec un trackId : la relancer dans
       // useSunoPolling revenait à interroger generated_music_tracks avec une URL
       // comme task_id, ce qui n'appariait jamais rien.
-      await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, musicDuration);
+      await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, {
+        itemCode: itemData.item_code,
+        dureeDemandee: musicDuration,
+      });
       
       toast({
         title: `🎵 ${itemData.item_code} Rang ${rang} prêt`,
@@ -123,15 +127,15 @@ export const useParolesMusicales = (
         description: `${parolesMix.length} vers - Fusion complète ${itemData.item_code}`,
       });
 
-      // Durée adaptée pour le mix (plus long pour inclure A+B)
-      const mixDuration = Math.max(musicDuration, 300); // Minimum 5 minutes pour le mix A+B
+      // Le serveur borne la durée à 90–300 s.
+      await generateMusicInLanguage('AB', parolesMix, selectedStyle, {
+        itemCode: itemData.item_code,
+        dureeDemandee: musicDuration,
+      });
       
-      await generateMusicInLanguage('AB' as any, parolesMix, selectedStyle, mixDuration);
-      
-      // Toast de succès
       toast({
         title: `🎉 ${itemData.item_code} Mix A+B généré !`,
-        description: `Fusion Rang A et B complète - ${Math.floor(mixDuration/60)}min${mixDuration%60}s`,
+        description: 'Fusion Rang A et B complète',
       });
       
     } catch (error) {

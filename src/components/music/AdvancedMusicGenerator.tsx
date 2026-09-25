@@ -163,8 +163,9 @@ export const AdvancedMusicGenerator: React.FC = () => {
       const response = await audioApi.generateMusic({
         lyrics: generationRequest.prompt,
         style: generationRequest.style,
+        rang: 'A',
         duration: generationRequest.duration,
-        itemCode: generationRequest.itemCode,
+        itemCode: generationRequest.itemCode || 'EDN',
       });
 
       if (!response.success) throw new Error(response.error || 'Erreur de génération');

@@ -17,6 +17,15 @@ import {
  * (statut + fin de période) pour ne jamais considérer comme actif un
  * abonnement résilié ou échu — y compris tant que la migration
  * 20260924120000_mm_abonnement_statut n'est pas appliquée.
+ *
+ * Administrateurs (user_roles, role = admin) : traités comme Premium, comme le
+ * font le serveur (mm-generate-music, mm_a_acces_premium) — sinon la fondatrice
+ * voit le mur payant sur /med-mng/create.
+ *
+ * Quota audio : compté sur generated_music_tracks (ses propres lignes, RLS)
+ * avec la règle exacte de mm-generate-music — une ligne principale par
+ * génération (suno_track_id = task_id), générations échouées exclues — pour
+ * afficher le même chiffre que celui que le serveur applique.
  */
 
 export type StatutAbonnement = 'active' | 'trialing' | 'canceled' | 'past_due' | 'unpaid' | 'inactive';
@@ -41,6 +50,33 @@ interface MusicQuota {
   current_usage: number;
   quota_limit: number;
   plan_name: string;
+}
+
+/** Début du mois courant (UTC), même règle que verifierDroitGeneration côté serveur. */
+const debutMoisUtc = () => {
+  const maintenant = new Date();
+  return new Date(Date.UTC(maintenant.getUTCFullYear(), maintenant.getUTCMonth(), 1)).toISOString();
+};
+
+/**
+ * Générations utilisées ce mois (règle du serveur) : lignes principales de
+ * generated_music_tracks (suno_track_id = task_id), échecs exclus.
+ */
+export async function compterGenerationsDuMois(userId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('generated_music_tracks')
+    .select('task_id, suno_track_id, generation_status')
+    .eq('user_id', userId)
+    .gte('created_at', debutMoisUtc())
+    .limit(1000);
+  if (error) return null;
+  const tasks = new Set<string>();
+  for (const ligne of data ?? []) {
+    if (ligne.task_id && ligne.suno_track_id === ligne.task_id && ligne.generation_status !== 'failed') {
+      tasks.add(ligne.task_id);
+    }
+  }
+  return tasks.size;
 }
 
 interface UseSubscriptionError {
@@ -74,6 +110,7 @@ export const useSubscription = () => {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionPlan | null>(null);
   const [musicQuota, setMusicQuota] = useState<MusicQuota | null>(null);
+  const [estAdmin, setEstAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<UseSubscriptionError | null>(null);
 
@@ -100,7 +137,7 @@ export const useSubscription = () => {
     setError(null);
 
     try {
-      const [{ data: subData, error: subError }, { data: lignes }] = await Promise.all([
+      const [{ data: subData, error: subError }, { data: lignes }, { data: roles }] = await Promise.all([
         supabase.rpc('get_user_subscription', { user_uuid: user.id }),
         supabase
           .from('user_subscriptions')
@@ -108,7 +145,10 @@ export const useSubscription = () => {
           .eq('user_id', user.id)
           .order('current_period_end', { ascending: false, nullsFirst: false })
           .limit(5),
+        supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').limit(1),
       ]);
+      const admin = (roles ?? []).length > 0;
+      setEstAdmin(admin);
 
       if (subError) {
         setError({ code: 'SUBSCRIPTION_FETCH_ERROR', message: "Erreur lors de la récupération de l'abonnement", details: subError });
@@ -127,37 +167,28 @@ export const useSubscription = () => {
       // abonnement échu ; sans ligne réellement active, on rétrograde.
       if (estStatutActif(statut) && !ligneActive) statut = 'inactive';
 
+      // Accès Premium effectif : abonnement actif OU administrateur (même règle que le serveur).
+      const acces = estStatutActif(statut) || admin;
       const resultat: SubscriptionPlan = {
-        plan_id: info?.plan_id ?? 'free',
-        plan_name: estStatutActif(statut) ? NOM_OFFRE_PREMIUM : (info?.plan_name ?? 'Gratuit'),
-        monthly_quota: estStatutActif(statut) ? QUOTA_GENERATIONS_AUDIO_PREMIUM : 0,
+        plan_id: info?.plan_id ?? (admin ? 'admin' : 'free'),
+        plan_name: estStatutActif(statut)
+          ? NOM_OFFRE_PREMIUM
+          : admin ? `${NOM_OFFRE_PREMIUM} (administrateur)` : (info?.plan_name ?? 'Gratuit'),
+        monthly_quota: acces ? QUOTA_GENERATIONS_AUDIO_PREMIUM : 0,
         features: (info?.features as SubscriptionPlan['features']) ?? FEATURES_PAR_DEFAUT,
         status: statut,
         current_period_end: ligneActive?.current_period_end ?? null,
       };
       setSubscription(resultat);
 
-      // Quota audio (indicatif : le contrôle qui fait foi est dans mm-generate-music).
-      const { data: quotaData, error: quotaError } = await supabase
-        .rpc('get_music_quota', { p_user_id: user.id });
-      const limite = resultat.monthly_quota;
-      if (!quotaError && quotaData && quotaData.length > 0) {
-        const q = quotaData[0];
-        const utilise = q.credits_used_this_period || 0;
-        setMusicQuota({
-          can_generate: estStatutActif(statut) && utilise < limite,
-          current_usage: utilise,
-          quota_limit: limite,
-          plan_name: resultat.plan_name,
-        });
-      } else {
-        setMusicQuota({
-          can_generate: estStatutActif(statut),
-          current_usage: 0,
-          quota_limit: limite,
-          plan_name: resultat.plan_name,
-        });
-      }
+      // Quota audio du mois, compté comme le serveur (indicatif : mm-generate-music fait foi).
+      const utilise = (await compterGenerationsDuMois(user.id)) ?? 0;
+      setMusicQuota({
+        can_generate: acces && utilise < QUOTA_GENERATIONS_AUDIO_PREMIUM,
+        current_usage: utilise,
+        quota_limit: resultat.monthly_quota,
+        plan_name: resultat.plan_name,
+      });
 
       return resultat;
     } catch (err) {
@@ -188,7 +219,20 @@ export const useSubscription = () => {
     }
   }, [user]);
 
-  const isSubscriptionActive = useCallback((): boolean => estStatutActif(subscription?.status), [subscription]);
+  /** Accès Premium effectif (abonnement actif ou administrateur). */
+  const isSubscriptionActive = useCallback((): boolean => estStatutActif(subscription?.status) || estAdmin, [subscription, estAdmin]);
+
+  /** Recompte les générations du mois (après une génération) sans recharger l'abonnement. */
+  const rafraichirQuota = useCallback(async (): Promise<void> => {
+    if (!user) return;
+    const utilise = await compterGenerationsDuMois(user.id);
+    if (utilise === null) return;
+    setMusicQuota((prev) => prev ? {
+      ...prev,
+      current_usage: utilise,
+      can_generate: prev.quota_limit > 0 && utilise < prev.quota_limit,
+    } : prev);
+  }, [user]);
 
   const hasFeatureAccess = useCallback((feature: keyof SubscriptionPlan['features']): boolean => {
     if (isSubscriptionActive()) return true;
@@ -204,13 +248,11 @@ export const useSubscription = () => {
     return `${musicQuota.current_usage}/${musicQuota.quota_limit} générations ce mois`;
   }, [musicQuota]);
 
-  /** Le modèle est imposé côté serveur (mm-generate-music) ; valeur indicative. */
-  const getSunoModel = useCallback((): "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" => 'V4_5ALL', []);
-
   useEffect(() => {
     if (!user) {
       setSubscription(null);
       setMusicQuota(null);
+      setEstAdmin(false);
       setError(null);
       userIdRef.current = null;
     }
@@ -240,9 +282,9 @@ export const useSubscription = () => {
       case 'canceled': return 'Résilié';
       case 'past_due': return 'Paiement en attente';
       case 'unpaid': return 'Impayé';
-      default: return 'Non abonné';
+      default: return estAdmin ? 'Administrateur (accès complet)' : 'Non abonné';
     }
-  }, [subscription]);
+  }, [subscription, estAdmin]);
 
   const getStatusColor = useCallback((): string => {
     switch (subscription?.status) {
@@ -366,7 +408,8 @@ export const useSubscription = () => {
     hasFeatureAccess,
     canSaveMusic,
     getUsageDisplay,
-    getSunoModel,
+    estAdmin,
+    rafraichirQuota,
     getQuotaPercentage,
     isQuotaCritical,
     isQuotaLow,

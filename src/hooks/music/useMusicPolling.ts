@@ -247,7 +247,7 @@ export const useMusicPolling = () => {
           }
         }
 
-        // Appeler le routeur unifié ai-audio
+        // mm-music-status (lecture seule, rattrapage si le callback s'est perdu)
         const statusResponse = await audioApi.getStatus(taskId);
         const pollData = statusResponse.data;
         const pollError = statusResponse.success ? null : { message: statusResponse.error };

@@ -160,10 +160,21 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
             </div>
           )}
 
-          {/* Fallback si le rang sélectionné n'a pas de paroles spécifiques */}
-          {selectedRang && !selectedLyrics && hasLegacy && (
+          {/* Rang sans paroles dédiées : seul le rang A se replie sur paroles_musicales (historiquement = rang A) ;
+              le rang B ne chante jamais les paroles A, A+B combine A et B s'ils existent. */}
+          {selectedRang === 'A' && !selectedLyrics && hasLegacy && (
             <div className="mt-2 text-sm text-warning">
-              ⚠️ Paroles spécifiques au rang {selectedRang} non disponibles, utilisation des paroles génériques.
+              Paroles dédiées au rang A absentes : utilisation des paroles génériques de l'item (rang A).
+            </div>
+          )}
+          {selectedRang === 'B' && !selectedLyrics && (
+            <div className="mt-2 text-sm text-warning">
+              Pas de paroles rédigées pour le rang B de cet item : elles seront reconstruites depuis ses compétences OIC officielles au moment de la génération.
+            </div>
+          )}
+          {selectedRang === 'AB' && !selectedLyrics && hasRangA && hasRangB && (
+            <div className="mt-2 text-sm text-muted-foreground">
+              Rang A+B : les paroles du rang A puis celles du rang B seront chantées.
             </div>
           )}
         </div>

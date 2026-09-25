@@ -35,7 +35,6 @@ export { LyricsExportButton } from './LyricsExportButton';
 export { LyricsPreview } from './LyricsPreview';
 export { LyricsStatusDisplay } from './LyricsStatusDisplay';
 export { MobileHistoryDrawer } from './MobileHistoryDrawer';
-export { ModelSelector } from './ModelSelector';
 export { NetworkStatusIndicator } from './NetworkStatusIndicator';
 export { OfflineQueueIndicator } from './OfflineQueueIndicator';
 export { PlaylistManager } from './PlaylistManager';

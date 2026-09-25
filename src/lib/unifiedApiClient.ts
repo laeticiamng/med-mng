@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 // TYPES
 // ============================================================================
 
-type SunoModel = 'V4' | 'V4_5' | 'V4_5PLUS' | 'V4_5ALL' | 'V5';
+type SunoModel = 'V6' | 'V6_WILD' | 'V6_MINI' | 'V4_5ALL' | 'V4' | 'V4_5' | 'V4_5PLUS' | 'V5';
 type VocalGender = 'm' | 'f';
 
 interface ApiResponse<T = any> {
@@ -52,25 +52,26 @@ async function messageErreurFonction(error: unknown): Promise<string> {
 
 export const audioApi = {
   /**
-   * Générer une musique via Suno
+   * Lancer une génération audio MED MNG (mm-generate-music).
+   * Le serveur vérifie l'abonnement Premium et le quota mensuel, impose le
+   * modèle Suno, calcule la durée d'après les paroles et construit le style.
    */
   async generateMusic(params: {
-    lyrics?: string;
-    style?: string;
-    rang?: string;
-    duration?: number;
+    lyrics: string;
+    style: string;
+    rang: 'A' | 'B' | 'AB';
+    itemCode: string;
+    itemTitle?: string;
     language?: string;
-    itemCode?: string;
-    customMode?: boolean;
-    instrumental?: boolean;
-    model?: SunoModel;
-    title?: string;
-    negativeTags?: string;
     vocalGender?: VocalGender;
+    negativeTags?: string;
+    /** 0–1 */
     styleWeight?: number;
+    /** 0–1 */
+    weirdnessConstraint?: number;
+    /** Secondes (10–360) ; absent → calculée d'après les paroles. */
+    duration?: number;
   }): Promise<ApiResponse<{ trackId: string; metadata: any }>> {
-    // Génération MED MNG : passe par mm-generate-music, qui vérifie côté
-    // serveur l'abonnement Premium, le quota mensuel et impose le modèle.
     // (« ai-audio » est une fonction partagée avec EmotionsCare : non utilisée ici.)
     const { data, error } = await supabase.functions.invoke('mm-generate-music', {
       body: params
@@ -85,18 +86,28 @@ export const audioApi = {
   },
 
   /**
-   * Vérifier le statut d'une génération
+   * État d'une génération MED MNG (mm-music-status, lecture seule) :
+   * notre table generated_music_tracks, avec rattrapage auprès de Suno si un
+   * callback s'est perdu. Réservé au propriétaire de la génération.
    */
   async getStatus(taskId: string): Promise<ApiResponse<{
     status: 'generating' | 'completed' | 'failed';
+    taskId?: string;
     audioUrl?: string;
     streamUrl?: string;
     imageUrl?: string;
+    title?: string;
+    duration?: number;
+    error?: string;
+    metadata?: any;
   }>> {
-    const { data, error } = await supabase.functions.invoke('ai-audio', {
-      body: { action: 'get_status', payload: { taskId } }
+    const { data, error } = await supabase.functions.invoke('mm-music-status', {
+      body: { taskId }
     });
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: await messageErreurFonction(error) };
+    if (data && data.success === false) {
+      return { success: false, error: data.error || MESSAGE_SERVICE_INDISPONIBLE };
+    }
     return { success: true, data };
   },
 
