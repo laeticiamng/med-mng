@@ -382,7 +382,7 @@ export default function EdnComplete() {
 
   if (loading && ednItems.length === 0) {
     return (
-      <div className="-mt-16 min-h-screen bg-background">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6 text-center">
             <h1 className="text-xl font-bold text-foreground mb-2">Chargement des items EDN...</h1>
@@ -396,7 +396,7 @@ export default function EdnComplete() {
 
   if (loadingError && ednItems.length === 0) {
     return (
-      <div className="-mt-16 min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4 max-w-md mx-auto px-4">
           <div className="w-16 h-16 mx-auto bg-destructive/10 rounded-full flex items-center justify-center">
             <AlertTriangle className="h-8 w-8 text-destructive" aria-hidden="true" />
@@ -423,10 +423,7 @@ export default function EdnComplete() {
         keywords="EDN, items, médecine, révision, musique, apprentissage"
         canonical="/edn-complete"
       />
-      {/* -mt-16 : la navigation principale est « sticky » (dans le flux) alors que
-          <main> ajoute un pt-16 prévu pour une barre « fixed » : sans cette
-          compensation, une bande vide de 64 px apparaît sous l'en-tête. */}
-      <div className="-mt-16 min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as OngletEdn)} className="flex-1">
           {/* Barre compacte : titre + modes regroupés + crédits */}
           <div className="border-b bg-card/80">

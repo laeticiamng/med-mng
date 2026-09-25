@@ -50,7 +50,7 @@ export default function EdnItemApercu() {
                     <Badge className="bg-accent/10 text-accent">Rang B</Badge>
                   )}
                   {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                    <Badge className="bg-success/10 text-success">Musique</Badge>
+                    <Badge className="bg-success/10 text-success">Paroles</Badge>
                   )}
                   {!sceneImmersiveEstGenerique(item.scene_immersive) && (
                     <Badge className="bg-success/10 text-success">Scène</Badge>
@@ -63,7 +63,9 @@ export default function EdnItemApercu() {
               <div>
                 <h4 className="font-semibold mb-2">Description</h4>
                 <p className="text-muted-foreground text-sm">
-                  {item.pitch_intro || `Explorez l'item ${item.item_code} avec tous ses contenus interactifs.`}
+                  {item.pitch_intro && !/^Excellence avec|fusionnées/i.test(item.pitch_intro)
+                    ? item.pitch_intro
+                    : `${competencesRangA.length + competencesRangB.length} compétences officielles (rang A : ${competencesRangA.length} · rang B : ${competencesRangB.length}), issues du référentiel national LiSA 2026 (UNESS).`}
                 </p>
               </div>
             </div>

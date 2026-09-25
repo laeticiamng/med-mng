@@ -250,7 +250,7 @@ const App = () => {
                               <div id="app-root" className="min-h-screen bg-background">
                                 <MainNavigation />
                                 <LanguageSelector />
-                                <main id="main-content" tabIndex={-1} className="pt-16">
+                                <main id="main-content" tabIndex={-1}>
                                   <Routes>
                                     {/* Platform */}
                                     <Route path={ROUTE_PATHS.home} element={<Index />} />
