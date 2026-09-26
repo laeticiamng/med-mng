@@ -48,10 +48,10 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             <div className="col-span-2 md:col-span-1 space-y-4">
               <div className="flex items-center space-x-2">
                 <Music className="h-6 w-6 text-primary" />
-                <span className="font-bold text-lg text-foreground">MED MNG</span>
+                <span className="font-bold text-lg text-foreground">Med MNG</span>
               </div>
               <p className="text-muted-foreground text-xs">
-                Apprenez la médecine en musique. Par EmotionsCare.
+                Apprenez la médecine en musique.
               </p>
             </div>
 
@@ -99,10 +99,10 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Music className="h-6 w-6 text-primary" />
-                <span className="font-bold text-lg text-foreground">MED MNG</span>
+                <span className="font-bold text-lg text-foreground">Med MNG</span>
               </div>
               <p className="text-muted-foreground text-xs">
-                Apprenez la médecine en musique. Par EmotionsCare.
+                Apprenez la médecine en musique.
               </p>
             </div>
 
@@ -142,7 +142,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
         )}
         
         <div className="border-t border-border mt-6 pt-6 text-center text-muted-foreground text-xs">
-          <p>&copy; {new Date().getFullYear()} EmotionsCare - MED MNG. Tous droits réservés.</p>
+          <p>&copy; {new Date().getFullYear()} Med MNG · Une solution MNG · Éditée par EmotionsCare SASU</p>
         </div>
       </div>
     </footer>

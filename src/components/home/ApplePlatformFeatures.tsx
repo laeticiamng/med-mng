@@ -56,10 +56,10 @@ export const ApplePlatformFeatures = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            <TranslatedText text="Une plateforme complète" />
+            <TranslatedText text="Au même endroit" />
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            <TranslatedText text="Tout ce dont vous avez besoin pour apprendre la médecine en musique, au même endroit." />
+            <TranslatedText text="Les fiches officielles, les chansons, les quiz et votre suivi de révision." />
           </p>
         </motion.div>
 

@@ -1,10 +1,10 @@
 /**
- * JSON-LD Structured Data Schemas pour MED MNG
+ * JSON-LD Structured Data Schemas pour Med MNG
  *
  * Schémas conformes Schema.org pour un meilleur référencement Google :
  * - SoftwareApplication : application web
  * - EducationalApplication : application éducative
- * - Organization : l'organisation MED MNG
+ * - Organization : l'organisation Med MNG
  * - FAQPage : questions fréquentes
  */
 
@@ -22,7 +22,7 @@ const OFFRES_JSONLD = [
   },
   {
     '@type': 'Offer',
-    name: 'MED MNG Premium — annuel',
+    name: 'Med MNG Premium — annuel',
     price: '69',
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
@@ -36,7 +36,7 @@ const OFFRES_JSONLD = [
   },
   {
     '@type': 'Offer',
-    name: 'MED MNG Premium — mensuel',
+    name: 'Med MNG Premium — mensuel',
     price: '9.90',
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
@@ -53,21 +53,21 @@ const OFFRES_JSONLD = [
 export const createSoftwareApplicationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': ['SoftwareApplication', 'EducationalApplication'],
-  name: 'MED MNG',
+  name: 'Med MNG',
   applicationCategory: 'EducationalApplication',
   applicationSubCategory: 'Medical Education',
   operatingSystem: 'Web, iOS, Android (PWA)',
   offers: OFFRES_JSONLD,
   url: SITE_URL,
   screenshot: `${SITE_URL}/og-image.png`,
-  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium ; situations ECOS.',
+  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium ; situations ECOS.',
   inLanguage: 'fr',
 });
 
 export const createEducationalApplicationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: 'MED MNG - Apprentissage Médical Musical',
+  name: 'Med MNG - Apprentissage Médical Musical',
   url: SITE_URL,
   applicationCategory: 'EducationalApplication',
   genre: 'Medical Education',
@@ -97,7 +97,7 @@ export const createEducationalApplicationSchema = () => ({
   },
   provider: {
     '@type': 'Organization',
-    name: 'MED MNG',
+    name: 'Med MNG',
     url: SITE_URL,
   },
 });
@@ -105,11 +105,11 @@ export const createEducationalApplicationSchema = () => ({
 export const createOrganizationSchemaFull = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'MED MNG',
-  alternateName: 'MED MNG par EmotionsCare',
+  name: 'Med MNG',
+  alternateName: 'Med MNG par EmotionsCare',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
-  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium ; situations ECOS.',
+  description: 'Plateforme de révision EDN : 367 items avec compétences rang A / rang B, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium ; situations ECOS.',
   foundingDate: '2024',
   founder: {
     '@type': 'Organization',
@@ -144,11 +144,11 @@ export const createOrganizationSchemaFull = () => ({
 export const createProductSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Product',
-  name: 'MED MNG Premium',
-  description: 'MED MNG Premium : contenu immersif des 367 items EDN (paroles, récit, planches, quiz) et génération audio. 69 € par an ou 9,90 € par mois.',
+  name: 'Med MNG Premium',
+  description: 'Med MNG Premium : contenu immersif des 367 items EDN (paroles, récit, planches, quiz) et génération audio. 69 € par an ou 9,90 € par mois.',
   brand: {
     '@type': 'Organization',
-    name: 'MED MNG par EmotionsCare',
+    name: 'Med MNG par EmotionsCare',
   },
   category: 'Educational Software',
   offers: OFFRES_JSONLD,
@@ -161,10 +161,10 @@ export const createFAQPageSchema = () => ({
     // SEO classique
     {
       '@type': 'Question',
-      name: 'Qu\'est-ce que MED MNG ?',
+      name: 'Qu\'est-ce que Med MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel public UNESS/LiSA, ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
+        text: 'Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel public UNESS/LiSA, ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
       },
     },
     {
@@ -177,23 +177,23 @@ export const createFAQPageSchema = () => ({
     },
     {
       '@type': 'Question',
-      name: 'MED MNG est-il gratuit ?',
+      name: 'Med MNG est-il gratuit ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'En partie. Les fiches officielles des 367 items (compétences rang A et rang B) et les situations ECOS sont gratuites, ainsi que le contenu immersif complet de 10 items d\'essai. MED MNG Premium (69 € par an ou 9,90 € par mois) ouvre le contenu immersif des 367 items et la génération audio (30 par mois).',
+        text: 'En partie. Les fiches officielles des 367 items (compétences rang A et rang B) et les situations ECOS sont gratuites, ainsi que le contenu immersif complet de 10 items d\'essai. Med MNG Premium (69 € par an ou 9,90 € par mois) ouvre le contenu immersif des 367 items et la génération audio (30 par mois).',
       },
     },
     {
       '@type': 'Question',
-      name: 'MED MNG couvre-t-il tous les items EDN ?',
+      name: 'Med MNG couvre-t-il tous les items EDN ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans MED MNG Premium, et offert pour 10 items d\'essai ; l\'audio des chansons se génère à la demande.',
+        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans Med MNG Premium, et offert pour 10 items d\'essai ; l\'audio des chansons se génère à la demande.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Puis-je utiliser MED MNG hors connexion ?',
+      name: 'Puis-je utiliser Med MNG hors connexion ?',
       acceptedAnswer: {
         '@type': 'Answer',
         text: 'En partie : grâce à la PWA, les fiches déjà consultées restent lisibles hors connexion. L\'audio, les quiz et la génération nécessitent une connexion.',
@@ -213,7 +213,7 @@ export const createFAQPageSchema = () => ({
       name: 'Quelle application pour réviser les EDN 2027 ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA à partir des compétences de chaque item, avec des situations ECOS guidées. À vous de juger si la méthode vous convient : le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
+        text: 'Med MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA à partir des compétences de chaque item, avec des situations ECOS guidées. À vous de juger si la méthode vous convient : le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
       },
     },
     {
@@ -221,7 +221,7 @@ export const createFAQPageSchema = () => ({
       name: 'Comment apprendre la médecine par la musique ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MED MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B, puis vous pouvez générer l\'audio. Réécouter une chanson peut aider à retenir, en complément du rappel actif (quiz) et de vos cours.',
+        text: 'Med MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B, puis vous pouvez générer l\'audio. Réécouter une chanson peut aider à retenir, en complément du rappel actif (quiz) et de vos cours.',
       },
     },
     {
@@ -229,7 +229,7 @@ export const createFAQPageSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les situations ECOS de MED MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. MED MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
+        text: 'Oui, les situations ECOS de Med MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. Med MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
       },
     },
     {
@@ -237,15 +237,15 @@ export const createFAQPageSchema = () => ({
       name: 'Qu\'est-ce que la répétition espacée pour les études de médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'La répétition espacée (SRS - Spaced Repetition System) est un algorithme qui optimise le moment de révision de chaque notion. MED MNG intègre un SRS adaptatif qui combine flashcards, QCM et écoute musicale : les items mal maîtrisés reviennent plus fréquemment, les items acquis s\'espacent.',
+        text: 'La répétition espacée (SRS - Spaced Repetition System) est un algorithme qui optimise le moment de révision de chaque notion. Med MNG intègre un SRS adaptatif qui combine flashcards, QCM et écoute musicale : les items mal maîtrisés reviennent plus fréquemment, les items acquis s\'espacent.',
       },
     },
     {
       '@type': 'Question',
-      name: 'MED MNG utilise-t-il l\'intelligence artificielle ?',
+      name: 'Med MNG utilise-t-il l\'intelligence artificielle ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, MED MNG utilise plusieurs couches d\'IA : (1) Génération musicale IA pour créer des chansons pédagogiques uniques, (2) IA générative pour produire des QCM, QROC et cas cliniques adaptés, (3) Algorithme SRS adaptatif qui personnalise le parcours de révision, (4) Chat IA médical pour répondre aux questions de cours.',
+        text: 'Oui, Med MNG utilise plusieurs couches d\'IA : (1) Génération musicale IA pour créer des chansons pédagogiques uniques, (2) IA générative pour produire des QCM, QROC et cas cliniques adaptés, (3) Algorithme SRS adaptatif qui personnalise le parcours de révision, (4) Chat IA médical pour répondre aux questions de cours.',
       },
     },
   ],
@@ -272,7 +272,7 @@ export const createEDNItemSchema = (item: {
   },
   provider: {
     '@type': 'Organization',
-    name: 'MED MNG',
+    name: 'Med MNG',
     url: SITE_URL,
   },
   inLanguage: 'fr',

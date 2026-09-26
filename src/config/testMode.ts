@@ -33,7 +33,7 @@ export const TEST_USER = {
   email: 'testeur@med-mng.test',
   created_at: new Date().toISOString(),
   user_metadata: {
-    full_name: 'Testeur MED MNG (MODE TEST)',
+    full_name: 'Testeur Med MNG (MODE TEST)',
     avatar_url: null,
     role: 'test' // Rôle explicitement "test" - pas admin
   },

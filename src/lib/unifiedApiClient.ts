@@ -52,7 +52,7 @@ async function messageErreurFonction(error: unknown): Promise<string> {
 
 export const audioApi = {
   /**
-   * Lancer une génération audio MED MNG (mm-generate-music).
+   * Lancer une génération audio Med MNG (mm-generate-music).
    * Le serveur vérifie l'abonnement Premium et le quota mensuel, impose le
    * modèle Suno, calcule la durée d'après les paroles et construit le style.
    */
@@ -86,7 +86,7 @@ export const audioApi = {
   },
 
   /**
-   * État d'une génération MED MNG (mm-music-status, lecture seule) :
+   * État d'une génération Med MNG (mm-music-status, lecture seule) :
    * notre table generated_music_tracks, avec rattrapage auprès de Suno si un
    * callback s'est perdu. Réservé au propriétaire de la génération.
    */

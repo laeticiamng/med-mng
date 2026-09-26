@@ -34,7 +34,7 @@ const MentionsLegales = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <Globe className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">MED MNG</h2>
+                <h2 className="text-2xl font-bold">Med MNG</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
               <p className="text-sm text-primary-foreground/60">Version officielle – conforme RGPD et droit français</p>
@@ -96,7 +96,7 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">3. OBJET DE LA PLATEFORME</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>MED MNG est une plateforme immersive dédiée à l'apprentissage médical via la méthode exclusive <strong className="text-foreground">MNG – Music Neuro Learning Generator</strong>, développée par Laëticia Motongane.</p>
+              <p>Med MNG est une plateforme immersive dédiée à l'apprentissage médical via la méthode exclusive <strong className="text-foreground">MNG – Music Neuro Learning Generator</strong>, développée par Laëticia Motongane.</p>
               <p>Elle combine des contenus musicaux, visuels et interactifs pour renforcer l'apprentissage cognitif dans les parcours de formation médicale post-bac (EDN, ECOS).</p>
             </div>
           </Card>
@@ -141,7 +141,7 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">5. PROPRIÉTÉ INTELLECTUELLE</h3>
             </div>
             <div className="space-y-4 text-muted-foreground">
-              <p>Tous les contenus du site MED MNG sont protégés au titre de la propriété intellectuelle :</p>
+              <p>Tous les contenus du site Med MNG sont protégés au titre de la propriété intellectuelle :</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Chansons générées</div>
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Visuels, tableaux, BD</div>
@@ -153,7 +153,7 @@ const MentionsLegales = () => {
               <p className="text-sm">
                 <strong className="text-foreground">Référentiel officiel :</strong> les intitulés des items et des objectifs de connaissance (rang A et rang B)
                 proviennent du référentiel national du deuxième cycle des études médicales (R2C, plateforme LiSA / UNESS).
-                Ils restent la propriété de leurs auteurs, sont reproduits pour permettre la révision, avec leur source, et ne sont pas revendiqués par MED MNG.
+                Ils restent la propriété de leurs auteurs, sont reproduits pour permettre la révision, avec leur source, et ne sont pas revendiqués par Med MNG.
               </p>
             </div>
           </Card>

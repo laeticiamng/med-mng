@@ -10,7 +10,7 @@ import {
 } from '@/config/offre';
 
 /**
- * Abonnement MED MNG de l'utilisateur connecté.
+ * Abonnement Med MNG de l'utilisateur connecté.
  *
  * Source unique : RPC `get_user_subscription` (alimentée par le webhook
  * Stripe mm-stripe-webhook), recoupée avec la ligne de `user_subscriptions`
@@ -244,7 +244,7 @@ export const useSubscription = () => {
 
   const getUsageDisplay = useCallback((): string => {
     if (!musicQuota) return '';
-    if (musicQuota.quota_limit === 0) return 'Génération audio incluse dans MED MNG Premium';
+    if (musicQuota.quota_limit === 0) return 'Génération audio incluse dans Med MNG Premium';
     return `${musicQuota.current_usage}/${musicQuota.quota_limit} générations ce mois`;
   }, [musicQuota]);
 
@@ -323,7 +323,7 @@ export const useSubscription = () => {
   }, [musicQuota, getQuotaPercentage]);
 
   /**
-   * Ouvre le paiement Stripe de MED MNG Premium (redirection dans l'onglet).
+   * Ouvre le paiement Stripe de Med MNG Premium (redirection dans l'onglet).
    * `renonciation` : case cochée « accès immédiat / perte du droit de
    * rétractation », exigée par mm-create-checkout.
    */

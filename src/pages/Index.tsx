@@ -69,7 +69,7 @@ const Index = forwardRef<HTMLDivElement>((_, ref) => {
     <div ref={ref}>
       <SEOHead
         title="Apprenez la médecine en musique | EDN & ECOS"
-        description="Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium. Situations ECOS guidées."
+        description="Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium. Situations ECOS guidées."
         keywords="médecine, EDN, ECOS, musique, révision, mémorisation, étudiants médecine, apprentissage musical"
         canonical="/"
       />

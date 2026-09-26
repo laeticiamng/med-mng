@@ -1,7 +1,7 @@
 /**
  * Colonnes des tables `edn_items_complete` et `edn_items_immersive` lisibles
  * par tout le monde (clé anon ou utilisateur connecté), et colonnes réservées
- * à MED MNG Premium.
+ * à Med MNG Premium.
  *
  * SOURCE DE VÉRITÉ CÔTÉ FRONT, miroir exact du GRANT SELECT par colonne de la
  * migration supabase/migrations/20260925130000_mm_contenu_premium_phase2.sql

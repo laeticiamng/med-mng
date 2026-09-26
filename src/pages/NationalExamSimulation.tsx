@@ -296,7 +296,7 @@ const NationalExamSimulation: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Examen blanc EDN | MED MNG</title>
+        <title>Examen blanc EDN | Med MNG</title>
         <meta name="description" content="Simulation d'examen blanc EDN en conditions réelles : 120 questions générées par IA, 3 heures, score par rang et par spécialité." />
       </Helmet>
 

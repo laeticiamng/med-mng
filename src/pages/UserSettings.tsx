@@ -229,8 +229,8 @@ const UserSettings: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Paramètres Utilisateur - MED MNG</title>
-        <meta name="description" content="Gérez vos paramètres personnels, notifications et préférences sur MED MNG." />
+        <title>Paramètres Utilisateur - Med MNG</title>
+        <meta name="description" content="Gérez vos paramètres personnels, notifications et préférences sur Med MNG." />
       </Helmet>
 
       <div className="min-h-screen bg-background">

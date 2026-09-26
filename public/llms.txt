@@ -1,12 +1,12 @@
-# MED MNG - LLMs.txt
-# Ce fichier aide les assistants IA (ChatGPT, Perplexity, Claude) à décrire MED MNG correctement.
+# Med MNG - LLMs.txt
+# Ce fichier aide les assistants IA (ChatGPT, Perplexity, Claude) à décrire Med MNG correctement.
 # Dernière mise à jour : 2026-09-24
 
-> MED MNG est une application web de révision pour les étudiants en médecine de 2e cycle (D2-D3) qui préparent les EDN 2027 (session d'octobre 2026). Pour chacun des 367 items, elle présente les compétences officielles de rang A et de rang B (référentiel public UNESS/LiSA 2026) et un contenu immersif : paroles de chanson mnémotechniques, récit, planches et quiz, avec génération audio des chansons.
+> Med MNG est une application web de révision pour les étudiants en médecine de 2e cycle (D2-D3) qui préparent les EDN 2027 (session d'octobre 2026). Pour chacun des 367 items, elle présente les compétences officielles de rang A et de rang B (référentiel public UNESS/LiSA 2026) et un contenu immersif : paroles de chanson mnémotechniques, récit, planches et quiz, avec génération audio des chansons.
 
 ## Identité
 
-- Nom : MED MNG
+- Nom : Med MNG
 - Éditeur : EmotionsCare SASU (France)
 - Type : application web installable (PWA)
 - Langue : français
@@ -24,7 +24,7 @@
 ## Tarification (offre unique)
 
 - Gratuit : fiches officielles des 367 items (rang A et rang B) + contenu immersif complet de 10 items d'essai (IC-1 à IC-10) + situations ECOS
-- MED MNG Premium : contenu immersif des 367 items + 30 générations audio par mois
+- Med MNG Premium : contenu immersif des 367 items + 30 générations audio par mois
   - 69 € par an (environ 5,75 € par mois), ou
   - 9,90 € par mois
 - Pas de période d'essai payante ; résiliation à tout moment, effet à la fin de la période payée

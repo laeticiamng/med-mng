@@ -183,7 +183,7 @@ export const SystemMonitor: React.FC = () => {
             Monitoring Système
           </h1>
           <p className="text-muted-foreground mt-1">
-            Surveillance en temps réel de l'infrastructure MED MNG
+            Surveillance en temps réel de l'infrastructure Med MNG
           </p>
         </div>
         <div className="flex items-center gap-2">

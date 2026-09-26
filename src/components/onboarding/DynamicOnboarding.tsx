@@ -75,7 +75,7 @@ export const DynamicOnboarding: React.FC = () => {
     const staticSteps: OnboardingStep[] = [
       {
         key: 'welcome',
-        title: 'Bienvenue sur MED MNG',
+        title: 'Bienvenue sur Med MNG',
         body: `
           <p>Découvrez votre nouvelle plateforme médicale professionnelle.</p>
           <ul class="list-disc pl-4 mt-2 space-y-1">

@@ -625,7 +625,7 @@ describe('🎵 Module Audio/Media', () => {
     it('should handle track metadata', () => {
       const track = {
         title: 'EDN Item 001',
-        artist: 'MED MNG',
+        artist: 'Med MNG',
         album: 'Medical Learning',
         duration: 180,
         coverUrl: 'https://example.com/cover.jpg',

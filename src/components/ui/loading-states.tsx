@@ -204,7 +204,7 @@ export const FullScreenLoading: React.FC<FullScreenLoadingProps> = ({
       <div className="text-center space-y-4">
         <LoadingSpinner variant={variant} size="xl" showMessage={false} />
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-foreground">MED MNG</h2>
+          <h2 className="text-lg font-semibold text-foreground">Med MNG</h2>
           <p className="text-sm text-muted-foreground animate-pulse">{message}</p>
         </div>
       </div>

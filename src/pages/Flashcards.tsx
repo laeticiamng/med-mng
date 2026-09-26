@@ -258,7 +258,7 @@ export default function Flashcards() {
       />
 
       <Helmet>
-        <title>Flashcards | MED MNG</title>
+        <title>Flashcards | Med MNG</title>
         <meta name="description" content="Flashcards personnalisées pour mémoriser le référentiel EDN" />
       </Helmet>
 

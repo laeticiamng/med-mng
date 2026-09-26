@@ -189,7 +189,7 @@ export const CookieBanner = () => {
                 <div className="flex-1">
                   <h4 className="font-semibold text-foreground mb-2">📊 Cookies analytiques</h4>
                   <p className="text-sm text-muted-foreground">
-                    Ces cookies nous aident à comprendre comment vous utilisez MED MNG pour 
+                    Ces cookies nous aident à comprendre comment vous utilisez Med MNG pour 
                     améliorer nos services. Toutes les données sont anonymisées.
                   </p>
                   <div className="mt-2 text-xs text-muted-foreground space-y-1">

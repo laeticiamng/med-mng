@@ -18,9 +18,9 @@ const About = () => {
   return (
     <>
     <SEOHead
-      title="À propos - MED MNG par EmotionsCare"
-      description="Découvrez MED MNG : réviser les items EDN avec des chansons générées par IA. Mission, méthode MNG, équipe et EmotionsCare SASU."
-      keywords="à propos, MED MNG, EmotionsCare, méthode MNG, apprentissage médical, musique IA"
+      title="À propos - Med MNG par EmotionsCare"
+      description="Découvrez Med MNG : réviser les items EDN avec des chansons générées par IA. Mission, méthode MNG, équipe et EmotionsCare SASU."
+      keywords="à propos, Med MNG, EmotionsCare, méthode MNG, apprentissage médical, musique IA"
       canonical="/about"
     />
     <PremiumPageLayout gradient="default" showOrbs={true}>
@@ -32,7 +32,7 @@ const About = () => {
               <span>Retour</span>
             </Link>
             <div className="h-6 border-l border-border" />
-            <h1 className="text-3xl font-bold text-foreground">À propos de MED MNG</h1>
+            <h1 className="text-3xl font-bold text-foreground">À propos de Med MNG</h1>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ const About = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <Music className="h-10 w-10" />
-                <h2 className="text-3xl font-bold">MED MNG</h2>
+                <h2 className="text-3xl font-bold">Med MNG</h2>
               </div>
               <p className="text-lg opacity-90 max-w-2xl mx-auto">
                 Une chanson par item, pour mieux retenir
@@ -61,7 +61,7 @@ const About = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <p>
-                MED MNG est né d'un constat simple : les étudiants en médecine doivent mémoriser une quantité
+                Med MNG est né d'un constat simple : les étudiants en médecine doivent mémoriser une quantité
                 colossale d'informations pour réussir l'EDN. La relecture seule peut vite
                 devenir fastidieuse.
               </p>
@@ -76,7 +76,7 @@ const About = () => {
                   « Une chanson par item, pour mieux retenir »
                 </p>
                 <p className="text-sm mt-1">
-                  C'est la philosophie fondamentale de MED MNG. Nous croyons que l'apprentissage
+                  C'est la philosophie fondamentale de Med MNG. Nous croyons que l'apprentissage
                   peut être à la fois rigoureux et agréable.
                 </p>
               </div>
@@ -121,7 +121,7 @@ const About = () => {
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Sparkles className="h-6 w-6 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">MED MNG en chiffres</h3>
+              <h3 className="text-xl font-semibold text-foreground">Med MNG en chiffres</h3>
             </div>
             {/* CONSTAT : cette carte affichait 4 chiffres dont 3 sans aucune source —
                 « ×3 Rétention améliorée » (non sourcé), « 4.9/5 Note des étudiants »
@@ -146,9 +146,9 @@ const About = () => {
                 <h4 className="font-semibold text-foreground text-lg mb-1">Laeticia Motongane</h4>
                 <p className="text-primary text-sm mb-3">Fondatrice et Présidente — EmotionsCare SASU</p>
                 <p className="text-sm">
-                  Créatrice de la méthode MNG et auteure de la plateforme MED MNG. Passionnée par
+                  Créatrice de la méthode MNG et auteure de la plateforme Med MNG. Passionnée par
                   l'intersection entre la technologie, la musique et l'éducation médicale, elle a conçu
-                  MED MNG pour rendre l'apprentissage médical plus accessible, plus efficace et plus
+                  Med MNG pour rendre l'apprentissage médical plus accessible, plus efficace et plus
                   humain.
                 </p>
               </div>
@@ -163,7 +163,7 @@ const About = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                MED MNG est développé et édité par <strong>EmotionsCare SASU</strong>, société française
+                Med MNG est développé et édité par <strong>EmotionsCare SASU</strong>, société française
                 dédiée à l'innovation dans le domaine de l'éducation et du bien-être par les technologies
                 créatives.
               </p>

@@ -73,21 +73,21 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     id: '3',
     question: 'Les réponses de l\'IA sont-elles fiables médicalement ?',
-    answer: 'L\'IA MED MNG est conçue pour l\'apprentissage pédagogique uniquement. Ses réponses ne constituent pas un avis médical professionnel. Vérifiez toujours les informations avec des sources officielles (Collèges, HAS) et consultez un professionnel de santé pour tout diagnostic.',
+    answer: 'L\'IA Med MNG est conçue pour l\'apprentissage pédagogique uniquement. Ses réponses ne constituent pas un avis médical professionnel. Vérifiez toujours les informations avec des sources officielles (Collèges, HAS) et consultez un professionnel de santé pour tout diagnostic.',
     category: 'IA Médicale',
     helpful: 203
   },
   {
     id: '4',
     question: 'Comment importer mes flashcards Anki ?',
-    answer: 'Exportez votre deck Anki au format .txt ou .csv. Sur MED MNG, allez dans Flashcards > Importer, sélectionnez le fichier. Les champs question/réponse seront automatiquement détectés. Vous pouvez les assigner à des items EDN après import.',
+    answer: 'Exportez votre deck Anki au format .txt ou .csv. Sur Med MNG, allez dans Flashcards > Importer, sélectionnez le fichier. Les champs question/réponse seront automatiquement détectés. Vous pouvez les assigner à des items EDN après import.',
     category: 'Flashcards',
     helpful: 56
   },
   {
     id: '5',
     question: 'Comment fonctionne l\'abonnement Premium ?',
-    answer: 'MED MNG Premium coûte 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il ouvre le contenu immersif des 367 items (paroles, récit, planches, quiz) et 30 générations audio par mois. Sans abonnement, vous gardez les fiches officielles des 367 items, 10 items d\'essai en immersion complète et les situations ECOS. Paiement via Stripe ; résiliation à tout moment depuis votre profil, avec effet à la fin de la période payée.',
+    answer: 'Med MNG Premium coûte 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il ouvre le contenu immersif des 367 items (paroles, récit, planches, quiz) et 30 générations audio par mois. Sans abonnement, vous gardez les fiches officielles des 367 items, 10 items d\'essai en immersion complète et les situations ECOS. Paiement via Stripe ; résiliation à tout moment depuis votre profil, avec effet à la fin de la période payée.',
     category: 'Compte',
     helpful: 145
   },

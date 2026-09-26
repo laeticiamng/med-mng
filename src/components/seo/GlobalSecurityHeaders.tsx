@@ -27,7 +27,7 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
   // Comme dans SEOHead : une URL déjà absolue ne doit pas être re-préfixée.
   const abs = (u?: string) => (u ? (/^https?:\/\//i.test(u) ? u : `${siteUrl}${u}`) : undefined);
   const fullCanonical = canonical ? abs(canonical)! : siteUrl;
-  const fullTitle = title.includes('MED MNG') ? title : `${title} | MED MNG`;
+  const fullTitle = title.includes('Med MNG') ? title : `${title} | Med MNG`;
 
   // CSP stricte pour grade A sécurité
   const cspDirectives = [
@@ -74,7 +74,7 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="MED MNG" />
+      <meta property="og:site_name" content="Med MNG" />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={fullCanonical} />
@@ -119,7 +119,7 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
 export const getOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'EducationalOrganization',
-  name: 'MED MNG',
+  name: 'Med MNG',
   description: 'Plateforme d\'apprentissage médical par la musique',
   url: 'https://medmng.com',
   logo: 'https://medmng.com/logo.png',
@@ -139,7 +139,7 @@ export const getCourseSchema = (item: { title: string; description: string; iden
   description: item.description,
   provider: {
     '@type': 'Organization',
-    name: 'MED MNG'
+    name: 'Med MNG'
   },
   courseCode: item.identifier,
   educationalLevel: 'medical-student',

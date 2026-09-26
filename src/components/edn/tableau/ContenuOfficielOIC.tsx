@@ -46,7 +46,7 @@ export const ContenuOfficielOIC: React.FC<ContenuOfficielOICProps> = ({ html, te
       ) : null}
       {!compact && corrections && corrections.length > 0 && (
         <div className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50/60 dark:bg-amber-950/20 p-3 text-xs text-foreground/80">
-          <p className="font-semibold">Corrigé par MED MNG (erreur évidente dans la fiche LiSA) :</p>
+          <p className="font-semibold">Corrigé par Med MNG (erreur évidente dans la fiche LiSA) :</p>
           <ul className="mt-1 list-disc pl-5 space-y-0.5">
             {corrections.map((c, i) => (
               <li key={i}>

@@ -1,5 +1,5 @@
 /**
- * 🔥 Smoke Tests - MED MNG Platform v9.6.2
+ * 🔥 Smoke Tests - Med MNG Platform v9.6.2
  * Tests de base pour vérifier que la plateforme fonctionne
  */
 

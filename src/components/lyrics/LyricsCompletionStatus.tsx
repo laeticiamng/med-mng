@@ -24,7 +24,7 @@ import React, { useEffect, useState } from 'react';
  * Statut des paroles des 367 items.
  *
  * Cet écran lisait les quatre colonnes de paroles de tous les items — un
- * contenu réservé à MED MNG Premium, exposé à tout visiteur. Il ne reçoit plus
+ * contenu réservé à Med MNG Premium, exposé à tout visiteur. Il ne reçoit plus
  * que des booléens « paroles rédigées » par variante, calculés côté serveur
  * par la RPC `mm_etat_contenu_immersif` (même règle que parolesSontRedigees),
  * et affiche « statut indisponible » tant que cette RPC n'est pas déployée.

@@ -14,7 +14,7 @@ const ReussirEdn = () => {
   return (
     <>
       <SEOHead
-        title="Guide complet pour réussir les EDN 2027 | MED MNG"
+        title="Guide complet pour réussir les EDN 2027 | Med MNG"
         description="Réussir les EDN 2027 (session d'octobre 2026) : stratégies, planning, méthodes de révision et outils. 367 items, QCM, cas cliniques."
         keywords="réussir EDN, EDN 2027, épreuves dématérialisées nationales, révision médecine, classement national"
         canonical="/reussir-edn"
@@ -95,7 +95,7 @@ const ReussirEdn = () => {
               <TranslatedText text="367 items, c'est considérable. La clé est de ne pas les traiter de manière linéaire mais par cercles concentriques : d'abord une vue d'ensemble, puis des approfondissements successifs." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Premier passage (2 mois) : Lisez chaque item une fois en vous concentrant sur les mots-clés et les tableaux cliniques typiques. Utilisez les fiches synthétiques MED MNG pour avoir l'essentiel en un coup d'œil." />
+              <TranslatedText text="Premier passage (2 mois) : Lisez chaque item une fois en vous concentrant sur les mots-clés et les tableaux cliniques typiques. Utilisez les fiches synthétiques Med MNG pour avoir l'essentiel en un coup d'œil." />
             </p>
             <p className="text-muted-foreground mb-4">
               <TranslatedText text="Deuxième passage (2 mois) : Approfondissez avec les QCM et les cas cliniques. Identifiez vos lacunes. Utilisez la répétition espacée pour consolider." />
@@ -138,7 +138,7 @@ const ReussirEdn = () => {
               </Card>
             </div>
             <p className="text-muted-foreground">
-              <TranslatedText text="Règle d'or : Ne commencez jamais le Rang B d'un item si vous ne maîtrisez pas le Rang A. Sur MED MNG, chaque item affiche séparément ses connaissances de rang A et de rang B." />
+              <TranslatedText text="Règle d'or : Ne commencez jamais le Rang B d'un item si vous ne maîtrisez pas le Rang A. Sur Med MNG, chaque item affiche séparément ses connaissances de rang A et de rang B." />
             </p>
           </section>
 
@@ -154,7 +154,7 @@ const ReussirEdn = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Répétition espacée (en anglais : spaced repetition)" /></h3>
-                <p><TranslatedText text="Revoyez chaque notion à intervalles croissants (J1, J3, J7, J14, J30). Le module de répétition espacée de MED MNG planifie la révision de vos flashcards." /></p>
+                <p><TranslatedText text="Revoyez chaque notion à intervalles croissants (J1, J3, J7, J14, J30). Le module de répétition espacée de Med MNG planifie la révision de vos flashcards." /></p>
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Entrelacement (en anglais : interleaving)" /></h3>
@@ -162,7 +162,7 @@ const ReussirEdn = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="Encodage élaboré (en anglais : elaborative encoding)" /></h3>
-                <p><TranslatedText text="Reliez chaque nouvelle information à ce que vous savez déjà. Les chansons MED MNG peuvent servir de point d'accroche, en complément de ce travail." /></p>
+                <p><TranslatedText text="Reliez chaque nouvelle information à ce que vous savez déjà. Les chansons Med MNG peuvent servir de point d'accroche, en complément de ce travail." /></p>
               </div>
             </div>
           </section>
@@ -196,7 +196,7 @@ const ReussirEdn = () => {
               <TranslatedText text="Faire 10 000 QCM ne sert à rien si vous ne comprenez pas vos erreurs. La qualité prime toujours sur la quantité." />
             </p>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="Notre recommandation : 30-50 QCM/jour avec analyse détaillée de chaque erreur. Sur MED MNG, chaque quiz est rattaché à un item EDN : relisez la fiche de l'item après chaque erreur." />
+              <TranslatedText text="Notre recommandation : 30-50 QCM/jour avec analyse détaillée de chaque erreur. Sur Med MNG, chaque quiz est rattaché à un item EDN : relisez la fiche de l'item après chaque erreur." />
             </p>
           </section>
 
@@ -205,14 +205,14 @@ const ReussirEdn = () => {
               <TranslatedText text="7. La méthode musicale : réviser autrement" />
             </h2>
             <p className="text-muted-foreground mb-4">
-              <TranslatedText text="MED MNG combine révision médicale et musique IA : pour chaque item EDN, l'IA écrit des paroles à partir de ses compétences rang A et rang B, que vous pouvez mettre en musique." />
+              <TranslatedText text="Med MNG combine révision médicale et musique IA : pour chaque item EDN, l'IA écrit des paroles à partir de ses compétences rang A et rang B, que vous pouvez mettre en musique." />
             </p>
             <p className="text-muted-foreground mb-4">
               <TranslatedText text="Certaines études montrent qu'une mélodie répétée peut aider à retenir un texte. L'effet reste modeste : la chanson complète le rappel actif et vos cours, elle ne les remplace pas." />
             </p>
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6 text-center">
-                <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Essayez la méthode MED MNG" /></h3>
+                <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Essayez la méthode Med MNG" /></h3>
                 <p className="text-sm text-muted-foreground mb-4"><TranslatedText text="367 items EDN : fiche, rang A, rang B, quiz et paroles de chanson" /></p>
                 <Link to={ROUTE_PATHS.medMngSignup}>
                   <Button className="gap-2"><TranslatedText text="Créer un compte gratuit" /> <ArrowRight className="h-4 w-4" /></Button>
@@ -240,7 +240,7 @@ const ReussirEdn = () => {
 
           <div className="text-center p-8 bg-primary/5 rounded-xl border border-primary/20">
             <h2 className="text-2xl font-bold text-foreground mb-3"><TranslatedText text="Prêt à réussir l'EDN ?" /></h2>
-            <p className="text-muted-foreground mb-6"><TranslatedText text="Fiches officielles des 367 items (rang A, rang B) gratuites ; paroles, récit, planches et quiz de tous les items avec MED MNG Premium." /></p>
+            <p className="text-muted-foreground mb-6"><TranslatedText text="Fiches officielles des 367 items (rang A, rang B) gratuites ; paroles, récit, planches et quiz de tous les items avec Med MNG Premium." /></p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}><Button size="lg" className="gap-2"><TranslatedText text="Commencer" /> <ArrowRight className="h-4 w-4" /></Button></Link>
               <Link to={ROUTE_PATHS.medMngPricing}><Button variant="outline" size="lg"><TranslatedText text="Voir les tarifs" /></Button></Link>

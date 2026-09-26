@@ -246,7 +246,7 @@ export const exportEnhancedPDF = async (options: EnhancedExportOptions): Promise
       pdf.setFontSize(8);
       pdf.setTextColor(150, 150, 150);
       pdf.text(
-        `MED MNG EDN Complete | ${itemCode} | Généré le ${new Date().toLocaleDateString('fr-FR')} | Page ${i}/${totalPages}`,
+        `Med MNG EDN Complete | ${itemCode} | Généré le ${new Date().toLocaleDateString('fr-FR')} | Page ${i}/${totalPages}`,
         pageWidth / 2,
         pageHeight - 8,
         { align: 'center' }

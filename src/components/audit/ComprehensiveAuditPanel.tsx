@@ -65,7 +65,7 @@ export const ComprehensiveAuditPanel = ({
                 Audit Complet de la Plateforme
               </CardTitle>
               <CardDescription>
-                Analyse approfondie de tous les aspects de la plateforme MED MNG
+                Analyse approfondie de tous les aspects de la plateforme Med MNG
               </CardDescription>
             </div>
             <div className="flex gap-2">

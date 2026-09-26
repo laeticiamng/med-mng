@@ -106,7 +106,7 @@ export function PWAInstallPrompt() {
             <p className="text-xs text-muted-foreground mt-1">
               {isIOS 
                 ? 'Appuyez sur le bouton de partage puis "Sur l\'écran d\'accueil"'
-                : 'Accédez rapidement à MED MNG depuis votre écran d\'accueil'
+                : 'Accédez rapidement à Med MNG depuis votre écran d\'accueil'
               }
             </p>
             

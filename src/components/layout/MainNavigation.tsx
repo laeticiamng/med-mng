@@ -113,7 +113,7 @@ export const MainNavigation: React.FC = () => {
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              MED MNG
+              Med MNG
             </span>
           </Link>
 

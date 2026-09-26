@@ -1,4 +1,4 @@
-// Générateur audio MED MNG (/med-mng/create et /generator)
+// Générateur audio Med MNG (/med-mng/create et /generator)
 //
 // Chemin complet : paroles du rang choisi (RPC mm_contenu_immersif_item via
 // useEdnItemLyrics) → mm-generate-music (abonnement/quota, modèle imposé,
@@ -121,7 +121,7 @@ const Generator = () => {
     error: lyricsError,
     verrouille: parolesVerrouillees,
   } = useEdnItemLyrics(selectedItem || null);
-  // Paroles hors items d'essai : réservées à MED MNG Premium. Le serveur (RPC
+  // Paroles hors items d'essai : réservées à Med MNG Premium. Le serveur (RPC
   // mm_contenu_immersif_item) fait foi (`parolesVerrouillees`) ; la règle
   // côté client évite seulement d'afficher des paroles avant sa réponse.
   const ednLyrics = (selectedItem && !peutVoirItem(selectedItem)) || parolesVerrouillees ? null : ednLyricsBrutes;
@@ -152,7 +152,7 @@ const Generator = () => {
       return;
     }
 
-    // Génération audio réservée à MED MNG Premium (contrôle définitif côté serveur).
+    // Génération audio réservée à Med MNG Premium (contrôle définitif côté serveur).
     if (!aAccesPremium) {
       toast.error(`La génération audio est incluse dans ${NOM_OFFRE_PREMIUM} (${FORMULES_PREMIUM.annuel.prixAffiche} ou ${FORMULES_PREMIUM.mensuel.prixAffiche}).`, {
         action: { label: "Voir l'offre", onClick: () => navigate(ROUTE_PATHS.medMngPricing) }

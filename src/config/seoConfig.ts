@@ -12,13 +12,13 @@ export interface RouteSEO {
   noindex?: boolean;
 }
 
-const BASE_KEYWORDS = 'médecine, EDN, ECOS, apprentissage médical, musique, MED MNG';
+const BASE_KEYWORDS = 'médecine, EDN, ECOS, apprentissage médical, musique, Med MNG';
 
 export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === HOME ===
   '/': {
-    title: 'MED MNG - Apprends la médecine en musique | EDN & ECOS',
-    description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec MED MNG Premium. Situations ECOS guidées.',
+    title: 'Med MNG - Apprends la médecine en musique | EDN & ECOS',
+    description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium. Situations ECOS guidées.',
     keywords: `${BASE_KEYWORDS}, révisions, mémorisation, étudiants médecine`,
     canonical: '/',
   },
@@ -44,7 +44,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/executive-dashboard': {
     title: 'Dashboard Exécutif',
-    description: 'Vue d\'ensemble complète de la plateforme MED MNG : métriques clés, KPIs et analyses avancées.',
+    description: 'Vue d\'ensemble complète de la plateforme Med MNG : métriques clés, KPIs et analyses avancées.',
     keywords: `${BASE_KEYWORDS}, exécutif, KPI, métriques, analytics`,
     canonical: '/executive-dashboard',
     noindex: true,
@@ -113,7 +113,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === GAMIFICATION ===
   '/leaderboard': {
     title: 'Classement - Leaderboard',
-    description: 'Comparez votre progression avec la communauté MED MNG. Classement par points, badges et séries.',
+    description: 'Comparez votre progression avec la communauté Med MNG. Classement par points, badges et séries.',
     keywords: `${BASE_KEYWORDS}, classement, leaderboard, compétition, badges`,
     canonical: '/leaderboard',
   },
@@ -149,7 +149,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/achievements': {
     title: 'Mes Succès & Badges',
-    description: 'Consultez vos badges, trophées et accomplissements sur MED MNG. Célébrez votre progression médicale.',
+    description: 'Consultez vos badges, trophées et accomplissements sur Med MNG. Célébrez votre progression médicale.',
     keywords: `${BASE_KEYWORDS}, succès, badges, trophées, gamification`,
     canonical: '/achievements',
   },
@@ -164,8 +164,8 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
 
   // === STORE ===
   '/store': {
-    title: 'Boutique MED MNG',
-    description: 'MED MNG Premium : contenu immersif des 367 items EDN et génération audio, 69 €/an ou 9,90 €/mois.',
+    title: 'Boutique Med MNG',
+    description: 'Med MNG Premium : contenu immersif des 367 items EDN et génération audio, 69 €/an ou 9,90 €/mois.',
     keywords: `${BASE_KEYWORDS}, boutique, premium, abonnement, achats`,
     canonical: '/store',
   },
@@ -173,31 +173,31 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === AUTH ===
   '/med-mng/login': {
     title: 'Connexion',
-    description: 'Connectez-vous à MED MNG pour accéder à vos révisions médicales en musique. 367 items EDN vous attendent.',
+    description: 'Connectez-vous à Med MNG pour accéder à vos révisions médicales en musique. 367 items EDN vous attendent.',
     keywords: `${BASE_KEYWORDS}, connexion, login, compte`,
     canonical: '/med-mng/login',
   },
   '/med-mng/signup': {
     title: 'Inscription Gratuite',
-    description: 'Créez votre compte MED MNG gratuit : fiches officielles des 367 items EDN et 10 items d\'essai en immersion complète.',
+    description: 'Créez votre compte Med MNG gratuit : fiches officielles des 367 items EDN et 10 items d\'essai en immersion complète.',
     keywords: `${BASE_KEYWORDS}, inscription, créer compte, gratuit, démarrer`,
     canonical: '/med-mng/signup',
   },
   '/med-mng/pricing': {
     title: 'Tarifs & Abonnements',
-    description: 'MED MNG : fiches officielles des 367 items gratuites et 10 items d\'essai en immersion. MED MNG Premium : tous les items en immersion et génération audio, 69 €/an ou 9,90 €/mois.',
+    description: 'Med MNG : fiches officielles des 367 items gratuites et 10 items d\'essai en immersion. Med MNG Premium : tous les items en immersion et génération audio, 69 €/an ou 9,90 €/mois.',
     keywords: `${BASE_KEYWORDS}, tarifs, prix, abonnement, premium, pro`,
     canonical: '/med-mng/pricing',
   },
   '/med-mng/reset-password': {
     title: 'Réinitialiser le mot de passe',
-    description: 'Réinitialisez votre mot de passe MED MNG. Recevez un lien sécurisé par email.',
+    description: 'Réinitialisez votre mot de passe Med MNG. Recevez un lien sécurisé par email.',
     keywords: `${BASE_KEYWORDS}, mot de passe, réinitialisation`,
     canonical: '/med-mng/reset-password',
     noindex: true,
   },
 
-  // === MED MNG Protected (noindex) ===
+  // === Med MNG Protected (noindex) ===
   '/med-mng/create': {
     title: 'Créer une Chanson Médicale',
     description: 'Créez votre propre chanson médicale avec l\'IA. Choisissez un item EDN, un style musical et générez votre morceau.',
@@ -221,7 +221,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/profile': {
     title: 'Mon Profil',
-    description: 'Gérez votre profil MED MNG : informations personnelles, préférences et statistiques.',
+    description: 'Gérez votre profil Med MNG : informations personnelles, préférences et statistiques.',
     keywords: `${BASE_KEYWORDS}, profil, compte, paramètres`,
     canonical: '/med-mng/profile',
     noindex: true,
@@ -235,14 +235,14 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/analytics': {
     title: 'Mes Analytics',
-    description: 'Statistiques détaillées de votre écoute musicale et apprentissage sur MED MNG.',
+    description: 'Statistiques détaillées de votre écoute musicale et apprentissage sur Med MNG.',
     keywords: `${BASE_KEYWORDS}, analytics, statistiques, écoute`,
     canonical: '/med-mng/analytics',
     noindex: true,
   },
   '/med-mng/progress': {
     title: 'Ma Progression',
-    description: 'Suivez votre progression détaillée sur MED MNG : items maîtrisés, scores et recommandations.',
+    description: 'Suivez votre progression détaillée sur Med MNG : items maîtrisés, scores et recommandations.',
     keywords: `${BASE_KEYWORDS}, progression, suivi, performance`,
     canonical: '/med-mng/progress',
     noindex: true,
@@ -264,13 +264,13 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/shared-music': {
     title: 'Musique Partagée',
-    description: 'Découvrez les chansons médicales partagées par la communauté MED MNG.',
+    description: 'Découvrez les chansons médicales partagées par la communauté Med MNG.',
     keywords: `${BASE_KEYWORDS}, partage, communauté, musique partagée`,
     canonical: '/shared-music',
   },
   '/library': {
     title: 'Bibliothèque Générale',
-    description: 'Accédez à l\'ensemble des ressources MED MNG : items EDN, chansons, flashcards et cas cliniques.',
+    description: 'Accédez à l\'ensemble des ressources Med MNG : items EDN, chansons, flashcards et cas cliniques.',
     keywords: `${BASE_KEYWORDS}, bibliothèque, ressources, catalogue`,
     canonical: '/library',
   },
@@ -282,7 +282,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/statistics': {
     title: 'Statistiques de la Plateforme',
-    description: 'Statistiques globales de MED MNG : utilisateurs actifs, items les plus étudiés et tendances.',
+    description: 'Statistiques globales de Med MNG : utilisateurs actifs, items les plus étudiés et tendances.',
     keywords: `${BASE_KEYWORDS}, statistiques, données, tendances`,
     canonical: '/statistics',
   },
@@ -293,7 +293,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/study-planner',
   },
   '/community': {
-    title: 'Communauté MED MNG',
+    title: 'Communauté Med MNG',
     description: 'Rejoignez la communauté d\'étudiants en médecine. Échangez, partagez et progressez ensemble.',
     keywords: `${BASE_KEYWORDS}, communauté, forum, échanges, entraide`,
     canonical: '/community',
@@ -306,7 +306,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/settings': {
     title: 'Paramètres',
-    description: 'Gérez vos paramètres MED MNG : thème, notifications, langue, abonnement et confidentialité.',
+    description: 'Gérez vos paramètres Med MNG : thème, notifications, langue, abonnement et confidentialité.',
     keywords: `${BASE_KEYWORDS}, paramètres, configuration, préférences`,
     canonical: '/settings',
     noindex: true,
@@ -321,31 +321,31 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === LEGAL ===
   '/mentions-legales': {
     title: 'Mentions Légales',
-    description: 'Mentions légales de MED MNG : éditeur, hébergeur, propriété intellectuelle et conditions d\'utilisation.',
+    description: 'Mentions légales de Med MNG : éditeur, hébergeur, propriété intellectuelle et conditions d\'utilisation.',
     keywords: `${BASE_KEYWORDS}, mentions légales, éditeur, CGU`,
     canonical: '/mentions-legales',
   },
   '/politique-confidentialite': {
     title: 'Politique de Confidentialité',
-    description: 'Politique de confidentialité MED MNG : collecte de données, RGPD, cookies et droits des utilisateurs.',
+    description: 'Politique de confidentialité Med MNG : collecte de données, RGPD, cookies et droits des utilisateurs.',
     keywords: `${BASE_KEYWORDS}, confidentialité, RGPD, données personnelles, cookies`,
     canonical: '/politique-confidentialite',
   },
   '/cgu': {
     title: 'Conditions Générales d\'Utilisation',
-    description: 'CGU de MED MNG : conditions d\'accès, droits et obligations des utilisateurs de la plateforme.',
+    description: 'CGU de Med MNG : conditions d\'accès, droits et obligations des utilisateurs de la plateforme.',
     keywords: `${BASE_KEYWORDS}, CGU, conditions utilisation, règlement`,
     canonical: '/cgu',
   },
   '/declaration-accessibilite': {
     title: 'Déclaration d\'Accessibilité',
-    description: 'Déclaration d\'accessibilité de MED MNG : conformité RGAA, aménagements et contact accessibilité.',
+    description: 'Déclaration d\'accessibilité de Med MNG : conformité RGAA, aménagements et contact accessibilité.',
     keywords: `${BASE_KEYWORDS}, accessibilité, RGAA, handicap`,
     canonical: '/declaration-accessibilite',
   },
   '/mes-donnees-rgpd': {
     title: 'Mes Données RGPD',
-    description: 'Exercez vos droits RGPD sur MED MNG : export, suppression et gestion de vos données personnelles.',
+    description: 'Exercez vos droits RGPD sur Med MNG : export, suppression et gestion de vos données personnelles.',
     keywords: `${BASE_KEYWORDS}, RGPD, données personnelles, export, suppression`,
     canonical: '/mes-donnees-rgpd',
     noindex: true,
@@ -353,8 +353,8 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
 
   // === PWA & MISC ===
   '/install': {
-    title: 'Installer MED MNG',
-    description: 'Installez MED MNG sur votre appareil pour un accès rapide hors ligne. Application progressive (PWA).',
+    title: 'Installer Med MNG',
+    description: 'Installez Med MNG sur votre appareil pour un accès rapide hors ligne. Application progressive (PWA).',
     keywords: `${BASE_KEYWORDS}, installer, PWA, application, hors ligne`,
     canonical: '/install',
   },
@@ -367,14 +367,14 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/diagnostics': {
     title: 'Diagnostics',
-    description: 'Outils de diagnostic de la plateforme MED MNG.',
+    description: 'Outils de diagnostic de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, diagnostics, debug`,
     canonical: '/diagnostics',
     noindex: true,
   },
   '/design-system': {
     title: 'Design System',
-    description: 'Guide des composants et styles du Design System MED MNG.',
+    description: 'Guide des composants et styles du Design System Med MNG.',
     keywords: `${BASE_KEYWORDS}, design system, composants, UI`,
     canonical: '/design-system',
     noindex: true,
@@ -383,42 +383,42 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === PLATFORM ADMIN (noindex) ===
   '/platform-status': {
     title: 'Statut de la Plateforme',
-    description: 'État des services MED MNG en temps réel.',
+    description: 'État des services Med MNG en temps réel.',
     keywords: `${BASE_KEYWORDS}, statut, uptime, services`,
     canonical: '/platform-status',
     noindex: true,
   },
   '/monitoring': {
     title: 'Monitoring',
-    description: 'Monitoring de la plateforme MED MNG.',
+    description: 'Monitoring de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, monitoring, surveillance`,
     canonical: '/monitoring',
     noindex: true,
   },
   '/system-management': {
     title: 'Gestion Système',
-    description: 'Gestion système de la plateforme MED MNG.',
+    description: 'Gestion système de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, système, gestion, administration`,
     canonical: '/system-management',
     noindex: true,
   },
   '/platform-settings': {
     title: 'Paramètres Plateforme',
-    description: 'Configuration de la plateforme MED MNG.',
+    description: 'Configuration de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, paramètres, configuration`,
     canonical: '/platform-settings',
     noindex: true,
   },
   '/accessibility-dashboard': {
     title: 'Dashboard Accessibilité',
-    description: 'Suivi de la conformité accessibilité RGAA de MED MNG.',
+    description: 'Suivi de la conformité accessibilité RGAA de Med MNG.',
     keywords: `${BASE_KEYWORDS}, accessibilité, RGAA, conformité`,
     canonical: '/accessibility-dashboard',
     noindex: true,
   },
   '/effectiveness-dashboard': {
     title: 'Dashboard Efficacité',
-    description: 'Métriques d\'efficacité pédagogique de la plateforme MED MNG.',
+    description: 'Métriques d\'efficacité pédagogique de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, efficacité, pédagogie, métriques`,
     canonical: '/effectiveness-dashboard',
     noindex: true,
@@ -432,7 +432,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/security-monitoring': {
     title: 'Monitoring Sécurité',
-    description: 'Surveillance de la sécurité de la plateforme MED MNG.',
+    description: 'Surveillance de la sécurité de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, sécurité, monitoring, audit`,
     canonical: '/security-monitoring',
     noindex: true,
@@ -513,14 +513,14 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === AUDIT (noindex) ===
   '/audit': {
     title: 'Audit Complet',
-    description: 'Audit complet de la plateforme MED MNG.',
+    description: 'Audit complet de la plateforme Med MNG.',
     keywords: `${BASE_KEYWORDS}, audit, qualité`,
     canonical: '/audit',
     noindex: true,
   },
   '/audit-completeness': {
     title: 'Audit Complétude',
-    description: 'Audit de complétude des données MED MNG.',
+    description: 'Audit de complétude des données Med MNG.',
     keywords: `${BASE_KEYWORDS}, audit, complétude`,
     canonical: '/audit-completeness',
     noindex: true,
@@ -570,7 +570,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
     return {
       title: sousPage ? `Item EDN — ${sousPage.titre}` : 'Item EDN',
       description: sousPage?.description
-        ?? 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur MED MNG.',
+        ?? 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur Med MNG.',
       keywords: `${BASE_KEYWORDS}, item EDN, cours, détail`,
       canonical: pathname,
       ogType: 'article',
@@ -579,7 +579,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
   if (pathname.startsWith('/ecos/')) {
     return {
       title: 'Scénario ECOS',
-      description: 'Simulation ECOS interactive avec feedback détaillé sur MED MNG.',
+      description: 'Simulation ECOS interactive avec feedback détaillé sur Med MNG.',
       keywords: `${BASE_KEYWORDS}, ECOS, scénario, simulation`,
       canonical: pathname,
     };
@@ -587,7 +587,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
   if (pathname.startsWith('/med-mng/items/')) {
     return {
       title: 'Détail Item',
-      description: 'Détail d\'un item médical avec contenu enrichi sur MED MNG.',
+      description: 'Détail d\'un item médical avec contenu enrichi sur Med MNG.',
       keywords: `${BASE_KEYWORDS}, item, détail`,
       canonical: pathname,
       noindex: true,
@@ -596,7 +596,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
   if (pathname.startsWith('/med-mng/player/')) {
     return {
       title: 'Lecteur Musical',
-      description: 'Écoutez une chanson médicale générée par IA sur MED MNG.',
+      description: 'Écoutez une chanson médicale générée par IA sur Med MNG.',
       keywords: `${BASE_KEYWORDS}, lecteur, musique, écoute`,
       canonical: pathname,
       noindex: true,
@@ -605,7 +605,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
   if (pathname.startsWith('/product/')) {
     return {
       title: 'Produit',
-      description: 'Découvrez ce produit sur la boutique MED MNG.',
+      description: 'Découvrez ce produit sur la boutique Med MNG.',
       keywords: `${BASE_KEYWORDS}, produit, boutique`,
       canonical: pathname,
     };
@@ -613,7 +613,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
   if (pathname.startsWith('/shared-music/')) {
     return {
       title: 'Musique Partagée',
-      description: 'Écoutez cette chanson médicale partagée sur MED MNG.',
+      description: 'Écoutez cette chanson médicale partagée sur Med MNG.',
       keywords: `${BASE_KEYWORDS}, musique partagée, partage`,
       canonical: pathname,
     };
@@ -623,7 +623,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
   if (pathname.startsWith('/admin')) {
     return {
       title: 'Administration',
-      description: 'Panneau d\'administration MED MNG.',
+      description: 'Panneau d\'administration Med MNG.',
       keywords: BASE_KEYWORDS,
       canonical: pathname,
       noindex: true,
@@ -632,7 +632,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
 
   // Fallback
   return {
-    title: 'MED MNG',
+    title: 'Med MNG',
     description: 'Plateforme d\'apprentissage médical innovante par la musique. 367 items EDN et simulations ECOS.',
     keywords: BASE_KEYWORDS,
     canonical: pathname,

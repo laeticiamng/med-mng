@@ -1,5 +1,5 @@
 /**
- * MED MNG External Platform Connectors
+ * Med MNG External Platform Connectors
  * Intégrations EmotionsCare, Growth-Copilot, System-Compass
  */
 

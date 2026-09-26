@@ -328,7 +328,7 @@ export const TroubleshootingFAQ = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <HelpCircle className="h-5 w-5" />
-          FAQ & Troubleshooting MED MNG
+          FAQ & Troubleshooting Med MNG
         </CardTitle>
         <CardDescription>
           Guide complet pour résoudre les problèmes courants de développement et déploiement

@@ -24,17 +24,17 @@ export const AppleFinalCTA = () => {
         </motion.div>
 
         <motion.h2 initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6 sm:mb-8">
-          <span className="text-foreground"><TranslatedText text="Prêt à" /></span>
+          <span className="text-foreground"><TranslatedText text="Votre prochain item," /></span>
           <br />
           <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
-            <TranslatedText text="tout retenir ?" />
+            <TranslatedText text="en chanson." />
           </span>
         </motion.h2>
 
         <motion.p initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.4 }} className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
-          <TranslatedText text="Ne vous épuisez plus sur des fiches." />
+          <TranslatedText text="La fiche officielle, la chanson et le quiz, au même endroit." />
           <br />
-          <span className="text-foreground font-semibold"><TranslatedText text="Écoutez. Retenez. Réussissez." /></span>
+          <span className="text-foreground font-semibold"><TranslatedText text="Pour préparer les EDN, dès la D2." /></span>
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">

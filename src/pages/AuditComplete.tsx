@@ -314,7 +314,7 @@ const AuditComplete = () => {
         {/* Footer Info */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>
-            <TranslatedText text="Système d'audit unifié - Plateforme MED MNG" /> • 
+            <TranslatedText text="Système d'audit unifié - Plateforme Med MNG" /> • 
             <span className="ml-2">Version 2.0</span>
           </p>
         </div>

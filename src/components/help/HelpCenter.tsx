@@ -65,7 +65,7 @@ export const HelpCenter: React.FC = () => {
     },
     {
       id: '4',
-      question: 'Puis-je utiliser MED MNG hors ligne ?',
+      question: 'Puis-je utiliser Med MNG hors ligne ?',
       answer: 'Certaines fonctionnalités de base sont disponibles hors ligne grâce à notre PWA. Cependant, la génération IA et la synchronisation nécessitent une connexion internet.',
       category: 'Technique',
       keywords: ['hors ligne', 'offline', 'connexion', 'PWA'],
@@ -85,7 +85,7 @@ export const HelpCenter: React.FC = () => {
     {
       id: 'guide-1',
       title: 'Guide de démarrage rapide',
-      description: 'Découvrez les fonctionnalités essentielles de MED MNG en 10 minutes',
+      description: 'Découvrez les fonctionnalités essentielles de Med MNG en 10 minutes',
       duration: '10 min',
       difficulty: 'Débutant',
       type: 'interactive',
@@ -161,7 +161,7 @@ export const HelpCenter: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-            Centre d'Aide MED MNG
+            Centre d'Aide Med MNG
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Trouvez rapidement les réponses à vos questions et apprenez à maîtriser la plateforme

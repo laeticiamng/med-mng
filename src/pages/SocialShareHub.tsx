@@ -58,7 +58,7 @@ const SocialShareHub: React.FC = () => {
   }, [scoreData, download, trackShare]);
 
   const shareToSocial = useCallback((platform: string) => {
-    const text = `🩺 Mon score MED MNG : ${scoreData.score}% | Niveau ${scoreData.level} | 🔥 ${scoreData.streak} jours de série ! Rejoignez-moi avec mon code ${referralCode}`;
+    const text = `🩺 Mon score Med MNG : ${scoreData.score}% | Niveau ${scoreData.level} | 🔥 ${scoreData.streak} jours de série ! Rejoignez-moi avec mon code ${referralCode}`;
     const url = shareUrl || window.location.origin;
     const encoded = encodeURIComponent(text);
     const encodedUrl = encodeURIComponent(url);
@@ -153,7 +153,7 @@ const SocialShareHub: React.FC = () => {
                   const blob = await (await fetch(dataUrl)).blob();
                   const file = new File([blob], 'score.png', { type: 'image/png' });
                   try {
-                    await navigator.share({ title: 'Mon score MED MNG', files: [file] });
+                    await navigator.share({ title: 'Mon score Med MNG', files: [file] });
                     trackShare({ shareType: 'score_card', platform: 'native' });
                   } catch {}
                 }}>

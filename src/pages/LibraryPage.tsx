@@ -21,7 +21,7 @@ import { Card } from '@/components/ui/card';
 // (ANDPC). Onglet et point d’entrée retirés ; cf. src/components/library/DPCCertification.tsx.
 // Le Studio Créateur ('creator') a été retiré : importer un cours pour en
 // faire une chanson est le coeur de COGNITIO, et le doublonner ici brouillait
-// les deux produits. MED MNG reste le catalogue des 367 items déjà en musique.
+// les deux produits. Med MNG reste le catalogue des 367 items déjà en musique.
 const LIBRARY_TABS = ['content', 'memory', 'library', 'favorites', 'recent', 'playlists'];
 
 export default function LibraryPage() {

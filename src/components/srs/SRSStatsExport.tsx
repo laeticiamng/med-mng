@@ -46,7 +46,7 @@ export const SRSStatsExport = ({ stats, userName }: SRSStatsExportProps) => {
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('MED MNG', margin, 25);
+      pdf.text('Med MNG', margin, 25);
       
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
@@ -198,7 +198,7 @@ export const SRSStatsExport = ({ stats, userName }: SRSStatsExportProps) => {
       pdf.setFontSize(8);
       pdf.setTextColor(128, 128, 128);
       pdf.text(
-        `MED MNG - Statistiques SRS | Généré le ${new Date().toLocaleDateString('fr-FR')}`,
+        `Med MNG - Statistiques SRS | Généré le ${new Date().toLocaleDateString('fr-FR')}`,
         pageWidth / 2,
         290,
         { align: 'center' }

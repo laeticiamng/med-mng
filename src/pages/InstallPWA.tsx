@@ -146,8 +146,8 @@ const InstallPWA: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Installer MED MNG - Application Mobile"
-        description="Installez MED MNG sur votre téléphone pour un accès rapide, mode offline et notifications. Disponible pour iOS et Android."
+        title="Installer Med MNG - Application Mobile"
+        description="Installez Med MNG sur votre téléphone pour un accès rapide, mode offline et notifications. Disponible pour iOS et Android."
         keywords="installer app, PWA, application mobile, offline, médecine mobile"
       />
 
@@ -159,7 +159,7 @@ const InstallPWA: React.FC = () => {
               <Smartphone className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3 sm:mb-4">
-              Installez MED MNG
+              Installez Med MNG
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
               Transformez votre apprentissage médical avec notre application installable
@@ -175,7 +175,7 @@ const InstallPWA: React.FC = () => {
                   <div>
                     <CardTitle className="text-success">Application installée !</CardTitle>
                     <CardDescription className="text-success/80">
-                      MED MNG est prêt à l'emploi sur votre appareil
+                      Med MNG est prêt à l'emploi sur votre appareil
                     </CardDescription>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ const InstallPWA: React.FC = () => {
                       <Badge variant="outline" className="mt-0.5">4</Badge>
                       <div>
                         <p className="font-medium">Appuyez sur « Ajouter »</p>
-                        <p className="text-sm text-muted-foreground">L'icône MED MNG apparaîtra sur votre écran d'accueil</p>
+                        <p className="text-sm text-muted-foreground">L'icône Med MNG apparaîtra sur votre écran d'accueil</p>
                       </div>
                     </div>
                   </div>
@@ -356,7 +356,7 @@ const InstallPWA: React.FC = () => {
                       <p className="text-sm">
                         <span className="font-medium">⌨️ Raccourci Chrome/Edge :</span>{' '}
                         <span className="text-muted-foreground">
-                          Menu (⋮) → « Installer MED MNG... » ou « Plus d'outils » → « Créer un raccourci »
+                          Menu (⋮) → « Installer Med MNG... » ou « Plus d'outils » → « Créer un raccourci »
                         </span>
                       </p>
                     </CardContent>

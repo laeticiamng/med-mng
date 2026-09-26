@@ -72,7 +72,7 @@ export const CalendarSync: React.FC = () => {
   const [syncSettings, setSyncSettings] = useState({
     defaultDuration: 30,
     reminderMinutes: 15,
-    calendarName: 'MED MNG - Révisions',
+    calendarName: 'Med MNG - Révisions',
     includeNotes: true
   });
 
@@ -171,7 +171,7 @@ export const CalendarSync: React.FC = () => {
     const icalContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//MED MNG//Révisions//FR',
+      'PRODID:-//Med MNG//Révisions//FR',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
       ...scheduledReviews.map(review => {

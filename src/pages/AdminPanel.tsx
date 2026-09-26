@@ -78,7 +78,7 @@ export const AdminPanel: React.FC = () => {
       <footer className="bg-card border-t border-border mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="text-center text-sm text-muted-foreground">
-            Panel d'administration MED MNG • Version 2.0 • 
+            Panel d'administration Med MNG • Version 2.0 • 
             <span className="ml-1">Système de gestion intégré</span>
           </div>
         </div>

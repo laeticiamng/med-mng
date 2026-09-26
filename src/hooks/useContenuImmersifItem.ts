@@ -9,7 +9,7 @@ import { normaliserCodeItem } from '@/config/offre';
  * (supabase/migrations/20260924121000_mm_contenu_premium.sql).
  *
  * La RPC applique côté serveur la règle de l'offre : item d'essai
- * (ITEMS_GRATUITS) ou abonné MED MNG Premium / administrateur, d'après le JWT
+ * (ITEMS_GRATUITS) ou abonné Med MNG Premium / administrateur, d'après le JWT
  * de l'appelant. Sinon elle renvoie `{ verrouille: true }` — jamais d'erreur.
  * L'appel passe par le client supabase normal, qui joint le JWT de la session.
  *

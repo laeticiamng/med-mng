@@ -27,7 +27,7 @@ export const HeroSection = () => {
       <div className="flex items-center justify-center space-x-2">
         <Sparkles className="h-8 w-8 text-primary" />
         <h1 className="text-4xl font-bold text-foreground">
-          MED MNG
+          Med MNG
         </h1>
       </div>
       <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

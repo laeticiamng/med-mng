@@ -63,7 +63,7 @@
     "freeGenerationsRemaining": "{{count}}/3 kostenlose Generierungen übrig"
   },
   "home": {
-    "title": "MED MNG",
+    "title": "Med MNG",
     "subtitle": "Medizinisches Lernen neu erfunden mit künstlicher Intelligenz",
     "platformLabel": "Premium-Plattform",
     "quickAccess": "Schnellzugriff auf Werkzeuge",
@@ -96,7 +96,7 @@
       "knowledge": "Medizinische Wissensbasis",
       "instant": "Sofortige Antworten"
     },
-    "whyChoose": "Warum MED MNG wählen?",
+    "whyChoose": "Warum Med MNG wählen?",
     "whyChooseSubtitle": "Eine vollständige Plattform für modernes medizinisches Lernen",
     "features": {
       "ai": {
@@ -117,7 +117,7 @@
       }
     },
     "cta": {
-      "discover": "MED MNG entdecken",
+      "discover": "Med MNG entdecken",
       "generate": "Jetzt generieren",
       "access": "Elemente aufrufen",
       "start": "ECOS starten",

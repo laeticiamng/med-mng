@@ -39,8 +39,8 @@ export const MedMngPricing = () => {
   return (
     <>
       <SEOHead
-        title="Tarifs – MED MNG Premium 69 €/an | MED MNG"
-        description="MED MNG : fiches officielles des 367 items EDN gratuites et 10 items d'essai en immersion. MED MNG Premium : contenu immersif des 367 items et génération audio, 69 €/an ou 9,90 €/mois."
+        title="Tarifs – Med MNG Premium 69 €/an | Med MNG"
+        description="Med MNG : fiches officielles des 367 items EDN gratuites et 10 items d'essai en immersion. Med MNG Premium : contenu immersif des 367 items et génération audio, 69 €/an ou 9,90 €/mois."
         keywords="tarifs EDN, abonnement ECOS, préparation médecine, prix"
         canonical="/med-mng/pricing"
       />
@@ -66,7 +66,7 @@ export const MedMngPricing = () => {
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               Les fiches officielles des 367 items sont gratuites, et 10 items d'essai sont ouverts en immersion complète.
-              MED MNG Premium ouvre le contenu immersif des 367 items et la génération audio.
+              Med MNG Premium ouvre le contenu immersif des 367 items et la génération audio.
             </p>
             
             {/* Trust badges */}
@@ -86,7 +86,7 @@ export const MedMngPricing = () => {
             <PremiumCard variant="glass" className="mb-8 p-6 max-w-2xl mx-auto">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Votre abonnement MED MNG Premium est actif</h3>
+                  <h3 className="text-lg font-bold text-foreground">Votre abonnement Med MNG Premium est actif</h3>
                   <p className="text-muted-foreground text-sm">Vous pouvez le gérer ou le résilier depuis votre profil.</p>
                 </div>
                 <Badge variant="default" className="bg-success text-success-foreground">Actif</Badge>

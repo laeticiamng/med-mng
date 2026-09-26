@@ -15,7 +15,7 @@ const ClassementEdnExplique = () => {
     "@type": "Article",
     "headline": "Comment fonctionne le classement EDN ? Guide complet EDN 2027",
     "description": "Comprendre le classement national EDN : épreuves, rangs A et B, choix de spécialité.",
-    "author": { "@type": "Organization", "name": "MED MNG" },
+    "author": { "@type": "Organization", "name": "Med MNG" },
     "datePublished": "2026-02-28",
     "dateModified": "2026-09-24"
   };
@@ -23,7 +23,7 @@ const ClassementEdnExplique = () => {
   return (
     <>
       <SEOHead
-        title="Comment fonctionne le classement EDN 2027 | MED MNG"
+        title="Comment fonctionne le classement EDN 2027 | Med MNG"
         description="Comprendre le classement national EDN : épreuves, rangs A/B, ECOS et choix de spécialité."
         keywords="classement EDN, score EDN, rang A rang B, classement national médecine, choix spécialité"
         canonical="/classement-edn-explique"

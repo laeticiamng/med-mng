@@ -416,9 +416,9 @@ const ResultsScreen: React.FC<{
           size="lg"
           className="gap-2"
           onClick={() => {
-            const text = `${isWinner ? '🏆 Victoire' : '⚔️ Duel'} - ${playerScore} pts (${accuracy}% précision) sur MED MNG ! 🎵`;
+            const text = `${isWinner ? '🏆 Victoire' : '⚔️ Duel'} - ${playerScore} pts (${accuracy}% précision) sur Med MNG ! 🎵`;
             if (navigator.share) {
-              navigator.share({ title: 'Duel Karaoké MED MNG', text, url: window.location.origin + '/duel' });
+              navigator.share({ title: 'Duel Karaoké Med MNG', text, url: window.location.origin + '/duel' });
             } else {
               navigator.clipboard.writeText(text);
             }

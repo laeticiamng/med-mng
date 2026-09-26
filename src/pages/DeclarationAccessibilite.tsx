@@ -27,7 +27,7 @@ const DeclarationAccessibilite = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <Eye className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">MED MNG - Accessibilité Numérique</h2>
+                <h2 className="text-2xl font-bold">Med MNG - Accessibilité Numérique</h2>
               </div>
               <p className="text-sm opacity-90">Conformité RGAA 4.1 (Référentiel Général d'Amélioration de l'Accessibilité)</p>
               <p className="text-sm opacity-90">Dernière évaluation : 04 novembre 2025</p>
@@ -40,7 +40,7 @@ const DeclarationAccessibilite = () => {
             <AlertDescription>
               <p className="font-semibold text-lg mb-2">✅ État de conformité actuel</p>
               <p className="text-sm">
-                MED MNG est <strong>totalement conforme</strong> avec le RGAA 4.1 (100% des critères). 
+                Med MNG est <strong>totalement conforme</strong> avec le RGAA 4.1 (100% des critères). 
                 Nous maintenons activement cette conformité et effectuons des audits réguliers.
               </p>
             </AlertDescription>
@@ -54,7 +54,7 @@ const DeclarationAccessibilite = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                EmotionsCare s'engage à rendre MED MNG accessible à toutes et tous, conformément à l'article 47 
+                EmotionsCare s'engage à rendre Med MNG accessible à toutes et tous, conformément à l'article 47 
                 de la loi n° 2005-102 du 11 février 2005 et au décret n° 2019-768 du 24 juillet 2019.
               </p>
               <div className="bg-primary/10 p-4 rounded-lg">
@@ -332,7 +332,7 @@ const DeclarationAccessibilite = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                Si vous rencontrez un problème d'accessibilité sur MED MNG (contenu inaccessible, difficulté de navigation, etc.), 
+                Si vous rencontrez un problème d'accessibilité sur Med MNG (contenu inaccessible, difficulté de navigation, etc.), 
                 merci de nous le signaler :
               </p>
               <div className="bg-card p-4 rounded-lg">

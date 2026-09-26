@@ -21,7 +21,7 @@ export const MedicalDisclaimer: React.FC<MedicalDisclaimerProps> = ({
   const disclaimerText = {
     title: "Avertissement important",
     short: "Outil pédagogique uniquement - Ne remplace pas un avis médical professionnel.",
-    full: "MED MNG est un outil pédagogique destiné à l'apprentissage et la révision des étudiants en médecine. Les informations générées par l'intelligence artificielle sont fournies à titre éducatif uniquement et ne constituent en aucun cas un diagnostic médical, un avis clinique ou une recommandation de traitement. Consultez toujours un professionnel de santé qualifié pour toute question relative à votre santé ou celle de vos patients."
+    full: "Med MNG est un outil pédagogique destiné à l'apprentissage et la révision des étudiants en médecine. Les informations générées par l'intelligence artificielle sont fournies à titre éducatif uniquement et ne constituent en aucun cas un diagnostic médical, un avis clinique ou une recommandation de traitement. Consultez toujours un professionnel de santé qualifié pour toute question relative à votre santé ou celle de vos patients."
   };
 
   if (variant === 'minimal') {
@@ -77,7 +77,7 @@ export const MedicalDisclaimerFooter: React.FC<{ className?: string }> = ({ clas
     <p className="flex items-center justify-center gap-2">
       <Shield className="h-3 w-3" />
       <span>
-        MED MNG est un outil pédagogique. L'IA fournit des contenus éducatifs, 
+        Med MNG est un outil pédagogique. L'IA fournit des contenus éducatifs, 
         non des avis médicaux. Consultez un professionnel de santé pour tout diagnostic.
       </span>
     </p>
@@ -105,7 +105,7 @@ export const MedicalDisclaimerConsent: React.FC<{
         
         <div className="space-y-3 text-sm text-muted-foreground">
           <p>
-            Avant d'utiliser les fonctionnalités d'intelligence artificielle de MED MNG, 
+            Avant d'utiliser les fonctionnalités d'intelligence artificielle de Med MNG, 
             veuillez prendre connaissance des points suivants :
           </p>
           

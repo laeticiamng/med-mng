@@ -1,5 +1,5 @@
 // ============================================
-// MED MNG - Central Component Exports
+// Med MNG - Central Component Exports
 // ============================================
 // IMPORTANT: Some modules have overlapping exports
 // Import directly from specific modules to avoid conflicts
@@ -240,7 +240,7 @@ export {
   ItemMasteryGrid
 } from './learning';
 
-// MED MNG (selective exports)
+// Med MNG (selective exports)
 export { 
   AuthProvider, 
   MedMngLayout, 

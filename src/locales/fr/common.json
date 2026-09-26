@@ -63,7 +63,7 @@
     "freeGenerationsRemaining": "{{count}}/3 générations gratuites restantes"
   },
   "home": {
-    "title": "MED MNG",
+    "title": "Med MNG",
     "subtitle": "L'apprentissage médical réinventé avec l'intelligence artificielle",
     "platformLabel": "Plateforme Premium",
     "quickAccess": "Accès Rapide aux Outils",
@@ -96,7 +96,7 @@
       "knowledge": "Base de connaissances médicales",
       "instant": "Réponses instantanées"
     },
-    "whyChoose": "Pourquoi Choisir MED MNG ?",
+    "whyChoose": "Pourquoi Choisir Med MNG ?",
     "whyChooseSubtitle": "Une plateforme complète pour l'apprentissage médical moderne",
     "features": {
       "ai": {
@@ -117,7 +117,7 @@
       }
     },
     "cta": {
-      "discover": "Découvrir MED MNG",
+      "discover": "Découvrir Med MNG",
       "generate": "Générer Maintenant",
       "access": "Accéder aux Items",
       "start": "Commencer ECOS",

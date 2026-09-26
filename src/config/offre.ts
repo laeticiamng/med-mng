@@ -1,12 +1,12 @@
 /**
- * Offre commerciale MED MNG — source de vérité UNIQUE côté front.
+ * Offre commerciale Med MNG — source de vérité UNIQUE côté front.
  *
  * Décision produit : une offre simple, pensée pour les D2-D3 qui préparent
  * les EDN 2027.
  *  - Gratuit : fiches officielles (compétences du référentiel LiSA 2026, rang A
  *    et rang B) pour les 367 items + contenu immersif complet (paroles, récit,
  *    planches, quiz) pour les 10 items d'essai listés dans `ITEMS_GRATUITS`.
- *  - MED MNG Premium : contenu immersif des 367 items + génération audio
+ *  - Med MNG Premium : contenu immersif des 367 items + génération audio
  *    (quota mensuel `QUOTA_GENERATIONS_AUDIO_PREMIUM`).
  *
  * Toute évolution du prix doit être répercutée : Stripe (lookup_key,
@@ -24,10 +24,10 @@ export const ITEMS_GRATUITS: readonly string[] = [
 export const NOMBRE_ITEMS_TOTAL = 367;
 export const NOMBRE_ITEMS_GRATUITS = ITEMS_GRATUITS.length;
 
-/** Générations audio incluses par mois dans MED MNG Premium. */
+/** Générations audio incluses par mois dans Med MNG Premium. */
 export const QUOTA_GENERATIONS_AUDIO_PREMIUM = 30;
 
-export const NOM_OFFRE_PREMIUM = 'MED MNG Premium';
+export const NOM_OFFRE_PREMIUM = 'Med MNG Premium';
 
 export type FormulePremium = 'annuel' | 'mensuel';
 

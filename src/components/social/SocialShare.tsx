@@ -31,15 +31,15 @@ export const SocialShare: React.FC<SocialShareProps> = ({
     
     switch (type) {
       case 'badge':
-        return `🏆 J'ai débloqué le badge "${title}" sur MED MNG ! ${description || ''}\n\n${baseUrl}`;
+        return `🏆 J'ai débloqué le badge "${title}" sur Med MNG ! ${description || ''}\n\n${baseUrl}`;
       case 'score':
-        return `📊 J'ai obtenu ${value}% au quiz "${title}" sur MED MNG !\n\n${baseUrl}`;
+        return `📊 J'ai obtenu ${value}% au quiz "${title}" sur Med MNG !\n\n${baseUrl}`;
       case 'streak':
-        return `🔥 ${value} jours de série sur MED MNG ! Je révise mes items EDN chaque jour.\n\n${baseUrl}`;
+        return `🔥 ${value} jours de série sur Med MNG ! Je révise mes items EDN chaque jour.\n\n${baseUrl}`;
       case 'achievement':
-        return `⭐ Nouvelle réussite : ${title} sur MED MNG !\n${description || ''}\n\n${baseUrl}`;
+        return `⭐ Nouvelle réussite : ${title} sur Med MNG !\n${description || ''}\n\n${baseUrl}`;
       default:
-        return `${title} - MED MNG\n${baseUrl}`;
+        return `${title} - Med MNG\n${baseUrl}`;
     }
   };
 
@@ -58,7 +58,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `MED MNG - ${title}`,
+          title: `Med MNG - ${title}`,
           text: shareText,
           url: window.location.origin,
         });

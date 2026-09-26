@@ -171,7 +171,7 @@ export default function SmartStudyPlanner() {
       />
 
       <Helmet>
-        <title>Planning Intelligent | MED MNG</title>
+        <title>Planning Intelligent | Med MNG</title>
         <meta name="description" content="Planificateur d'études alimenté par l'IA" />
       </Helmet>
 

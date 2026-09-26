@@ -229,7 +229,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </div>
             {!isCollapsed && (
               <div>
-                <h2 className="font-semibold text-lg">MED MNG</h2>
+                <h2 className="font-semibold text-lg">Med MNG</h2>
                 <p className="text-xs text-muted-foreground">Plateforme médicale</p>
               </div>
             )}

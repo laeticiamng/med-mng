@@ -80,7 +80,7 @@ function generateMarkdownReport(report: ComprehensiveAuditReport): string {
   const { totalScore, maxScore, issues, statistics, oicQuality, recommendations } = report;
   const percentage = ((totalScore / maxScore) * 100).toFixed(1);
 
-  let md = `# 📊 AUDIT COMPLET DE LA PLATEFORME MED MNG\n\n`;
+  let md = `# 📊 AUDIT COMPLET DE LA PLATEFORME Med MNG\n\n`;
   md += `**Date**: ${new Date(report.timestamp).toLocaleString('fr-FR')}\n\n`;
   md += `---\n\n`;
 

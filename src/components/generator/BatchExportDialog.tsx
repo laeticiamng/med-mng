@@ -86,7 +86,7 @@ export const BatchExportDialog: React.FC<BatchExportDialogProps> = ({
   const exportAsZip = async (tracksToExport: Track[]) => {
     const zip = new JSZip();
     const timestamp = new Date().toISOString().split('T')[0];
-    const folderName = `MED MNG-Export-${timestamp}`;
+    const folderName = `Med MNG-Export-${timestamp}`;
     const folder = zip.folder(folderName);
 
     if (!folder) {

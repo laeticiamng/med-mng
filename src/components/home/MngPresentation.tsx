@@ -107,7 +107,7 @@ export const MngPresentation = () => {
             <CardTitle className="text-xl">Principe de fonctionnement</CardTitle>
           </div>
           <CardDescription>
-            Pour chaque item EDN, MED MNG propose :
+            Pour chaque item EDN, Med MNG propose :
           </CardDescription>
         </CardHeader>
         <CardContent>

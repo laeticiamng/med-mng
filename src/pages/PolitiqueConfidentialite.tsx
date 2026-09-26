@@ -35,7 +35,7 @@ const PolitiqueConfidentialite = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <Shield className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">MED MNG - Politique de Confidentialité</h2>
+                <h2 className="text-2xl font-bold">Med MNG - Politique de Confidentialité</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
               <p className="text-sm text-primary-foreground/70">Version officielle – Conformité RGPD</p>
@@ -49,7 +49,7 @@ const PolitiqueConfidentialite = () => {
               <h3 className="text-xl font-semibold text-foreground">1. FINALITÉ DE LA PRÉSENTE POLITIQUE</h3>
             </div>
             <div className="text-muted-foreground">
-              <p>La présente politique de confidentialité a pour but d'informer les utilisateurs de la plateforme MED MNG sur la nature des données personnelles collectées, leur traitement, leur protection, et les droits des utilisateurs conformément au <strong>Règlement Général sur la Protection des Données (RGPD – UE 2016/679)</strong>.</p>
+              <p>La présente politique de confidentialité a pour but d'informer les utilisateurs de la plateforme Med MNG sur la nature des données personnelles collectées, leur traitement, leur protection, et les droits des utilisateurs conformément au <strong>Règlement Général sur la Protection des Données (RGPD – UE 2016/679)</strong>.</p>
             </div>
           </Card>
 
@@ -143,7 +143,7 @@ const PolitiqueConfidentialite = () => {
               <ul className="space-y-2">
                 <li className="flex items-start space-x-2">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
-                  <span>L'exécution du contrat utilisateur (accès à la plateforme MED MNG)</span>
+                  <span>L'exécution du contrat utilisateur (accès à la plateforme Med MNG)</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
@@ -247,7 +247,7 @@ const PolitiqueConfidentialite = () => {
                 <p className="text-sm text-success/80">
                   Vos données personnelles ne sont <strong>jamais vendues, louées ou partagées</strong> avec des tiers 
                   à des fins marketing. Seuls les sous-traitants techniques listés ci-dessus y ont accès, 
-                  uniquement pour fournir le service MED MNG.
+                  uniquement pour fournir le service Med MNG.
                 </p>
               </div>
             </div>

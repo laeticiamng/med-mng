@@ -236,7 +236,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const handleShare = async () => {
     const shareData = {
       title: generatedSong.title || 'Musique générée',
-      text: `Écoutez cette chanson générée avec MED MNG ! Style : ${generatedSong.styleLibelle || generatedSong.style || 'Personnalisé'}`,
+      text: `Écoutez cette chanson générée avec Med MNG ! Style : ${generatedSong.styleLibelle || generatedSong.style || 'Personnalisé'}`,
       url: finalAudioUrl
     };
 

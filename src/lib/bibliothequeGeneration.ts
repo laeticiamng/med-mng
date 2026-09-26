@@ -61,7 +61,7 @@ export async function assurerChansonEnBibliotheque(userId: string, taskId: strin
     const { data: nouvelle, error: errCreation } = await supabase
       .from('med_mng_songs')
       .insert({
-        title: principale.title || 'Chanson MED MNG',
+        title: principale.title || 'Chanson Med MNG',
         suno_audio_id: sunoAudioId,
         user_id: userId,
         created_by: userId,

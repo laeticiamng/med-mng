@@ -128,8 +128,8 @@ const Leaderboard = () => {
   return (
     <>
       <Helmet>
-        <title>Classement | MED MNG</title>
-        <meta name="description" content="Comparez vos performances avec la communauté MED MNG. Classement hebdomadaire, mensuel et général." />
+        <title>Classement | Med MNG</title>
+        <meta name="description" content="Comparez vos performances avec la communauté Med MNG. Classement hebdomadaire, mensuel et général." />
         <meta name="keywords" content="classement, leaderboard, compétition, XP, médecine" />
         <link rel="canonical" href="/leaderboard" />
       </Helmet>
@@ -141,7 +141,7 @@ const Leaderboard = () => {
             <h1 className="text-2xl sm:text-3xl font-bold">Classement</h1>
           </div>
           <p className="text-muted-foreground">
-            Comparez vos performances avec la communauté MED MNG
+            Comparez vos performances avec la communauté Med MNG
           </p>
         </div>
 

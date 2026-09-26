@@ -62,7 +62,7 @@ const Achievements: React.FC = () => {
       />
 
       <Helmet>
-        <title>Succès et Gamification - MED MNG</title>
+        <title>Succès et Gamification - Med MNG</title>
         <meta name="description" content="Suivez votre progression, débloquez des succès et relevez des défis dans votre apprentissage médical." />
         <meta name="keywords" content="succès, badges, gamification, progression, apprentissage médical" />
       </Helmet>

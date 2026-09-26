@@ -88,7 +88,7 @@ const MedMngProfileComponent = () => {
         ]);
         
         // CONSTAT : la table 'favorites' n'existe pas dans le schéma Supabase.
-        // La vraie table des favoris chansons MED MNG est 'med_mng_user_favorites'
+        // La vraie table des favoris chansons Med MNG est 'med_mng_user_favorites'
         // (colonnes : id, user_id, song_id, created_at). Le compteur affichait donc
         // toujours 0 favoris sur /med-mng/profile.
         const { count: favoritesCount } = await (supabase as any)

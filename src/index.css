@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 /* ==========================================
-   MED MNG DESIGN SYSTEM
+   Med MNG DESIGN SYSTEM
    ========================================== */
 
 @layer base {
@@ -306,7 +306,7 @@
 }
 
 /* ==========================================
-   MED MNG ANIMATIONS & EFFECTS
+   Med MNG ANIMATIONS & EFFECTS
    ========================================== */
 
 @keyframes fade-in-up {
@@ -397,7 +397,7 @@
 }
 
 /* ==========================================
-   MED MNG COMPONENT CLASSES
+   Med MNG COMPONENT CLASSES
    ========================================== */
 
 /* Medical Card Styles */

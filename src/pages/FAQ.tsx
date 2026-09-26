@@ -19,9 +19,9 @@ const FAQ = () => {
   return (
     <>
     <SEOHead
-      title="FAQ - Questions Fréquentes - MED MNG"
-      description="Toutes les réponses à vos questions sur MED MNG : fonctionnement, tarifs, fiabilité médicale, révisions, application mobile et sécurité."
-      keywords="FAQ, questions fréquentes, MED MNG, apprentissage médecine, musique IA, EDN"
+      title="FAQ - Questions Fréquentes - Med MNG"
+      description="Toutes les réponses à vos questions sur Med MNG : fonctionnement, tarifs, fiabilité médicale, révisions, application mobile et sécurité."
+      keywords="FAQ, questions fréquentes, Med MNG, apprentissage médecine, musique IA, EDN"
       canonical="/faq"
     />
     <PremiumPageLayout gradient="default" showOrbs={true}>
@@ -43,7 +43,7 @@ const FAQ = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <HelpCircle className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">FAQ - MED MNG</h2>
+                <h2 className="text-2xl font-bold">FAQ - Med MNG</h2>
               </div>
               <p className="text-sm opacity-90">
                 Toutes les réponses à vos questions sur la plateforme de révision médicale par la musique IA
@@ -60,10 +60,10 @@ const FAQ = () => {
             <Accordion type="single" collapsible className="space-y-2">
               <AccordionItem value="how-1" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  C'est quoi MED MNG exactement ?
+                  C'est quoi Med MNG exactement ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  MED MNG est une plateforme de révision pour les 367 items de l'EDN (Épreuves Dématérialisées
+                  Med MNG est une plateforme de révision pour les 367 items de l'EDN (Épreuves Dématérialisées
                   Nationales). Pour chaque item, vous trouvez une fiche, les compétences rang A et rang B du
                   référentiel public UNESS/LiSA, un quiz et des paroles de chanson générées par intelligence
                   artificielle, que vous pouvez mettre en musique. C'est la méthode MNG : Music Neuro Learning Generator.
@@ -84,7 +84,7 @@ const FAQ = () => {
 
               <AccordionItem value="how-3" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  Comment réviser efficacement avec MED MNG ?
+                  Comment réviser efficacement avec Med MNG ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   <p className="mb-2">Voici un parcours de révision possible pour chaque item :</p>
@@ -118,8 +118,8 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Les paroles sont générées à partir des compétences rang A et rang B du référentiel public
                   UNESS/LiSA. Comme tout contenu généré par IA, elles peuvent contenir des imprécisions.
-                  MED MNG est un outil <strong>complémentaire</strong> à vos cours, pas un substitut. Vérifiez
-                  toujours avec vos sources officielles (Collèges, polycopiés de faculté). MED MNG n'a aucun
+                  Med MNG est un outil <strong>complémentaire</strong> à vos cours, pas un substitut. Vérifiez
+                  toujours avec vos sources officielles (Collèges, polycopiés de faculté). Med MNG n'a aucun
                   partenariat officiel avec l'UNESS ni le CNG.
                 </AccordionContent>
               </AccordionItem>
@@ -143,7 +143,7 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Le rang s'applique à chaque connaissance, pas à l'item : un même item contient des
                   connaissances de <strong>rang A</strong> (fondamentales, à maîtriser par tout futur interne)
-                  et de <strong>rang B</strong> (plus approfondies). MED MNG affiche séparément les
+                  et de <strong>rang B</strong> (plus approfondies). Med MNG affiche séparément les
                   connaissances des deux rangs pour chaque item, telles qu'elles figurent dans le référentiel.
                 </AccordionContent>
               </AccordionItem>
@@ -177,7 +177,7 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Avec un compte gratuit, sans carte bancaire, vous accédez aux fiches officielles des 367 items
                   (compétences rang A et rang B, référentiel LiSA 2026), au contenu immersif complet (paroles,
-                  récit, planches, quiz) de 10 items d'essai et aux situations ECOS. MED MNG Premium ouvre le
+                  récit, planches, quiz) de 10 items d'essai et aux situations ECOS. Med MNG Premium ouvre le
                   contenu immersif des 367 items et 30 générations audio par mois, pour 69 € par an (environ
                   5,75 € par mois) ou 9,90 € par mois. Consultez nos{' '}
                   <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline">tarifs</Link>.
@@ -253,10 +253,10 @@ const FAQ = () => {
             <Accordion type="single" collapsible className="space-y-2">
               <AccordionItem value="tech-1" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  MED MNG est-il disponible sur mobile ?
+                  Med MNG est-il disponible sur mobile ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Oui, MED MNG est une application web installable (PWA) sur smartphone ou tablette, directement
+                  Oui, Med MNG est une application web installable (PWA) sur smartphone ou tablette, directement
                   depuis votre navigateur. Les fiches déjà consultées restent lisibles hors connexion. Pour
                   l'installer, rendez-vous sur la page{' '}
                   <Link to={ROUTE_PATHS.installPwa} className="text-primary hover:underline">Installer l'app</Link>.
@@ -265,7 +265,7 @@ const FAQ = () => {
 
               <AccordionItem value="tech-2" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  Puis-je utiliser MED MNG hors connexion ?
+                  Puis-je utiliser Med MNG hors connexion ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   En partie : une fois la PWA installée, les fiches d'items déjà consultées restent lisibles
@@ -279,7 +279,7 @@ const FAQ = () => {
                   Quels navigateurs sont pris en charge ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  MED MNG fonctionne sur tous les navigateurs modernes : Chrome, Firefox, Safari, Edge.
+                  Med MNG fonctionne sur tous les navigateurs modernes : Chrome, Firefox, Safari, Edge.
                   Pour la meilleure expérience (notamment l'installation de l'application), nous recommandons
                   Chrome ou Edge sur ordinateur, et Safari sur iOS / Chrome sur Android.
                 </AccordionContent>
@@ -302,16 +302,16 @@ const FAQ = () => {
                   Certaines études montrent qu'une mélodie répétée peut aider à retenir un texte (par exemple
                   Wallace, 1994). L'effet reste modeste et dépend de la répétition : la chanson est un
                   complément au rappel actif (quiz) et à vos cours, pas une méthode miracle. Nous n'avons pas
-                  encore de données d'efficacité propres à MED MNG.
+                  encore de données d'efficacité propres à Med MNG.
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="eff-2" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  MED MNG remplace-t-il mes cours de fac ?
+                  Med MNG remplace-t-il mes cours de fac ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Non, MED MNG est un <strong>complément</strong> à vos cours. Il est conçu pour vous aider
+                  Non, Med MNG est un <strong>complément</strong> à vos cours. Il est conçu pour vous aider
                   à mémoriser et réviser, pas pour remplacer l'enseignement de vos professeurs. Utilisez-le
                   en parallèle de vos cours, polycopiés et référentiels officiels.
                 </AccordionContent>
@@ -319,13 +319,13 @@ const FAQ = () => {
 
               <AccordionItem value="eff-3" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  À qui s'adresse MED MNG ?
+                  À qui s'adresse Med MNG ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   {/* CONSTAT : ce paragraphe renvoyait vers /b2b, page supprimée (commit ca5d38cb)
                       et sans route : le lien « offre B2B » tombait en 404. Lien retiré et renvoi
                       vers le contact, seule voie réellement disponible aujourd’hui. */}
-                  MED MNG s'adresse principalement aux étudiants en médecine préparant l'EDN (DFGSM2 à DFASM3).
+                  Med MNG s'adresse principalement aux étudiants en médecine préparant l'EDN (DFGSM2 à DFASM3).
                   Pour un usage institutionnel (universités, CHU, facultés de médecine), écrivez-nous à{' '}
                   <a href="mailto:contact@emotionscare.com" className="text-primary hover:underline">contact@emotionscare.com</a>.
                 </AccordionContent>
@@ -346,7 +346,7 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   Les ECOS (Examens Cliniques Objectifs Structurés) évaluent vos compétences sur des
-                  consultations simulées. MED MNG propose des situations ECOS issues du référentiel, avec un
+                  consultations simulées. Med MNG propose des situations ECOS issues du référentiel, avec un
                   déroulé guidé (je questionne, j'examine, je conclus), un chronomètre et une grille
                   d'auto-évaluation. Il n'y a pas de patient virtuel. Consultez la section{' '}
                   <Link to={ROUTE_PATHS.ecosIndex} className="text-primary hover:underline">ECOS</Link>.
@@ -367,7 +367,7 @@ const FAQ = () => {
                   Puis-je télécharger les chansons ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Les chansons sont disponibles en streaming uniquement via la plateforme MED MNG. Le
+                  Les chansons sont disponibles en streaming uniquement via la plateforme Med MNG. Le
                   téléchargement n'est pas disponible pour des raisons de droits d'auteur et de licence.
                   L'écoute nécessite une connexion internet.
                 </AccordionContent>

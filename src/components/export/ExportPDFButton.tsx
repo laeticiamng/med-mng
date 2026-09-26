@@ -72,7 +72,7 @@ export const ExportPDFButton = ({
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(128, 128, 128);
-        doc.text(`MED MNG | Page ${i}/${pageCount}`, 105, 290, { align: 'center' });
+        doc.text(`Med MNG | Page ${i}/${pageCount}`, 105, 290, { align: 'center' });
       }
       
       // Download

@@ -48,7 +48,7 @@ export const GlobalBadgeUnlockProvider: React.FC<GlobalBadgeUnlockProviderProps>
         });
       } else {
         await navigator.clipboard.writeText(
-          `J'ai débloqué le badge "${unlockedBadge.name}" sur MED MNG ! ${unlockedBadge.icon}`
+          `J'ai débloqué le badge "${unlockedBadge.name}" sur Med MNG ! ${unlockedBadge.icon}`
         );
       }
     } catch (error) {

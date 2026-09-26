@@ -55,7 +55,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
               <Smartphone className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Installer MED MNG</h4>
+              <h4 className="font-semibold text-sm">Installer Med MNG</h4>
               <p className="text-xs text-muted-foreground mt-1">
                 Installez l'app pour un accès rapide et une utilisation hors-ligne
               </p>

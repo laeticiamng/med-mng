@@ -13,7 +13,7 @@ import { EncartPremium } from '@/components/offre/EncartPremium';
 
 /**
  * Sous-pages de contenu immersif, réservées aux items d'essai et à
- * MED MNG Premium. Aperçu, Rang A, Rang B (fiches officielles) et Stats
+ * Med MNG Premium. Aperçu, Rang A, Rang B (fiches officielles) et Stats
  * restent accessibles à tous.
  *
  * Le verrou est décidé par le serveur : la RPC `mm_contenu_immersif_item`

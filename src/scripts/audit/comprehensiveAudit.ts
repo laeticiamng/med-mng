@@ -1,5 +1,5 @@
 /**
- * AUDIT COMPLET DE LA PLATEFORME MED MNG
+ * AUDIT COMPLET DE LA PLATEFORME Med MNG
  * 
  * Teste chaque fonctionnalité, vérifie la cohérence des données,
  * identifie les problèmes et génère un rapport détaillé

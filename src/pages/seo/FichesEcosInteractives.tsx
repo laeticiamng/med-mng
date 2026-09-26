@@ -24,7 +24,7 @@ const FichesEcosInteractives = () => {
   return (
     <>
       <SEOHead
-        title="Situations ECOS guidées gratuites – Préparation médecine | MED MNG"
+        title="Situations ECOS guidées gratuites – Préparation médecine | Med MNG"
         description="12 situations ECOS guidées et gratuites pour préparer l'examen clinique : déroulé pas à pas, chronomètre et grille d'auto-évaluation."
         keywords="fiches ECOS, fiches interactives médecine, ECOS cardiologie, fiches révision ECOS gratuites"
         canonical="/fiches-ecos-interactives"
@@ -90,7 +90,7 @@ const FichesEcosInteractives = () => {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Comment utiliser les fiches ECOS MED MNG</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Comment utiliser les fiches ECOS Med MNG</h2>
             <div className="space-y-4 text-muted-foreground">
               <p><strong>Étape 1 :</strong> Choisissez une spécialité et un cas clinique. Lisez la vignette clinique comme le jour de l'examen.</p>
               <p><strong>Étape 2 :</strong> Répondez aux questions (anamnèse, examen physique, hypothèses diagnostiques, examens complémentaires, PEC).</p>

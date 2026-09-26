@@ -35,7 +35,7 @@ const CGU = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <FileText className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">MED MNG - CGU</h2>
+                <h2 className="text-2xl font-bold">Med MNG - CGU</h2>
               </div>
               <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
               <p className="text-sm opacity-90">Version 1.0 - Conforme RGPD et droit français</p>
@@ -48,7 +48,7 @@ const CGU = () => {
             <AlertDescription className="text-destructive font-semibold">
               <p className="text-lg mb-2">⚠️ AVERTISSEMENT MÉDICAL IMPORTANT</p>
               <p className="text-sm">
-                MED MNG est un <strong>outil pédagogique d'aide à l'apprentissage</strong> destiné aux étudiants en médecine. 
+                Med MNG est un <strong>outil pédagogique d'aide à l'apprentissage</strong> destiné aux étudiants en médecine. 
                 Les contenus générés par intelligence artificielle (chansons, tableaux, quiz, bandes dessinées) ne constituent 
                 <strong> EN AUCUN CAS un avis médical officiel, un diagnostic ou une prescription thérapeutique</strong>.
               </p>
@@ -70,11 +70,11 @@ const CGU = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                En créant un compte sur MED MNG ou en utilisant nos services, vous acceptez sans réserve les présentes 
+                En créant un compte sur Med MNG ou en utilisant nos services, vous acceptez sans réserve les présentes 
                 Conditions Générales d'Utilisation (CGU). Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser la plateforme.
               </p>
               <p className="font-semibold text-foreground">
-                L'utilisation de MED MNG implique l'acceptation pleine et entière des CGU en vigueur au moment de votre utilisation.
+                L'utilisation de Med MNG implique l'acceptation pleine et entière des CGU en vigueur au moment de votre utilisation.
               </p>
             </div>
           </Card>
@@ -87,7 +87,7 @@ const CGU = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                MED MNG est une plateforme numérique d'apprentissage médical utilisant la méthode 
+                Med MNG est une plateforme numérique d'apprentissage médical utilisant la méthode 
                 <strong> MNG – Music Neuro Learning Generator</strong>.
               </p>
               <div className="bg-accent/10 p-4 rounded-lg">
@@ -150,7 +150,7 @@ const CGU = () => {
                 <h4 className="font-semibold text-foreground mb-2">Offre :</h4>
                 <ul className="text-sm space-y-1">
                   <li>• <strong>Gratuit</strong> : fiches officielles des 367 items (compétences rang A et rang B) et contenu immersif complet de 10 items d'essai</li>
-                  <li>• <strong>MED MNG Premium</strong> : contenu immersif des 367 items et 30 générations audio par mois — 69 €/an ou 9,90 €/mois</li>
+                  <li>• <strong>Med MNG Premium</strong> : contenu immersif des 367 items et 30 générations audio par mois — 69 €/an ou 9,90 €/mois</li>
                 </ul>
               </div>
 
@@ -158,7 +158,7 @@ const CGU = () => {
                 <h4 className="font-semibold text-destructive mb-2">💳 Politique de remboursement :</h4>
                 <p className="text-sm text-muted-foreground">
                   Le délai légal de rétractation est de <strong>14 jours calendaires</strong> (article L221-18 du
-                  Code de la consommation). MED MNG Premium étant un contenu numérique accessible immédiatement,
+                  Code de la consommation). Med MNG Premium étant un contenu numérique accessible immédiatement,
                   ce droit ne s'applique pas lorsque vous avez demandé l'accès immédiat et reconnu perdre votre droit
                   de rétractation avant le paiement (article L221-28, 13°). Détails dans les CGV.
                 </p>
@@ -191,7 +191,7 @@ const CGU = () => {
               <div className="bg-accent/10 p-4 rounded-lg border-l-4 border-accent">
                 <h4 className="font-semibold text-foreground mb-2">🏛️ Propriété de la plateforme :</h4>
                 <p className="text-sm">
-                  Le nom "MED MNG", la méthode "Music Neuro Learning Generator", le logo, le code source et 
+                  Le nom "Med MNG", la méthode "Music Neuro Learning Generator", le logo, le code source et 
                   l'interface sont la propriété exclusive d'<strong>EmotionsCare SASU</strong> et de 
                   <strong> Laëticia Motongane</strong> (créatrice et auteure).
                 </p>
@@ -228,7 +228,7 @@ const CGU = () => {
               <h3 className="text-xl font-semibold text-foreground">6. OBLIGATIONS ET COMPORTEMENTS INTERDITS</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>En utilisant MED MNG, vous vous engagez à respecter les règles suivantes :</p>
+              <p>En utilisant Med MNG, vous vous engagez à respecter les règles suivantes :</p>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg">
                   <h4 className="font-semibold text-foreground mb-2">✅ Vous devez :</h4>
@@ -319,7 +319,7 @@ const CGU = () => {
                     ne garantit pas l'exactitude médicale à 100%.
                   </li>
                   <li>
-                    • <strong>Usage pédagogique uniquement :</strong> MED MNG est un outil d'apprentissage, pas un dispositif 
+                    • <strong>Usage pédagogique uniquement :</strong> Med MNG est un outil d'apprentissage, pas un dispositif 
                     médical certifié CE. Nous déclinons toute responsabilité en cas d'échec à un examen ou de décision 
                     clinique basée sur notre contenu.
                   </li>
@@ -437,7 +437,7 @@ const CGU = () => {
                 notifiés par email <strong>30 jours avant</strong> l'entrée en vigueur des modifications importantes.
               </p>
               <p className="mt-2 text-sm italic">
-                L'utilisation continue de MED MNG après modification vaut acceptation des nouvelles CGU.
+                L'utilisation continue de Med MNG après modification vaut acceptation des nouvelles CGU.
               </p>
             </div>
           </Card>

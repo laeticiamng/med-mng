@@ -113,7 +113,7 @@ const Favorites: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-destructive/5 via-background to-destructive/10">
       <Helmet>
-        <title>Mes Favoris - MED MNG</title>
+        <title>Mes Favoris - Med MNG</title>
         <meta name="description" content="Gérez vos contenus favoris et éléments sauvegardés." />
         <meta name="keywords" content="favoris, sauvegarde, apprentissage médical" />
       </Helmet>

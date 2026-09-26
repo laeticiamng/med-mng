@@ -185,7 +185,7 @@ export const usePushNotifications = () => {
       const { error } = await supabase.functions.invoke('mm-send-push-notification', {
         body: {
           title: '🎉 Notification Test',
-          body: 'Ceci est une notification de test de MED MNG!',
+          body: 'Ceci est une notification de test de Med MNG!',
           icon: '/pwa-192x192.png',
           badge: '/badge-72x72.png',
           url: '/dashboard',

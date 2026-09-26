@@ -13,7 +13,7 @@ const SimulationExamenEdn = () => {
   return (
     <>
       <SEOHead
-        title="Simulateur d'examen EDN en ligne – Entraînez-vous | MED MNG"
+        title="Simulateur d'examen EDN en ligne – Entraînez-vous | Med MNG"
         description="Examens blancs EDN en ligne : 120 questions chronométrées (3 h) générées à partir des items, score par spécialité et par rang."
         keywords="simulateur EDN, examen blanc EDN, simulation EDN en ligne, entraînement EDN, QCM médecine"
         canonical="/simulation-examen-edn"
@@ -43,13 +43,13 @@ const SimulationExamenEdn = () => {
             </p>
             <p className="text-muted-foreground mb-4">
               Un examen blanc vous oblige à enchaîner les questions sous chronomètre, sans consulter vos cours.
-              Les questions de MED MNG sont des QCM générés à partir des items : elles ne reproduisent pas
+              Les questions de Med MNG sont des QCM générés à partir des items : elles ne reproduisent pas
               le format exact des dossiers progressifs de l'EDN.
             </p>
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Fonctionnalités du simulateur MED MNG</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Fonctionnalités du simulateur Med MNG</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
                 { icon: <Timer className="h-5 w-5" />, title: 'Chronomètre', desc: 'Durée fixée à l\'avance (3 h pour l\'examen blanc complet).' },

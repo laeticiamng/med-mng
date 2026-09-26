@@ -18,9 +18,9 @@ const CookiesPolicy = () => {
   return (
     <>
     <SEOHead
-      title="Politique de Cookies - MED MNG"
-      description="Politique de cookies de MED MNG. Cookies essentiels, fonctionnels et analytiques. Conforme RGPD et directive ePrivacy."
-      keywords="cookies, RGPD, confidentialité, MED MNG"
+      title="Politique de Cookies - Med MNG"
+      description="Politique de cookies de Med MNG. Cookies essentiels, fonctionnels et analytiques. Conforme RGPD et directive ePrivacy."
+      keywords="cookies, RGPD, confidentialité, Med MNG"
       canonical="/legal/cookies"
     />
     <PremiumPageLayout gradient="default" showOrbs={true}>
@@ -58,7 +58,7 @@ const CookiesPolicy = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>
                 Un cookie est un petit fichier texte depose sur votre terminal (ordinateur, tablette, smartphone)
-                lors de votre visite sur MED MNG. Il permet de stocker des informations relatives a votre
+                lors de votre visite sur Med MNG. Il permet de stocker des informations relatives a votre
                 navigation et de vous offrir une experience personnalisee.
               </p>
               <p className="text-sm">
@@ -72,7 +72,7 @@ const CookiesPolicy = () => {
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Settings className="h-5 w-5 text-accent" />
-              <h3 className="text-xl font-semibold text-foreground">2. COOKIES UTILISES SUR MED MNG</h3>
+              <h3 className="text-xl font-semibold text-foreground">2. COOKIES UTILISES SUR Med MNG</h3>
             </div>
             <div className="space-y-4 text-muted-foreground">
               {/* Cookies strictement necessaires */}
@@ -184,7 +184,7 @@ const CookiesPolicy = () => {
               </div>
 
               <p className="text-sm italic">
-                MED MNG n'utilise <strong>aucun cookie publicitaire</strong> ni de traceur marketing tiers.
+                Med MNG n'utilise <strong>aucun cookie publicitaire</strong> ni de traceur marketing tiers.
               </p>
             </div>
           </Card>
@@ -216,7 +216,7 @@ const CookiesPolicy = () => {
               <div className="bg-destructive/10 p-4 rounded-lg border-l-4 border-destructive mt-4">
                 <p className="text-sm text-destructive font-semibold">
                   Attention : La desactivation des cookies strictement necessaires peut empecher
-                  le fonctionnement normal de MED MNG (connexion, sauvegarde des preferences).
+                  le fonctionnement normal de Med MNG (connexion, sauvegarde des preferences).
                 </p>
               </div>
             </div>
@@ -230,7 +230,7 @@ const CookiesPolicy = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
-                En complement des cookies, MED MNG utilise le <strong>localStorage</strong> de votre navigateur
+                En complement des cookies, Med MNG utilise le <strong>localStorage</strong> de votre navigateur
                 pour stocker des donnees localement afin d'ameliorer les performances (cache des items EDN,
                 preferences utilisateur, donnees hors ligne pour la PWA).
               </p>

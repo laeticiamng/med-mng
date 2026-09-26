@@ -91,7 +91,7 @@ export const MedMngSignup = () => {
       toast.success('Compte créé avec succès !', { description: 'Connectez-vous avec vos identifiants.' });
       navigate(avecSuivant(ROUTE_PATHS.medMngLogin, suivant));
     } else {
-      toast.success('Bienvenue sur MED MNG ! 🎵');
+      toast.success('Bienvenue sur Med MNG ! 🎵');
       // La redirection se fait automatiquement via le `if (user) return Navigate`
     }
     
@@ -110,7 +110,7 @@ export const MedMngSignup = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-foreground">MED MNG</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">Med MNG</CardTitle>
           <CardDescription>Créez votre compte</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

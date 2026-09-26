@@ -111,7 +111,7 @@ export default function ProgressDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Helmet>
-        <title>Tableau de Bord | MED MNG</title>
+        <title>Tableau de Bord | Med MNG</title>
         <meta name="description" content="Vue d'ensemble de votre progression EDN" />
       </Helmet>
 

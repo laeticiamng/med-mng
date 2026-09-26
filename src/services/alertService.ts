@@ -199,7 +199,7 @@ function formatDiscordMessage(incident: Incident, severity: AlertSeverity): obje
         }] : [])
       ],
       footer: {
-        text: 'MED MNG Alert System'
+        text: 'Med MNG Alert System'
       },
       timestamp: new Date().toISOString()
     }]
@@ -242,7 +242,7 @@ function formatSlackMessage(incident: Incident, severity: AlertSeverity): object
           short: true
         }
       ],
-      footer: 'MED MNG Alert System',
+      footer: 'Med MNG Alert System',
       ts: Math.floor(Date.now() / 1000)
     }]
   };

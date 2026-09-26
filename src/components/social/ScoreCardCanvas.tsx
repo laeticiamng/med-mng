@@ -73,7 +73,7 @@ export function generateScoreCardImage(data: ScoreCardData): Promise<string> {
     // Logo / Brand
     ctx.font = 'bold 28px system-ui, -apple-system, sans-serif';
     ctx.fillStyle = '#6366f1';
-    ctx.fillText('🩺 MED MNG', 50, 65);
+    ctx.fillText('🩺 Med MNG', 50, 65);
 
     ctx.font = '16px system-ui, sans-serif';
     ctx.fillStyle = '#94a3b8';

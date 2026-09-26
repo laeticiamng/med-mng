@@ -57,7 +57,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
       pdf.setPage(i);
       pdf.setFontSize(8);
       pdf.setTextColor(128, 128, 128);
-      pdf.text(`MED MNG | Page ${i}/${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      pdf.text(`Med MNG | Page ${i}/${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
     }
     
     pdf.save(`${itemCode}-${_type}-${Date.now()}.pdf`);
@@ -74,7 +74,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
 export const shareContent = async (options: ExportOptions): Promise<void> => {
   const { title, content, itemCode } = options;
   
-  const shareText = `${itemCode} - ${title}\n\n${content.substring(0, 500)}...\n\nGénéré avec MED MNG`;
+  const shareText = `${itemCode} - ${title}\n\n${content.substring(0, 500)}...\n\nGénéré avec Med MNG`;
   const shareUrl = window.location.href;
   
   try {

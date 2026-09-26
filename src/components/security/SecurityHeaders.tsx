@@ -9,7 +9,7 @@ interface SecurityHeadersProps {
 }
 
 export const SecurityHeaders: React.FC<SecurityHeadersProps> = ({
-  title = 'MED MNG - Plateforme Médicale Sécurisée',
+  title = 'Med MNG - Plateforme Médicale Sécurisée',
   description = 'Plateforme d\'extraction et génération musicale médicale avec sécurité de niveau A',
   url = 'https://med-mng.com',
   children
@@ -56,7 +56,7 @@ export const SecurityHeaders: React.FC<SecurityHeadersProps> = ({
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="MED MNG" />
+      <meta property="og:site_name" content="Med MNG" />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />

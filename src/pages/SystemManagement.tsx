@@ -21,8 +21,8 @@ const SystemManagement: React.FC = () => {
   return (
     <LanguageProvider>
       <Helmet>
-        <title>Gestion Système - Monitoring MED MNG</title>
-        <meta name="description" content="Interface de monitoring et gestion système avancée pour la plateforme médicale MED MNG avec métriques en temps réel." />
+        <title>Gestion Système - Monitoring Med MNG</title>
+        <meta name="description" content="Interface de monitoring et gestion système avancée pour la plateforme médicale Med MNG avec métriques en temps réel." />
         <meta name="keywords" content="system monitoring, server management, performance metrics, medical platform administration" />
         <link rel="canonical" href="/system-management" />
       </Helmet>

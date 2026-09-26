@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ITEMS_GRATUITS, estItemGratuit, formuleDepuisParametre, normaliserCodeItem } from '@/config/offre';
 import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
 
-describe('offre MED MNG', () => {
+describe('offre Med MNG', () => {
   it('liste exactement IC-1 à IC-10 comme items d\'essai', () => {
     expect(ITEMS_GRATUITS).toHaveLength(10);
     expect(ITEMS_GRATUITS[0]).toBe('IC-1');

@@ -169,7 +169,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       available: parolesRedigees,
       verrouille: contenuVerrouille,
       count: parolesRedigees ? (item.paroles_musicales?.length || 0) : 0,
-      description: contenuVerrouille ? 'Réservé à MED MNG Premium' : parolesRedigees ? 'Paroles rédigées' : 'Paroles non rédigées',
+      description: contenuVerrouille ? 'Réservé à Med MNG Premium' : parolesRedigees ? 'Paroles rédigées' : 'Paroles non rédigées',
       color: parolesRedigees ? 'text-success bg-success/10 border-success/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
@@ -188,14 +188,14 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       available: questionsReelles > 0,
       verrouille: contenuVerrouille,
       count: questionsReelles,
-      description: contenuVerrouille ? 'Réservé à MED MNG Premium' : questionsReelles > 0 ? 'Questions interactives' : 'Questions reconstruites depuis les compétences OIC',
+      description: contenuVerrouille ? 'Réservé à Med MNG Premium' : questionsReelles > 0 ? 'Questions interactives' : 'Questions reconstruites depuis les compétences OIC',
       color: questionsReelles > 0 ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
     }
   ];
 
   const getStatusIcon = (available: boolean, verrouille?: boolean) => {
     if (verrouille) {
-      return <Lock className="h-3 w-3 text-primary" aria-label="Réservé à MED MNG Premium" />;
+      return <Lock className="h-3 w-3 text-primary" aria-label="Réservé à Med MNG Premium" />;
     }
     if (available) {
       return <CheckCircle className="h-3 w-3 text-success" />;

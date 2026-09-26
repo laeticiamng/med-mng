@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 
 /**
- * Modules disponibles sur la plateforme MED MNG
+ * Modules disponibles sur la plateforme Med MNG
  * Chaque module peut être activé/désactivé par l'utilisateur
  */
 export interface ModuleConfig {

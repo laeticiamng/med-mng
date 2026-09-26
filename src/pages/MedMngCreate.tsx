@@ -5,7 +5,7 @@ import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/off
 import Generator from '@/pages/Generator';
 
 /**
- * /med-mng/create — le générateur audio MED MNG (entrée « Créer » de la
+ * /med-mng/create — le générateur audio Med MNG (entrée « Créer » de la
  * navigation).
  *
  * C'est le vrai générateur (src/pages/Generator.tsx) : items EDN réels,
@@ -16,7 +16,7 @@ import Generator from '@/pages/Generator';
  * payant et affichait un mur payant erroné (« 30, 300 ou 3 000 par mois »),
  * y compris aux administrateurs.
  *
- * Accès : abonnement MED MNG Premium (30 générations audio par mois) ou
+ * Accès : abonnement Med MNG Premium (30 générations audio par mois) ou
  * administrateur — même règle que le serveur (mm-generate-music).
  */
 const MedMngCreateComponent = () => (

@@ -6,7 +6,7 @@ import { estItemGratuit } from '@/config/offre';
 /**
  * Accès au contenu immersif (paroles, récit, planches, quiz) et au générateur audio.
  *
- *  - `aAccesPremium` : abonnement MED MNG Premium actif OU administrateur
+ *  - `aAccesPremium` : abonnement Med MNG Premium actif OU administrateur
  *    (user_roles, role = admin) — même règle que le serveur (RPC
  *    mm_a_acces_premium, mm-generate-music), qui reste seul à faire foi ;
  *  - `estAdmin` : administrateur ;

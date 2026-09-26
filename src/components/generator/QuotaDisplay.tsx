@@ -24,7 +24,7 @@ interface QuotaDisplayProps {
 }
 
 /**
- * Compteur des générations audio du mois : X / 30 avec MED MNG Premium.
+ * Compteur des générations audio du mois : X / 30 avec Med MNG Premium.
  * Le chiffre est compté sur la même table que le serveur (useSubscription →
  * generated_music_tracks) ; le contrôle qui fait foi reste mm-generate-music.
  */

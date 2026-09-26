@@ -36,7 +36,7 @@ export const ShareMusicDialog: React.FC<ShareMusicDialogProps> = ({
 
   // Générer l'URL de partage
   const shareUrl = `${window.location.origin}/shared-music/${trackId}`;
-  const shareText = `🎵 Écoutez "${trackTitle}" - Créé avec MED MNG`;
+  const shareText = `🎵 Écoutez "${trackTitle}" - Créé avec Med MNG`;
 
   const handleCopy = useCallback(async () => {
     try {

@@ -63,7 +63,7 @@ const faqs = [
   },
   {
     question: "Peut-on s'entraîner seul aux ECOS ?",
-    answer: "En partie, avec des situations guidées et une grille d'auto-évaluation comme sur MED MNG. L'entraînement entre pairs reste très utile pour les aspects communication."
+    answer: "En partie, avec des situations guidées et une grille d'auto-évaluation comme sur Med MNG. L'entraînement entre pairs reste très utile pour les aspects communication."
   },
   {
     question: "Quelle est la différence entre ECOS et ECN ?",
@@ -81,7 +81,7 @@ const ErreursFrquentesEcos = () => {
     "@type": "Article",
     "headline": "Les 8 erreurs les plus fréquentes aux ECOS (et comment les éviter)",
     "description": "Découvrez les erreurs classiques qui font perdre des points aux ECOS et les stratégies concrètes pour les éviter.",
-    "author": { "@type": "Organization", "name": "MED MNG" },
+    "author": { "@type": "Organization", "name": "Med MNG" },
     "datePublished": "2026-02-28",
     "dateModified": "2026-02-28"
   };
@@ -89,7 +89,7 @@ const ErreursFrquentesEcos = () => {
   return (
     <>
       <SEOHead
-        title="8 erreurs fréquentes aux ECOS à éviter | MED MNG"
+        title="8 erreurs fréquentes aux ECOS à éviter | Med MNG"
         description="Les erreurs classiques qui font perdre des points aux ECOS : mauvaise gestion du temps, oubli du consentement, diagnostic sans justification. Solutions concrètes."
         keywords="erreurs ECOS, fautes ECOS, préparation ECOS, stations ECOS, grille UNESS"
         canonical="/erreurs-frequentes-ecos"

@@ -50,10 +50,10 @@ export const useCalendarSync = () => {
     const lines: string[] = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//MED MNG//Study Planner//FR',
+      'PRODID:-//Med MNG//Study Planner//FR',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:MED MNG Study Schedule'
+      'X-WR-CALNAME:Med MNG Study Schedule'
     ];
 
     events.forEach(event => {

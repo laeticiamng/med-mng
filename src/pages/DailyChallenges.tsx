@@ -79,7 +79,7 @@ const DailyChallenges = () => {
   return (
     <>
       <Helmet>
-        <title>Défis du jour | MED MNG</title>
+        <title>Défis du jour | Med MNG</title>
         <meta name="description" content="Relevez des défis quotidiens et gagnez des XP. Maintenez votre série et débloquez des récompenses en révisant chaque jour." />
         <meta name="keywords" content="défis, challenges, gamification, XP, révisions, médecine" />
         <link rel="canonical" href="/challenges" />

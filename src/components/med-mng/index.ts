@@ -1,5 +1,5 @@
 // ============================================
-// MED MNG Components - Central Exports
+// Med MNG Components - Central Exports
 // ============================================
 
 // Core components

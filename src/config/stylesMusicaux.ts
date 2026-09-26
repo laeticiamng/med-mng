@@ -1,5 +1,5 @@
 /**
- * Styles musicaux du générateur audio MED MNG — vue front du catalogue.
+ * Styles musicaux du générateur audio Med MNG — vue front du catalogue.
  *
  * Source de vérité UNIQUE : supabase/functions/_shared/mm-suno-requete.ts
  * (module pur partagé avec les Edge Functions mm-generate-music /

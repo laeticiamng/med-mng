@@ -79,7 +79,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ affich
             <Crown className={`h-5 w-5 ${actif ? 'text-warning' : 'text-muted-foreground'}`} />
             Votre abonnement
           </CardTitle>
-          <CardDescription>Consultez et gérez votre abonnement MED MNG.</CardDescription>
+          <CardDescription>Consultez et gérez votre abonnement Med MNG.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">

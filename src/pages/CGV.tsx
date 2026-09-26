@@ -18,9 +18,9 @@ const CGV = () => {
   return (
     <>
     <SEOHead
-      title="Conditions Générales de Vente - MED MNG"
-      description="CGV de MED MNG par EmotionsCare SASU. Tarifs, abonnements, droit de rétractation, garanties légales et modalités de paiement."
-      keywords="CGV, conditions générales de vente, abonnement, tarifs, MED MNG"
+      title="Conditions Générales de Vente - Med MNG"
+      description="CGV de Med MNG par EmotionsCare SASU. Tarifs, abonnements, droit de rétractation, garanties légales et modalités de paiement."
+      keywords="CGV, conditions générales de vente, abonnement, tarifs, Med MNG"
       canonical="/legal/cgv"
     />
     <PremiumPageLayout gradient="default" showOrbs={true}>
@@ -42,7 +42,7 @@ const CGV = () => {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <CreditCard className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">MED MNG - CGV</h2>
+                <h2 className="text-2xl font-bold">Med MNG - CGV</h2>
               </div>
               <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
               <p className="text-sm opacity-90">Version 1.0 - Conforme au droit français de la consommation</p>
@@ -72,7 +72,7 @@ const CGV = () => {
                 </ul>
               </div>
               <p className="text-sm">
-                Et tout utilisateur souhaitant souscrire à un abonnement payant sur la plateforme MED MNG
+                Et tout utilisateur souhaitant souscrire à un abonnement payant sur la plateforme Med MNG
                 (ci-après "le Client").
               </p>
               <p className="text-sm font-semibold text-foreground">
@@ -90,7 +90,7 @@ const CGV = () => {
               <h3 className="text-xl font-semibold text-foreground">2. SERVICES PROPOSÉS</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>MED MNG propose des abonnements donnant accès à :</p>
+              <p>Med MNG propose des abonnements donnant accès à :</p>
               <ul className="space-y-1 text-sm">
                 <li>- Contenu immersif des 367 items EDN : paroles de chanson (rang A, rang B, A+B), récit, planches et quiz</li>
                 <li>- Génération de l'audio de chansons pédagogiques par IA (paroles : OpenAI ; audio : Suno AI), dans la limite de 30 générations par mois</li>
@@ -111,7 +111,7 @@ const CGV = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <div className="bg-primary/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Offre MED MNG Premium :</h4>
+                <h4 className="font-semibold text-foreground mb-2">Offre Med MNG Premium :</h4>
                 <ul className="text-sm space-y-1">
                   <li><strong>Formule annuelle</strong> : 69 euros TTC par an (soit environ 5,75 euros par mois)</li>
                   <li><strong>Formule mensuelle</strong> : 9,90 euros TTC par mois</li>
@@ -142,7 +142,7 @@ const CGV = () => {
             <div className="space-y-3 text-muted-foreground">
               <h4 className="font-semibold text-foreground">4.1 Processus de commande</h4>
               <ol className="text-sm space-y-1">
-                <li>1. Création d'un compte sur MED MNG</li>
+                <li>1. Création d'un compte sur Med MNG</li>
                 <li>2. Sélection de la formule d'abonnement (annuelle ou mensuelle)</li>
                 <li>3. Acceptation des CGV et CGU, et demande expresse d'accès immédiat au contenu (case à cocher, voir article 5)</li>
                 <li>4. Paiement sécurisé via Stripe</li>

@@ -86,7 +86,7 @@ export const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
           Votre avis nous intéresse
         </CardTitle>
         <CardDescription>
-          Aidez-nous à améliorer MED MNG en partageant vos suggestions et commentaires
+          Aidez-nous à améliorer Med MNG en partageant vos suggestions et commentaires
         </CardDescription>
       </CardHeader>
       

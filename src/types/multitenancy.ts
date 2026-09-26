@@ -1,5 +1,5 @@
 /**
- * MED MNG Multi-Tenancy Types
+ * Med MNG Multi-Tenancy Types
  * Architecture multi-institutions avec isolation RLS
  */
 

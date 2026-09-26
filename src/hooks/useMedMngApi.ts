@@ -38,7 +38,7 @@ class MedMngApi {
   private async getAuthHeaders(includeCSRF = false) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
-      throw new Error('Authentification requise pour MED MNG');
+      throw new Error('Authentification requise pour Med MNG');
     }
     
     const headers: Record<string, string> = {
@@ -69,7 +69,7 @@ class MedMngApi {
     });
 
     if (!response.ok) {
-      let errorMessage = 'Échec création chanson MED MNG';
+      let errorMessage = 'Échec création chanson Med MNG';
       try {
         const error = await response.json();
         errorMessage = error.error || error.message || errorMessage;
@@ -97,7 +97,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Échec ajout bibliothèque MED MNG');
+      throw new Error(error.error || 'Échec ajout bibliothèque Med MNG');
     }
 
     return response.json();
@@ -113,7 +113,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Échec suppression bibliothèque MED MNG');
+      throw new Error(error.error || 'Échec suppression bibliothèque Med MNG');
     }
 
     return response.json();
@@ -129,7 +129,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Échec toggle like MED MNG');
+      throw new Error(error.error || 'Échec toggle like Med MNG');
     }
 
     return response.json();
@@ -147,7 +147,7 @@ class MedMngApi {
       if (!response.ok) {
         const error = await response.json();
         console.error('Erreur API library:', error);
-        throw new Error(error.error || 'Échec récupération bibliothèque MED MNG');
+        throw new Error(error.error || 'Échec récupération bibliothèque Med MNG');
       }
 
       const result = await response.json();
@@ -218,7 +218,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Échec récupération paroles MED MNG');
+      throw new Error(error.error || 'Échec récupération paroles Med MNG');
     }
 
     return response.json();
@@ -236,7 +236,7 @@ class MedMngApi {
       if (!response.ok) {
         const error = await response.json();
         console.error('Erreur API quota:', error);
-        throw new Error(error.error || 'Échec récupération quota MED MNG');
+        throw new Error(error.error || 'Échec récupération quota Med MNG');
       }
 
       return response.json();
@@ -264,7 +264,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Échec création abonnement MED MNG');
+      throw new Error(error.error || 'Échec création abonnement Med MNG');
     }
 
     return response.json();

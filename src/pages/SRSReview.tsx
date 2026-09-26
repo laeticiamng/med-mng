@@ -312,7 +312,7 @@ export default function SRSReview() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Helmet>
-        <title>Révision SRS | MED MNG</title>
+        <title>Révision SRS | Med MNG</title>
         <meta name="description" content="Système de répétition espacée pour mémoriser efficacement les items EDN" />
       </Helmet>
 

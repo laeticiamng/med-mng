@@ -13,7 +13,7 @@ const CasCliniqueEdn = () => {
   return (
     <>
       <SEOHead
-        title="Cas cliniques corrigés pour l'EDN – Entraînement médecine | MED MNG"
+        title="Cas cliniques corrigés pour l'EDN – Entraînement médecine | Med MNG"
         description="Cas cliniques générés par IA à partir des items EDN, avec questions progressives et correction. À vérifier avec vos sources officielles."
         keywords="cas cliniques EDN, dossiers progressifs médecine, cas cliniques corrigés, entraînement médecine, ECOS cas cliniques"
         canonical="/cas-cliniques-edn"
@@ -50,7 +50,7 @@ const CasCliniqueEdn = () => {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Structure d'un cas clinique MED MNG</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Structure d'un cas clinique Med MNG</h2>
             <div className="space-y-4">
               {[
                 { icon: <FileText className="h-5 w-5" />, title: 'Présentation clinique', desc: 'Vignette réaliste avec antécédents, motif de consultation, constantes, examen physique.' },

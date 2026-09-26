@@ -144,7 +144,7 @@ export const UptimeMonitor = () => {
               {getStatusBadge(globalStatus)}
             </CardTitle>
             <CardDescription>
-              Surveillance en temps réel des services MED MNG
+              Surveillance en temps réel des services Med MNG
               <span className="ml-2 text-xs">
                 (Dernière vérification: {lastGlobalCheck.toLocaleTimeString()})
               </span>

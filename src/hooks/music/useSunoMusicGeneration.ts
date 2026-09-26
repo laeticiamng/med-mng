@@ -1,5 +1,5 @@
 /**
- * 🎵 Hook principal de génération audio MED MNG (mm-generate-music + suivi).
+ * 🎵 Hook principal de génération audio Med MNG (mm-generate-music + suivi).
  *
  * Chemin complet : mm-generate-music (taskId) → mm-suno-callback met à jour
  * generated_music_tracks (ligne principale task_id) → ce hook lit la table

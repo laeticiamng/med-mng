@@ -49,7 +49,7 @@ export const ChatPDFExport: React.FC<ChatPDFExportProps> = ({
       // Header
       doc.setFontSize(20);
       doc.setTextColor(79, 70, 229);
-      doc.text('MED MNG - Chat IA', pageWidth / 2, yPosition, { align: 'center' });
+      doc.text('Med MNG - Chat IA', pageWidth / 2, yPosition, { align: 'center' });
       yPosition += 10;
 
       doc.setFontSize(14);
@@ -155,7 +155,7 @@ export const ChatPDFExport: React.FC<ChatPDFExportProps> = ({
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text(
-          `Page ${i} / ${pageCount} - MED MNG © ${new Date().getFullYear()}`,
+          `Page ${i} / ${pageCount} - Med MNG © ${new Date().getFullYear()}`,
           pageWidth / 2,
           290,
           { align: 'center' }

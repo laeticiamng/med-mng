@@ -304,7 +304,7 @@ export function EdnItemExport({
         doc.setFontSize(8);
         doc.setTextColor(150);
         doc.text(
-          `Page ${i}/${pageCount} | MED MNG - ${itemCode}`,
+          `Page ${i}/${pageCount} | Med MNG - ${itemCode}`,
           pageWidth / 2,
           doc.internal.pageSize.getHeight() - 10,
           { align: 'center' }

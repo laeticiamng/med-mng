@@ -63,7 +63,7 @@ export const PDFExportService: React.FC = () => {
       // En-tête
       doc.setFontSize(24);
       doc.setTextColor(79, 70, 229); // Primary color
-      doc.text('MED MNG - Rapport de Progression', 105, yPosition, { align: 'center' });
+      doc.text('Med MNG - Rapport de Progression', 105, yPosition, { align: 'center' });
       yPosition += 15;
 
       doc.setFontSize(12);
@@ -166,7 +166,7 @@ export const PDFExportService: React.FC = () => {
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text(
-          `Page ${i} sur ${pageCount} - MED MNG © ${new Date().getFullYear()}`,
+          `Page ${i} sur ${pageCount} - Med MNG © ${new Date().getFullYear()}`,
           105,
           290,
           { align: 'center' }

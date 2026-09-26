@@ -35,7 +35,7 @@ const INCLUS_PREMIUM = [
 ];
 
 /**
- * Offre unique : Gratuit ou MED MNG Premium (69 €/an ou 9,90 €/mois).
+ * Offre unique : Gratuit ou Med MNG Premium (69 €/an ou 9,90 €/mois).
  * Source de vérité : src/config/offre.ts.
  */
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, estAbonne }) => {
