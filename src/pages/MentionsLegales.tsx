@@ -149,7 +149,12 @@ const MentionsLegales = () => {
                 <div className="bg-warning/10 p-3 rounded text-center text-sm">Noms, concepts, logos</div>
               </div>
               <p className="text-destructive font-medium">Tout usage, reproduction ou adaptation sans autorisation expresse est interdit.</p>
-              <p>La créatrice Laëticia Motongane reste l'unique titulaire des droits d'auteur.</p>
+              <p>EmotionsCare SASU et sa créatrice, Laëticia Moto-Ngane, sont titulaires des droits sur la plateforme, sa marque, ses paroles, récits, visuels et fiches rédigées.</p>
+              <p className="text-sm">
+                <strong className="text-foreground">Référentiel officiel :</strong> les intitulés des items et des objectifs de connaissance (rang A et rang B)
+                proviennent du référentiel national du deuxième cycle des études médicales (R2C, plateforme LiSA / UNESS).
+                Ils restent la propriété de leurs auteurs, sont reproduits pour permettre la révision, avec leur source, et ne sont pas revendiqués par MED MNG.
+              </p>
             </div>
           </Card>
 
