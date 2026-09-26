@@ -26,10 +26,10 @@ export function StudyCalendarSync() {
     const ical = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//MED-MNG//Study Calendar//FR',
+      'PRODID:-//MED MNG//Study Calendar//FR',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:MED-MNG Révisions',
+      'X-WR-CALNAME:MED MNG Révisions',
       'X-WR-TIMEZONE:Europe/Paris'
     ];
 
@@ -52,8 +52,8 @@ export function StudyCalendarSync() {
         ical.push(`DTSTAMP:${dtstamp}`);
         ical.push(`DTSTART:${dtstart}`);
         ical.push(`DTEND:${dtend}`);
-        ical.push(`SUMMARY:📚 MED-MNG: ${day.count} items à réviser`);
-        ical.push(`DESCRIPTION:Vous avez ${day.count} items EDN à réviser aujourd'hui.\\nConnectez-vous à MED-MNG pour commencer !`);
+        ical.push(`SUMMARY:📚 MED MNG: ${day.count} items à réviser`);
+        ical.push(`DESCRIPTION:Vous avez ${day.count} items EDN à réviser aujourd'hui.\\nConnectez-vous à MED MNG pour commencer !`);
         ical.push(`LOCATION:${window.location.origin}/srs-review`);
         ical.push('STATUS:CONFIRMED');
         ical.push('TRANSP:OPAQUE');
@@ -82,7 +82,7 @@ export function StudyCalendarSync() {
       ical.push(`DTSTAMP:${formatICalDate(new Date())}`);
       ical.push(`DTSTART:${formatICalDate(examDate)}`);
       ical.push(`DTEND:${formatICalDate(endExamDate)}`);
-      ical.push('SUMMARY:🎯 MED-MNG: Examen blanc hebdomadaire');
+      ical.push('SUMMARY:🎯 MED MNG: Examen blanc hebdomadaire');
       ical.push('DESCRIPTION:Session d\'examen blanc recommandee pour tester vos connaissances. Mode examen IA disponible !');
       ical.push(`LOCATION:${window.location.origin}/exam-mode`);
       ical.push('STATUS:CONFIRMED');

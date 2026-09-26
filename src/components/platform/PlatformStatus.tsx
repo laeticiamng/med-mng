@@ -59,7 +59,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-success" />
-            Plateforme MED-MNG - Statut Global
+            Plateforme MED MNG - Statut Global
           </CardTitle>
           <CardDescription>
             Toutes les fonctionnalités sont opérationnelles
@@ -190,7 +190,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
             </h3>
             <p className="text-sm text-muted-foreground">
               Toutes les fonctionnalités sont opérationnelles et la plateforme est prête pour une utilisation complète.
-              Analytics avancés, recommandations intelligentes, et toutes les fonctionnalités Med-MNG sont disponibles.
+              Analytics avancés, recommandations intelligentes, et toutes les fonctionnalités MED MNG sont disponibles.
             </p>
           </div>
         </CardContent>

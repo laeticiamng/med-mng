@@ -14,14 +14,14 @@ const ExempleCasClinique = () => {
     "@type": "Article",
     "headline": "Exemple de cas clinique interactif — Douleur thoracique aiguë",
     "description": "Cas clinique gratuit : patient de 55 ans avec douleur thoracique. Raisonnement clinique, diagnostic différentiel, prise en charge. Corrigé détaillé.",
-    "author": { "@type": "Organization", "name": "MED-MNG" },
+    "author": { "@type": "Organization", "name": "MED MNG" },
     "datePublished": "2026-02-28"
   };
 
   return (
     <>
       <SEOHead
-        title="Exemple cas clinique gratuit — Douleur thoracique | MED-MNG"
+        title="Exemple cas clinique gratuit — Douleur thoracique | MED MNG"
         description="Cas clinique interactif gratuit : douleur thoracique aiguë chez un homme de 55 ans. Raisonnement clinique, diagnostic différentiel, prise en charge. Correction détaillée."
         keywords="cas clinique gratuit, douleur thoracique, cas clinique médecine, EDN cas clinique, ECOS exemple"
         canonical="/exemple-cas-clinique"

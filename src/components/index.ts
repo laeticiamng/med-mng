@@ -240,7 +240,7 @@ export {
   ItemMasteryGrid
 } from './learning';
 
-// Med-MNG (selective exports)
+// MED MNG (selective exports)
 export { 
   AuthProvider, 
   MedMngLayout, 

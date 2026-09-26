@@ -192,8 +192,8 @@ const ExecutiveDashboard: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Tableau de bord Dirigeant - MED-MNG</title>
-        <meta name="description" content="Vue consolidée des performances, progression étudiants et utilisation de la plateforme MED-MNG pour les responsables d'établissement." />
+        <title>Tableau de bord Dirigeant - MED MNG</title>
+        <meta name="description" content="Vue consolidée des performances, progression étudiants et utilisation de la plateforme MED MNG pour les responsables d'établissement." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">

@@ -38,7 +38,7 @@ const HEALTH_CHECK_TIMEOUT = 5000;
 const startTime = Date.now();
 
 // Message de santé simple (rétrocompatibilité)
-export const getHealthMessage = () => 'Med-MNG API running';
+export const getHealthMessage = () => 'MED MNG API running';
 
 // Vérification de la connexion Supabase
 async function checkSupabaseHealth(): Promise<ServiceHealth> {

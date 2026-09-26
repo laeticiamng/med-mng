@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
   return (
     <LanguageProvider>
       <Helmet>
-        <title>Dashboard - Plateforme Médicale MED-MNG</title>
+        <title>Dashboard - Plateforme Médicale MED MNG</title>
         <meta name="description" content="Tableau de bord principal de la plateforme médicale avec monitoring, analytics et contrôles système en temps réel." />
         <meta name="keywords" content="dashboard, medical platform, monitoring, analytics, healthcare technology" />
         <link rel="canonical" href="/dashboard" />

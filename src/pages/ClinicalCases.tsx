@@ -185,7 +185,7 @@ export default function ClinicalCases() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5">
       <Helmet>
-        <title>Cas Cliniques | MED-MNG</title>
+        <title>Cas Cliniques | MED MNG</title>
         <meta name="description" content="Cas cliniques interactifs pour l'apprentissage médical" />
       </Helmet>
 

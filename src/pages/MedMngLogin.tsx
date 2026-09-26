@@ -130,7 +130,7 @@ export const MedMngLogin = () => {
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Music className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground">MED-MNG</span>
+              <span className="text-2xl font-bold text-foreground">MED MNG</span>
             </div>
             <CardDescription>Réinitialisation du mot de passe</CardDescription>
           </CardHeader>
@@ -160,7 +160,7 @@ export const MedMngLogin = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Music className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground">MED-MNG</span>
+            <span className="text-2xl font-bold text-foreground">MED MNG</span>
           </div>
           <CardDescription>Connectez-vous à votre compte</CardDescription>
         </CardHeader>

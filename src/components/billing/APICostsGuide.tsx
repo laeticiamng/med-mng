@@ -185,7 +185,7 @@ export const APICostsGuide: React.FC<APICostsGuideProps> = ({
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Transparence sur les coûts</AlertTitle>
             <AlertDescription className="text-sm">
-              MED-MNG utilise des APIs externes payantes. Les fonctionnalités IA 
+              MED MNG utilise des APIs externes payantes. Les fonctionnalités IA 
               (chat, génération musicale) consomment des crédits. Surveillez votre 
               utilisation pour éviter les surprises.
             </AlertDescription>

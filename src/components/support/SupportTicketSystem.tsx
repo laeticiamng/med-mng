@@ -73,14 +73,14 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     id: '3',
     question: 'Les réponses de l\'IA sont-elles fiables médicalement ?',
-    answer: 'L\'IA MED-MNG est conçue pour l\'apprentissage pédagogique uniquement. Ses réponses ne constituent pas un avis médical professionnel. Vérifiez toujours les informations avec des sources officielles (Collèges, HAS) et consultez un professionnel de santé pour tout diagnostic.',
+    answer: 'L\'IA MED MNG est conçue pour l\'apprentissage pédagogique uniquement. Ses réponses ne constituent pas un avis médical professionnel. Vérifiez toujours les informations avec des sources officielles (Collèges, HAS) et consultez un professionnel de santé pour tout diagnostic.',
     category: 'IA Médicale',
     helpful: 203
   },
   {
     id: '4',
     question: 'Comment importer mes flashcards Anki ?',
-    answer: 'Exportez votre deck Anki au format .txt ou .csv. Sur MED-MNG, allez dans Flashcards > Importer, sélectionnez le fichier. Les champs question/réponse seront automatiquement détectés. Vous pouvez les assigner à des items EDN après import.',
+    answer: 'Exportez votre deck Anki au format .txt ou .csv. Sur MED MNG, allez dans Flashcards > Importer, sélectionnez le fichier. Les champs question/réponse seront automatiquement détectés. Vous pouvez les assigner à des items EDN après import.',
     category: 'Flashcards',
     helpful: 56
   },

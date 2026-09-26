@@ -14,7 +14,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { trackConversionEvent } from '@/lib/conversionTracking';
 import { toast } from 'sonner';
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 
 export const MedMngSignup = () => {
   const { user, signUp, signIn, signInWithGoogle } = useAuth();
@@ -32,9 +32,6 @@ export const MedMngSignup = () => {
   
   // Consentements RGPD
   const [cguAccepted, setCguAccepted] = useState(false);
-  const [healthDataAccepted, setHealthDataAccepted] = useState(false);
-  const [internationalTransferAccepted, setInternationalTransferAccepted] = useState(false);
-  const [ageVerified, setAgeVerified] = useState(false);
   const [showConsentErrors, setShowConsentErrors] = useState(false);
 
   if (user) {
@@ -61,8 +58,8 @@ export const MedMngSignup = () => {
     }
 
     // Vérification des consentements obligatoires
-    if (!cguAccepted || !healthDataAccepted || !internationalTransferAccepted || !ageVerified) {
-      setError('Veuillez accepter tous les consentements obligatoires');
+    if (!cguAccepted) {
+      setError('Veuillez accepter les conditions générales d\'utilisation');
       setShowConsentErrors(true);
       setLoading(false);
       setTimeout(() => {
@@ -94,7 +91,7 @@ export const MedMngSignup = () => {
       toast.success('Compte créé avec succès !', { description: 'Connectez-vous avec vos identifiants.' });
       navigate(avecSuivant(ROUTE_PATHS.medMngLogin, suivant));
     } else {
-      toast.success('Bienvenue sur MED-MNG ! 🎵');
+      toast.success('Bienvenue sur MED MNG ! 🎵');
       // La redirection se fait automatiquement via le `if (user) return Navigate`
     }
     
@@ -113,7 +110,7 @@ export const MedMngSignup = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-foreground">MED-MNG</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">MED MNG</CardTitle>
           <CardDescription>Créez votre compte</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -196,17 +193,11 @@ export const MedMngSignup = () => {
               />
             </div>
 
-            {/* Consentements RGPD obligatoires */}
+            {/* Acceptation des CGU */}
             <div id="consent-section">
             <ConsentCheckboxes
               cguAccepted={cguAccepted}
               onCguChange={setCguAccepted}
-              healthDataAccepted={healthDataAccepted}
-              onHealthDataChange={setHealthDataAccepted}
-              internationalTransferAccepted={internationalTransferAccepted}
-              onInternationalTransferChange={setInternationalTransferAccepted}
-              ageVerified={ageVerified}
-              onAgeChange={setAgeVerified}
               showErrors={showConsentErrors}
             />
             </div>

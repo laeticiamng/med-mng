@@ -42,7 +42,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
   songId,
   audioUrl,
   title,
-  artist = "MED-MNG",
+  artist = "MED MNG",
   album = "Collection Médicale",
   coverUrl,
   onAddToPlaylist,

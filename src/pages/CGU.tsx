@@ -355,9 +355,8 @@ const CGU = () => {
               </p>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="text-sm">
-                  <strong>Données sensibles :</strong> Vos progressions pédagogiques (historique de génération, 
-                  résultats de quiz) peuvent être considérées comme "données relatives à la santé" au sens de 
-                  l'Article 9 du RGPD. Elles bénéficient de mesures de protection renforcées :
+                  <strong>Vos données de révision :</strong> vos progressions (historique de génération, résultats de quiz)
+                  sont des données pédagogiques, pas des données de santé. Elles sont protégées ainsi :
                 </p>
                 <ul className="text-sm space-y-1 mt-2">
                   <li>• Chiffrement en transit (TLS) et au repos</li>

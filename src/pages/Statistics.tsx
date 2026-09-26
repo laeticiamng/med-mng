@@ -98,7 +98,7 @@ const Statistics = () => {
       const pdf = new jsPDF();
       
       pdf.setFontSize(20);
-      pdf.text('Mes Statistiques MED-MNG', 20, 20);
+      pdf.text('Mes Statistiques MED MNG', 20, 20);
       
       pdf.setFontSize(12);
       pdf.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 35);
@@ -132,8 +132,8 @@ const Statistics = () => {
   return (
     <>
       <Helmet>
-        <title>Mes Statistiques | MED-MNG</title>
-        <meta name="description" content="Tableaux de bord et statistiques personnelles de la plateforme MED-MNG" />
+        <title>Mes Statistiques | MED MNG</title>
+        <meta name="description" content="Tableaux de bord et statistiques personnelles de la plateforme MED MNG" />
       </Helmet>
 
       <div className="container mx-auto p-6 space-y-8">
@@ -141,7 +141,7 @@ const Statistics = () => {
           <div className="text-center md:text-left space-y-2">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Mes Statistiques</h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
-              Analyse de votre progression et performances sur MED-MNG
+              Analyse de votre progression et performances sur MED MNG
             </p>
           </div>
           <Button onClick={exportToPDF} className="gap-2">

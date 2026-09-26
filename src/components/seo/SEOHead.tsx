@@ -32,7 +32,7 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
   noindex = false,
 }, _ref) => {
   const siteUrl = 'https://medmng.com';
-  const fullTitle = `${title} - MED-MNG`;
+  const fullTitle = `${title} - MED MNG`;
   // Un canonical déjà absolu ne doit PAS être re-préfixé : sinon on obtenait
   // `https://medmng.comhttps://medmng.com/`, une URL invalide servie à Google
   // et aux aperçus sociaux (constaté en production le 18/09).
@@ -60,7 +60,7 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage || defaultImage} />
-      <meta property="og:site_name" content="MED-MNG" />
+      <meta property="og:site_name" content="MED MNG" />
       <meta property="og:locale" content="fr_FR" />
 
       {/* Twitter */}
@@ -74,7 +74,7 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
       <meta name="theme-color" content="#3B82F6" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content="MED-MNG" />
+      <meta name="apple-mobile-web-app-title" content="MED MNG" />
 
       {/* Structured Data (Schema.org) */}
       {structuredData && (
@@ -111,7 +111,7 @@ SEOHead.displayName = 'SEOHead';
  *     "headline": "Item EDN 123 - Cardiologie",
  *     "author": {
  *       "@type": "Organization",
- *       "name": "MED-MNG"
+ *       "name": "MED MNG"
  *     },
  *     "datePublished": "2024-01-01",
  *   }}
@@ -126,7 +126,7 @@ SEOHead.displayName = 'SEOHead';
 export const createOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'MED-MNG',
+  name: 'MED MNG',
   url: 'https://medmng.com',
   logo: 'https://medmng.com/logo.png',
   description: 'Plateforme d\'apprentissage médical innovante',
@@ -138,7 +138,7 @@ export const createOrganizationSchema = () => ({
 export const createWebsiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'MED-MNG',
+  name: 'MED MNG',
   url: 'https://medmng.com',
   potentialAction: {
     '@type': 'SearchAction',

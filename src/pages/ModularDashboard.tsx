@@ -43,7 +43,7 @@ export default function ModularDashboard() {
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div>
-                <h1 className="text-xl font-semibold">Hub Éducatif MED-MNG</h1>
+                <h1 className="text-xl font-semibold">Hub Éducatif MED MNG</h1>
                 <p className="text-sm text-muted-foreground">Plateforme médicale avancée</p>
               </div>
             </div>

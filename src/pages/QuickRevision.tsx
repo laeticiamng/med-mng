@@ -6,7 +6,7 @@ export default function QuickRevision() {
   return (
     <>
       <Helmet>
-        <title>Révision rapide — MED-MNG</title>
+        <title>Révision rapide — MED MNG</title>
         <meta name="description" content="Révisez un item EDN tiré au hasard avec un court quiz." />
         <link rel="canonical" href="/revision-rapide" />
       </Helmet>

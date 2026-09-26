@@ -14,8 +14,8 @@ const PreparationEcos2027 = () => {
   return (
     <>
       <SEOHead
-        title="Comment préparer les ECOS 2027 – Guide complet | MED-MNG"
-        description="Guide complet pour réussir les ECOS 2027 (promotion qui passe les EDN en octobre 2026). Stratégies, planning, fiches interactives et simulation. Préparez-vous efficacement avec MED-MNG."
+        title="Comment préparer les ECOS 2027 – Guide complet | MED MNG"
+        description="Guide complet pour réussir les ECOS 2027 (promotion qui passe les EDN en octobre 2026). Stratégies, planning, fiches interactives et simulation. Préparez-vous efficacement avec MED MNG."
         keywords="ECOS 2027, préparation ECOS, réussir ECOS, examen clinique objectif structuré, médecine, étudiant"
         canonical="/preparation-ecos-2027"
       />
@@ -126,7 +126,7 @@ const PreparationEcos2027 = () => {
             </p>
             
             {[
-              { period: 'Mois 1-2 : Fondations', tasks: ['Réviser les 367 items EDN (Rang A prioritaire)', 'Maîtriser un interrogatoire structuré (caractériser un symptôme : siège, type, intensité, irradiation, durée, facteurs déclenchants et soulageants)', 'Pratiquer 2 cas cliniques/semaine', 'Réécouter les chansons MED-MNG de vos items en complément'] },
+              { period: 'Mois 1-2 : Fondations', tasks: ['Réviser les 367 items EDN (Rang A prioritaire)', 'Maîtriser un interrogatoire structuré (caractériser un symptôme : siège, type, intensité, irradiation, durée, facteurs déclenchants et soulageants)', 'Pratiquer 2 cas cliniques/semaine', 'Réécouter les chansons MED MNG de vos items en complément'] },
               { period: 'Mois 3-4 : Approfondissement', tasks: ['Compléter les items Rang B', 'Augmenter à 4-5 cas cliniques/semaine', 'Commencer les simulations ECOS chronométrées', 'Travailler spécifiquement l\'annonce diagnostique'] },
               { period: 'Mois 5 : Simulation intensive', tasks: ['1 ECOS blanc complet par semaine', 'Analyse de vos grilles d\'auto-évaluation', 'Révision ciblée des points faibles identifiés', 'Travail en binôme avec un camarade'] },
               { period: 'Mois 6 : Consolidation', tasks: ['2 ECOS blancs/semaine', 'Révision flash des items critiques', 'Gestion du stress et techniques de relaxation', 'Simulation en conditions réelles (timer strict)'] },
@@ -159,8 +159,8 @@ const PreparationEcos2027 = () => {
                 <p><TranslatedText text="Plainte et interrogatoire → examen clinique → synthèse diagnostique → plan de prise en charge (en anglais : Subjective, Objective, Assessment, Plan). Cette structure vous aide à ne rien oublier." /></p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="L'apprentissage par la musique (méthode MED-MNG)" /></h3>
-                <p><TranslatedText text="Une mélodie répétée peut aider à retenir un texte ; l'effet reste modeste et complète le rappel actif (quiz). MED-MNG rédige pour chaque item des paroles à partir de ses compétences, que vous pouvez mettre en musique et réécouter pendant vos déplacements." /></p>
+                <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="L'apprentissage par la musique (méthode MED MNG)" /></h3>
+                <p><TranslatedText text="Une mélodie répétée peut aider à retenir un texte ; l'effet reste modeste et complète le rappel actif (quiz). MED MNG rédige pour chaque item des paroles à partir de ses compétences, que vous pouvez mettre en musique et réécouter pendant vos déplacements." /></p>
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2"><TranslatedText text="La répétition espacée (SRS)" /></h3>
@@ -206,7 +206,7 @@ const PreparationEcos2027 = () => {
             </p>
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6">
-                <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Simuler sur MED-MNG :" /></h3>
+                <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Simuler sur MED MNG :" /></h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>✓ <TranslatedText text="Situations ECOS issues du référentiel" /></li>
                   <li>✓ <TranslatedText text="Déroulé guidé et chronomètre" /></li>
@@ -230,7 +230,7 @@ const PreparationEcos2027 = () => {
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { name: 'MED-MNG', desc: 'Items EDN (fiche, rang A, rang B, quiz, paroles) et situations ECOS', link: ROUTE_PATHS.home },
+                { name: 'MED MNG', desc: 'Items EDN (fiche, rang A, rang B, quiz, paroles) et situations ECOS', link: ROUTE_PATHS.home },
                 { name: 'SIDES', desc: 'Plateforme d\'entraînement des facultés', link: null },
                 { name: 'Collèges de spécialité', desc: 'Référentiels pédagogiques nationaux', link: null },
                 { name: 'Annales ECOS', desc: 'Sujets des années précédentes', link: null },
@@ -259,7 +259,7 @@ const PreparationEcos2027 = () => {
               {[
                 { q: 'Combien de temps faut-il pour préparer les ECOS ?', a: 'Plusieurs mois de préparation régulière, avec une intensification à l\'approche de l\'épreuve.' },
                 { q: 'Les ECOS comptent-ils pour le classement ?', a: 'Oui. L\'EDN et les ECOS comptent tous deux dans le classement ; consultez l\'arrêté en vigueur pour la pondération exacte.' },
-                { q: 'Peut-on préparer les ECOS seul ?', a: 'En partie, avec des situations guidées comme celles de MED-MNG, mais le travail en binôme reste fortement recommandé pour la dimension communication.' },
+                { q: 'Peut-on préparer les ECOS seul ?', a: 'En partie, avec des situations guidées comme celles de MED MNG, mais le travail en binôme reste fortement recommandé pour la dimension communication.' },
                 { q: 'Quelles spécialités tombent le plus souvent ?', a: 'Toutes les spécialités peuvent tomber. Travaillez les situations de départ du référentiel plutôt que de parier sur quelques spécialités.' },
                 { q: 'Comment gérer le stress le jour J ?', a: 'Techniques de respiration, visualisation positive, et surtout : être bien préparé. La confiance vient de la pratique répétée.' },
               ].map((faq, i) => (

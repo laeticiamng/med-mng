@@ -466,7 +466,7 @@ describe('Analytics Module - Unit Tests', () => {
       const ical = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//MED-MNG//EDN Revisions//FR',
+        'PRODID:-//MED MNG//EDN Revisions//FR',
         ...events,
         'END:VCALENDAR'
       ].join('\r\n');

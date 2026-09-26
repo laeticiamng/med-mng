@@ -21,11 +21,11 @@ const faqs = [
   },
   {
     question: "Sur quoi repose le contenu ?",
-    answer: "Les compétences de chaque item (rang A et rang B) proviennent du référentiel public UNESS/LiSA. MED-MNG n'a aucun partenariat officiel avec l'UNESS ni le CNG. Les paroles et quiz sont générés par IA et doivent être vérifiés avec vos sources officielles."
+    answer: "Les compétences de chaque item (rang A et rang B) proviennent du référentiel public UNESS/LiSA. MED MNG n'a aucun partenariat officiel avec l'UNESS ni le CNG. Les paroles et quiz sont générés par IA et doivent être vérifiés avec vos sources officielles."
   },
   {
-    question: "Puis-je utiliser MED-MNG sur mobile ?",
-    answer: "Oui, MED-MNG est une application web progressive (PWA) utilisable sur ordinateur, tablette et smartphone. Installez-la directement depuis votre navigateur."
+    question: "Puis-je utiliser MED MNG sur mobile ?",
+    answer: "Oui, MED MNG est une application web progressive (PWA) utilisable sur ordinateur, tablette et smartphone. Installez-la directement depuis votre navigateur."
   },
   {
     question: "Comment fonctionne la musique IA pour réviser ?",
@@ -40,7 +40,7 @@ const faqs = [
     answer: "Oui, écrivez à contact@emotionscare.com."
   },
   {
-    question: "Puis-je accéder à MED-MNG hors connexion ?",
+    question: "Puis-je accéder à MED MNG hors connexion ?",
     answer: "Les fiches déjà consultées restent lisibles hors connexion grâce à la PWA. L'audio, les quiz et la génération nécessitent une connexion internet."
   }
 ];

@@ -202,7 +202,7 @@ const AccessibilityDashboard = () => {
                   <li><code>read:org</code> - Lecture des organisations</li>
                 </ul>
                 <a 
-                  href="https://github.com/settings/tokens/new?scopes=repo,read:org&description=MED-MNG%20Accessibility%20Dashboard"
+                  href="https://github.com/settings/tokens/new?scopes=repo,read:org&description=MED MNG%20Accessibility%20Dashboard"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline mt-2 inline-block"

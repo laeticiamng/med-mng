@@ -12,8 +12,8 @@ export default function BillingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <Helmet>
-        <title>Facturation & Abonnement | MED-MNG</title>
-        <meta name="description" content="Gérez votre abonnement MED-MNG, consultez votre consommation et vos factures." />
+        <title>Facturation & Abonnement | MED MNG</title>
+        <meta name="description" content="Gérez votre abonnement MED MNG, consultez votre consommation et vos factures." />
         <meta name="robots" content="noindex" />
       </Helmet>
 

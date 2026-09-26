@@ -107,7 +107,7 @@ describe('RGPD Compliance Module - Unit Tests', () => {
         export_metadata: {
           exported_at: new Date().toISOString(),
           format_version: '1.0',
-          data_controller: 'MED-MNG Platform'
+          data_controller: 'MED MNG Platform'
         },
         ...mockUserData
       };
@@ -123,7 +123,7 @@ describe('RGPD Compliance Module - Unit Tests', () => {
         export_metadata: {
           exported_at: new Date().toISOString(),
           format_version: '1.0',
-          data_controller: 'MED-MNG Platform',
+          data_controller: 'MED MNG Platform',
           gdprCompliant: true
         }
       };

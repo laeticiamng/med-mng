@@ -45,7 +45,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
 
   const welcomeSteps = [
     {
-      title: "Bienvenue sur MED-MNG",
+      title: "Bienvenue sur MED MNG",
       description: "La plateforme médicale intelligente qui révolutionne l'apprentissage",
       icon: Sparkles,
       color: "bg-primary",

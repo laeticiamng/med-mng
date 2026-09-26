@@ -314,7 +314,7 @@ export const ChallengeSystem: React.FC = () => {
             Défis Communautaires
           </CardTitle>
           <CardDescription>
-            Participez aux défis avec la communauté MED-MNG
+            Participez aux défis avec la communauté MED MNG
           </CardDescription>
         </CardHeader>
         <CardContent>

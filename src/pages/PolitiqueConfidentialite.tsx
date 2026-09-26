@@ -102,11 +102,11 @@ const PolitiqueConfidentialite = () => {
               <Alert className="bg-warning/10 border-l-4 border-warning">
                 <AlertTriangle className="h-4 w-4 text-warning" />
                 <AlertDescription>
-                  <p className="font-medium text-warning">⚠️ DONNÉES RELATIVES À LA SANTÉ (Article 9 RGPD)</p>
+                  <p className="font-medium text-warning">Aucune donnée de santé</p>
                   <p className="text-sm text-warning/80 mt-2">
-                    Vos progressions pédagogiques médicales (EDN, Rang A/B) sont considérées comme des 
-                    <strong> données relatives à la santé</strong> car elles concernent votre formation médicale.
-                    Votre consentement explicite est requis lors de l'inscription (Article 9.2.a RGPD).
+                    Vos progressions (items EDN révisés, rangs A/B, résultats de quiz) décrivent vos révisions, pas votre santé :
+                    ce sont des données pédagogiques, traitées pour exécuter le service que vous avez souscrit. Ne saisissez
+                    jamais de données de patients ni d'informations sur votre propre santé.
                   </p>
                 </AlertDescription>
               </Alert>
@@ -211,35 +211,33 @@ const PolitiqueConfidentialite = () => {
                 <AlertDescription>
                   <p className="font-semibold text-primary mb-2">Sous-traitants techniques (RGPD Article 28)</p>
                   <ul className="text-sm space-y-1">
-                    <li>• <strong>Supabase (États-Unis)</strong> - Hébergement données</li>
-                    <li>• <strong>OpenAI (États-Unis)</strong> - Génération contenus pédagogiques IA</li>
-                    <li>• <strong>Suno AI (États-Unis)</strong> - Génération musiques mnémotechniques</li>
-                    <li>• <strong>ElevenLabs (États-Unis)</strong> - Synthèse vocale</li>
-                    <li>• <strong>Stripe (États-Unis)</strong> - Traitement paiements</li>
+                    <li>• <strong>Supabase</strong> - Base de données et authentification, hébergées dans l'Union européenne (Francfort, Allemagne)</li>
+                    <li>• <strong>Lovable</strong> - Hébergement de l'application web</li>
+                    <li>• <strong>OpenAI (États-Unis)</strong> - Génération des paroles et des explications pédagogiques</li>
+                    <li>• <strong>Suno (États-Unis)</strong> - Génération des musiques</li>
+                    <li>• <strong>Stripe</strong> - Traitement des paiements</li>
+                    <li>• <strong>Sentry (États-Unis)</strong> - Suivi des erreurs techniques (sans contenu de révision)</li>
                   </ul>
-                  <p className="text-sm mt-2 text-primary/80">
-                    Tous nos sous-traitants ont signé des <strong>Data Processing Agreements (DPA)</strong> conformes au RGPD.
-                  </p>
                 </AlertDescription>
               </Alert>
 
               <Alert className="bg-warning/10 border-warning/20">
                 <AlertTriangle className="h-4 w-4 text-warning" />
                 <AlertDescription>
-                  <p className="font-semibold text-warning mb-2">⚠️ Transferts internationaux vers les États-Unis</p>
+                  <p className="font-semibold text-warning mb-2">Transferts vers les États-Unis</p>
                   <p className="text-sm text-warning/80">
-                    Vos données peuvent être transférées aux États-Unis dans le cadre de la génération de contenus IA 
-                    (OpenAI, Suno AI, ElevenLabs). Ces transferts sont protégés par:
+                    Pour générer une chanson ou une explication, le texte pédagogique concerné (item, thème, style) est envoyé à OpenAI
+                    et à Suno, sans votre nom ni votre adresse e-mail. Ces transferts reposent sur l'exécution du service que vous
+                    demandez et sont encadrés par :
                   </p>
                   <ul className="text-sm space-y-1 mt-2 ml-4">
-                    <li>✅ <strong>Clauses Contractuelles Types UE</strong> (Standard Contractual Clauses)</li>
-                    <li>✅ <strong>Data Privacy Framework UE-USA</strong> (certification des fournisseurs)</li>
-                    <li>✅ <strong>Chiffrement de bout en bout</strong> en transit</li>
-                    <li>✅ <strong>Minimisation des données</strong> transmises (uniquement nécessaires)</li>
+                    <li>• les <strong>clauses contractuelles types</strong> de la Commission européenne, ou la certification du fournisseur au <strong>Data Privacy Framework UE-États-Unis</strong> lorsqu'elle existe ;</li>
+                    <li>• des connexions chiffrées (HTTPS/TLS) ;</li>
+                    <li>• la <strong>minimisation</strong> : seul le texte nécessaire à la génération est transmis.</li>
                   </ul>
                   <p className="text-sm mt-2 text-warning font-medium">
-                    Votre consentement explicite pour ces transferts est collecté lors de l'inscription 
-                    (conformément aux Articles 44-49 du RGPD).
+                    Vos données de révision (progression, résultats de quiz) sont des données pédagogiques : elles ne sont pas des
+                    données de santé et ne sont jamais transmises à ces fournisseurs.
                   </p>
                 </AlertDescription>
               </Alert>
@@ -296,7 +294,7 @@ const PolitiqueConfidentialite = () => {
               <div className="bg-success/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-success mb-2">Mesures préventives en place</h4>
                 <ul className="text-sm space-y-1">
-                  <li>• Chiffrement AES-256 au repos et en transit (TLS 1.3)</li>
+                  <li>• Chiffrement au repos (hébergeur) et en transit (HTTPS/TLS)</li>
                   <li>• Row Level Security (RLS) sur toutes les tables Supabase</li>
                   <li>• Monitoring temps réel via Sentry</li>
                   <li>• Sauvegardes automatisées chiffrées</li>

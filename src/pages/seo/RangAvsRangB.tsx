@@ -23,7 +23,7 @@ const RangAvsRangB = () => {
   return (
     <>
       <SEOHead
-        title="Rang A vs Rang B EDN : comprendre la différence | MED-MNG"
+        title="Rang A vs Rang B EDN : comprendre la différence | MED MNG"
         description="Rang A vs Rang B à l'EDN : quelles connaissances prioriser ? Stratégie de révision, items par rang, impact sur le classement national. Guide complet."
         keywords="rang A rang B, EDN rang A, EDN rang B, items EDN, stratégie révision médecine"
         canonical="/rang-a-vs-rang-b"
@@ -164,7 +164,7 @@ const RangAvsRangB = () => {
                 { q: "Qu'est-ce que le Rang A en médecine ?", a: "Le Rang A regroupe les connaissances indispensables que tout médecin doit maîtriser, quel que soit sa spécialité." },
                 { q: "Faut-il apprendre le Rang B ?", a: "Oui, le rang B fait partie du programme. Commencez par le rang A de chaque item, puis travaillez son rang B." },
                 { q: "Combien d'items sont en Rang A ?", a: "La question ne se pose pas ainsi : le rang s'applique à chaque connaissance, pas à l'item. Un même item contient des connaissances de rang A et de rang B." },
-                { q: "MED-MNG différencie-t-il Rang A et Rang B ?", a: "Oui, pour chaque item, MED-MNG affiche séparément les connaissances de rang A et de rang B (onglets Rang A et Rang B)." },
+                { q: "MED MNG différencie-t-il Rang A et Rang B ?", a: "Oui, pour chaque item, MED MNG affiche séparément les connaissances de rang A et de rang B (onglets Rang A et Rang B)." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
                   <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>

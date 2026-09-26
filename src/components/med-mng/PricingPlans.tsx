@@ -83,7 +83,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, estAbo
       {/* Premium */}
       <Card className="relative flex flex-col ring-2 ring-primary shadow-xl">
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-          <Badge className="bg-primary text-primary-foreground px-4 shadow-md">Pour préparer les EDN 2027</Badge>
+          <Badge className="bg-primary text-primary-foreground px-4 shadow-md">Pour préparer les EDN 2028</Badge>
         </div>
         <CardHeader className="text-center pb-4">
           <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-primary text-primary-foreground">

@@ -1,5 +1,5 @@
 /**
- * MED-MNG Run Engine Types
+ * MED MNG Run Engine Types
  * Système de workflow avec étapes, preuves et approbations
  * Inspiré de Growth-Copilot
  */

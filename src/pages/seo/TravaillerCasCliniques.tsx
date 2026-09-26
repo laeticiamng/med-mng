@@ -15,7 +15,7 @@ const TravaillerCasCliniques = () => {
     "@type": "Article",
     "headline": "Comment travailler les cas cliniques efficacement pour l'EDN",
     "description": "Méthode structurée pour réussir les cas cliniques : raisonnement clinique, dossiers progressifs, grilles ECOS. Guide complet avec exemples.",
-    "author": { "@type": "Organization", "name": "MED-MNG" },
+    "author": { "@type": "Organization", "name": "MED MNG" },
     "datePublished": "2026-02-28",
     "dateModified": "2026-02-28"
   };
@@ -23,7 +23,7 @@ const TravaillerCasCliniques = () => {
   return (
     <>
       <SEOHead
-        title="Travailler les cas cliniques EDN efficacement | MED-MNG"
+        title="Travailler les cas cliniques EDN efficacement | MED MNG"
         description="Méthode structurée pour réussir les cas cliniques EDN et ECOS : raisonnement clinique, dossiers progressifs, grilles de notation. Guide pratique."
         keywords="cas cliniques EDN, dossier progressif, raisonnement clinique, ECOS cas clinique, méthode révision"
         canonical="/travailler-cas-cliniques"
@@ -172,7 +172,7 @@ const TravaillerCasCliniques = () => {
             <Accordion type="single" collapsible>
               {[
                 { q: "Combien de cas cliniques faut-il faire avant l'EDN ?", a: "Minimum 100 cas cliniques complets sur 6 mois. L'idéal est 3-4 cas/semaine avec une analyse approfondie des erreurs." },
-                { q: "Les cas cliniques MED-MNG sont-ils conformes au programme ?", a: "Ils sont générés par IA à partir des items EDN. Ils peuvent contenir des erreurs : vérifiez-les avec vos sources officielles." },
+                { q: "Les cas cliniques MED MNG sont-ils conformes au programme ?", a: "Ils sont générés par IA à partir des items EDN. Ils peuvent contenir des erreurs : vérifiez-les avec vos sources officielles." },
                 { q: "Faut-il travailler les cas cliniques seul ou en groupe ?", a: "Les deux. Seul pour le raisonnement écrit, en groupe pour les ECOS (simulation de consultation)." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>

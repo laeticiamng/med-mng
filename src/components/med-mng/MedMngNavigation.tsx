@@ -60,7 +60,7 @@ export const MedMngNavigation: React.FC = () => {
               <Music className="h-3 w-3 text-accent-foreground absolute -bottom-1 -right-1" />
             </div>
             <span className="text-lg sm:text-xl font-bold text-foreground">
-              MED-MNG
+              MED MNG
             </span>
             <Badge variant="outline" className="hidden sm:inline-flex text-xs text-muted-foreground">
               🎵 Music Learning

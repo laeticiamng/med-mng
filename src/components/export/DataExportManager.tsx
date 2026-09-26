@@ -156,7 +156,7 @@ export const DataExportManager: React.FC = () => {
     const exportData: Record<string, any> = {
       exportDate: new Date().toISOString(),
       userId: user.id,
-      platform: 'MED-MNG',
+      platform: 'MED MNG',
       version: '9.5',
       modules: {}
     };

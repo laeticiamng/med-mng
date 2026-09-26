@@ -131,7 +131,7 @@ export default function Demo() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead
         title="Démo gratuite"
-        description="Découvrez MED-MNG gratuitement : parcours guidé avec items EDN, flashcards et musique IA médicale. Sans inscription."
+        description="Découvrez MED MNG gratuitement : parcours guidé avec items EDN, flashcards et musique IA médicale. Sans inscription."
         keywords="demo, essai gratuit, EDN, médecine, apprentissage"
         canonical="/demo"
       />
@@ -156,7 +156,7 @@ export default function Demo() {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
               <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Parcours Démo MED-MNG
+                Parcours Démo MED MNG
               </h1>
               <Badge variant="secondary">{getStepLabel(currentStep)}</Badge>
             </div>
@@ -206,10 +206,10 @@ export default function Demo() {
                 <GraduationCap className="h-10 w-10 text-white" />
               </div>
               <h2 className="text-3xl font-bold">
-                Bienvenue dans la démo MED-MNG
+                Bienvenue dans la démo MED MNG
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Découvrez comment MED-MNG transforme vos révisions médicales avec la musique IA.
+                Découvrez comment MED MNG transforme vos révisions médicales avec la musique IA.
                 Ce parcours guidé vous montre les fonctionnalités clés en 5 minutes.
               </p>
             </div>
@@ -315,7 +315,7 @@ export default function Demo() {
                 </div>
                 <CardTitle className="text-2xl">{selectedEdn.title}</CardTitle>
                 <CardDescription>
-                  Cet item fait partie des 367 items EDN couverts par MED-MNG.
+                  Cet item fait partie des 367 items EDN couverts par MED MNG.
                   En version complète, vous accédez aux tableaux Rang A & B, aux QCM, aux flashcards et à la musique IA.
                 </CardDescription>
               </CardHeader>
@@ -437,7 +437,7 @@ export default function Demo() {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold mb-2">Musique IA - Mémorisation musicale</h2>
               <p className="text-muted-foreground">
-                MED-MNG transforme chaque item EDN en chanson pour faciliter la mémorisation.
+                MED MNG transforme chaque item EDN en chanson pour faciliter la mémorisation.
               </p>
             </div>
 
@@ -671,7 +671,7 @@ export default function Demo() {
               </div>
               <h2 className="text-3xl font-bold">Démo terminée !</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Vous avez découvert un aperçu de MED-MNG. La plateforme inclut :
+                Vous avez découvert un aperçu de MED MNG. La plateforme inclut :
               </p>
             </div>
 

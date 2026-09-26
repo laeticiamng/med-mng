@@ -164,7 +164,7 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
         doc.setFontSize(8);
         doc.setTextColor(150);
         doc.text(
-          `Page ${i} sur ${pageCount} - MED-MNG EDN Preparation`,
+          `Page ${i} sur ${pageCount} - MED MNG EDN Preparation`,
           pageWidth / 2,
           doc.internal.pageSize.getHeight() - 10,
           { align: 'center' }

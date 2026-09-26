@@ -1,12 +1,12 @@
-# MED-MNG - LLMs.txt
-# Ce fichier aide les assistants IA (ChatGPT, Perplexity, Claude) à décrire MED-MNG correctement.
+# MED MNG - LLMs.txt
+# Ce fichier aide les assistants IA (ChatGPT, Perplexity, Claude) à décrire MED MNG correctement.
 # Dernière mise à jour : 2026-09-24
 
-> MED-MNG est une application web de révision pour les étudiants en médecine de 2e cycle (D2-D3) qui préparent les EDN 2027 (session d'octobre 2026). Pour chacun des 367 items, elle présente les compétences officielles de rang A et de rang B (référentiel public UNESS/LiSA 2026) et un contenu immersif : paroles de chanson mnémotechniques, récit, planches et quiz, avec génération audio des chansons.
+> MED MNG est une application web de révision pour les étudiants en médecine de 2e cycle (D2-D3) qui préparent les EDN 2027 (session d'octobre 2026). Pour chacun des 367 items, elle présente les compétences officielles de rang A et de rang B (référentiel public UNESS/LiSA 2026) et un contenu immersif : paroles de chanson mnémotechniques, récit, planches et quiz, avec génération audio des chansons.
 
 ## Identité
 
-- Nom : MED-MNG
+- Nom : MED MNG
 - Éditeur : EmotionsCare SASU (France)
 - Type : application web installable (PWA)
 - Langue : français

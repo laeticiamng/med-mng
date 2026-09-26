@@ -55,7 +55,7 @@ export const CartDrawer = () => {
       
       <SheetContent className="w-full sm:max-w-lg flex flex-col h-full">
         <SheetHeader className="flex-shrink-0">
-          <SheetTitle>Panier MedMNG Store</SheetTitle>
+          <SheetTitle>Panier MED MNG Store</SheetTitle>
           <SheetDescription>
             {totalItems === 0 ? "Votre panier est vide" : `${totalItems} article${totalItems !== 1 ? 's' : ''} dans votre panier`}
           </SheetDescription>

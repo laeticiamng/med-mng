@@ -110,7 +110,7 @@ export const WelcomeDashboard: React.FC = () => {
         </div>
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground via-muted-foreground to-foreground bg-clip-text text-transparent mb-2">
-            Bienvenue sur MED-MNG
+            Bienvenue sur MED MNG
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Plateforme médicale intelligente complète avec IA, génération musicale et contenus EDN

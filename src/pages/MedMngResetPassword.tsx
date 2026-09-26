@@ -23,8 +23,8 @@ export const MedMngResetPassword = () => {
     e.preventDefault();
     setError('');
 
-    if (password.length < 6) {
-      setError('Le mot de passe doit faire au moins 6 caractères');
+    if (password.length < 8) {
+      setError('Le mot de passe doit faire au moins 8 caractères');
       return;
     }
 
@@ -55,7 +55,7 @@ export const MedMngResetPassword = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Music className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground">MED-MNG</span>
+            <span className="text-2xl font-bold text-foreground">MED MNG</span>
           </div>
           <CardTitle className="text-xl">Nouveau mot de passe</CardTitle>
           <CardDescription>Choisissez votre nouveau mot de passe</CardDescription>

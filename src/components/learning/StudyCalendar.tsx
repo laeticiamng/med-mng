@@ -153,7 +153,7 @@ export const StudyCalendar: React.FC = () => {
           `DTSTART;VALUE=DATE:${dateStr}`,
           `DTEND;VALUE=DATE:${dateStr}`,
           `SUMMARY:📚 Révisions EDN (${count} items)`,
-          `DESCRIPTION:${count} cartes à réviser - MED-MNG`,
+          `DESCRIPTION:${count} cartes à réviser - MED MNG`,
           `END:VEVENT`
         );
       }
@@ -167,7 +167,7 @@ export const StudyCalendar: React.FC = () => {
     const icalContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//MED-MNG//EDN Revisions//FR',
+      'PRODID:-//MED MNG//EDN Revisions//FR',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
       ...events,

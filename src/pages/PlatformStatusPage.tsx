@@ -217,7 +217,7 @@ export default function PlatformStatusPage() {
               </h1>
             </div>
             <p className="text-muted-foreground">
-              Supervision et statut de toutes les fonctionnalités de MED-MNG
+              Supervision et statut de toutes les fonctionnalités de MED MNG
             </p>
           </div>
           <div className="flex items-center gap-2">

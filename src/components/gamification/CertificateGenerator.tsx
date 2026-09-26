@@ -179,7 +179,7 @@ export const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({ user
       try {
         await navigator.share({
           title: certificate.title,
-          text: `J'ai obtenu le certificat "${certificate.title}" sur MED-MNG !`,
+          text: `J'ai obtenu le certificat "${certificate.title}" sur MED MNG !`,
           url: shareUrl
         });
       } catch (error) {
@@ -389,7 +389,7 @@ export const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({ user
                 <div className="flex items-center gap-4 text-gray-500">
                   <span>Délivré le {formatDate(selectedCertificate.earnedAt)}</span>
                   <span>•</span>
-                  <span>MED-MNG Platform</span>
+                  <span>MED MNG Platform</span>
                 </div>
 
                 {selectedCertificate.verified && (

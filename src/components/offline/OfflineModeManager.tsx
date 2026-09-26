@@ -281,7 +281,7 @@ export function OfflineModeManager() {
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Cache MED-MNG</span>
+              <span className="text-sm">Cache MED MNG</span>
             </div>
             <Badge variant="outline">{formatSize(totalCachedSize)}</Badge>
           </div>

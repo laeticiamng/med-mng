@@ -128,13 +128,13 @@ export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }:
   }, [unlockedBadges, allBadges]);
 
   const shareBadge = async (badge: BadgeType) => {
-    const shareText = `🏆 J'ai débloqué le badge "${badge.name}" sur MED-MNG ! ${badge.icon}\n${badge.description}`;
+    const shareText = `🏆 J'ai débloqué le badge "${badge.name}" sur MED MNG ! ${badge.icon}\n${badge.description}`;
     
     logActivity({ activity_type: 'study', metadata: { action: 'share_badge', badgeId: badge.id } });
     
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Badge MED-MNG', text: shareText });
+        await navigator.share({ title: 'Badge MED MNG', text: shareText });
       } catch (e) {
         // User cancelled
       }
