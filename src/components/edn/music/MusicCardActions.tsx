@@ -5,6 +5,7 @@ import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardActionsProps {
   rang: 'A' | 'B';
+  libelleRang?: string;
   paroles: string;
   selectedStyle: string;
   musicDuration: number;
@@ -15,6 +16,7 @@ interface MusicCardActionsProps {
 
 export const MusicCardActions = ({
   rang,
+  libelleRang,
   paroles,
   selectedStyle,
   musicDuration,
@@ -31,6 +33,7 @@ export const MusicCardActions = ({
     <>
       <GenerateButton
         rang={rang}
+        libelleRang={libelleRang}
         isGenerating={isGenerating}
         isDisabled={isButtonDisabled}
         musicDuration={musicDuration}
@@ -40,7 +43,7 @@ export const MusicCardActions = ({
       
       {!hasValidParolesData && (
         <p className="text-center text-sm text-muted-foreground">
-          La génération nécessite des paroles valides depuis la base de données Supabase.
+          Pas encore de paroles pour ce rang : la génération n'est pas disponible.
         </p>
       )}
     </>

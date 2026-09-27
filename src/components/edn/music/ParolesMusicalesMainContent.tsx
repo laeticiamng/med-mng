@@ -22,6 +22,8 @@ interface GenerationProgressItem {
 
 interface ParolesMusicalesMainContentProps {
   paroles: string[] | string[][];
+  /** Paroles de la chanson combinée A+B, si elles existent ; sinon A puis B. */
+  parolesAB?: string[];
   itemCode: string;
   musicDuration: number;
   selectedStyle: string;
@@ -48,6 +50,7 @@ interface ParolesMusicalesMainContentProps {
 
 export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentProps> = ({
   paroles,
+  parolesAB,
   itemCode,
   musicDuration,
   selectedStyle,
@@ -105,7 +108,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             <Music className="h-6 w-6 text-warning" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Chanson en cours de génération</h3>
+            <h3 className="font-semibold text-foreground">Paroles pas encore disponibles</h3>
             <p className="text-sm text-muted-foreground">
               La chanson pour <strong>{itemCode}</strong> n'est pas encore disponible.
             </p>
@@ -253,12 +256,17 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
       {normalizedParoles[0] && normalizedParoles[1] && (
         <div className="mt-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20 rounded-lg">
           <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
-            🎵 Section Combinée Rang A+B - Fusion des compétences
+            🎵 Chanson combinée Rang A+B
           </h4>
           <ParolesMusicalesRangSection
             rang="A"
-            paroles={`${normalizedParoles[0]}\n\n--- TRANSITION RANG B ---\n\n${normalizedParoles[1]}`}
-            musicDuration={musicDuration * 1.5}
+            libelleRang="A+B"
+            paroles={parolesAB && parolesAB.length > 0
+              ? parolesAB.join('\n')
+              : `${normalizedParoles[0]}\n\n${normalizedParoles[1]}`}
+            /* Même durée demandée que les autres rangs (le serveur la borne à
+               90–300 s) : le bouton annonçait 1,5 × la durée, jamais demandée. */
+            musicDuration={musicDuration}
             selectedStyle={selectedStyle}
             isGenerating={Boolean(isGenerating.rangAB)}
             generatedAudio={generatedAudio.rangAB}
@@ -274,10 +282,10 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             onVolumeChange={onVolumeChange}
             onStop={onStop}
             generationProgress={generationProgress?.rangAB}
-            title="Musique Complète A+B"
+            title="Chanson Rang A+B"
           />
           <p className="text-primary/80 text-sm mt-2">
-            ✨ Cette section combine les compétences Rang A et Rang B pour une expérience musicale complète de {itemCode}
+            Une seule chanson qui reprend les compétences de rang A puis de rang B de {itemCode}.
           </p>
         </div>
       )}

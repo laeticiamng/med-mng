@@ -4,11 +4,13 @@ import { Loader2, Music } from 'lucide-react';
 
 interface MusicLoadingIndicatorProps {
   rang: 'A' | 'B';
+  /** Libellé affiché (« A+B » pour la chanson combinée) ; défaut : le rang. */
+  libelleRang?: string;
   duration: number;
   isVisible: boolean;
 }
 
-export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadingIndicatorProps) => {
+export const MusicLoadingIndicator = ({ rang, libelleRang, duration, isVisible }: MusicLoadingIndicatorProps) => {
   if (!isVisible) return null;
 
   const formatDuration = (seconds: number) => {
@@ -30,7 +32,7 @@ export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadin
         
         <div className="flex-1 text-center">
           <h3 className={`text-xl font-bold ${textColor} mb-2`}>
-            🎵 Génération en cours - Rang {rang}
+            🎵 Génération en cours - Rang {libelleRang ?? rang}
           </h3>
           <p className={`text-lg ${textColor} font-medium mb-3`}>
             Création de votre chanson ({formatDuration(duration)})

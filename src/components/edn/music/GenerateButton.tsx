@@ -5,6 +5,8 @@ import { Loader2 } from 'lucide-react';
 
 interface GenerateButtonProps {
   rang: 'A' | 'B';
+  /** Libellé affiché (« A+B » pour la chanson combinée) ; défaut : le rang. */
+  libelleRang?: string;
   isGenerating: boolean;
   isDisabled: boolean;
   musicDuration: number;
@@ -14,6 +16,7 @@ interface GenerateButtonProps {
 
 export const GenerateButton: React.FC<GenerateButtonProps> = ({ 
   rang, 
+  libelleRang,
   isGenerating, 
   isDisabled, 
   musicDuration, 
@@ -33,7 +36,7 @@ export const GenerateButton: React.FC<GenerateButtonProps> = ({
         onClick={onGenerate}
         disabled={isDisabled}
         className="px-6 py-3 min-h-[44px]"
-        aria-label={`Générer musique pour Rang ${rang}`}
+        aria-label={`Générer la chanson du rang ${libelleRang ?? rang}`}
         aria-busy={isGenerating}
       >
         {isGenerating ? (
@@ -42,7 +45,7 @@ export const GenerateButton: React.FC<GenerateButtonProps> = ({
             <span>Génération en cours...</span>
           </>
         ) : (
-          `Générer Musique Rang ${rang} (${formatDuration(musicDuration)})`
+          `Générer la chanson Rang ${libelleRang ?? rang} (${formatDuration(musicDuration)})`
         )}
       </Button>
     </div>

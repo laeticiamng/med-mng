@@ -134,9 +134,14 @@ export default function EdnItemLayout() {
             <p className="text-sm text-muted-foreground">
               {introuvable
                 ? <>Aucun item EDN ne correspond à « {slug} ».</>
-                : <>Une erreur est survenue lors du chargement de l'item{error ? ` (${error})` : ''}.</>}
+                : <>L'item n'a pas pu être chargé. Vérifiez votre connexion puis réessayez.</>}
             </p>
-            <Button onClick={() => navigate('/edn-complete')}>Revenir aux 367 items</Button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              {!introuvable && (
+                <Button variant="outline" onClick={() => window.location.reload()}>Réessayer</Button>
+              )}
+              <Button onClick={() => navigate('/edn-complete')}>Revenir aux 367 items</Button>
+            </div>
           </CardContent>
         </Card>
       </div>

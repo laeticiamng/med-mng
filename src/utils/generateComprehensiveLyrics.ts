@@ -45,26 +45,38 @@ async function demanderParoles(itemCode: string, rang: 'A' | 'B' | 'AB'): Promis
   });
 
   // supabase-js ne lève pas sur une réponse d'erreur : l'information est dans
-  // `error` (ou dans le corps). On ne l'avale pas, on la remonte telle quelle.
+  // `error`. Pour une réponse HTTP d'erreur (FunctionsHttpError), `context`
+  // est l'objet `Response` : le corps JSON se lit avec `.json()` (lire
+  // `context.body` donnait un flux, jamais le JSON, et l'utilisateur voyait le
+  // message anglais « Edge Function returned a non-2xx status code »).
   if (error) {
-    const corps = (error as { context?: { body?: unknown } })?.context?.body;
     let detail: Record<string, unknown> | null = null;
-    try {
-      detail = typeof corps === 'string' ? JSON.parse(corps) : (corps as Record<string, unknown>) ?? null;
-    } catch {
-      detail = null;
+    const contexte = (error as { context?: unknown })?.context;
+    if (contexte && typeof (contexte as Response).json === 'function') {
+      try {
+        detail = await (contexte as Response).clone().json();
+      } catch {
+        detail = null;
+      }
     }
     if (detail?.error === 'aucune_competence') {
-      throw new ErreurParoles({ code: 'aucune_competence', message: String(detail.message ?? error.message) });
+      throw new ErreurParoles({
+        code: 'aucune_competence',
+        message: typeof detail.message === 'string' ? detail.message : 'Aucune compétence officielle pour ce rang : pas de chanson à générer.',
+      });
     }
     if (detail?.error === 'qualite_insuffisante') {
       throw new ErreurParoles({
         code: 'qualite_insuffisante',
-        message: String(detail.message ?? 'Les paroles produites ne portaient pas le contenu de l’item.'),
+        message: typeof detail.message === 'string' ? detail.message : 'Les paroles produites ne portaient pas le contenu de l’item.',
         motifs: Array.isArray(detail.motifs) ? (detail.motifs as string[]) : undefined,
       });
     }
-    throw new ErreurParoles({ code: 'erreur', message: error.message });
+    // Toute autre erreur (réseau, passerelle IA, base) : jamais de texte technique.
+    throw new ErreurParoles({
+      code: 'erreur',
+      message: 'La préparation des paroles est momentanément indisponible, réessayez plus tard.',
+    });
   }
 
   const paroles = (data as { paroles?: unknown })?.paroles;

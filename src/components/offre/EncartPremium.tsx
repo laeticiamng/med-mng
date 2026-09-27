@@ -27,7 +27,7 @@ export function EncartPremium({ contenu, className }: EncartPremiumProps) {
           Contenu {NOM_OFFRE_PREMIUM} — {annuel.prixAffiche}
         </h2>
         <p className="text-sm text-muted-foreground">
-          {contenu ? `${contenu} fait partie de ${NOM_OFFRE_PREMIUM}. ` : ''}
+          {contenu ? `${contenu} ${/^les\s/i.test(contenu) ? 'font' : 'fait'} partie de ${NOM_OFFRE_PREMIUM}. ` : ''}
           Les fiches officielles (rang A et rang B) restent accessibles gratuitement pour les {NOMBRE_ITEMS_TOTAL} items,
           et le contenu immersif complet est offert pour {NOMBRE_ITEMS_GRATUITS} items d'essai.
         </p>

@@ -1,5 +1,9 @@
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useToast } from '@/hooks/use-toast';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
 import { useState } from 'react';
@@ -19,6 +23,10 @@ export const useParolesMusicales = (
   /** Durée demandée (secondes) ; le serveur la borne à 90–300 s. */
   const [musicDuration, setMusicDuration] = useState<number>(240);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { musicQuota, isSubscriptionActive, rafraichirQuota, loading: chargementAbonnement } = useSubscription();
+  /** Paroles reconstruites pendant la session (affichées à la place des anciennes). */
+  const [parolesRegenerees, setParolesRegenerees] = useState<Partial<Record<'A' | 'B' | 'AB', string[]>>>({});
 
   const {
     isGenerating,
@@ -54,99 +62,115 @@ export const useParolesMusicales = (
   };
 
   
-  const handleGenerate = async (rang: 'A' | 'B') => {
-    if (!itemData?.item_code) {
+  /**
+   * Paroles à chanter pour un rang. Même règle que le générateur (/generator) :
+   * on chante les paroles affichées si elles sont réellement rédigées ; sinon
+   * (mots-clés sans ponctuation, colonne vide) on les reconstruit depuis les
+   * compétences OIC officielles (generer-paroles-item). Avant, la fiche
+   * redemandait TOUJOURS des paroles à l'IA : la chanson ne correspondait pas
+   * aux paroles affichées, et chaque clic consommait un appel IA.
+   */
+  const parolesPourGeneration = async (rang: 'A' | 'B' | 'AB', itemCode: string): Promise<string[]> => {
+    const stockees = rang === 'A'
+      ? (itemData?.paroles_rang_a?.length ? itemData.paroles_rang_a : _paroles)
+      : rang === 'B'
+        ? itemData?.paroles_rang_b
+        : itemData?.paroles_rang_ab;
+    const lignes = (stockees ?? []).filter((l) => typeof l === 'string' && l.trim().length > 0);
+    if (lignes.length > 0 && parolesSontRedigees(lignes)) return lignes;
+
+    const regenerees = rang === 'AB'
+      ? await generateMixedLyrics(itemCode)
+      : await generateComprehensiveLyrics(itemCode, rang);
+    setParolesRegenerees((prev) => ({ ...prev, [rang]: regenerees }));
+    return regenerees;
+  };
+
+  /**
+   * Lance la génération d'un rang. Renvoie `true` seulement si une chanson a
+   * bien été produite : l'appelant ne doit récompenser (points, badges) que
+   * dans ce cas. Avant, les erreurs étaient avalées ici et la fiche affichait
+   * « +10 points » et débloquait des badges même quand la génération avait
+   * été refusée (pas d'abonnement, quota atteint) ou avait échoué.
+   */
+  const lancerGeneration = async (rang: 'A' | 'B' | 'AB'): Promise<boolean> => {
+    const libelleRang = rang === 'AB' ? 'Rang A+B' : `Rang ${rang}`;
+    const itemCode = itemData?.item_code;
+    if (!itemCode) {
       toast({
-        title: "Erreur de génération",
-        description: "Code item manquant pour la génération complète",
-        variant: "destructive"
+        title: 'Génération impossible',
+        description: "L'item n'est pas identifié. Rechargez la page.",
+        variant: 'destructive'
       });
-      return;
+      return false;
+    }
+
+    // Mêmes contrôles que le générateur, avant tout appel coûteux (le serveur
+    // reste seul à faire foi).
+    if (!user) {
+      toast({
+        title: 'Connexion requise',
+        description: `Connectez-vous pour générer une chanson (génération audio incluse dans ${NOM_OFFRE_PREMIUM}).`,
+        variant: 'destructive'
+      });
+      return false;
+    }
+    if (!chargementAbonnement && !isSubscriptionActive()) {
+      toast({
+        title: `Inclus dans ${NOM_OFFRE_PREMIUM}`,
+        description: `La génération audio est incluse dans ${NOM_OFFRE_PREMIUM} (${FORMULES_PREMIUM.annuel.prixAffiche} ou ${FORMULES_PREMIUM.mensuel.prixAffiche}).`,
+      });
+      return false;
+    }
+    if (musicQuota && isSubscriptionActive() && !musicQuota.can_generate) {
+      toast({
+        title: 'Quota du mois atteint',
+        description: `Vous avez utilisé vos ${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio de ce mois. Le compteur repart le 1er du mois prochain.`,
+        variant: 'destructive'
+      });
+      return false;
+    }
+
+    let paroles: string[];
+    try {
+      paroles = await parolesPourGeneration(rang, itemCode);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      toast({
+        title: 'Paroles indisponibles',
+        description: `${libelleRang} : ${message || 'réessayez plus tard.'}`,
+        variant: 'destructive'
+      });
+      return false;
+    }
+    if (paroles.length === 0) {
+      toast({
+        title: 'Paroles indisponibles',
+        description: `Aucune parole disponible pour le ${libelleRang.toLowerCase()} de cet item.`,
+        variant: 'destructive'
+      });
+      return false;
     }
 
     try {
-      // Générer les paroles complètes avec assonances et toutes les compétences
-      const parolesCompletes = await generateComprehensiveLyrics(itemData.item_code, rang);
-      
-      if (parolesCompletes.length === 0) {
-        throw new Error('Aucune parole générée');
-      }
-
-      // Toast de démarrage avec détails
-      toast({
-        title: `🎵 Génération ${rang} lancée`,
-        description: `${parolesCompletes.length} vers avec assonances - ${itemData.item_code}`,
-      });
-
-      // Appel génération musicale avec les paroles complètes.
-      // generateMusicInLanguage résout avec l'URL audio finale (son polling interne
-      // a déjà attendu la fin) et non avec un trackId : la relancer dans
-      // useSunoPolling revenait à interroger generated_music_tracks avec une URL
-      // comme task_id, ce qui n'appariait jamais rien.
-      await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, {
-        itemCode: itemData.item_code,
+      // generateMusicInLanguage affiche lui-même « Génération lancée », la
+      // réussite et, en cas d'échec, un message français (jamais technique) :
+      // on n'ajoute pas de second toast.
+      await generateMusicInLanguage(rang, paroles, selectedStyle, {
+        itemCode,
         dureeDemandee: musicDuration,
       });
-      
-      toast({
-        title: `🎵 ${itemData.item_code} Rang ${rang} prêt`,
-        description: `Chanson générée à partir de ${parolesCompletes.length} vers`,
-      });
-      
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      toast({
-        title: "❌ Échec génération complète",
-        description: `${itemData.item_code} Rang ${rang} : ${message}`,
-        variant: "destructive"
-      });
+      return true;
+    } catch {
+      return false;
+    } finally {
+      rafraichirQuota();
     }
   };
 
-  const handleGenerateMix = async () => {
-    if (!itemData?.item_code) {
-      toast({
-        title: "Erreur génération Mix",
-        description: "Code item manquant pour la génération Mix complète",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleGenerate = (rang: 'A' | 'B') => lancerGeneration(rang);
 
-    try {
-      // Générer les paroles mixtes avec toutes les compétences A+B
-      const parolesMix = await generateMixedLyrics(itemData.item_code);
-      
-      if (parolesMix.length === 0) {
-        throw new Error('Aucune parole Mix générée');
-      }
-
-      // Toast de démarrage
-      toast({
-        title: `🎵 Génération Mix A+B lancée`,
-        description: `${parolesMix.length} vers - Fusion complète ${itemData.item_code}`,
-      });
-
-      // Le serveur borne la durée à 90–300 s.
-      await generateMusicInLanguage('AB', parolesMix, selectedStyle, {
-        itemCode: itemData.item_code,
-        dureeDemandee: musicDuration,
-      });
-      
-      toast({
-        title: `🎉 ${itemData.item_code} Mix A+B généré !`,
-        description: 'Fusion Rang A et B complète',
-      });
-      
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      toast({
-        title: "❌ Échec génération Mix",
-        description: `${itemData.item_code} Mix A+B : ${message}`,
-        variant: "destructive"
-      });
-    }
-  };
+  const handleGenerateMix = () => lancerGeneration('AB');
 
   const isValidAudioUrl = (audioUrl: string): boolean => {
     if (!audioUrl) return false;
@@ -206,6 +230,9 @@ export const useParolesMusicales = (
     handleGenerate,
     handleGenerateMix,
     handlePlayAudio,
+    parolesRegenerees,
+    musicQuota,
+    aAccesGeneration: isSubscriptionActive(),
     seek,
     stop,
     changeVolume

@@ -6,6 +6,8 @@ import { Music, Clock, Loader2 } from 'lucide-react';
 
 interface MusicGenerationProgressProps {
   rang: 'A' | 'B';
+  /** Libellé affiché (« A+B » pour la chanson combinée) ; défaut : le rang. */
+  libelleRang?: string;
   progress: number;
   attempts: number;
   maxAttempts: number;
@@ -17,6 +19,7 @@ interface MusicGenerationProgressProps {
 
 export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = ({
   rang,
+  libelleRang,
   progress,
   attempts,
   maxAttempts,
@@ -89,7 +92,7 @@ export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = (
             </div>
             <div>
               <h3 className={`font-semibold ${colorStyle.text}`}>
-                Génération Suno Rang {rang} en cours...
+                Génération Rang {libelleRang ?? rang} en cours...
               </h3>
               {style && (
                 <p className={`text-sm ${colorStyle.text} opacity-80`}>

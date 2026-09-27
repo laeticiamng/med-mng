@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumCard } from '@/components/ui/premium-card';
-import { FORMULES_PREMIUM, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { FORMULES_PREMIUM, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, normaliserCodeItem } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { libelleStyle, normaliserSlugStyle } from '@/config/stylesMusicaux';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
@@ -39,8 +39,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
 import { MedicalDisclaimer } from '@/components/legal';
 import { ArrowLeft, Lock, Music, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type RangGeneration = 'A' | 'B' | 'AB';
@@ -60,6 +60,12 @@ interface ChansonGeneree {
 
 const Generator = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Item demandé par un lien (« Générer cette chanson » depuis la fiche d'un
+  // item : /med-mng/create?itemCode=IC-12). Il prime sur les préférences
+  // enregistrées ; avant, le paramètre était ignoré et le générateur
+  // rouvrait le dernier item utilisé.
+  const itemDemande = normaliserCodeItem(searchParams.get('itemCode'));
   const { user } = useAuth();
   const { musicQuota, rafraichirQuota, loading: chargementAbonnement } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
@@ -89,11 +95,20 @@ const Generator = () => {
   // Restaurer les préférences (style : uniquement s'il existe encore dans le catalogue).
   useEffect(() => {
     if (preferences) {
-      if (preferences.selectedItem) setSelectedItem(preferences.selectedItem);
+      if (preferences.selectedItem && !itemDemande) setSelectedItem(preferences.selectedItem);
       if (preferences.selectedRang) setSelectedRang(preferences.selectedRang);
       if (preferences.selectedStyle) setSelectedStyle(normaliserSlugStyle(preferences.selectedStyle));
     }
-  }, [preferences]);
+  }, [preferences, itemDemande]);
+
+  // Appliqué une seule fois : l'utilisateur peut ensuite choisir un autre item.
+  const itemDemandeApplique = useRef(false);
+  useEffect(() => {
+    if (itemDemande && !itemDemandeApplique.current) {
+      itemDemandeApplique.current = true;
+      setSelectedItem(itemDemande);
+    }
+  }, [itemDemande]);
 
   useEffect(() => {
     if (selectedItem || selectedRang || selectedStyle) {

@@ -9,6 +9,8 @@ import { useMusicCardState } from './hooks/useMusicCardState';
 
 interface MusicCardProps {
   rang: 'A' | 'B';
+  /** Libellé affiché (« A+B » pour la chanson combinée) ; défaut : le rang. */
+  libelleRang?: string;
   title: string;
   paroles: string;
   selectedStyle: string;
@@ -38,6 +40,7 @@ interface MusicCardProps {
 
 export const MusicCard = ({
   rang,
+  libelleRang,
   title,
   paroles,
   selectedStyle,
@@ -69,12 +72,14 @@ export const MusicCard = ({
     <div className="space-y-4">
       <MusicLoadingIndicator 
         rang={rang}
+        libelleRang={libelleRang}
         duration={musicDuration}
         isVisible={isGenerating && !generationProgress}
       />
 
       <MusicGenerationProgress
         rang={rang}
+        libelleRang={libelleRang}
         progress={generationProgress?.progress || 0}
         attempts={generationProgress?.attempts || 0}
         maxAttempts={generationProgress?.maxAttempts || 12}
@@ -91,6 +96,7 @@ export const MusicCard = ({
       >
         <MusicCardActions
           rang={rang}
+          libelleRang={libelleRang}
           paroles={paroles}
           selectedStyle={selectedStyle}
           musicDuration={musicDuration}

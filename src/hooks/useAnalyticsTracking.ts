@@ -81,7 +81,7 @@ export function useAnalyticsTracking(options: UseAnalyticsTrackingOptions = {}) 
   // Track music generation
   const trackMusicGeneration = useCallback((
     itemCode: string,
-    rang: 'A' | 'B',
+    rang: 'A' | 'B' | 'AB',
     style: string,
     action: 'start' | 'complete' | 'error'
   ) => {

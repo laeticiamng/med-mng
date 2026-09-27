@@ -9,6 +9,8 @@ interface CurrentTrack {
 
 interface ParolesMusicalesRangSectionProps {
   rang: 'A' | 'B';
+  /** Libellé affiché (« A+B » pour la chanson combinée) ; défaut : le rang. */
+  libelleRang?: string;
   paroles: string;
   musicDuration: number;
   isGenerating: boolean;
@@ -36,6 +38,7 @@ interface ParolesMusicalesRangSectionProps {
 
 export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionProps> = ({
   rang,
+  libelleRang,
   paroles,
   musicDuration,
   isGenerating,
@@ -72,6 +75,7 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   return (
     <MusicCard
       rang={rang}
+      libelleRang={libelleRang}
       title={title}
       paroles={paroles}
       selectedStyle={selectedStyle}
