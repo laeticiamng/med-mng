@@ -126,7 +126,6 @@ export const createDatasetSchema = () => ({
   variableMeasured: [
     'Nombre d\'items : 367',
     'Spécialités médicales : 31',
-    'Compétences Rang A couvertes : 100%',
     'Formats d\'évaluation : QCM, QRU, QROC, cas cliniques, ECOS',
   ],
   temporalCoverage: '2024/..',

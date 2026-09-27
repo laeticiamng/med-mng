@@ -159,7 +159,7 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
 
       // 2. Appeler la fonction edge pour supprimer l'utilisateur auth
       const { error: deleteAuthError } = await supabase.functions.invoke('delete-user-account', {
-        body: { userId, confirmEmail: userEmail }
+        body: { confirmation: 'SUPPRIMER' }
       });
 
       if (deleteAuthError) {

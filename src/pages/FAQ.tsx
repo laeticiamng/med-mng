@@ -78,7 +78,7 @@ const FAQ = () => {
                   En deux étapes. D'abord, l'IA (OpenAI GPT) rédige des paroles à partir des compétences
                   rang A, rang B ou A+B de l'item : ces paroles sont disponibles pour les 367 items. Ensuite,
                   si vous le souhaitez, vous générez l'audio depuis votre compte avec Suno AI, un générateur
-                  de musique par IA ; cette étape consomme des crédits. Aucune piste audio n'est pré-enregistrée.
+                  de musique par IA ; cette étape est incluse dans Med MNG Premium (30 générations par mois). Aucune piste audio n'est pré-enregistrée.
                 </AccordionContent>
               </AccordionItem>
 
@@ -130,7 +130,7 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   Oui. Les 367 items ont une fiche, les compétences rang A et rang B, un quiz et des paroles
-                  de chanson. L'audio se génère à la demande (crédits). Les récits et les planches BD sont en
+                  de chanson. L'audio se génère à la demande avec Med MNG Premium. Les récits et les planches BD sont en
                   cours de génération. Vous pouvez consulter la liste complète dans la section{' '}
                   <Link to={ROUTE_PATHS.ednComplete} className="text-primary hover:underline">Items EDN</Link>.
                 </AccordionContent>
@@ -234,10 +234,9 @@ const FAQ = () => {
                   Puis-je supprimer mon compte et mes données ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Oui, à tout moment depuis Profil &gt; Paramètres &gt; Supprimer le compte. Vos données
-                  personnelles sont conservées 90 jours (pour vous permettre de changer d'avis) puis
-                  définitivement supprimées. Vous pouvez également demander un export de vos données au
-                  format JSON. Consultez la page{' '}
+                  Oui, à tout moment depuis la page Mes données RGPD (accessible depuis votre profil). La
+                  suppression est immédiate et définitive. Vous pouvez aussi y télécharger vos données au
+                  format JSON avant de partir. Consultez la page{' '}
                   <Link to={ROUTE_PATHS.mesDonneesRgpd} className="text-primary hover:underline">Mes données RGPD</Link>.
                 </AccordionContent>
               </AccordionItem>

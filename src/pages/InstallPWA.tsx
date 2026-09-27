@@ -131,7 +131,7 @@ const InstallPWA: React.FC = () => {
     },
     {
       question: "Mes données sont-elles sécurisées ?",
-      answer: "Absolument. Vos données sont chiffrées et stockées de manière sécurisée. L'application respecte le RGPD et vos données personnelles ne sont jamais partagées."
+      answer: "Vos données sont chiffrées pendant leur transfert et hébergées dans l'Union européenne. Elles ne sont jamais vendues, et vous pouvez les exporter ou les supprimer depuis la page Mes données RGPD."
     },
     {
       question: "Puis-je désinstaller l'application ?",

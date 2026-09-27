@@ -17,6 +17,7 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const MesDonneesRGPD = () => {
   const { toast } = useToast();
@@ -24,58 +25,76 @@ const MesDonneesRGPD = () => {
   const [dataStatus, setDataStatus] = useState<any>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const getCurrentUserId = async () => {
+  const { isSubscriptionActive } = useSubscription();
+
+  const getCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    return user?.id;
+    return user;
+  };
+
+  /**
+   * Lecture directe, sous RLS, des données rattachées au compte connecté.
+   * (L'ancienne route « med-mng-api /rgpd/* » n'était jamais atteinte : le chemin
+   * était passé dans le corps de la requête, et le service n'avait pas de client base.)
+   * Une table absente ou refusée est simplement ignorée.
+   */
+  const collectUserData = async (userId: string) => {
+    const tables: Array<[string, string]> = [
+      ['profiles', 'id'],
+      ['med_mng_subscriptions', 'user_id'],
+      ['user_item_progress', 'user_id'],
+      ['item_reviews', 'user_id'],
+      ['quiz_results', 'user_id'],
+      ['flashcard_decks', 'user_id'],
+      ['med_mng_playlists', 'user_id'],
+      ['med_mng_user_songs', 'user_id'],
+      ['user_generated_music', 'user_id'],
+      ['user_preferences_extended', 'user_id'],
+    ];
+    const data: Record<string, unknown[]> = {};
+    const summary: Record<string, number> = {};
+    for (const [table, column] of tables) {
+      try {
+        const { data: rows, error } = await (supabase as any).from(table).select('*').eq(column, userId);
+        if (error || !rows) continue;
+        data[table] = rows;
+        summary[table] = rows.length;
+      } catch {
+        // table inexistante : ignorée
+      }
+    }
+    return { data, summary };
   };
 
   const handleExportData = async () => {
     setLoading(true);
     try {
-      const userId = await getCurrentUserId();
-      
-      if (!userId) {
-        toast({
-          title: "Erreur",
-          description: "Vous devez être connecté",
-          variant: "destructive"
-        });
+      const user = await getCurrentUser();
+      if (!user) {
+        toast({ title: "Erreur", description: "Vous devez être connecté", variant: "destructive" });
         return;
       }
-
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: {
-          path: '/rgpd/export',
-          method: 'POST',
-          body: { user_id: userId }
-        }
-      });
-
-      if (error) throw error;
-
-      // Télécharger le fichier JSON
-      const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+      const { data, summary } = await collectUserData(user.id);
+      const payload = {
+        exported_at: new Date().toISOString(),
+        service: 'Med MNG — EmotionsCare SASU',
+        account: { id: user.id, email: user.email, created_at: user.created_at },
+        data,
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `medmng-donnees-${Date.now()}.json`;
+      a.download = `medmng-donnees-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "✅ Export réussi",
-        description: `${data.summary.total_library_items} éléments exportés`,
-      });
-
+      const total = Object.values(summary).reduce((n, v) => n + v, 0);
+      toast({ title: "Export prêt", description: `${total} enregistrement(s) exporté(s).` });
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Erreur export:', error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Impossible d'exporter les données",
-        variant: "destructive"
-      });
+      toast({ title: "Erreur", description: "Impossible d'exporter les données. Écrivez-nous à contact@emotionscare.com.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -89,47 +108,35 @@ const MesDonneesRGPD = () => {
 
     setLoading(true);
     try {
-      const userId = await getCurrentUserId();
-      
-      if (!userId) {
-        toast({
-          title: "Erreur",
-          description: "Vous devez être connecté",
-          variant: "destructive"
-        });
+      const user = await getCurrentUser();
+      if (!user) {
+        toast({ title: "Erreur", description: "Vous devez être connecté", variant: "destructive" });
         return;
       }
 
-      const confirmationToken = `DELETE_${userId}`;
-
-      const { error } = await supabase.functions.invoke('med-mng-api', {
-        body: {
-          path: '/rgpd/purge',
-          method: 'DELETE',
-          body: {
-            user_id: userId,
-            confirmation_token: confirmationToken
-          }
-        }
+      // Service commun de suppression (RGPD art. 17) : efface les données personnelles,
+      // les fichiers rangés sous l'identifiant du compte, puis le compte lui-même.
+      const { data, error } = await supabase.functions.invoke('delete-user-account', {
+        body: { confirmation: 'SUPPRIMER' },
       });
-
       if (error) throw error;
 
-      toast({
-        title: "✅ Compte supprimé",
-        description: "Toutes vos données ont été effacées conformément au RGPD",
-      });
-
-      // Déconnexion
+      if (data?.status === 'deleted') {
+        toast({ title: "Compte supprimé", description: "Votre compte et vos données personnelles ont été effacés." });
+      } else {
+        toast({
+          title: "Demande enregistrée",
+          description: "La suppression n'a pas pu se terminer automatiquement : elle sera finalisée à la main par notre équipe.",
+        });
+      }
       await supabase.auth.signOut();
       window.location.href = '/';
-
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Erreur suppression:', error);
       toast({
-        title: "Erreur",
-        description: error.message || "Impossible de supprimer le compte",
-        variant: "destructive"
+        title: "La suppression n'a pas abouti",
+        description: "Réessayez dans quelques minutes, ou écrivez à contact@emotionscare.com : nous supprimerons votre compte à la main.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -139,35 +146,16 @@ const MesDonneesRGPD = () => {
   const handleCheckDataStatus = async () => {
     setLoading(true);
     try {
-      const userId = await getCurrentUserId();
-      
-      if (!userId) {
-        toast({
-          title: "Erreur",
-          description: "Vous devez être connecté",
-          variant: "destructive"
-        });
+      const user = await getCurrentUser();
+      if (!user) {
+        toast({ title: "Erreur", description: "Vous devez être connecté", variant: "destructive" });
         return;
       }
-
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: {
-          path: `/rgpd/status/${userId}`,
-          method: 'GET'
-        }
-      });
-
-      if (error) throw error;
-
-      setDataStatus(data);
-
+      const { summary } = await collectUserData(user.id);
+      setDataStatus({ account_created: user.created_at, data_summary: summary, last_activity: user.last_sign_in_at });
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Erreur statut:', error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Impossible de vérifier le statut",
-        variant: "destructive"
-      });
+      toast({ title: "Erreur", description: "Impossible de vérifier vos données", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -271,14 +259,14 @@ const MesDonneesRGPD = () => {
               <span>Exporter mes données</span>
             </h2>
             <p className="text-muted-foreground mb-4">
-              Téléchargez toutes vos données personnelles au format JSON structuré. Inclut : profil, bibliothèque, playlists, historique d'activités.
+              Téléchargez toutes vos données personnelles au format JSON structuré. Inclut : compte, profil, abonnement, progression, quiz, bibliothèque et playlists.
             </p>
             <Alert className="mb-4 bg-primary/10 border-primary/20">
               <Info className="h-4 w-4 text-primary" />
               <AlertDescription className="text-foreground">
                 <strong>Format:</strong> JSON (lisible par machine, conforme Article 20 RGPD)<br/>
                 <strong>Durée:</strong> Export instantané<br/>
-                <strong>Sécurité:</strong> Données chiffrées en transit
+                <strong>Sécurité :</strong> fichier généré dans votre navigateur, rien n'est envoyé ailleurs
               </AlertDescription>
             </Alert>
             <Button 
@@ -303,13 +291,24 @@ const MesDonneesRGPD = () => {
                 <strong>⚠️ ATTENTION: Action irréversible</strong><br/>
                 La suppression de votre compte entraînera:
                 <ul className="list-disc ml-5 mt-2 space-y-1">
-                  <li>Suppression immédiate de toutes vos données personnelles</li>
-                  <li>Suppression de votre bibliothèque (chansons, BD, QCM)</li>
-                  <li>Annulation de votre abonnement (si actif)</li>
-                  <li>Impossibilité de récupérer les données après 30 jours</li>
+                  <li>Suppression immédiate de vos données personnelles et de votre bibliothèque (chansons, quiz, playlists)</li>
+                  <li>Aucune récupération possible ensuite</li>
+                  <li>Votre compte est commun aux services d'EmotionsCare SASU qui partagent la même connexion (Med MNG, Emotions Care) : il sera supprimé partout</li>
                 </ul>
               </AlertDescription>
             </Alert>
+
+            {isSubscriptionActive() && (
+              <Alert className="mb-4 bg-warning/10 border-warning/30">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertDescription className="text-foreground">
+                  Vous avez un abonnement Med MNG en cours. Supprimer le compte n'arrête pas le prélèvement :
+                  résiliez d'abord l'abonnement depuis votre{' '}
+                  <Link to={ROUTE_PATHS.medMngProfile} className="text-primary underline">profil</Link>{' '}
+                  (« Gérer / résilier mon abonnement »), puis revenez ici.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {!confirmDelete ? (
               <Button 
@@ -359,8 +358,8 @@ const MesDonneesRGPD = () => {
               Pour toute question sur vos données personnelles ou l'exercice de vos droits RGPD:
             </p>
             <div className="space-y-2 text-sm">
-              <p><strong>Email RGPD:</strong> medmng@emotionscare.com</p>
-              <p><strong>Délai de réponse:</strong> 5 jours ouvrés maximum</p>
+              <p><strong>E-mail :</strong> contact@emotionscare.com</p>
+              <p><strong>Délai de réponse :</strong> un mois au plus (article 12 du RGPD)</p>
               <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">CNIL</a></p>
             </div>
           </Card>

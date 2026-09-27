@@ -21,18 +21,18 @@ const faqItems = [
           <div>
             <p className="font-semibold text-foreground mb-1">Rang A - Fondamentaux</p>
             <p className="text-sm text-muted-foreground">
-              Connaissances de base essentielles que tout étudiant en médecine doit maîtriser. 
-              Correspond aux objectifs du tronc commun de formation.
+              Connaissances indispensables que tout futur médecin doit maîtriser,
+              quelle que soit sa spécialité.
             </p>
           </div>
         </div>
         <div className="flex items-start gap-3 p-3 bg-accent/10 rounded-lg">
           <Brain className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-foreground mb-1">Rang B - Expertise Avancée</p>
+            <p className="font-semibold text-foreground mb-1">Rang B - Approfondissement</p>
             <p className="text-sm text-muted-foreground">
-              Connaissances approfondies pour cas complexes et situations exceptionnelles. 
-              Destiné aux étudiants avancés et internes.
+              Connaissances plus approfondies, à travailler après le rang A.
+              Un même item contient des connaissances des deux rangs.
             </p>
           </div>
         </div>
@@ -51,11 +51,11 @@ const faqItems = [
           définies par l'UNESS (Université Numérique en Santé et Sport).
         </p>
         <p className="text-sm">
-          Chaque item EDN est associé à des objectifs précis que vous devez maîtriser pour l'ECN. 
-          Notre plateforme intègre automatiquement ces 4872 compétences officielles.
+          Chaque item EDN est associé à des objectifs précis, répartis en rang A et rang B.
+          Med MNG les affiche item par item, tels qu'ils figurent dans le référentiel.
         </p>
         <Badge variant="outline" className="mt-2">
-          Source : Référentiel UNESS 2024-2025
+          Source : référentiel LiSA (UNESS)
         </Badge>
       </div>
     ),
@@ -68,19 +68,18 @@ const faqItems = [
     answer: (
       <div className="space-y-2">
         <p className="text-sm">
-          Les musiques sont générées par IA (Suno) pour vous aider à mémoriser les concepts clés 
-          de chaque item EDN grâce à la mnémotechnie musicale.
+          Les paroles sont rédigées par IA à partir des compétences de chaque item ; l'audio
+          est ensuite généré par IA. La chanson complète le quiz et vos cours, elle ne les remplace pas.
         </p>
         <ul className="list-disc list-inside space-y-1 text-sm ml-2">
           <li>Paroles personnalisées basées sur les compétences OIC</li>
           <li>Styles musicaux variés pour maintenir l'attention</li>
-          <li>Téléchargeables pour révision offline</li>
-        </ul>
+                  </ul>
         <div className="flex items-center gap-2 mt-3 p-2 bg-warning/10 rounded">
           <Zap className="w-4 h-4 text-warning" />
           <p className="text-xs text-muted-foreground">
-            <strong>Gratuit</strong> : Consultez les paroles sans limite. 
-            <strong>Crédits</strong> : Uniquement pour générer l'audio.
+            <strong>Gratuit</strong> : 10 items d'essai complets.
+            <strong>Premium</strong> : les 367 items et 30 générations audio par mois.
           </p>
         </div>
       </div>
@@ -90,32 +89,31 @@ const faqItems = [
   },
   {
     id: "credits",
-    question: "À quoi servent les crédits ?",
+    question: "Qu'est-ce qui est gratuit, qu'est-ce qui est Premium ?",
     answer: (
       <div className="space-y-3">
         <div className="p-3 bg-success/10 rounded-lg border border-success/20">
           <p className="text-sm font-semibold text-foreground mb-2">
-            ✅ Gratuit
+            Gratuit
           </p>
           <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
-            <li>Consulter les 367 items EDN</li>
-            <li>Lire tout le contenu (Rang A + B)</li>
-            <li>Faire tous les quiz</li>
-            <li>Lire les paroles musicales</li>
+            <li>Les fiches des 367 items (compétences rang A et rang B)</li>
+            <li>Le contenu complet de 10 items d'essai (paroles, récit, planches, quiz)</li>
+            <li>Les situations ECOS</li>
           </ul>
         </div>
         <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
           <p className="text-sm font-semibold text-foreground mb-2">
-            🎵 Avec crédits (80/160 offerts)
+            Med MNG Premium (69 € par an ou 9,90 € par mois)
           </p>
           <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
-            <li>Générer des musiques IA personnalisées</li>
-            <li>Télécharger les fichiers audio</li>
+            <li>Le contenu immersif des 367 items</li>
+            <li>30 générations audio de chansons par mois</li>
           </ul>
         </div>
       </div>
     ),
-    category: "Crédits",
+    category: "Tarifs",
     icon: Zap
   },
   {
