@@ -225,12 +225,42 @@ serve(async (req) => {
   try {
     const { itemCode, rang = 'A', style = 'pop pédagogique, tempo modéré', enregistrer = true, paroles: parolesFournies } =
       await req.json().catch(() => ({}))
+    // Jeton d'administration (script scripts/regenerer.mjs, paroles rédigées
+    // hors passerelle) : seul moyen d'appeler la fonction sans session.
+    const empreinte = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(req.headers.get('x-jeton') ?? '')))]
+      .map((x) => x.toString(16).padStart(2, '0')).join('')
+    const jetonAdmin = empreinte === JETON_REDACTION
     // Paroles rédigées hors passerelle (crédits IA épuisés) : acceptées seulement
     // avec le jeton d'administration, et soumises au MÊME contrôle de qualité.
     if (parolesFournies !== undefined) {
-      const empreinte = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(req.headers.get('x-jeton') ?? '')))]
-        .map((x) => x.toString(16).padStart(2, '0')).join('')
-      if (empreinte !== JETON_REDACTION || typeof parolesFournies !== 'string') return repondre({ error: 'interdit' }, 403)
+      if (!jetonAdmin || typeof parolesFournies !== 'string') return repondre({ error: 'interdit' }, 403)
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    )
+
+    // Sans jeton : réservé à un utilisateur connecté ayant l'accès Premium
+    // (abonnement actif ou administrateur, RPC mm_a_acces_premium — même règle
+    // que mm-generate-music). Avant, la fonction (verify_jwt = false) était
+    // appelable par n'importe qui avec la clé publique : chaque appel
+    // consommait la passerelle IA et RÉÉCRIVAIT les paroles partagées de l'item
+    // (voire les effaçait) pour tous les utilisateurs.
+    if (!jetonAdmin) {
+      const jeton = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
+      const { data: { user } } = jeton ? await supabase.auth.getUser(jeton) : { data: { user: null } }
+      if (!user) {
+        return repondre({ error: 'auth_requise', message: 'Connectez-vous pour générer des paroles.' }, 401)
+      }
+      const { data: acces, error: eAcces } = await supabase.rpc('mm_a_acces_premium', { p_user_id: user.id })
+      if (eAcces) {
+        console.error('generer-paroles-item : vérification Premium impossible :', eAcces.message)
+        return repondre({ error: 'verification_impossible', message: 'Service momentanément indisponible, réessayez plus tard.' }, 503)
+      }
+      if (!acces) {
+        return repondre({ error: 'premium_requis', message: 'La génération de chansons est incluse dans Med MNG Premium.' }, 402)
+      }
     }
 
     if (!itemCode) return repondre({ error: 'itemCode manquant' }, 400)
@@ -238,17 +268,15 @@ serve(async (req) => {
 
     const cle = Deno.env.get('LOVABLE_API_KEY') ?? ''
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    )
-
     const { data: item, error: eItem } = await supabase
       .from('edn_items_complete')
       .select('id, item_code, title')
       .eq('item_code', itemCode)
       .maybeSingle()
-    if (eItem) return repondre({ error: `lecture de l'item : ${eItem.message}` }, 500)
+    if (eItem) {
+      console.error('generer-paroles-item : lecture de l\'item :', eItem.message)
+      return repondre({ error: 'erreur', message: 'Service momentanément indisponible, réessayez plus tard.' }, 500)
+    }
     if (!item) return repondre({ error: `item ${itemCode} introuvable` }, 404)
 
     const numero = String(itemCode).replace(/^IC-/, '').padStart(3, '0')
@@ -329,6 +357,7 @@ serve(async (req) => {
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
     console.error('generer-paroles-item :', message)
-    return repondre({ error: message }, 500)
+    // Détail technique dans les journaux seulement.
+    return repondre({ error: 'erreur', message: 'La préparation des paroles est momentanément indisponible, réessayez plus tard.' }, 500)
   }
 })

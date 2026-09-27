@@ -18,7 +18,11 @@ const SB = 'https://yaincoxihiqdksxgrsrk.supabase.co';
 const ANON = process.env.MEDMNG_ANON_KEY;
 if (!ANON) { console.error('MEDMNG_ANON_KEY manquante'); process.exit(1); }
 
-const H = { apikey: ANON, Authorization: `Bearer ${ANON}`, 'Content-Type': 'application/json' };
+// generer-paroles-item n'accepte plus d'appel anonyme : sans session
+// Premium, le jeton d'administration (en-tête x-jeton) est requis.
+const JETON = process.env.MEDMNG_JETON_REDACTION;
+if (!JETON) { console.error('MEDMNG_JETON_REDACTION manquant (jeton d\'administration de generer-paroles-item)'); process.exit(1); }
+const H = { apikey: ANON, Authorization: `Bearer ${ANON}`, 'Content-Type': 'application/json', 'x-jeton': JETON };
 const args = process.argv.slice(2);
 const mode = args[0] || 'paroles';
 const reprise = args.includes('--reprise');

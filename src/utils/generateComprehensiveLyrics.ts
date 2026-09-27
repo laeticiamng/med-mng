@@ -72,6 +72,13 @@ async function demanderParoles(itemCode: string, rang: 'A' | 'B' | 'AB'): Promis
         motifs: Array.isArray(detail.motifs) ? (detail.motifs as string[]) : undefined,
       });
     }
+    // Refus métier du serveur (connexion, Premium) : message français tel quel.
+    if (
+      (detail?.error === 'auth_requise' || detail?.error === 'premium_requis' || detail?.error === 'verification_impossible')
+      && typeof detail.message === 'string'
+    ) {
+      throw new ErreurParoles({ code: 'erreur', message: detail.message });
+    }
     // Toute autre erreur (réseau, passerelle IA, base) : jamais de texte technique.
     throw new ErreurParoles({
       code: 'erreur',

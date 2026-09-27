@@ -197,6 +197,9 @@ function extraireJson(brut: string): Record<string, unknown> {
   return JSON.parse(sansClotures)
 }
 
+/** Empreinte SHA-256 du jeton d'administration (même jeton que generer-paroles-item). */
+const JETON_REDACTION = '8ecb7f0ec2b9be3c9cc5499f629b3366dd73a858c9343831fbea99751bd77ee0'
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
@@ -205,6 +208,14 @@ serve(async (req) => {
     new Response(JSON.stringify(corps), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
   try {
+    // Réservé au script d'administration (scripts/regenerer.mjs, en-tête
+    // x-jeton) : aucune page de l'application n'appelle cette fonction.
+    // Avant, elle était appelable par n'importe qui avec la clé publique
+    // (verify_jwt = false) et réécrivait le récit partagé de l'item.
+    const empreinte = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(req.headers.get('x-jeton') ?? '')))]
+      .map((x) => x.toString(16).padStart(2, '0')).join('')
+    if (empreinte !== JETON_REDACTION) return repondre({ error: 'interdit' }, 403)
+
     const { itemCode, format = 'roman', enregistrer = true } = await req.json().catch(() => ({}))
     if (!itemCode) return repondre({ error: 'itemCode manquant' }, 400)
     if (!['roman', 'bd'].includes(format)) return repondre({ error: "format doit valoir « roman » ou « bd »" }, 400)
