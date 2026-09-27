@@ -3,20 +3,33 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumCard } from '@/components/ui/premium-card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { NOM_OFFRE_PREMIUM } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
-import { LIMITES_SUNO, dureeEstimeeAffichee, tronquerParoles } from '@/config/stylesMusicaux';
+import {
+  LIMITES_SUNO,
+  dureeEstimeeAffichee,
+  tronquerParoles,
+} from '@/config/stylesMusicaux';
+import { libelleStyle } from '@/config/stylesMusicaux';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
-import { Clock, Keyboard, LogIn, Sparkles, Wand2 } from 'lucide-react';
+import { AlertTriangle, Keyboard, LogIn, Sparkles, Wand2 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdvancedParamsToggle } from './AdvancedParamsToggle';
 import { EdnItemSelector } from './EdnItemSelector';
 import { EncartGenerationAudio } from '@/components/offre/EncartGenerationAudio';
-import { KeyboardShortcutsHelp, useKeyboardShortcuts } from './KeyboardShortcuts';
+import {
+  KeyboardShortcutsHelp,
+  useKeyboardShortcuts,
+} from './KeyboardShortcuts';
+import { LyricsExportButton } from './LyricsExportButton';
 import { LyricsPreview } from './LyricsPreview';
-import { LyricsStatusDisplay } from './LyricsStatusDisplay';
 import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 
@@ -28,7 +41,8 @@ const LoginPromptBanner: React.FC = () => {
       <Sparkles className="h-4 w-4 text-primary" />
       <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3">
         <span className="text-sm">
-          <strong>Connectez-vous</strong> pour générer une chanson — génération audio incluse dans <strong>{NOM_OFFRE_PREMIUM}</strong>.
+          <strong>Connectez-vous</strong> pour générer une chanson — génération
+          audio incluse dans <strong>{NOM_OFFRE_PREMIUM}</strong>.
         </span>
         <Button
           variant="default"
@@ -60,7 +74,10 @@ export interface ParolesItem {
  *  - B  : paroles_rang_b uniquement (jamais les paroles A sous un titre « Rang B ») ;
  *  - AB : paroles_rang_ab, sinon rang A puis rang B.
  */
-export const parolesPourRang = (paroles: ParolesItem | null | undefined, rang: string): string[] => {
+export const parolesPourRang = (
+  paroles: ParolesItem | null | undefined,
+  rang: string
+): string[] => {
   if (!paroles) return [];
   const a = paroles.paroles_rang_a ?? [];
   const b = paroles.paroles_rang_b ?? [];
@@ -119,9 +136,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   isGenerating,
   user,
   canGenerateMusic,
-  generationReservee = false
+  generationReservee = false,
 }) => {
-  const [advancedParams, setAdvancedParams] = useState<Partial<AdvancedSunoParams> | undefined>(undefined);
+  const [advancedParams, setAdvancedParams] = useState<
+    Partial<AdvancedSunoParams> | undefined
+  >(undefined);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
 
   const handleGenerateWithParams = useCallback(() => {
@@ -133,7 +152,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     onReset: resetForm,
     canGenerate: canGenerate(),
     isGenerating,
-    enabled: true
+    enabled: true,
   });
 
   // Paroles du rang choisi (celles qui seront envoyées), durée estimée et dépassement éventuel.
@@ -145,7 +164,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   const apercuEnvoi = useMemo(() => {
     if (!previewLyrics) return null;
     const coupe = tronquerParoles(previewLyrics, LIMITES_SUNO.paroles);
-    return { duree: dureeEstimeeAffichee(previewLyrics), tronque: coupe.tronque, lignesRetirees: coupe.lignesRetirees };
+    return {
+      duree: dureeEstimeeAffichee(previewLyrics),
+      tronque: coupe.tronque,
+      lignesRetirees: coupe.lignesRetirees,
+    };
   }, [previewLyrics]);
 
   return (
@@ -164,7 +187,8 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
+        {/* 1 — Item : ce qu'on veut réviser */}
         <EdnItemSelector
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
@@ -174,24 +198,26 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           ednLyrics={ednLyrics}
         />
 
-        <LyricsStatusDisplay
-          selectedItem={selectedItem}
-          lyricsLoading={lyricsLoading}
-          lyricsError={lyricsError}
-          ednLyrics={ednLyrics}
-          selectedRang={selectedRang}
-        />
+        {lyricsError && (
+          <p className="flex items-center gap-2 text-sm text-destructive">
+            <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
+            Erreur de chargement des paroles : {lyricsError}
+          </p>
+        )}
 
+        {/* 2 — Niveau : ce qu'on veut apprendre (paroles du rang choisi visibles plus bas, dans l'aperçu) */}
         <RangSelector
           selectedRang={selectedRang}
           setSelectedRang={setSelectedRang}
+          itemCode={selectedItem}
           lyricsAvailability={{
             hasA: parolesPourRang(ednLyrics, 'A').length > 0,
             hasB: parolesPourRang(ednLyrics, 'B').length > 0,
-            hasAB: parolesPourRang(ednLyrics, 'AB').length > 0
+            hasAB: parolesPourRang(ednLyrics, 'AB').length > 0,
           }}
         />
 
+        {/* 3 — Ambiance musicale */}
         <StyleSelector
           selectedStyle={selectedStyle}
           setSelectedStyle={setSelectedStyle}
@@ -204,81 +230,117 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           />
         )}
 
+        {/* 4 — Aperçu, seulement une fois les trois choix faits */}
         {previewLyrics && selectedStyle && (
-          <div className="space-y-2">
-            <LyricsPreview
-              lyrics={previewLyrics}
-              title={ednLyrics?.title}
-              rang={selectedRang}
-              className="mt-4"
-            />
-            {apercuEnvoi && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" aria-hidden="true" />
-                Durée demandée : environ {apercuEnvoi.duree} (calculée d'après les paroles).
-                {apercuEnvoi.tronque && (
-                  <span className="text-warning">
-                    {' '}Les paroles dépassent la limite du service ({LIMITES_SUNO.paroles.toLocaleString('fr-FR')} caractères) : les {apercuEnvoi.lignesRetirees} dernières lignes ne seront pas chantées.
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
+          <LyricsPreview
+            lyrics={previewLyrics}
+            title={ednLyrics?.title}
+            rang={selectedRang}
+            dureeAffichee={apercuEnvoi ? `≈ ${apercuEnvoi.duree}` : undefined}
+            tronque={apercuEnvoi?.tronque}
+            lignesRetirees={apercuEnvoi?.lignesRetirees}
+            exportSlot={
+              <LyricsExportButton
+                lyrics={previewLyrics}
+                title={ednLyrics?.title}
+                rang={selectedRang}
+                style={selectedStyle}
+                variant="ghost"
+                size="sm"
+              />
+            }
+            className="mt-2"
+          />
         )}
 
         {!user && <LoginPromptBanner />}
 
-        {generationReservee && <EncartGenerationAudio className="mt-4" />}
+        {/* 5 — Passer à l'action : le CTA doit être l'élément le plus visible de la page. */}
+        {selectedItem && selectedRang && selectedStyle && (
+          <div className="rounded-xl sm:rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-4 sm:p-6 space-y-3 sm:space-y-4">
+            <div>
+              <p className="text-sm sm:text-base font-semibold text-foreground">
+                <TranslatedText text="Ta chanson est prête à être créée" />
+              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {ednLyrics?.title ? `${ednLyrics.title} · ` : ''}
+                {selectedRang === 'AB'
+                  ? 'Rang A+B'
+                  : `Rang ${selectedRang}`} · {libelleStyle(selectedStyle)}
+                {apercuEnvoi ? ` · ≈ ${apercuEnvoi.duree}` : ''}
+              </p>
+            </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
-          {!generationReservee && (
-          <PremiumButton
-            variant="primary"
-            size="lg"
-            onClick={handleGenerateWithParams}
-            disabled={!user || !canGenerate() || isGenerating || (user && !canGenerateMusic()) || lyricsLoading}
-            className="flex-1 min-h-[48px] text-sm sm:text-base"
-          >
-            {isGenerating ? (
-              <>
-                <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-white border-t-transparent rounded-full" />
-                <span className="truncate"><TranslatedText text="Génération en cours…" /></span>
-              </>
-            ) : lyricsLoading ? (
-              <>
-                <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-current border-t-transparent rounded-full" />
-                <span className="truncate"><TranslatedText text="Chargement des paroles…" /></span>
-              </>
-            ) : !user ? (
-              <>
-                <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
-                <span className="truncate"><TranslatedText text="Connexion requise" /></span>
-              </>
+            {generationReservee ? (
+              <EncartGenerationAudio />
             ) : (
-              <>
-                <Wand2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
-                <span className="truncate"><TranslatedText text="Générer la chanson" /></span>
-              </>
+              <PremiumButton
+                variant="primary"
+                size="lg"
+                onClick={handleGenerateWithParams}
+                disabled={
+                  !user ||
+                  !canGenerate() ||
+                  isGenerating ||
+                  (user && !canGenerateMusic()) ||
+                  lyricsLoading
+                }
+                className="w-full min-h-[52px] text-sm sm:text-base font-semibold"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-white border-t-transparent rounded-full" />
+                    <span className="truncate">
+                      <TranslatedText text="Génération en cours…" />
+                    </span>
+                  </>
+                ) : lyricsLoading ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-current border-t-transparent rounded-full" />
+                    <span className="truncate">
+                      <TranslatedText text="Chargement des paroles…" />
+                    </span>
+                  </>
+                ) : !user ? (
+                  <>
+                    <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
+                    <span className="truncate">
+                      <TranslatedText text="Connexion requise" />
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
+                    <span className="truncate">
+                      <TranslatedText text="Générer ma chanson" />
+                    </span>
+                  </>
+                )}
+              </PremiumButton>
             )}
-          </PremiumButton>
-          )}
+          </div>
+        )}
 
+        <div className="flex items-center gap-3 sm:gap-4">
           <PremiumButton
             variant="secondary"
             size="lg"
             onClick={resetForm}
-            className="min-h-[48px] text-sm sm:text-base sm:w-auto"
+            className="min-h-[44px] text-sm sm:text-base"
           >
             <TranslatedText text="Réinitialiser" />
           </PremiumButton>
 
           <TooltipProvider>
-            <Tooltip open={showShortcutsHelp} onOpenChange={setShowShortcutsHelp}>
+            <Tooltip
+              open={showShortcutsHelp}
+              onOpenChange={setShowShortcutsHelp}
+            >
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12"
+                  className="h-11 w-11"
                   aria-label="Raccourcis clavier"
                   onClick={() => setShowShortcutsHelp(!showShortcutsHelp)}
                 >
