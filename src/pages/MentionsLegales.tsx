@@ -50,16 +50,16 @@ const MentionsLegales = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>Le site medmng.com est édité par la société :</p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-2">
-                <p><strong className="text-foreground">EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
+                <p><strong className="text-foreground">EmotionsCare SASU</strong>, au capital de 100 €</p>
                 <p>Siège social : <strong className="text-foreground">Appartement 1, 5 rue Caudron, 80000 Amiens, France</strong></p>
                 <p>Immatriculée au Registre du Commerce et des Sociétés (RCS) d'Amiens sous le numéro <strong className="text-foreground">944 505 445</strong> (inscrit le 21/05/2025)</p>
                 <p>N° SIRET : <strong className="text-foreground">944 505 445 00014</strong></p>
-                <p>TVA intracommunautaire : <strong className="text-foreground">FR89944505445</strong></p>
+                <p>TVA intracommunautaire : <strong className="text-foreground">FR71944505445</strong></p>
                 <div className="flex items-center space-x-1 pt-2">
                   <Mail className="h-4 w-4 text-primary" />
                   <span>contact@emotionscare.com</span>
                 </div>
-                <p className="pt-2"><strong className="text-foreground">Responsable de la publication :</strong> Laëticia Motongane (Présidente d'EMOTIONSCARE)</p>
+                <p className="pt-2"><strong className="text-foreground">Directrice de la publication :</strong> Laëticia Moto-Ngane, présidente d'EmotionsCare SASU</p>
               </div>
             </div>
           </Card>
@@ -96,8 +96,8 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">3. OBJET DE LA PLATEFORME</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>Med MNG est une plateforme immersive dédiée à l'apprentissage médical via la méthode exclusive <strong className="text-foreground">MNG – Music Neuro Learning Generator</strong>, développée par Laëticia Motongane.</p>
-              <p>Elle combine des contenus musicaux, visuels et interactifs pour renforcer l'apprentissage cognitif dans les parcours de formation médicale post-bac (EDN, ECOS).</p>
+              <p>Med MNG est une plateforme immersive dédiée à l'apprentissage médical via la méthode <strong className="text-foreground">MNG – Music Neuro Learning Generator</strong>, développée par Laëticia Moto-Ngane.</p>
+              <p>Elle combine des contenus musicaux, visuels et interactifs pour réviser les EDN et les ECOS.</p>
             </div>
           </Card>
 
@@ -116,9 +116,9 @@ const MentionsLegales = () => {
                   <li>• Choix du niveau (📒 Rang A ou 📘 Rang B)</li>
                   <li>• Choix du style musical (trap, lofi, jazz, afrobeat, etc.)</li>
                   <li>• Génération automatique d'une chanson pédagogique (format MNG)</li>
-                  <li>• Tableaux récapitulatifs conformes aux attendus EDN</li>
-                  <li>• Bande dessinée (mémorisation visuelle)</li>
-                  <li>• QCM, QRU et QROC d'entraînement</li>
+                  <li>• Tableaux récapitulatifs construits à partir des compétences du référentiel</li>
+                  <li>• Planches illustrées</li>
+                  <li>• Quiz par item</li>
                 </ul>
               </div>
 
@@ -165,14 +165,14 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">6. DONNÉES PERSONNELLES</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p className="font-medium text-success">Traitement conforme au RGPD.</p>
+              <p className="font-medium text-success">Le traitement de vos données est décrit dans la politique de confidentialité.</p>
               <p>Les seules données collectées sont nécessaires à la bonne expérience utilisateur :</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="bg-success/10 p-3 rounded text-center">Adresse email</div>
                 <div className="bg-success/10 p-3 rounded text-center">Historique d'apprentissage</div>
                 <div className="bg-success/10 p-3 rounded text-center">Préférences musicales et pédagogiques</div>
               </div>
-              <p className="text-success font-medium">Aucune revente ou partage des données à des tiers.</p>
+              <p className="text-success font-medium">Aucune revente de données. Nos sous-traitants techniques sont listés ci-dessous.</p>
               <p className="text-sm">
                 Consultez notre{' '}
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">politique de confidentialité</Link>.
@@ -189,12 +189,12 @@ const MentionsLegales = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>Conformément à l'article 37 du RGPD (UE 2016/679), le responsable de la protection des données personnelles est :</p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-2">
-                <p><strong className="text-foreground">DPO :</strong> Laëticia Motongane</p>
+                <p><strong className="text-foreground">Contact données personnelles :</strong> contact@emotionscare.com</p>
                 <div className="flex items-center space-x-1">
                   <Mail className="h-4 w-4 text-primary" />
                   <span>dpo@emotionscare.com</span>
                 </div>
-                <p className="text-sm">Adresse postale : EMOTIONSCARE – DPO, Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
+                <p className="text-sm">Adresse postale : EmotionsCare SASU, appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               </div>
               <p className="text-sm">Pour toute question relative à la protection de vos données personnelles ou pour exercer vos droits RGPD (accès, rectification, effacement, portabilité, limitation, opposition), vous pouvez contacter le DPO à l'adresse ci-dessus.</p>
               <div className="bg-success/10 p-4 rounded-lg">

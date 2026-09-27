@@ -107,7 +107,7 @@ const About = () => {
                 <div className="bg-card p-4 rounded-lg border border-border text-center">
                   <BookOpen className="h-8 w-8 text-primary mx-auto mb-2" />
                   <h4 className="font-semibold text-foreground mb-1">Pédagogie active</h4>
-                  <p className="text-sm">Quiz, flashcards et situations ECOS guidées</p>
+                  <p className="text-sm">Quiz, cartes de révision et situations ECOS guidées</p>
                 </div>
               </div>
               <p className="text-sm italic">
@@ -143,13 +143,10 @@ const About = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <div className="bg-card p-6 rounded-lg border border-border">
-                <h4 className="font-semibold text-foreground text-lg mb-1">Laeticia Motongane</h4>
+                <h4 className="font-semibold text-foreground text-lg mb-1">Laëticia Moto-Ngane</h4>
                 <p className="text-primary text-sm mb-3">Fondatrice et Présidente — EmotionsCare SASU</p>
                 <p className="text-sm">
-                  Créatrice de la méthode MNG et auteure de la plateforme Med MNG. Passionnée par
-                  l'intersection entre la technologie, la musique et l'éducation médicale, elle a conçu
-                  Med MNG pour rendre l'apprentissage médical plus accessible, plus efficace et plus
-                  humain.
+                  Créatrice de la méthode MNG et auteure de la plateforme Med MNG. Médecin et développeuse, elle a conçu Med MNG pour rendre la révision des items plus variée et plus agréable.
                 </p>
               </div>
             </div>
@@ -175,8 +172,8 @@ const About = () => {
                   <li><strong>Siège social :</strong> Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
                   <li><strong>RCS Amiens :</strong> 944 505 445 (inscrit le 21/05/2025)</li>
                   <li><strong>SIRET :</strong> 944 505 445 00014</li>
-                  <li><strong>TVA intracommunautaire :</strong> FR89944505445</li>
-                  <li><strong>Présidente :</strong> Laeticia Motongane</li>
+                  <li><strong>TVA intracommunautaire :</strong> FR71944505445</li>
+                  <li><strong>Présidente :</strong> Laëticia Moto-Ngane</li>
                   <li><strong>Contact :</strong> contact@emotionscare.com</li>
                 </ul>
               </div>
@@ -216,7 +213,7 @@ const About = () => {
                 {/* CONSTAT : « sécurité A+ » annonçait une certification qui n’existe pas
                     (même allégation que le « A+ » retiré de la carte « en chiffres »). */}
                 <p className="text-sm text-muted-foreground">
-                  RGPD, zéro tracking publicitaire : vos données sont sacrées.
+                  Aucun traceur publicitaire. Vos données ne sont jamais revendues.
                 </p>
               </div>
             </div>

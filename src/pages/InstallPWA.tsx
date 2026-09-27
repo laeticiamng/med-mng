@@ -96,8 +96,8 @@ const InstallPWA: React.FC = () => {
   const features = [
     {
       icon: Wifi,
-      title: "Fonctionne hors ligne",
-      description: "Accédez à vos outils même sans connexion internet",
+      title: "Fiches lisibles hors ligne",
+      description: "Les fiches déjà consultées restent accessibles sans connexion.",
       color: "text-primary"
     },
     {
@@ -146,7 +146,7 @@ const InstallPWA: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Installer Med MNG - Application Mobile"
+        title="Installer l'application"
         description="Installez Med MNG sur votre téléphone pour un accès rapide, mode offline et notifications. Disponible pour iOS et Android."
         keywords="installer app, PWA, application mobile, offline, médecine mobile"
       />
@@ -162,7 +162,7 @@ const InstallPWA: React.FC = () => {
               Installez Med MNG
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Transformez votre apprentissage médical avec notre application installable
+              Installez Med MNG sur votre téléphone ou votre ordinateur.
             </p>
           </div>
 

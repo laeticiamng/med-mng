@@ -38,7 +38,7 @@ export const MngPresentation = () => {
             Music Neuro Learning Generator : réviser avec des chansons
           </CardDescription>
           <p className="text-sm text-primary-foreground/70 mt-2">
-            Méthode pédagogique conçue par Laëticia Motongane
+            Méthode pédagogique conçue par Laëticia Moto-Ngane
           </p>
           {gamificationStats && (
             <div className="flex items-center justify-center gap-3 mt-4">

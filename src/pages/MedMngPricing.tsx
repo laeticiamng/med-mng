@@ -39,7 +39,7 @@ export const MedMngPricing = () => {
   return (
     <>
       <SEOHead
-        title="Tarifs – Med MNG Premium 69 €/an | Med MNG"
+        title="Tarifs – Premium 69 €/an"
         description="Med MNG : fiches officielles des 367 items EDN gratuites et 10 items d'essai en immersion. Med MNG Premium : contenu immersif des 367 items et génération audio, 69 €/an ou 9,90 €/mois."
         keywords="tarifs EDN, abonnement ECOS, préparation médecine, prix"
         canonical="/med-mng/pricing"

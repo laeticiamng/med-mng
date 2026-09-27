@@ -19,7 +19,7 @@ const FAQ = () => {
   return (
     <>
     <SEOHead
-      title="FAQ - Questions Fréquentes - Med MNG"
+      title="Questions fréquentes"
       description="Toutes les réponses à vos questions sur Med MNG : fonctionnement, tarifs, fiabilité médicale, révisions, application mobile et sécurité."
       keywords="FAQ, questions fréquentes, Med MNG, apprentissage médecine, musique IA, EDN"
       canonical="/faq"
@@ -150,7 +150,7 @@ const FAQ = () => {
 
               <AccordionItem value="med-4" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  Comment fonctionne le copilote médical IA (Chat) ?
+                  Comment fonctionne l'assistant de révision IA ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   Le copilote médical est un assistant IA pour les questions médicales liées aux items EDN.

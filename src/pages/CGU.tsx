@@ -38,7 +38,7 @@ const CGU = () => {
                 <h2 className="text-2xl font-bold">Med MNG - CGU</h2>
               </div>
               <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
-              <p className="text-sm opacity-90">Version 1.0 - Conforme RGPD et droit français</p>
+              <p className="text-sm opacity-90">Version 1.0</p>
             </div>
           </Card>
 
@@ -50,7 +50,7 @@ const CGU = () => {
               <p className="text-sm">
                 Med MNG est un <strong>outil pédagogique d'aide à l'apprentissage</strong> destiné aux étudiants en médecine. 
                 Les contenus générés par intelligence artificielle (chansons, tableaux, quiz, bandes dessinées) ne constituent 
-                <strong> EN AUCUN CAS un avis médical officiel, un diagnostic ou une prescription thérapeutique</strong>.
+                <strong> pas un avis médical, un diagnostic ou une prescription</strong>.
               </p>
               <p className="text-sm mt-2">
                 Pour toute décision médicale, consultez les référentiels officiels (Collège National des Enseignants, 
@@ -134,7 +134,7 @@ const CGU = () => {
               </div>
               <p className="text-sm">
                 Vous vous engagez à fournir des informations exactes lors de l'inscription et à maintenir 
-                vos identifiants confidentiels. Toute activité suspecte peut entraîner la suspension immédiate de votre compte.
+                vos identifiants confidentiels. Une activité frauduleuse peut entraîner la suspension de votre compte.
               </p>
             </div>
           </Card>
@@ -193,11 +193,11 @@ const CGU = () => {
                 <p className="text-sm">
                   Le nom "Med MNG", la méthode "Music Neuro Learning Generator", le logo, le code source et 
                   l'interface sont la propriété exclusive d'<strong>EmotionsCare SASU</strong> et de 
-                  <strong> Laëticia Motongane</strong> (créatrice et auteure).
+                  <strong> Laëticia Moto-Ngane</strong> (créatrice et auteure).
                 </p>
                 <p className="text-sm mt-2 font-semibold text-destructive">
-                  ⚠️ Toute reproduction, adaptation ou exploitation commerciale sans autorisation est interdite 
-                  et constitue une contrefaçon passible de 3 ans d'emprisonnement et 300 000€ d'amende (CPI Art. L335-2).
+                  Toute reproduction, adaptation ou exploitation commerciale sans autorisation est interdite 
+                  (articles L335-2 et suivants du Code de la propriété intellectuelle).
                 </p>
               </div>
 
@@ -252,7 +252,7 @@ const CGU = () => {
                 </div>
               </div>
               <p className="text-sm italic">
-                Toute violation de ces règles entraînera la suspension immédiate du compte sans remboursement.
+                Une violation grave de ces règles peut entraîner la suspension du compte, après information préalable sauf urgence.
               </p>
             </div>
           </Card>
@@ -265,7 +265,7 @@ const CGU = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="font-semibold text-foreground">
-                Conformément aux articles L217-4 et suivants du Code de la consommation, vous bénéficiez de garanties légales :
+                Conformément aux articles L224-25-12 et suivants du Code de la consommation, vous bénéficiez de la garantie légale de conformité des contenus et services numériques :
               </p>
               
               <div className="bg-primary/10 p-4 rounded-lg space-y-3">
@@ -274,7 +274,7 @@ const CGU = () => {
                   <ul className="text-sm space-y-1">
                     <li>• Couvre les défauts existants au moment de la souscription</li>
                     <li>• S'applique aux services numériques et contenus générés</li>
-                    <li>• Vous avez droit à la mise en conformité ou au remboursement proportionnel</li>
+                    <li>• Vous avez droit à la mise en conformité ou, à défaut, à une réduction du prix ou à la résolution du contrat</li>
                   </ul>
                 </div>
                 
@@ -347,11 +347,10 @@ const CGU = () => {
             </div>
             <div className="text-muted-foreground">
               <p className="mb-3">
-                Le traitement de vos données personnelles est régi par notre{' '}
+                Le traitement de vos données personnelles est décrit dans notre{' '}
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary font-semibold hover:underline">
                   Politique de Confidentialité
-                </Link>{' '}
-                conforme au RGPD (UE 2016/679).
+                </Link>.
               </p>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="text-sm">
@@ -362,7 +361,7 @@ const CGU = () => {
                   <li>• Chiffrement en transit (TLS) et au repos</li>
                   <li>• Accès restreint aux seules personnes habilitées</li>
                   <li>• Anonymisation après 5 ans d'inactivité</li>
-                  <li>• Aucun partage avec des tiers (sauf obligation légale)</li>
+                  <li>• Aucune vente ni partage à des fins commerciales ; seuls nos sous-traitants techniques, listés dans la politique de confidentialité, y accèdent pour fournir le service</li>
                 </ul>
               </div>
             </div>
@@ -396,7 +395,7 @@ const CGU = () => {
                 <h4 className="font-semibold text-foreground mb-2">📦 Devenir de vos contenus après résiliation :</h4>
                 <ul className="text-sm space-y-2">
                   <li>
-                    <strong>Conservation temporaire (90 jours) :</strong> Vos chansons générées, playlists et progressions 
+                    <strong>Conservation temporaire (90 jours) :</strong> Vos chansons générées, listes de lecture et progressions 
                     sont conservées 90 jours après la résiliation pour vous permettre de vous rétracter ou de récupérer vos données.
                   </li>
                   <li>
@@ -418,8 +417,7 @@ const CGU = () => {
                 <h4 className="font-semibold text-warning mb-2">⚠️ Important - Contenus non récupérables :</h4>
                 <p className="text-sm text-warning">
                   Les chansons générées par Suno AI ne peuvent pas être téléchargées (streaming uniquement). 
-                  Après résiliation, vous perdez l'accès à ces contenus. Nous vous recommandons de créer 
-                  des playlists et d'exporter vos notes pédagogiques avant de résilier.
+                  Après résiliation, vous perdez l'accès à ces contenus. Nous vous recommandons d'exporter vos notes pédagogiques avant de résilier.
                 </p>
               </div>
             </div>
@@ -429,7 +427,7 @@ const CGU = () => {
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <FileText className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">10. MODIFICATION DES CGU</h3>
+              <h3 className="text-xl font-semibold text-foreground">11. MODIFICATION DES CGU</h3>
             </div>
             <div className="text-muted-foreground">
               <p>
@@ -446,7 +444,7 @@ const CGU = () => {
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Scale className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">11. LOI APPLICABLE ET RÈGLEMENT DES LITIGES</h3>
+              <h3 className="text-xl font-semibold text-foreground">12. LOI APPLICABLE ET RÈGLEMENT DES LITIGES</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>Les présentes CGU sont régies par le <strong>droit français</strong>.</p>

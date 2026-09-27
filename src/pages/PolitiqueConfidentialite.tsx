@@ -62,13 +62,13 @@ const PolitiqueConfidentialite = () => {
             <div className="text-muted-foreground">
               <p>Le traitement des données personnelles est effectué par :</p>
               <div className="bg-success/10 p-4 rounded-lg mt-3 space-y-2">
-                <p><strong>EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
+                <p><strong>EmotionsCare SASU</strong>, au capital de 100 €</p>
                 <p>Siège social : <strong>Appartement 1, 5 rue Caudron, 80000 Amiens, France</strong></p>
                 <div className="flex items-center space-x-1 pt-2">
                   <Mail className="h-4 w-4 text-success" />
                   <span>contact@emotionscare.com</span>
                 </div>
-                <p className="pt-2"><strong>Représentée par :</strong> Laëticia Motongane, Présidente et responsable de la publication</p>
+                <p className="pt-2"><strong>Représentée par :</strong> Laëticia Moto-Ngane, Présidente et responsable de la publication</p>
               </div>
             </div>
           </Card>
@@ -127,7 +127,7 @@ const PolitiqueConfidentialite = () => {
                 <div className="bg-warning/10 p-3 rounded text-sm">• Générer du contenu adapté (chansons MNG)</div>
                 <div className="bg-warning/10 p-3 rounded text-sm">• Améliorer les services (analyse anonyme)</div>
                 <div className="bg-warning/10 p-3 rounded text-sm">• Communiquer les mises à jour</div>
-                <div className="bg-warning/10 p-3 rounded text-sm">• Newsletter (si inscrite)</div>
+                <div className="bg-warning/10 p-3 rounded text-sm">• Lettre d'information (si vous y êtes inscrit·e)</div>
               </div>
             </div>
           </Card>
@@ -178,7 +178,7 @@ const PolitiqueConfidentialite = () => {
                   <p className="text-sm mt-1">5 ans (puis anonymisées)</p>
                 </div>
               </div>
-              <p className="text-sm text-accent text-center">Sauf demande explicite de suppression immédiate</p>
+              <p className="text-sm text-accent text-center">Vous pouvez demander la suppression de vos données à tout moment.</p>
             </div>
           </Card>
 
@@ -194,7 +194,7 @@ const PolitiqueConfidentialite = () => {
                 <p>• <strong>Chiffrement :</strong> En transit et au repos</p>
                 <p>• <strong>Sauvegardes :</strong> Automatisées et sécurisées</p>
                 <p>• <strong>Accès :</strong> Restreint aux seules personnes habilitées</p>
-                <p className="text-success font-medium">• <strong>Aucun prestataire tiers</strong> n'a accès aux données</p>
+                <p className="text-success font-medium">• Accès limité aux <strong>sous-traitants techniques</strong> listés ci-dessous, pour les seuls besoins du service</p>
               </div>
             </div>
           </Card>
@@ -260,14 +260,14 @@ const PolitiqueConfidentialite = () => {
               <h3 className="text-xl font-semibold text-foreground">8bis. DÉLÉGUÉ À LA PROTECTION DES DONNÉES (DPO)</h3>
             </div>
             <div className="text-muted-foreground space-y-3">
-              <p>Conformément à l'article 37 du RGPD, EMOTIONSCARE a désigné un Délégué à la Protection des Données :</p>
+              <p>Pour toute question sur vos données personnelles, écrivez à :</p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-2">
-                <p><strong className="text-foreground">DPO :</strong> Laëticia Motongane</p>
+                <p><strong className="text-foreground">Contact données personnelles :</strong> contact@emotionscare.com</p>
                 <div className="flex items-center space-x-1">
                   <Mail className="h-4 w-4 text-primary" />
                   <span>dpo@emotionscare.com</span>
                 </div>
-                <p className="text-sm">EMOTIONSCARE – DPO, Appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
+                <p className="text-sm">EmotionsCare SASU, appartement 1, 5 rue Caudron, 80000 Amiens, France</p>
               </div>
               <p className="text-sm">Le DPO est votre point de contact pour toute question relative à la protection de vos données personnelles et pour l'exercice de vos droits RGPD.</p>
             </div>
@@ -284,7 +284,7 @@ const PolitiqueConfidentialite = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-destructive/10 p-4 rounded-lg">
                   <h4 className="font-semibold text-destructive mb-2">Notification à la CNIL</h4>
-                  <p className="text-sm">EMOTIONSCARE notifiera la CNIL dans un délai de <strong>72 heures</strong> après avoir pris connaissance de toute violation de données susceptible d'engendrer un risque pour les droits et libertés des personnes concernées.</p>
+                  <p className="text-sm">EmotionsCare SASU notifiera la CNIL dans un délai de <strong>72 heures</strong> après avoir pris connaissance de toute violation de données susceptible d'engendrer un risque pour les droits et libertés des personnes concernées.</p>
                 </div>
                 <div className="bg-warning/10 p-4 rounded-lg">
                   <h4 className="font-semibold text-warning mb-2">Information des utilisateurs</h4>
@@ -298,7 +298,7 @@ const PolitiqueConfidentialite = () => {
                   <li>• Row Level Security (RLS) sur toutes les tables Supabase</li>
                   <li>• Monitoring temps réel via Sentry</li>
                   <li>• Sauvegardes automatisées chiffrées</li>
-                  <li>• Tests de pénétration réguliers</li>
+                  <li>• Revue régulière des règles d'accès à la base et des dépendances</li>
                 </ul>
               </div>
             </div>

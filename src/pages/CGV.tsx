@@ -18,7 +18,7 @@ const CGV = () => {
   return (
     <>
     <SEOHead
-      title="Conditions Générales de Vente - Med MNG"
+      title="Conditions générales de vente"
       description="CGV de Med MNG par EmotionsCare SASU. Tarifs, abonnements, droit de rétractation, garanties légales et modalités de paiement."
       keywords="CGV, conditions générales de vente, abonnement, tarifs, Med MNG"
       canonical="/legal/cgv"
@@ -45,7 +45,7 @@ const CGV = () => {
                 <h2 className="text-2xl font-bold">Med MNG - CGV</h2>
               </div>
               <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
-              <p className="text-sm opacity-90">Version 1.0 - Conforme au droit français de la consommation</p>
+              <p className="text-sm opacity-90">Version 1.0</p>
             </div>
           </Card>
 
@@ -66,9 +66,9 @@ const CGV = () => {
                   <li>Siège social : Appartement 1, 5 rue Caudron, 80000 Amiens, France</li>
                   <li>RCS Amiens : 944 505 445 (inscrit le 21/05/2025)</li>
                   <li>SIRET : 944 505 445 00014</li>
-                  <li>TVA intracommunautaire : FR89944505445</li>
+                  <li>TVA intracommunautaire : FR71944505445</li>
                   <li>Email : contact@emotionscare.com</li>
-                  <li>Présidente : Laeticia Motongane</li>
+                  <li>Présidente : Laëticia Moto-Ngane</li>
                 </ul>
               </div>
               <p className="text-sm">
@@ -220,7 +220,7 @@ const CGV = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="font-semibold text-foreground">
-                Conformément aux articles L217-4 et suivants du Code de la consommation :
+                Conformément aux articles L224-25-12 et suivants du Code de la consommation :
               </p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-3">
                 <div>
@@ -281,8 +281,8 @@ const CGV = () => {
                 <div className="bg-destructive/10 p-4 rounded-lg">
                   <h4 className="font-semibold text-destructive mb-2">Par EmotionsCare :</h4>
                   <p className="text-sm">
-                    En cas de violation des CGU/CGV, d'usage frauduleux ou d'impayé, EmotionsCare
-                    peut suspendre ou résilier l'abonnement sans préavis ni remboursement.
+                    En cas de manquement grave aux CGU/CGV, d'usage frauduleux ou d'impayé, EmotionsCare SASU
+                    peut suspendre ou résilier l'abonnement, après information préalable sauf urgence.
                   </p>
                 </div>
               </div>

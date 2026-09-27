@@ -18,7 +18,7 @@ const CookiesPolicy = () => {
   return (
     <>
     <SEOHead
-      title="Politique de Cookies - Med MNG"
+      title="Politique cookies"
       description="Politique de cookies de Med MNG. Cookies essentiels, fonctionnels et analytiques. Conforme RGPD et directive ePrivacy."
       keywords="cookies, RGPD, confidentialité, Med MNG"
       canonical="/legal/cookies"
@@ -57,7 +57,7 @@ const CookiesPolicy = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                Un cookie est un petit fichier texte depose sur votre terminal (ordinateur, tablette, smartphone)
+                Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone)
                 lors de votre visite sur Med MNG. Il permet de stocker des informations relatives a votre
                 navigation et de vous offrir une experience personnalisee.
               </p>
