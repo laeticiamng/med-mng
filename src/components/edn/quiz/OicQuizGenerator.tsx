@@ -6,7 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { OicCompetence, useOicCompetences } from '@/hooks/useOicCompetences';
+import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { genererQuestionsOic } from '@/utils/quizOic';
 import { supabase } from '@/integrations/supabase/client';
 import {
     Brain, CheckCircle,
@@ -24,112 +25,6 @@ interface OicQuizGeneratorProps {
   itemTitle: string;
 }
 
-interface GeneratedQuestion {
-  id: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  competence: OicCompetence;
-}
-
-/**
- * Génère des questions de quiz à partir des compétences OIC réelles
- */
-const QUESTION_TEMPLATES = [
-  { template: 'definition', question: (comp: OicCompetence) => `Concernant "${comp.intitule}", quelle affirmation est correcte ?` },
-  { template: 'objectif', question: (comp: OicCompetence) => `L'objectif ${comp.objectif_id} correspond à :` },
-  { template: 'rubrique', question: (comp: OicCompetence) => `Dans quelle catégorie se situe la compétence "${comp.objectif_id}" ?` },
-  { template: 'identification', question: (_comp: OicCompetence) => `Identifiez la compétence UNESS officielle :` },
-  { template: 'association', question: (comp: OicCompetence) => `Quelle compétence est associée à l'item parent ${comp.item_parent} ?` },
-  { template: 'vrai_faux', question: (comp: OicCompetence) => `L'affirmation suivante est-elle vraie ? "${comp.intitule}"` },
-  { template: 'qcm_negatif', question: (comp: OicCompetence) => `Parmi ces affirmations, laquelle n'est PAS correcte pour ${comp.objectif_id} ?` },
-  { template: 'cas_clinique', question: (_comp: OicCompetence) => `Un patient présente un tableau clinique. Quelle compétence UNESS est concernée ?` },
-  { template: 'hierarchie', question: (comp: OicCompetence) => `Quel est l'ordre de priorité pour la compétence ${comp.objectif_id} ?` },
-  { template: 'diagnostic', question: (_comp: OicCompetence) => `Pour établir le diagnostic, identifiez la compétence requise :` },
-];
-
-const generateQuestionsFromCompetences = (
-  competences: OicCompetence[],
-  maxQuestions: number = 10
-): GeneratedQuestion[] => {
-  if (competences.length === 0) return [];
-
-  // Deterministic shuffle using Fisher-Yates with seed
-  const shuffled = [...competences];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = (i * 17 + competences.length) % (i + 1);
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  const selected = shuffled.slice(0, Math.min(maxQuestions, competences.length));
-
-  // Distracteurs médicaux génériques pour compléter si nécessaire
-  const MEDICAL_DISTRACTORS = [
-    "Absence de corrélation clinico-biologique établie",
-    "Critère diagnostique non retenu par les recommandations actuelles",
-    "Modalité thérapeutique de deuxième intention uniquement",
-    "Signe clinique aspécifique sans valeur discriminante",
-    "Approche diagnostique obsolète selon HAS 2024",
-    "Élément sémiologique fréquent mais non pathognomonique",
-    "Traitement symptomatique sans effet sur l'évolution",
-    "Critère d'exclusion plutôt que d'inclusion diagnostique",
-    "Manifestation atypique nécessitant confirmation",
-    "Option non validée par les études de niveau de preuve élevé"
-  ];
-
-  return selected.map((comp, index) => {
-    // Sélectionner un template de question aléatoire
-    const templateIndex = index % QUESTION_TEMPLATES.length;
-    const template = QUESTION_TEMPLATES[templateIndex];
-    
-    // Générer des distracteurs variés basés sur d'autres compétences
-    const otherComps = competences.filter(c => c.objectif_id !== comp.objectif_id);
-    // Deterministic distractor selection based on index
-    const sortedOthers = [...otherComps].sort((a, b) => 
-      (a.objectif_id || '').localeCompare(b.objectif_id || '')
-    );
-    const distractors = sortedOthers
-      .slice(0, 3)
-      .map(c => {
-        // Varier le type de distracteur selon le template
-        if (template.template === 'rubrique' && c.rubrique) return c.rubrique;
-        if (template.template === 'definition' && c.description) return c.description.substring(0, 100) + '...';
-        return c.intitule;
-      });
-
-    // Compléter avec des distracteurs médicaux réalistes si insuffisant
-    let distIdx = 0;
-    while (distractors.length < 3 && distIdx < MEDICAL_DISTRACTORS.length) {
-      const candidate = MEDICAL_DISTRACTORS[distIdx];
-      if (!distractors.includes(candidate)) {
-        distractors.push(candidate);
-      }
-      distIdx++;
-    }
-
-    // Générer la bonne réponse selon le template
-    let correctAnswer = comp.intitule;
-    if (template.template === 'rubrique' && comp.rubrique) correctAnswer = comp.rubrique;
-    if (template.template === 'definition' && comp.description) correctAnswer = comp.description.substring(0, 100) + '...';
-    
-    // Deterministic options order based on index
-    const allOptions = [correctAnswer, ...distractors.filter(d => d !== correctAnswer)].slice(0, 4);
-    // Rotate options based on index for variety but deterministic
-    const rotation = index % allOptions.length;
-    const shuffledOptions = [...allOptions.slice(rotation), ...allOptions.slice(0, rotation)];
-    const correctIndex = shuffledOptions.indexOf(correctAnswer);
-
-    return {
-      id: `q-${index}-${comp.objectif_id}`,
-      question: template.question(comp),
-      options: shuffledOptions,
-      correctIndex: correctIndex >= 0 ? correctIndex : 0,
-      explanation: `${comp.objectif_id}: ${comp.intitule}${comp.description ? `\n\n${comp.description}` : ''}`,
-      competence: comp,
-    };
-  });
-};
-
 export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
   itemCode,
   itemTitle,
@@ -142,14 +37,23 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
 
   const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
   const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
+  // Moins de quatre compétences dans l'item (ex. IC-8, IC-10) : pas assez
+  // d'énoncés pour quatre options. On complète les distracteurs avec l'item
+  // voisin (ce ne sont jamais des bonnes réponses).
+  const numeroItem = parseInt(itemCode.replace(/\D/g, ''), 10) || 0;
+  const besoinVoisin = !loadingA && !loadingB && numeroItem > 0 && competencesA.length + competencesB.length < 8;
+  const codeVoisin = besoinVoisin ? `IC-${numeroItem < 367 ? numeroItem + 1 : numeroItem - 1}` : '';
+  const { competences: voisinA } = useOicCompetences(codeVoisin, 'A');
+  const { competences: voisinB } = useOicCompetences(codeVoisin, 'B');
   const { addPoints, unlockBadge } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const questions = useMemo(() => {
     if (!selectedRang) return [];
-    const comps = selectedRang === 'A' ? competencesA : competencesB;
-    return generateQuestionsFromCompetences(comps, 10);
-  }, [selectedRang, competencesA, competencesB]);
+    const cibles = selectedRang === 'A' ? competencesA : competencesB;
+    const autres = selectedRang === 'A' ? competencesB : competencesA;
+    return genererQuestionsOic(cibles, [...autres, ...voisinA, ...voisinB], 10);
+  }, [selectedRang, competencesA, competencesB, voisinA, voisinB]);
 
   const handleStartQuiz = (rang: 'A' | 'B') => {
     setSelectedRang(rang);
@@ -186,7 +90,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
       });
 
       if (erreurEnregistrement) {
-        toast.error(`Score non enregistré : ${erreurEnregistrement.message}`);
+        toast.error('Score non enregistré. Réessayez plus tard.');
       }
 
       await addPoints(user.id, percentage === 100 ? 200 : 100, percentage === 100 ? 'perfectExam' : 'examCompleted');
@@ -225,10 +129,10 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
         <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10">
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-6 w-6 text-primary" />
-            Quiz OIC Dynamique - {itemCode}
+            Quiz de l'item {itemCode}
           </CardTitle>
           <CardDescription>
-            Testez vos connaissances sur les compétences officielles UNESS
+            Pour chaque compétence officielle, retrouvez l'énoncé qui lui correspond
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
@@ -242,32 +146,34 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
               <div className="text-center mb-6">
                 <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  Choisissez un niveau pour générer un quiz personnalisé
+                  Choisissez le rang à réviser
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {totalCompetencesA > 0 && (
                 <Button
                   variant="outline"
                   className="h-auto p-6 flex flex-col items-center gap-3 border-2 border-primary/30 hover:bg-primary/10 hover:border-primary"
                   onClick={() => handleStartQuiz('A')}
-                  disabled={totalCompetencesA === 0}
                 >
                   <Badge className="bg-primary/10 text-primary border-primary/30">Rang A</Badge>
                   <span className="text-2xl font-bold text-primary">{totalCompetencesA}</span>
-                  <span className="text-sm text-muted-foreground">Compétences fondamentales</span>
+                  <span className="text-sm text-muted-foreground">Compétences de rang A</span>
                 </Button>
+                )}
 
+                {totalCompetencesB > 0 && (
                 <Button
                   variant="outline"
                   className="h-auto p-6 flex flex-col items-center gap-3 border-2 border-accent/30 hover:bg-accent/10 hover:border-accent"
                   onClick={() => handleStartQuiz('B')}
-                  disabled={totalCompetencesB === 0}
                 >
                   <Badge className="bg-accent/10 text-accent-foreground border-accent/30">Rang B</Badge>
                   <span className="text-2xl font-bold text-accent-foreground">{totalCompetencesB}</span>
-                  <span className="text-sm text-muted-foreground">Compétences expertes</span>
+                  <span className="text-sm text-muted-foreground">Compétences de rang B</span>
                 </Button>
+                )}
               </div>
 
               {totalCompetencesA === 0 && totalCompetencesB === 0 && !isLoading && (
@@ -336,7 +242,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
           </div>
 
           {/* Résumé des réponses */}
-          <div className="mt-6 space-y-3 text-left max-h-64 overflow-y-auto">
+          <div className="mt-6 space-y-3 text-left max-h-96 overflow-y-auto">
             {questions.map((q, _idx) => {
               const isCorrect = answers[q.id] === q.correctIndex;
               return (
@@ -350,9 +256,14 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
                     ) : (
                       <XCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
                     )}
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{q.competence.objectif_id}</p>
-                      <p className="text-xs text-muted-foreground">{q.competence.intitule}</p>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium">{q.competence.objectif_id} — {q.competence.intitule}</p>
+                      {!isCorrect && (
+                        <p className="text-xs text-muted-foreground">
+                          <span className="font-medium">Bonne réponse :</span> {q.options[q.correctIndex]}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground whitespace-pre-line">{q.explanation}</p>
                     </div>
                   </div>
                 </div>

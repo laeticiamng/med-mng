@@ -5,11 +5,10 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { supabase } from '@/integrations/supabase/client';
-import { BookOpen, Music, RotateCcw, Settings, Trophy } from 'lucide-react';
+import { BookOpen, RotateCcw, Settings, Trophy, XCircle } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { estQuestionQuizGenerique } from '@/utils/tableauTransformations';
 import { QuizFinal } from './QuizFinal';
-import { QuizErrorSongGenerator } from './music/QuizErrorSongGenerator';
 import { OicQuizGenerator } from './quiz/OicQuizGenerator';
 import { QuizConfig, QuizSelector } from './quiz/QuizSelector';
 
@@ -205,7 +204,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
             Quiz Interactif - {itemTitle}
           </CardTitle>
           <CardDescription className="flex items-center justify-between">
-            <span>Quiz avec suivi des erreurs et génération de chansons personnalisées</span>
+            <span>Quiz avec suivi des erreurs</span>
             <Button
               variant="outline"
               size="sm"
@@ -285,8 +284,8 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
             Quiz
           </TabsTrigger>
           <TabsTrigger value="errors" className="flex items-center gap-2">
-            <Music className="h-4 w-4" />
-            Chanson d'erreurs
+            <XCircle className="h-4 w-4" />
+            Mes erreurs
             {currentErrors.length > 0 && (
               <span className="ml-1 bg-destructive/10 text-destructive text-xs px-2 py-1 rounded-full">
                 {currentErrors.length}
@@ -301,10 +300,28 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
 
         <TabsContent value="errors" className="space-y-6">
           {currentErrors.length > 0 ? (
-            <QuizErrorSongGenerator
-              itemCode={itemCode || 'Quiz'}
-              itemTitle={itemTitle}
-            />
+            // Remplace la « chanson d'erreurs » : elle passait par
+            // spotify-ai-complete, qui annonçait « Votre musique arrive ! »
+            // sans jamais rien envoyer au service de génération audio.
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <XCircle className="h-5 w-5" />
+                  Questions à revoir
+                </CardTitle>
+                <CardDescription>La bonne réponse et son explication, pour chaque erreur de cette session.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {currentErrors.map((erreur, index) => (
+                  <div key={`${erreur.question}-${index}`} className="p-3 rounded-lg border border-destructive/30 bg-destructive/5 space-y-1">
+                    <p className="text-sm font-medium">{erreur.question}</p>
+                    <p className="text-xs text-muted-foreground"><span className="font-medium">Votre réponse :</span> {erreur.userAnswer}</p>
+                    <p className="text-xs text-foreground"><span className="font-medium">Bonne réponse :</span> {erreur.correctAnswer}</p>
+                    {erreur.explanation && <p className="text-xs text-muted-foreground whitespace-pre-line">{erreur.explanation}</p>}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           ) : (
             <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
               <CardHeader>
@@ -320,8 +337,8 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
                 <div className="text-center py-8">
                   <div className="text-6xl mb-4">🎉</div>
                   <p className="text-success font-medium">
-                    Continuez comme ça ! Si vous faites des erreurs, 
-                    vous pourrez générer une chanson personnalisée pour les réviser.
+                    Continuez comme ça ! Si vous faites des erreurs,
+                    elles s'afficheront ici avec la bonne réponse.
                   </p>
                 </div>
               </CardContent>
