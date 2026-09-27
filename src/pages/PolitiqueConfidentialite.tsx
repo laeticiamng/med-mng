@@ -38,7 +38,7 @@ const PolitiqueConfidentialite = () => {
                 <h2 className="text-2xl font-bold">Med MNG - Politique de Confidentialité</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/70">Version officielle – Conformité RGPD</p>
+              <p className="text-sm text-primary-foreground/70">Dernière mise à jour : 27 septembre 2026</p>
             </div>
           </Card>
 
@@ -320,7 +320,6 @@ const PolitiqueConfidentialite = () => {
                 <div className="bg-primary/10 p-3 rounded text-center text-sm">Droit à la portabilité</div>
                 <div className="bg-primary/10 p-3 rounded text-center text-sm">Droit d'opposition</div>
                 <div className="bg-primary/10 p-3 rounded text-center text-sm">Retrait du consentement</div>
-                <div className="bg-primary/10 p-3 rounded text-center text-sm">Droit à l'oubli</div>
               </div>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="font-semibold text-primary">Pour exercer vos droits :</p>

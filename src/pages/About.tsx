@@ -18,7 +18,7 @@ const About = () => {
   return (
     <>
     <SEOHead
-      title="À propos - Med MNG par EmotionsCare"
+      title="À propos"
       description="Découvrez Med MNG : réviser les items EDN avec des chansons générées par IA. Mission, méthode MNG, équipe et EmotionsCare SASU."
       keywords="à propos, Med MNG, EmotionsCare, méthode MNG, apprentissage médical, musique IA"
       canonical="/about"

@@ -37,7 +37,7 @@ const MentionsLegales = () => {
                 <h2 className="text-2xl font-bold">Med MNG</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/60">Version officielle – conforme RGPD et droit français</p>
+              <p className="text-sm text-primary-foreground/60">Dernière mise à jour : 27 septembre 2026</p>
             </div>
           </Card>
 
@@ -128,7 +128,7 @@ const MentionsLegales = () => {
                 <ul className="space-y-2 text-muted-foreground text-sm">
                   <li>• Fiches cliniques spécifiques à chaque situation de départ (SD)</li>
                   <li>• Une chanson MNG dédiée par SD (sans distinction A/B)</li>
-                  <li>• Simulation clinique immersive, orientée prise de décision</li>
+                  <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
                 </ul>
               </div>
             </div>

@@ -19,7 +19,7 @@ const CookiesPolicy = () => {
     <>
     <SEOHead
       title="Politique cookies"
-      description="Politique de cookies de Med MNG. Cookies essentiels, fonctionnels et analytiques. Conforme RGPD et directive ePrivacy."
+      description="Politique de cookies de Med MNG. Cookies essentiels, fonctionnels et analytiques. "
       keywords="cookies, RGPD, confidentialité, Med MNG"
       canonical="/legal/cookies"
     />
@@ -44,8 +44,7 @@ const CookiesPolicy = () => {
                 <Cookie className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Politique de Cookies</h2>
               </div>
-              <p className="text-sm opacity-90">Derniere mise a jour : 11 fevrier 2026</p>
-              <p className="text-sm opacity-90">Conforme au RGPD (UE 2016/679) et a la directive ePrivacy</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 27 septembre 2026</p>
             </div>
           </Card>
 
@@ -58,8 +57,8 @@ const CookiesPolicy = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>
                 Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone)
-                lors de votre visite sur Med MNG. Il permet de stocker des informations relatives a votre
-                navigation et de vous offrir une experience personnalisee.
+                lors de votre visite sur Med MNG. Il permet de stocker des informations relatives à votre
+                navigation et de vous offrir une expérience personnalisée.
               </p>
               <p className="text-sm">
                 Les cookies ne contiennent pas d'informations personnelles identifiables directement et ne
@@ -72,22 +71,22 @@ const CookiesPolicy = () => {
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Settings className="h-5 w-5 text-accent" />
-              <h3 className="text-xl font-semibold text-foreground">2. COOKIES UTILISES SUR Med MNG</h3>
+              <h3 className="text-xl font-semibold text-foreground">2. COOKIES UTILISÉS SUR Med MNG</h3>
             </div>
             <div className="space-y-4 text-muted-foreground">
               {/* Cookies strictement necessaires */}
               <div className="bg-primary/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Cookies strictement necessaires</h4>
+                <h4 className="font-semibold text-foreground mb-2">Cookies strictement nécessaires</h4>
                 <p className="text-sm mb-2">
-                  Ces cookies sont indispensables au fonctionnement du site. Ils ne peuvent pas etre desactives.
+                  Ces cookies sont indispensables au fonctionnement du site. Ils ne peuvent pas être désactivés.
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left p-2 text-foreground">Cookie</th>
-                        <th className="text-left p-2 text-foreground">Finalite</th>
-                        <th className="text-left p-2 text-foreground">Duree</th>
+                        <th className="text-left p-2 text-foreground">Finalité</th>
+                        <th className="text-left p-2 text-foreground">Durée</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -98,7 +97,7 @@ const CookiesPolicy = () => {
                       </tr>
                       <tr className="border-b border-border/50">
                         <td className="p-2 font-mono text-xs">med-mng-ui-theme</td>
-                        <td className="p-2">Preference de theme (clair/sombre)</td>
+                        <td className="p-2">Préférence de thème (clair/sombre)</td>
                         <td className="p-2">1 an</td>
                       </tr>
                       <tr className="border-b border-border/50">
@@ -108,7 +107,7 @@ const CookiesPolicy = () => {
                       </tr>
                       <tr>
                         <td className="p-2 font-mono text-xs">med-mng-lang</td>
-                        <td className="p-2">Preference de langue</td>
+                        <td className="p-2">Préférence de langue</td>
                         <td className="p-2">1 an</td>
                       </tr>
                     </tbody>
@@ -120,15 +119,15 @@ const CookiesPolicy = () => {
               <div className="bg-accent/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Cookies de performance et analytique</h4>
                 <p className="text-sm mb-2">
-                  Ces cookies permettent de mesurer l'audience et d'ameliorer nos services. Ils sont soumis a votre consentement.
+                  Ces cookies permettent de mesurer l'audience et d'améliorer nos services. Ils sont soumis à votre consentement.
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left p-2 text-foreground">Cookie</th>
-                        <th className="text-left p-2 text-foreground">Finalite</th>
-                        <th className="text-left p-2 text-foreground">Duree</th>
+                        <th className="text-left p-2 text-foreground">Finalité</th>
+                        <th className="text-left p-2 text-foreground">Durée</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -139,7 +138,7 @@ const CookiesPolicy = () => {
                       </tr>
                       <tr>
                         <td className="p-2 font-mono text-xs">pwa-metrics</td>
-                        <td className="p-2">Metriques d'utilisation PWA</td>
+                        <td className="p-2">Métriques d'utilisation PWA</td>
                         <td className="p-2">30 jours</td>
                       </tr>
                     </tbody>
@@ -151,15 +150,15 @@ const CookiesPolicy = () => {
               <div className="bg-card p-4 rounded-lg border border-border">
                 <h4 className="font-semibold text-foreground mb-2">Cookies fonctionnels</h4>
                 <p className="text-sm mb-2">
-                  Ces cookies ameliorent votre experience mais ne sont pas indispensables.
+                  Ces cookies améliorent votre expérience mais ne sont pas indispensables.
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left p-2 text-foreground">Stockage</th>
-                        <th className="text-left p-2 text-foreground">Finalite</th>
-                        <th className="text-left p-2 text-foreground">Duree</th>
+                        <th className="text-left p-2 text-foreground">Finalité</th>
+                        <th className="text-left p-2 text-foreground">Durée</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -170,12 +169,12 @@ const CookiesPolicy = () => {
                       </tr>
                       <tr className="border-b border-border/50">
                         <td className="p-2 font-mono text-xs">audio-preferences</td>
-                        <td className="p-2">Preferences du lecteur audio (volume, lecture automatique)</td>
+                        <td className="p-2">Préférences du lecteur audio (volume, lecture automatique)</td>
                         <td className="p-2">1 an</td>
                       </tr>
                       <tr>
                         <td className="p-2 font-mono text-xs">offline-data</td>
-                        <td className="p-2">Donnees hors connexion (PWA)</td>
+                        <td className="p-2">Données hors connexion (PWA)</td>
                         <td className="p-2">30 jours</td>
                       </tr>
                     </tbody>
@@ -196,27 +195,27 @@ const CookiesPolicy = () => {
               <h3 className="text-xl font-semibold text-foreground">3. GESTION DE VOS COOKIES</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <h4 className="font-semibold text-foreground">3.1 Banniere de consentement</h4>
+              <h4 className="font-semibold text-foreground">3.1 Bannière de consentement</h4>
               <p className="text-sm">
-                Lors de votre premiere visite, une banniere de consentement vous permet d'accepter ou de
-                refuser les cookies non essentiels. Votre choix est conserve pendant 13 mois.
+                Lors de votre première visite, une bannière de consentement vous permet d'accepter ou de
+                refuser les cookies non essentiels. Votre choix est conservé pendant 13 mois.
               </p>
 
-              <h4 className="font-semibold text-foreground mt-4">3.2 Parametres du navigateur</h4>
+              <h4 className="font-semibold text-foreground mt-4">3.2 Paramètres du navigateur</h4>
               <p className="text-sm">
-                Vous pouvez egalement configurer votre navigateur pour accepter ou refuser les cookies :
+                Vous pouvez également configurer votre navigateur pour accepter ou refuser les cookies :
               </p>
               <ul className="text-sm space-y-1">
-                <li>- <strong>Chrome</strong> : Parametres &gt; Confidentialite et securite &gt; Cookies</li>
-                <li>- <strong>Firefox</strong> : Parametres &gt; Vie privee et securite &gt; Cookies</li>
-                <li>- <strong>Safari</strong> : Preferences &gt; Confidentialite &gt; Cookies</li>
-                <li>- <strong>Edge</strong> : Parametres &gt; Confidentialite &gt; Cookies</li>
+                <li>- <strong>Chrome</strong> : Paramètres &gt; Confidentialité et sécurité &gt; Cookies</li>
+                <li>- <strong>Firefox</strong> : Paramètres &gt; Vie privée et sécurité &gt; Cookies</li>
+                <li>- <strong>Safari</strong> : Préférences &gt; Confidentialité &gt; Cookies</li>
+                <li>- <strong>Edge</strong> : Paramètres &gt; Confidentialité &gt; Cookies</li>
               </ul>
 
               <div className="bg-destructive/10 p-4 rounded-lg border-l-4 border-destructive mt-4">
                 <p className="text-sm text-destructive font-semibold">
-                  Attention : La desactivation des cookies strictement necessaires peut empecher
-                  le fonctionnement normal de Med MNG (connexion, sauvegarde des preferences).
+                  Attention : La désactivation des cookies strictement nécessaires peut empêcher
+                  le fonctionnement normal de Med MNG (connexion, sauvegarde des préférences).
                 </p>
               </div>
             </div>
@@ -230,14 +229,14 @@ const CookiesPolicy = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
-                En complement des cookies, Med MNG utilise le <strong>localStorage</strong> de votre navigateur
-                pour stocker des donnees localement afin d'ameliorer les performances (cache des items EDN,
-                preferences utilisateur, donnees hors ligne pour la PWA).
+                En complément des cookies, Med MNG utilise le <strong>localStorage</strong> de votre navigateur
+                pour stocker des données localement afin d'améliorer les performances (cache des items EDN,
+                préférences utilisateur, données hors ligne pour la PWA).
               </p>
               <p className="text-sm">
-                Ces donnees restent sur votre appareil et ne sont pas transmises a nos serveurs.
-                Vous pouvez les supprimer a tout moment via les outils de developpement de votre navigateur
-                ou en vidant les donnees du site.
+                Ces données restent sur votre appareil et ne sont pas transmises a nos serveurs.
+                Vous pouvez les supprimer a tout moment via les outils de développement de votre navigateur
+                ou en vidant les données du site.
               </p>
             </div>
           </Card>
@@ -246,16 +245,16 @@ const CookiesPolicy = () => {
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Lock className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">5. SECURITE ET TRANSFERT DE DONNEES</h3>
+              <h3 className="text-xl font-semibold text-foreground">5. SÉCURITÉ ET TRANSFERT DE DONNÉES</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
                 Les donnees collectees via les cookies sont traitees conformement a notre{' '}
-                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de Confidentialite</Link>.
-                Elles sont hebergees sur les serveurs de <strong>Supabase</strong> (infrastructure AWS, region EU).
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de Confidentialité</Link>.
+                Elles sont hébergées sur les serveurs de <strong>Supabase</strong> (infrastructure AWS, région EU).
               </p>
               <p className="text-sm">
-                Aucune donnee de cookie n'est vendue ou partagee avec des tiers a des fins commerciales.
+                Aucune donnée de cookie n'est vendue ou partagée avec des tiers a des fins commerciales.
               </p>
             </div>
           </Card>
@@ -268,20 +267,20 @@ const CookiesPolicy = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
-                Conformement au RGPD, vous disposez des droits suivants concernant vos donnees de cookies :
+                Conformément au RGPD, vous disposez des droits suivants concernant vos données de cookies :
               </p>
               <ul className="text-sm space-y-1">
-                <li>- <strong>Droit d'acces</strong> : connaitre les donnees collectees</li>
-                <li>- <strong>Droit de rectification</strong> : modifier vos preferences</li>
+                <li>- <strong>Droit d'accès</strong> : connaître les données collectées</li>
+                <li>- <strong>Droit de rectification</strong> : modifier vos préférences</li>
                 <li>- <strong>Droit de suppression</strong> : supprimer vos cookies</li>
                 <li>- <strong>Droit d'opposition</strong> : refuser les cookies non essentiels</li>
-                <li>- <strong>Droit a la portabilite</strong> : exporter vos donnees</li>
+                <li>- <strong>Droit à la portabilité</strong> : exporter vos données</li>
               </ul>
               <p className="text-sm mt-2">
                 Pour exercer ces droits : <strong>contact@emotionscare.com</strong>
               </p>
               <p className="text-sm">
-                Vous pouvez egalement adresser une reclamation a la <strong>CNIL</strong> (www.cnil.fr).
+                Vous pouvez également adresser une réclamation à la <strong>CNIL</strong> (www.cnil.fr).
               </p>
             </div>
           </Card>
