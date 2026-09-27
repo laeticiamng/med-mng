@@ -24,6 +24,8 @@ interface ParolesMusicalesMainContentProps {
   paroles: string[] | string[][];
   /** Paroles de la chanson combinée A+B, si elles existent ; sinon A puis B. */
   parolesAB?: string[];
+  /** Pas d'accès à la génération audio : paroles seules, sans bouton. */
+  generationVerrouillee?: boolean;
   itemCode: string;
   musicDuration: number;
   selectedStyle: string;
@@ -51,6 +53,7 @@ interface ParolesMusicalesMainContentProps {
 export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentProps> = ({
   paroles,
   parolesAB,
+  generationVerrouillee = false,
   itemCode,
   musicDuration,
   selectedStyle,
@@ -119,11 +122,12 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           <h4 className="font-medium text-sm text-muted-foreground">Comment ça fonctionne :</h4>
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
             <li>Les paroles sont générées à partir des compétences OIC de l'item</li>
-            <li>Suno AI transforme les paroles en musique chantée</li>
+            <li>Une IA de génération audio les transforme en chanson</li>
             <li>Vous pouvez écouter et télécharger le résultat</li>
           </ol>
         </div>
         
+        {!generationVerrouillee && (<>
         <Button 
           onClick={() => navigate(`${ROUTE_PATHS.medMngCreate}?itemCode=${itemCode}`)}
           className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
@@ -135,13 +139,14 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
         <p className="text-xs text-center text-muted-foreground">
           💡 Vous serez redirigé vers le générateur de musique avec cet item pré-sélectionné
         </p>
+        </>)}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold">Paroles disponibles pour génération musicale Suno :</h3>
+      <h3 className="font-semibold">Paroles de l'item</h3>
       
       {normalizedParoles[0] && (
         <div className="space-y-2">
@@ -152,6 +157,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             rang="A"
           />
           <ParolesMusicalesRangSection
+            generationVerrouillee={generationVerrouillee}
             rang="A"
             paroles={normalizedParoles[0]}
             musicDuration={musicDuration}
@@ -207,6 +213,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             rang="B"
           />
           <ParolesMusicalesRangSection
+            generationVerrouillee={generationVerrouillee}
             rang="B"
             paroles={normalizedParoles[1]}
             musicDuration={musicDuration}
@@ -259,6 +266,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             🎵 Chanson combinée Rang A+B
           </h4>
           <ParolesMusicalesRangSection
+            generationVerrouillee={generationVerrouillee}
             rang="A"
             libelleRang="A+B"
             paroles={parolesAB && parolesAB.length > 0

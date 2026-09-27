@@ -275,7 +275,7 @@ export const ContentLibrary = () => {
               <div className="w-px h-6 bg-border" />
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-warning" />
-                <Badge variant="secondary">{gamificationStats.badges.length} badges</Badge>
+                <Badge variant="secondary">{gamificationStats.badges.length} {gamificationStats.badges.length > 1 ? 'badges' : 'badge'}</Badge>
               </div>
             </div>
           </div>

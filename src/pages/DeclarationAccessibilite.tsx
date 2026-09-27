@@ -229,7 +229,7 @@ const DeclarationAccessibilite = () => {
                 <li className="flex items-start gap-2">
                   <span className="text-primary">•</span>
                   <span>
-                    <strong>Contenus audio générés par IA tierce (Suno AI) :</strong> La plateforme Suno AI externe 
+                    <strong>Contenus audio générés par un service d'IA tiers :</strong> Ce service externe 
                     n'est pas sous notre contrôle technique direct. Nous travaillons à fournir des alternatives 
                     (transcriptions textuelles des paroles).
                   </span>

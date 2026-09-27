@@ -65,22 +65,7 @@ export const MobileBottomNav = () => {
         role="navigation"
         aria-label="Navigation mobile principale"
       >
-        {/* Gamification Mini Stats */}
-        {user && gamificationStats && (
-          <div className="flex items-center justify-center gap-4 py-1.5 bg-gradient-to-r from-primary/5 via-background to-warning/5 border-b border-border/50">
-            <div className="flex items-center gap-1 text-warning">
-              <Flame className="h-3.5 w-3.5" />
-              <span className="text-xs font-bold">{gamificationStats.currentStreak}j</span>
-            </div>
-            <div className="w-px h-3 bg-border" />
-            <div className="flex items-center gap-1 text-primary">
-              <Star className="h-3.5 w-3.5" />
-              <span className="text-xs font-bold">Nv.{gamificationStats.level}</span>
-            </div>
-            <div className="w-px h-3 bg-border" />
-            <span className="text-xs text-muted-foreground">{gamificationStats.totalPoints} XP</span>
-          </div>
-        )}
+        {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
 
         <div className="flex items-center justify-around px-2 py-1 max-w-md mx-auto">
           {navItems.map((item) => {

@@ -486,18 +486,7 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
               Planches de compétences - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              {stats && (
-                <>
-                  <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
-                    <Flame className="h-3 w-3" />
-                    {stats.currentStreak ?? 0}j
-                  </Badge>
-                  <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
-                    <Star className="h-3 w-3" />
-                    Niv. {stats.level ?? 1}
-                  </Badge>
-                </>
-              )}
+              {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
               <Badge className="bg-primary-foreground/20 text-primary-foreground">
                 {currentVignette + 1} / {vignettes.length}
               </Badge>

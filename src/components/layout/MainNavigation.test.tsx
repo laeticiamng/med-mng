@@ -30,12 +30,10 @@ describe('MainNavigation (session simulée)', () => {
     expect(screen.getAllByRole('link', { name: /EDN/ }).length).toBeGreaterThan(0);
   });
 
-  it('la flamme et le niveau expliquent leur valeur et mènent à la progression', () => {
+  it("n'affiche plus la série ni le niveau dans l'en-tête (réservés à « Mon suivi »)", () => {
     rendre();
-    const lien = screen.getByRole('link', { name: /Série de 3 jours d'activité consécutifs, niveau 1 \(250 points\)/ });
-    expect(lien).toHaveAttribute('href', '/progress-dashboard');
-    expect(lien).toHaveTextContent('3');
-    expect(lien).toHaveTextContent('Niv.1');
+    expect(screen.queryByRole('link', { name: /Série de/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Niv.1')).not.toBeInTheDocument();
   });
 
   it('la cloche est proposée une fois connecté', () => {

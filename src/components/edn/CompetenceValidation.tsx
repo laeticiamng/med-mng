@@ -340,18 +340,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             {getStatusIcon()}
             Validation des Compétences - {item.item_code}
           </CardTitle>
-          {stats && (
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1 text-xs">
-                <Flame className="h-3 w-3 text-warning" />
-                {stats?.currentStreak ?? 0}j
-              </Badge>
-              <Badge variant="outline" className="gap-1 text-xs">
-                <Star className="h-3 w-3 text-warning" />
-                Niv. {stats?.level ?? 1}
-              </Badge>
-            </div>
-          )}
+          {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
         </div>
       </CardHeader>
       <CardContent className={`space-y-4 ${isMobile ? 'p-4' : ''}`}>

@@ -443,14 +443,7 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
               Parcours narré des compétences - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              {stats && (
-                <div className="flex items-center gap-1 px-2 py-0.5 bg-background/20 rounded-full text-xs text-background">
-                  <Flame className="h-3 w-3" />
-                  <span className="font-bold">{stats.currentStreak ?? 0}j</span>
-                  <Star className="h-3 w-3 ml-1" />
-                  <span className="font-bold">Nv.{stats.level ?? 1}</span>
-                </div>
-              )}
+              {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
               <Badge className="bg-background/20 text-background">
                 Chapitre {currentChapter + 1} / {chapters.length}
               </Badge>
@@ -533,7 +526,7 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
             <div className="flex items-center gap-2">
               {currentChap.competences && currentChap.competences.length > 0 && (
                 <Badge variant="outline">
-                  {currentChap.competences.length} compétences
+                  {currentChap.competences.length} {currentChap.competences.length > 1 ? 'compétences' : 'compétence'}
                 </Badge>
               )}
               <Badge className={getChapterColor(currentChap.type).replace('bg-', 'bg-').replace('border-', 'border-')}>

@@ -11,6 +11,7 @@ interface MusicCardProps {
   rang: 'A' | 'B';
   /** Libellé affiché (« A+B » pour la chanson combinée) ; défaut : le rang. */
   libelleRang?: string;
+  generationVerrouillee?: boolean;
   title: string;
   paroles: string;
   selectedStyle: string;
@@ -41,6 +42,7 @@ interface MusicCardProps {
 export const MusicCard = ({
   rang,
   libelleRang,
+  generationVerrouillee,
   title,
   paroles,
   selectedStyle,
@@ -97,6 +99,7 @@ export const MusicCard = ({
         <MusicCardActions
           rang={rang}
           libelleRang={libelleRang}
+          generationVerrouillee={generationVerrouillee}
           paroles={paroles}
           selectedStyle={selectedStyle}
           musicDuration={musicDuration}

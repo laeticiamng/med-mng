@@ -44,7 +44,7 @@ export const MusicLoadingIndicator = ({ rang, libelleRang, duration, isVisible }
               className={`h-3 mb-2`}
             />
             <p className={`text-sm ${textColor} opacity-80`}>
-              🎤 Génération avec Suno AI en cours...
+              🎤 Génération par IA en cours...
             </p>
             <p className={`text-xs ${textColor} opacity-60 mt-1`}>
               Cela peut prendre quelques minutes

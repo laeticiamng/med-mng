@@ -19,7 +19,7 @@ interface AIGeneratedBadgeProps {
 export const AIGeneratedBadge = ({ 
   type, 
   provider, 
-  model,
+  model: _model,
   className = '',
   variant = 'default'
 }: AIGeneratedBadgeProps) => {
@@ -40,12 +40,16 @@ export const AIGeneratedBadge = ({
   
   const getProviderInfo = () => {
     switch (type) {
+      // Le nom du fournisseur et du modèle n'est pas affiché à l'utilisateur
+      // (il figure dans la politique de confidentialité, liste des
+      // sous-traitants) ; les valeurs affichées ici étaient d'ailleurs
+      // périmées (« v4.5 Plus » alors que le serveur impose un autre modèle).
       case 'music':
-        return { provider: provider || 'Suno AI', model: model || 'v4.5 Plus', icon: '🎵' };
+        return { libelle: 'Musique générée par IA', icon: '🎵' };
       case 'image':
-        return { provider: provider || 'OpenAI DALL-E', model: model || '3', icon: '🎨' };
+        return { libelle: 'Image générée par IA', icon: '🎨' };
       case 'text':
-        return { provider: provider || 'OpenAI', model: model || 'GPT-4.1', icon: '✍️' };
+        return { libelle: 'Texte généré par IA', icon: '✍️' };
     }
   };
 
@@ -65,7 +69,7 @@ export const AIGeneratedBadge = ({
             <div className="space-y-1">
               <p className="font-semibold">Contenu généré par IA</p>
               <p className="text-xs">
-                {info.icon} Créé par <strong>{info.provider}</strong> {info.model && `(${info.model})`}
+                {info.icon} {info.libelle}
               </p>
               <p className="text-xs text-muted-foreground mt-2">
                 Ce contenu a été généré automatiquement par intelligence artificielle. 
@@ -93,11 +97,9 @@ export const AIGeneratedBadge = ({
                 <div className="space-y-2">
                   <p className="font-semibold text-sm">Conformité AI Act (UE 2024)</p>
                   <div className="text-xs space-y-1">
-                    <p><strong>Fournisseur :</strong> {info.provider}</p>
-                    {info.model && <p><strong>Modèle :</strong> {info.model}</p>}
                     <p className="mt-2 text-muted-foreground">
                       Ce contenu a été généré automatiquement par intelligence artificielle selon 
-                      l'Article 52 du Règlement IA européen. Il peut contenir des erreurs factuelles 
+                      l'article 50 du règlement européen sur l'IA. Il peut contenir des erreurs factuelles 
                       ou des imprécisions. Vérifiez toujours avec des sources officielles.
                     </p>
                   </div>
@@ -107,7 +109,7 @@ export const AIGeneratedBadge = ({
           </TooltipProvider>
         </div>
         <p className="text-xs text-muted-foreground">
-          {info.icon} {info.provider} {info.model && `• ${info.model}`}
+          {info.icon} {info.libelle}
         </p>
       </div>
     </div>

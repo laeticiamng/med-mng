@@ -13,6 +13,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdvancedParamsToggle } from './AdvancedParamsToggle';
 import { EdnItemSelector } from './EdnItemSelector';
+import { EncartGenerationAudio } from '@/components/offre/EncartGenerationAudio';
 import { KeyboardShortcutsHelp, useKeyboardShortcuts } from './KeyboardShortcuts';
 import { LyricsPreview } from './LyricsPreview';
 import { LyricsStatusDisplay } from './LyricsStatusDisplay';
@@ -95,6 +96,8 @@ interface GeneratorFormProps {
   user: any;
   /** Accès Premium effectif (abonnement ou administrateur) et quota non épuisé. */
   canGenerateMusic: () => boolean;
+  /** Connecté sans Med MNG Premium : encart permanent à la place du bouton « Générer ». */
+  generationReservee?: boolean;
 }
 
 export const GeneratorForm: React.FC<GeneratorFormProps> = ({
@@ -115,7 +118,8 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   resetForm,
   isGenerating,
   user,
-  canGenerateMusic
+  canGenerateMusic,
+  generationReservee = false
 }) => {
   const [advancedParams, setAdvancedParams] = useState<Partial<AdvancedSunoParams> | undefined>(undefined);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
@@ -224,7 +228,10 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
 
         {!user && <LoginPromptBanner />}
 
+        {generationReservee && <EncartGenerationAudio className="mt-4" />}
+
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
+          {!generationReservee && (
           <PremiumButton
             variant="primary"
             size="lg"
@@ -254,6 +261,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
               </>
             )}
           </PremiumButton>
+          )}
 
           <PremiumButton
             variant="secondary"

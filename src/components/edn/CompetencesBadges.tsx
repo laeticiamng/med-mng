@@ -230,16 +230,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
             {globalCompletion}% Complété
           </Badge>
         )}
-        {stats && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
-            <Flame className="h-4 w-4 text-warning" />
-            <span className="text-sm font-bold text-warning">{stats.currentStreak ?? 0}j</span>
-            <Star className="h-4 w-4 text-primary ml-1" />
-            <span className="text-sm font-bold text-primary">Nv.{stats.level ?? 1}</span>
-            <Trophy className="h-4 w-4 text-accent ml-1" />
-            <span className="text-sm font-bold text-accent">{Array.isArray(stats.badges) ? stats.badges.length : 0}</span>
-          </div>
-        )}
+        {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
       </div>
 
       {/* Badges détaillés par fonctionnalité */}
@@ -277,7 +268,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
           <div className="flex items-center justify-between text-sm">
             <span className="text-primary font-medium">Compétences Rang A:</span>
             <Badge variant="outline" className="text-primary border-primary/30">
-              {rangACount} compétences fondamentales
+              {rangACount} {rangACount > 1 ? 'compétences' : 'compétence'}
             </Badge>
           </div>
         )}
@@ -286,7 +277,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
           <div className="flex items-center justify-between text-sm">
             <span className="text-accent font-medium">Compétences Rang B:</span>
             <Badge variant="outline" className="text-accent border-accent/30">
-              {rangBCount} compétences expertes
+              {rangBCount} {rangBCount > 1 ? 'compétences' : 'compétence'}
             </Badge>
           </div>
         )}
@@ -294,7 +285,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
         <div className="flex items-center justify-between text-sm font-bold">
           <span className="text-foreground">Total Compétences:</span>
           <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
-            {rangACount + rangBCount} compétences UNESS
+            {rangACount + rangBCount} {rangACount + rangBCount > 1 ? 'compétences' : 'compétence'}
           </Badge>
         </div>
       </div>

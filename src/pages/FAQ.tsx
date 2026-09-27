@@ -75,9 +75,9 @@ const FAQ = () => {
                   Comment sont générées les chansons ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  En deux étapes. D'abord, l'IA (OpenAI GPT) rédige des paroles à partir des compétences
+                  En deux étapes. D'abord, une IA rédige des paroles à partir des compétences
                   rang A, rang B ou A+B de l'item : ces paroles sont disponibles pour les 367 items. Ensuite,
-                  si vous le souhaitez, vous générez l'audio depuis votre compte avec Suno AI, un générateur
+                  si vous le souhaitez, vous générez l'audio depuis votre compte avec un générateur
                   de musique par IA ; cette étape est incluse dans Med MNG Premium (30 générations par mois). Aucune piste audio n'est pré-enregistrée.
                 </AccordionContent>
               </AccordionItem>

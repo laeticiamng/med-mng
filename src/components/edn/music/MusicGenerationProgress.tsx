@@ -141,7 +141,7 @@ export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = (
           </div>
 
           <div className={`text-xs ${colorStyle.text} opacity-70 text-center`}>
-            🎵 Suno AI génère votre musique avec paroles chantées...
+            🎵 L'IA génère votre chanson...
           </div>
         </div>
       </CardContent>

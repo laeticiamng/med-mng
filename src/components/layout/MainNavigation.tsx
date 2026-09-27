@@ -203,26 +203,7 @@ export const MainNavigation: React.FC = () => {
               <GlobalSearchBar />
             </div>
             
-            {/* Série et niveau : calculés par useGamification à partir de
-                user_activity_log (jours consécutifs d'activité) et des points
-                de gamification_activities. Ils mènent à « Ma progression ». */}
-            {user && gamificationStats && (
-              <Link
-                to={ROUTE_PATHS.progressDashboard}
-                className="hidden md:flex items-center gap-1.5 sm:gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={`Série de ${serie} jour${serie > 1 ? 's' : ''} d'activité consécutif${serie > 1 ? 's' : ''}, niveau ${level} (${points} points). Voir ma progression`}
-                title={`Série : ${serie} jour${serie > 1 ? 's' : ''} d'activité consécutif${serie > 1 ? 's' : ''} · Niveau ${level} (${points} points)`}
-              >
-                <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs hover:bg-secondary">
-                  <Flame className="h-3 w-3 text-warning" aria-hidden="true" />
-                  {serie}
-                </Badge>
-                <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs hover:bg-secondary">
-                  <Trophy className="h-3 w-3 text-primary" aria-hidden="true" />
-                  Niv.{level}
-                </Badge>
-              </Link>
-            )}
+            {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
             
             <ThemeToggle />
             

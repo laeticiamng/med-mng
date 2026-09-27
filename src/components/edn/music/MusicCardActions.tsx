@@ -6,6 +6,8 @@ import { getCardStyling } from './utils/cardStyling';
 interface MusicCardActionsProps {
   rang: 'A' | 'B';
   libelleRang?: string;
+  /** Génération réservée (pas d'accès Premium, ou vérification en cours) : pas de bouton. */
+  generationVerrouillee?: boolean;
   paroles: string;
   selectedStyle: string;
   musicDuration: number;
@@ -17,6 +19,7 @@ interface MusicCardActionsProps {
 export const MusicCardActions = ({
   rang,
   libelleRang,
+  generationVerrouillee = false,
   paroles,
   selectedStyle,
   musicDuration,
@@ -28,6 +31,8 @@ export const MusicCardActions = ({
   const parolesArray = formatParoles(paroles);
   const hasValidParolesData = hasValidParoles(parolesArray);
   const isButtonDisabled = isGenerating || isClicked || !selectedStyle || !hasValidParolesData;
+
+  if (generationVerrouillee) return null;
 
   return (
     <>

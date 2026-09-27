@@ -321,28 +321,7 @@ const Generator = () => {
 
       <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
-          {afficherEncartPremium && (
-            <Alert className="mb-6 border-primary/30 bg-primary/5">
-              <Lock className="h-4 w-4 text-primary" />
-              <AlertTitle>Génération audio : {NOM_OFFRE_PREMIUM}</AlertTitle>
-              <AlertDescription className="space-y-3">
-                <p>
-                  {QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois et le contenu immersif des {NOMBRE_ITEMS_TOTAL} items
-                  (paroles, récits, planches, quiz) sont inclus dans {NOM_OFFRE_PREMIUM} :
-                  {' '}{FORMULES_PREMIUM.annuel.prixAffiche} ({FORMULES_PREMIUM.annuel.equivalentMensuel}) ou {FORMULES_PREMIUM.mensuel.prixAffiche}.
-                  Chaque chanson générée est sauvegardée dans votre bibliothèque.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild size="sm">
-                    <Link to={ROUTE_PATHS.medMngPricing}>Voir l'offre Premium</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to={ROUTE_PATHS.ednComplete}>Explorer les items EDN</Link>
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Sans Premium : l'encart remplace le bouton « Générer » dans le formulaire. */}
 
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1">
@@ -389,6 +368,7 @@ const Generator = () => {
             isGenerating={isGenerating}
             user={user}
             canGenerateMusic={() => peutGenererSelonQuota}
+            generationReservee={afficherEncartPremium}
           />
 
           <GenerationProgress

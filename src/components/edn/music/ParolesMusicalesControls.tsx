@@ -19,7 +19,7 @@ export const ParolesMusicalesControls: React.FC<ParolesMusicalesControlsProps> =
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label className="block text-sm font-medium mb-2">Style musical Suno :</label>
+        <label className="block text-sm font-medium mb-2">Style musical :</label>
         <Select value={selectedStyle} onValueChange={onStyleChange}>
           <SelectTrigger className="w-full">
             <SelectValue />

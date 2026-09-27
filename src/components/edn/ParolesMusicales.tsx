@@ -9,6 +9,7 @@ import { useAudioWithCache } from '@/hooks/useAudioWithCache';
 import { useGamification } from '@/hooks/useGamification';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
 import { QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { EncartGenerationAudio } from '@/components/offre/EncartGenerationAudio';
 import { supabase } from '@/integrations/supabase/client';
 import { Download, Flame, Music, Pause, Star, ThumbsDown, ThumbsUp, Volume2 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -127,6 +128,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     parolesRegenerees,
     musicQuota,
     aAccesGeneration,
+    chargementAcces,
+    connecte,
   } = useParolesMusicales(paroles, {
     paroles_rang_a, 
     paroles_rang_b, 
@@ -238,34 +241,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Gamification Banner */}
-      {gamificationStats && (
-        <Card className="bg-gradient-to-r from-warning/5 via-background to-primary/5 border-warning/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Music className="h-5 w-5 text-warning" />
-                  <span className="font-medium">Génération musicale</span>
-                </div>
-                <Badge variant="secondary">{musicCount} générées</Badge>
-              </div>
-              <div className="flex items-center gap-4">
-                <Badge variant="outline" className="gap-1">
-                  <Flame className="h-3 w-3 text-warning" />
-                  {gamificationStats?.currentStreak ?? 0} jours
-                </Badge>
-                <Badge variant="outline" className="gap-1">
-                  <Star className="h-3 w-3 text-primary" />
-                  Nv.{gamificationStats?.level ?? 1}
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Reward Animation */}
+      {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
       {/* Waveform visualization during generation */}
       {(isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB) && (
         <MusicGenerationWaveform 
@@ -279,13 +255,6 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         />
       )}
 
-      {showReward && (
-        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="animate-bounce bg-success text-success-foreground px-6 py-3 rounded-full text-lg font-bold shadow-xl">
-            🎵 +{POINTS_PAR_GENERATION} points !
-          </div>
-        </div>
-      )}
 
       <Card>
         <CardHeader>
@@ -296,7 +265,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                 Chanson de l'item {itemCode}
               </CardTitle>
               <CardDescription>
-                Paroles chantées par Suno (IA), générées à partir des compétences de l'item
+                Chanson générée par IA à partir des compétences de l'item
                 {aAccesGeneration && musicQuota && (
                   <span className="block mt-1">
                     Générations audio ce mois-ci : {musicQuota.current_usage} / {musicQuota.quota_limit || QUOTA_GENERATIONS_AUDIO_PREMIUM}
@@ -330,12 +299,17 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               />
             )}
 
-            <ParolesMusicalesControls
-              selectedStyle={selectedStyle}
-              musicDuration={musicDuration}
-              onStyleChange={setSelectedStyle}
-              onDurationChange={setMusicDuration}
-            />
+            {/* Sans Premium : encart permanent à la place des boutons, paroles lisibles. */}
+            {!chargementAcces && !aAccesGeneration && <EncartGenerationAudio connecte={connecte} />}
+
+            {aAccesGeneration && (
+              <ParolesMusicalesControls
+                selectedStyle={selectedStyle}
+                musicDuration={musicDuration}
+                onStyleChange={setSelectedStyle}
+                onDurationChange={setMusicDuration}
+              />
+            )}
 
             <ParolesMusicalesErrorSection lastError={lastError} />
 
@@ -348,6 +322,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                   ? [parolesA, parolesB]
                   : []
               }
+              generationVerrouillee={chargementAcces || !aAccesGeneration}
               parolesAB={parolesRegenerees.AB ?? (paroles_rang_ab?.length ? paroles_rang_ab : undefined)}
               itemCode={itemCode}
               musicDuration={musicDuration}

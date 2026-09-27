@@ -66,7 +66,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     id: '2',
     question: 'Comment générer une chanson médicale ?',
-    answer: 'Rendez-vous sur la page de génération musicale, sélectionnez un item EDN ou entrez un sujet médical. L\'IA Suno créera une chanson personnalisée avec paroles éducatives. Vous pouvez choisir le style musical et télécharger le résultat.',
+    answer: 'Rendez-vous sur la page de génération musicale, sélectionnez un item EDN ou entrez un sujet médical. Une chanson est générée par IA à partir des paroles de l\'item. Vous pouvez choisir le style musical et télécharger le résultat.',
     category: 'Musique',
     helpful: 89
   },

@@ -60,8 +60,8 @@ export const QuotaWarningBanner: React.FC<QuotaWarningBannerProps> = ({
       </AlertTitle>
       
       <AlertDescription className="text-xs mt-1">
-        {hasNoCredits && "Vous n'avez plus de crédits Suno. Rechargez pour continuer à générer."}
-        {hasLowCredits && !hasNoCredits && "Vos crédits Suno sont faibles. Pensez à recharger."}
+        {hasNoCredits && "La génération audio est momentanément indisponible. Réessayez plus tard."}
+        {hasLowCredits && !hasNoCredits && "La génération audio risque d'être momentanément indisponible."}
         {!hasNoCredits && !hasLowCredits && usagePercentage >= 95 && "Votre quota mensuel est presque épuisé."}
         {!hasNoCredits && !hasLowCredits && usagePercentage >= 80 && usagePercentage < 95 && "Vous avez utilisé plus de 80% de votre quota."}
         

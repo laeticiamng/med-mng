@@ -93,7 +93,7 @@ const CGV = () => {
               <p>Med MNG propose des abonnements donnant accès à :</p>
               <ul className="space-y-1 text-sm">
                 <li>- Contenu immersif des 367 items EDN : paroles de chanson (rang A, rang B, A+B), récit, planches et quiz</li>
-                <li>- Génération de l'audio de chansons pédagogiques par IA (paroles : OpenAI ; audio : Suno AI), dans la limite de 30 générations par mois</li>
+                <li>- Génération de l'audio de chansons pédagogiques par IA (prestataires listés dans la politique de confidentialité), dans la limite de 30 générations par mois</li>
                 <li>- Bibliothèque personnelle des chansons générées</li>
                 <li>- Restent accessibles sans abonnement : les fiches officielles des 367 items (compétences rang A et rang B), le contenu immersif complet de 10 items d'essai et les situations ECOS</li>
               </ul>

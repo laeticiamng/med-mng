@@ -101,7 +101,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                   <Flame className="h-5 w-5" />
                   <div>
                     <span className="text-2xl font-bold">{gamificationStats.currentStreak}</span>
-                    <span className="text-sm text-muted-foreground ml-1">jours</span>
+                    <span className="text-sm text-muted-foreground ml-1">{gamificationStats.currentStreak > 1 ? 'jours' : 'jour'}</span>
                   </div>
                 </div>
                 <div className="h-8 w-px bg-border" />
@@ -125,7 +125,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                   <Trophy className="h-5 w-5" />
                   <div>
                     <span className="text-2xl font-bold">{gamificationStats.badges.length}</span>
-                    <span className="text-sm text-muted-foreground ml-1">badges</span>
+                    <span className="text-sm text-muted-foreground ml-1">{gamificationStats.badges.length > 1 ? 'badges' : 'badge'}</span>
                   </div>
                 </div>
               </div>

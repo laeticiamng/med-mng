@@ -365,19 +365,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
           </Badge>
         </div>
 
-        {/* Gamification Stats */}
-        {stats && (
-          <div className="flex justify-center gap-4">
-            <Badge variant="outline" className="gap-1 text-sm">
-              <Flame className="h-4 w-4 text-warning" />
-              Série: {stats.currentStreak ?? 0} jours
-            </Badge>
-            <Badge variant="outline" className="gap-1 text-sm">
-              <Star className="h-4 w-4 text-primary" />
-              Niveau {stats.level ?? 1}
-            </Badge>
-          </div>
-        )}
+        {/* Série, niveau et badges : affichés seulement dans « Mon suivi » (progression), pas sur les pages de révision. */}
 
         {/* Detailed Results per Question */}
         <Card className="p-4 border-border">

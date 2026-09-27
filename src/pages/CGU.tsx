@@ -94,7 +94,7 @@ const CGU = () => {
                 <p className="font-semibold text-foreground mb-2">Services proposés :</p>
                 <ul className="space-y-1 text-sm">
                   <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel public UNESS/LiSA), quiz</li>
-                  <li>• Paroles de chansons pédagogiques générées par IA (OpenAI) et génération audio à la demande (Suno AI)</li>
+                  <li>• Paroles de chansons pédagogiques générées par IA et génération audio par IA à la demande (prestataires listés dans la politique de confidentialité)</li>
                   <li>• Récits et planches illustrées générés par IA (en cours de génération)</li>
                   <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
                   <li>• Bibliothèque personnelle de contenus</li>
@@ -314,7 +314,7 @@ const CGU = () => {
                 <h4 className="font-semibold text-destructive mb-2">⚠️ Limitations importantes :</h4>
                 <ul className="text-sm space-y-2">
                   <li>
-                    • <strong>Contenu IA :</strong> Les contenus générés par intelligence artificielle (OpenAI GPT, Suno AI) 
+                    • <strong>Contenu IA :</strong> Les contenus générés par intelligence artificielle 
                     peuvent contenir des erreurs factuelles, des imprécisions ou des informations obsolètes. EmotionsCare 
                     ne garantit pas l'exactitude médicale à 100%.
                   </li>
@@ -416,7 +416,7 @@ const CGU = () => {
               <div className="bg-warning/10 p-4 rounded-lg border border-warning/30">
                 <h4 className="font-semibold text-warning mb-2">⚠️ Important - Contenus non récupérables :</h4>
                 <p className="text-sm text-warning">
-                  Les chansons générées par Suno AI ne peuvent pas être téléchargées (streaming uniquement). 
+                  Les chansons générées par IA ne peuvent pas être téléchargées (streaming uniquement). 
                   Après résiliation, vous perdez l'accès à ces contenus. Nous vous recommandons d'exporter vos notes pédagogiques avant de résilier.
                 </p>
               </div>

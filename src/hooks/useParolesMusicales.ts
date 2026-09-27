@@ -233,6 +233,8 @@ export const useParolesMusicales = (
     parolesRegenerees,
     musicQuota,
     aAccesGeneration: isSubscriptionActive(),
+    chargementAcces: chargementAbonnement,
+    connecte: Boolean(user),
     seek,
     stop,
     changeVolume
