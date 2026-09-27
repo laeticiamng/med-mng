@@ -17,7 +17,7 @@ const PlatformSettings: React.FC = () => {
   return (
     <LanguageProvider>
       <Helmet>
-        <title>Configuration Plateforme - Med MNG Settings</title>
+        <title>Configuration de la plateforme · Med MNG</title>
         <meta name="description" content="Interface de configuration avancée et gestion des données de la plateforme médicale Med MNG avec export et backup." />
         <meta name="keywords" content="platform settings, data export, backup, configuration, medical platform administration" />
         <link rel="canonical" href="/platform-settings" />

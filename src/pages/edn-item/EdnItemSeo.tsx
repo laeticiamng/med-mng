@@ -15,7 +15,10 @@ export const EdnItemSeo: React.FC<{ segment: string }> = ({ segment }) => {
 
   return (
     <SEOHead
-      title={`${item.item_code} ${item.title} — ${onglet?.titreDocument ?? 'Item EDN'}`}
+      /* Titre d'onglet court : « IC-1 · Musique · Med MNG » ; l'aperçu porte l'intitulé de l'item. */
+      title={segment === 'apercu' || !onglet
+        ? `${item.item_code} ${item.title}`
+        : `${item.item_code} · ${onglet.titreDocument}`}
       description={`${item.item_code} — ${item.title}. ${onglet?.description ?? ''}`}
       keywords={`EDN, ${item.item_code}, ${item.title}, compétences OIC, UNESS${item.specialite ? `, ${item.specialite}` : ''}`}
       canonical={cheminItemEdn(slugCanonique, segment)}

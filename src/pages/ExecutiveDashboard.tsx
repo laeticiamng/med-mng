@@ -192,7 +192,7 @@ const ExecutiveDashboard: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Tableau de bord Dirigeant - Med MNG</title>
+        <title>Tableau de bord dirigeant · Med MNG</title>
         <meta name="description" content="Vue consolidée des performances, progression étudiants et utilisation de la plateforme Med MNG pour les responsables d'établissement." />
       </Helmet>
 

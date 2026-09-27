@@ -272,7 +272,7 @@ export default function ExamMode() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <Helmet>
-        <title>Mode Examen | Med MNG</title>
+        <title>Mode Examen · Med MNG</title>
         <meta name="description" content="Simulez un examen EDN avec questions chronométrées" />
       </Helmet>
 

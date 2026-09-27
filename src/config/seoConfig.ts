@@ -1,3 +1,4 @@
+import { TITRE_ACCUEIL } from '@/lib/titrePage';
 /**
  * SEO Configuration - Meta tags uniques par route
  * Chaque page a un title, description, keywords et structured data dédiés
@@ -17,7 +18,7 @@ const BASE_KEYWORDS = 'médecine, EDN, ECOS, apprentissage médical, musique, Me
 export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === HOME ===
   '/': {
-    title: 'Med MNG - Apprends la médecine en musique | EDN & ECOS',
+    title: TITRE_ACCUEIL,
     description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium. Situations ECOS guidées.',
     keywords: `${BASE_KEYWORDS}, révisions, mémorisation, étudiants médecine`,
     canonical: '/',
@@ -568,7 +569,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
     const segment = pathname.split('/').filter(Boolean)[2];
     const sousPage = segment ? SEO_SOUS_PAGES_ITEM_EDN[segment] : undefined;
     return {
-      title: sousPage ? `Item EDN — ${sousPage.titre}` : 'Item EDN',
+      title: sousPage ? `Item EDN · ${sousPage.titre}` : 'Item EDN',
       description: sousPage?.description
         ?? 'Détail d\'un item EDN avec cours musical, QCM et flashcards sur Med MNG.',
       keywords: `${BASE_KEYWORDS}, item EDN, cours, détail`,

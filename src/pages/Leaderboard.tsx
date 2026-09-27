@@ -128,7 +128,7 @@ const Leaderboard = () => {
   return (
     <>
       <Helmet>
-        <title>Classement | Med MNG</title>
+        <title>Classement · Med MNG</title>
         <meta name="description" content="Comparez vos performances avec la communauté Med MNG. Classement hebdomadaire, mensuel et général." />
         <meta name="keywords" content="classement, leaderboard, compétition, XP, médecine" />
         <link rel="canonical" href="/leaderboard" />

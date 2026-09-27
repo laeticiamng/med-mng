@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { titrePage } from '@/lib/titrePage';
 
 /**
  * SEOHead - Composant réutilisable pour le SEO
@@ -32,7 +33,7 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(({
   noindex = false,
 }, _ref) => {
   const siteUrl = 'https://medmng.com';
-  const fullTitle = `${title} - Med MNG`;
+  const fullTitle = titrePage(title);
   // Un canonical déjà absolu ne doit PAS être re-préfixé : sinon on obtenait
   // `https://medmng.comhttps://medmng.com/`, une URL invalide servie à Google
   // et aux aperçus sociaux (constaté en production le 18/09).

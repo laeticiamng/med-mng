@@ -132,7 +132,7 @@ const Statistics = () => {
   return (
     <>
       <Helmet>
-        <title>Mes Statistiques | Med MNG</title>
+        <title>Mes Statistiques · Med MNG</title>
         <meta name="description" content="Tableaux de bord et statistiques personnelles de la plateforme Med MNG" />
       </Helmet>
 

@@ -229,7 +229,7 @@ const UserSettings: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Paramètres Utilisateur - Med MNG</title>
+        <title>Paramètres Utilisateur · Med MNG</title>
         <meta name="description" content="Gérez vos paramètres personnels, notifications et préférences sur Med MNG." />
       </Helmet>
 
