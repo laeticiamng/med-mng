@@ -60,6 +60,12 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [competences, setCompetences] = useState<OicCompetence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Code d'item pour lequel `competences` fait foi (chargement réussi). Permet
+   * de distinguer « ce rang n'a aucune compétence » d'un état transitoire
+   * (changement d'item, chargement pas encore lancé, erreur).
+   */
+  const [codeCharge, setCodeCharge] = useState<string | null>(null);
   const fetchCountRef = useRef(0);
 
   const fetchData = useCallback(async (forceRefresh = false) => {
@@ -91,6 +97,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     if (!forceRefresh && competencesCache.has(cacheKey)) {
       const cached = competencesCache.get(cacheKey)!;
       setCompetences(cached);
+      setCodeCharge(itemCode);
       setLoading(false);
       setError(null);
       return;
@@ -98,6 +105,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     
     setLoading(true);
     setError(null);
+    setCodeCharge(null);
     
     const currentFetch = ++fetchCountRef.current;
 
@@ -149,6 +157,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       // Cache results
       competencesCache.set(cacheKey, realCompetences);
       setCompetences(realCompetences);
+      setCodeCharge(itemCode);
       setError(null);
       setLoading(false);
     } catch (err) {
@@ -170,5 +179,5 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     fetchData(true);
   }, [itemCode, rang, fetchData]);
 
-  return { competences, loading, error, refetch };
+  return { competences, loading, error, refetch, codeCharge };
 }

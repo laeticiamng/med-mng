@@ -6,7 +6,7 @@ import { useEdnItemComplet } from '@/hooks/useEdnItemComplet';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ContexteFicheItemEdn, type ValeurFicheItemEdn } from './EdnItemContext';
 import { useAccesPremium } from '@/hooks/useAccesPremium';
 import { EncartPremium } from '@/components/offre/EncartPremium';
@@ -53,8 +53,19 @@ export default function EdnItemLayout() {
   const { peutVoirItem, chargement: chargementAcces } = useAccesPremium();
 
   // Un seul chargement des compétences OIC pour les neuf sous-pages.
-  const { competences: competencesRangA, loading: chargementRangA } = useOicCompetences(item?.item_code || '', 'A');
-  const { competences: competencesRangB, loading: chargementRangB } = useOicCompetences(item?.item_code || '', 'B');
+  const { competences: competencesRangA, loading: chargementRangA, codeCharge: codeRangA } = useOicCompetences(item?.item_code || '', 'A');
+  const { competences: competencesRangB, loading: chargementRangB, codeCharge: codeRangB } = useOicCompetences(item?.item_code || '', 'B');
+  // « Aucune compétence » n'est établi que si le chargement a abouti pour CET item.
+  const rangAVide = Boolean(item?.item_code) && codeRangA === item?.item_code && competencesRangA.length === 0;
+  const rangBVide = Boolean(item?.item_code) && codeRangB === item?.item_code && competencesRangB.length === 0;
+
+  // Un rang sans aucune compétence officielle (ex. IC-1 n'a pas de rang B)
+  // n'a ni onglet ni contenu : on ne le propose pas.
+  const ongletsVisibles = useMemo(
+    () => ONGLETS_ITEM_EDN.filter((o) =>
+      !(o.segment === 'rang-a' && rangAVide) && !(o.segment === 'rang-b' && rangBVide)),
+    [rangAVide, rangBVide]
+  );
 
   const segmentCourant = useMemo(() => {
     const morceaux = location.pathname.split('/').filter(Boolean);
@@ -81,18 +92,18 @@ export default function EdnItemLayout() {
       }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
 
-      const index = ONGLETS_ITEM_EDN.findIndex((o) => o.segment === segmentCourant);
+      const index = ongletsVisibles.findIndex((o) => o.segment === segmentCourant);
       if (index < 0) return;
 
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         if (index > 0) {
           e.preventDefault();
-          allerAOnglet(ONGLETS_ITEM_EDN[index - 1].segment);
+          allerAOnglet(ongletsVisibles[index - 1].segment);
         }
       } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        if (index < ONGLETS_ITEM_EDN.length - 1) {
+        if (index < ongletsVisibles.length - 1) {
           e.preventDefault();
-          allerAOnglet(ONGLETS_ITEM_EDN[index + 1].segment);
+          allerAOnglet(ongletsVisibles[index + 1].segment);
         }
       } else if (e.key === 'Escape') {
         navigate('/edn-complete');
@@ -101,7 +112,7 @@ export default function EdnItemLayout() {
 
     window.addEventListener('keydown', surTouche);
     return () => window.removeEventListener('keydown', surTouche);
-  }, [segmentCourant, allerAOnglet, navigate]);
+  }, [segmentCourant, allerAOnglet, navigate, ongletsVisibles]);
 
   // Chaque sous-page repart en haut de page.
   useEffect(() => {
@@ -196,7 +207,7 @@ export default function EdnItemLayout() {
 
             {!isMobile && (
               <div className="flex gap-2 mt-4 flex-wrap">
-                {ONGLETS_ITEM_EDN.slice(1).map((onglet) => {
+                {ongletsVisibles.slice(1).map((onglet) => {
                   const Icone = onglet.icone;
                   return (
                     <Badge key={onglet.segment} className="bg-background/20 text-primary-foreground border-background/20">
@@ -215,7 +226,7 @@ export default function EdnItemLayout() {
         <nav aria-label="Sections de l'item" className="border-b bg-background/80 backdrop-blur-sm sticky top-16 z-30">
           <div className="container mx-auto overflow-x-auto hide-scrollbar">
             <div className={`flex ${isMobile ? 'gap-1 py-3 px-2 min-w-max' : 'gap-0'}`}>
-              {ONGLETS_ITEM_EDN.map((onglet) => {
+              {ongletsVisibles.map((onglet) => {
                 const Icone = onglet.icone;
                 return (
                   <NavLink
@@ -243,6 +254,10 @@ export default function EdnItemLayout() {
 
         <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 flex-1">
           {(() => {
+            // Lien direct vers un rang sans compétence : retour à l'aperçu.
+            if (!ongletsVisibles.some((o) => o.segment === segmentCourant) && ONGLETS_ITEM_EDN.some((o) => o.segment === segmentCourant)) {
+              return <Navigate to={cheminItemEdn(valeurContexte.slugUrl, SEGMENT_PAR_DEFAUT)} replace />;
+            }
             const contenuPremium = SEGMENTS_PREMIUM[segmentCourant];
             if (!contenuPremium) return <Outlet />;
 
