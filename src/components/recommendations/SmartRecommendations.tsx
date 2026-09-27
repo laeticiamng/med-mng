@@ -177,7 +177,7 @@ export const SmartRecommendations: React.FC = () => {
       addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
     }
     const slug = itemCode.toLowerCase().replace('ic-', 'ic-');
-    navigate(`/edn-complete/item/${slug}`);
+    navigate(`/edn-complete/${slug}`);
   };
 
   if (loading) {

@@ -52,7 +52,7 @@ export function AITutor({ itemContext }: AITutorProps) {
       throw new Error("Rate limited");
     }
     if (resp.status === 402) {
-      toast({ title: "Crédits insuffisants", description: "Rechargez vos crédits IA.", variant: "destructive" });
+      toast({ title: "Tuteur indisponible", description: "Le service est momentanément indisponible, réessayez plus tard.", variant: "destructive" });
       throw new Error("Payment required");
     }
     if (!resp.ok || !resp.body) throw new Error("Failed to start stream");

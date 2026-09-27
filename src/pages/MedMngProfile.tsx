@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useSubscription } from '@/hooks/useSubscription';
+import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -39,6 +41,12 @@ import { toast } from 'sonner';
 
 const MedMngProfileComponent = () => {
   const { user } = useAuth();
+  // Générations audio du mois (Med MNG Premium). Avant : « Crédits restants /
+  // utilisés », calculés sur un ancien quota IA et un total codé en dur (50).
+  const { musicQuota, isSubscriptionActive } = useSubscription();
+  const generationsRestantes = isSubscriptionActive() && musicQuota
+    ? Math.max(0, (musicQuota.quota_limit || QUOTA_GENERATIONS_AUDIO_PREMIUM) - musicQuota.current_usage)
+    : null;
   const medMngApi = useMedMngApi();
   const queryClient = useQueryClient();
   const { logActivity } = useActivityTracking();
@@ -82,10 +90,7 @@ const MedMngProfileComponent = () => {
     queryKey: ['user-stats', user?.id],
     queryFn: async () => {
       try {
-        const [library, quota] = await Promise.all([
-          medMngApi.getLibrary(1, 100),
-          medMngApi.getRemainingQuota(),
-        ]);
+        const library = await medMngApi.getLibrary(1, 100);
         
         // CONSTAT : la table 'favorites' n'existe pas dans le schéma Supabase.
         // La vraie table des favoris chansons Med MNG est 'med_mng_user_favorites'
@@ -98,8 +103,6 @@ const MedMngProfileComponent = () => {
         
         return {
           totalSongs: library.length || 0,
-          creditsUsed: 50 - (quota?.remaining_credits || 0),
-          creditsRemaining: quota?.remaining_credits || 0,
           favoritesCount: favoritesCount || 0,
           joinDate: profile?.created_at,
         };
@@ -107,8 +110,6 @@ const MedMngProfileComponent = () => {
         if (import.meta.env.DEV) console.error('Error fetching stats:', err);
         return {
           totalSongs: 0,
-          creditsUsed: 0,
-          creditsRemaining: 0,
           favoritesCount: 0,
           joinDate: new Date().toISOString(),
         };
@@ -303,8 +304,10 @@ const MedMngProfileComponent = () => {
                   <TrendingUp className="h-6 w-6 text-success" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{stats?.creditsRemaining || 0}</p>
-                  <p className="text-sm text-muted-foreground">Crédits restants</p>
+                  <p className="text-2xl font-bold text-foreground">{generationsRestantes ?? '—'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {generationsRestantes !== null ? 'Générations audio restantes ce mois-ci' : `Génération audio : ${NOM_OFFRE_PREMIUM}`}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -317,8 +320,8 @@ const MedMngProfileComponent = () => {
                   <Activity className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{stats?.creditsUsed || 0}</p>
-                  <p className="text-sm text-muted-foreground">Crédits utilisés</p>
+                  <p className="text-2xl font-bold text-foreground">{musicQuota?.current_usage ?? 0}</p>
+                  <p className="text-sm text-muted-foreground">Générations audio ce mois-ci</p>
                 </div>
               </div>
             </CardContent>

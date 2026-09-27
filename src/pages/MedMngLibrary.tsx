@@ -13,12 +13,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useLibraryRealtime } from '@/hooks/useLibraryRealtime';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, ArrowUpDown, BarChart3, CheckSquare, FileDown, Flame, Heart, LayoutGrid, List, ListMusic, Music, PlayCircle, Plus, Trophy } from 'lucide-react';
@@ -95,16 +97,13 @@ const MedMngLibraryComponent = () => {
     }
   }, [isLoading]);
 
-  const { data: quota } = useQuery({
-    queryKey: ['med-mng-quota'],
-    queryFn: async () => {
-      try {
-        return await medMngApi.getRemainingQuota();
-      } catch {
-        return { remaining_credits: 0 };
-      }
-    },
-  });
+  // Générations audio du mois (Med MNG Premium, même décompte que le serveur).
+  // Avant : un compteur « Crédits » alimenté par l'ancien quota IA, sans
+  // rapport avec l'offre (30 générations audio par mois).
+  const { musicQuota, isSubscriptionActive } = useSubscription();
+  const generationsRestantes = isSubscriptionActive() && musicQuota
+    ? Math.max(0, (musicQuota.quota_limit || QUOTA_GENERATIONS_AUDIO_PREMIUM) - musicQuota.current_usage)
+    : null;
 
   // Hook temps réel pour les mises à jour automatiques
   useLibraryRealtime({
@@ -353,15 +352,17 @@ const MedMngLibraryComponent = () => {
                 </Badge>
               </div>
             )}
-            {/* Crédits */}
-            <div className="text-right shrink-0">
-              <div className="bg-card rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 shadow-sm">
-                <TranslatedText text="Crédits" className="text-xs text-muted-foreground hidden sm:block" />
-                <div className="text-base sm:text-lg md:text-2xl font-bold text-primary">
-                  {quota?.remaining_credits || 0}
+            {/* Générations audio restantes ce mois-ci (Premium) */}
+            {generationsRestantes !== null && (
+              <div className="text-right shrink-0">
+                <div className="bg-card rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 shadow-sm">
+                  <TranslatedText text="Générations restantes ce mois-ci" className="text-xs text-muted-foreground hidden sm:block" />
+                  <div className="text-base sm:text-lg md:text-2xl font-bold text-primary">
+                    {generationsRestantes} / {musicQuota?.quota_limit || QUOTA_GENERATIONS_AUDIO_PREMIUM}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

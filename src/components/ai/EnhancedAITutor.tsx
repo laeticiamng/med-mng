@@ -210,7 +210,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       throw new Error("Rate limited");
     }
     if (resp.status === 402) {
-      toast({ title: "Crédits insuffisants", description: "Rechargez vos crédits IA.", variant: "destructive" });
+      toast({ title: "Tuteur indisponible", description: "Le service est momentanément indisponible, réessayez plus tard.", variant: "destructive" });
       throw new Error("Payment required");
     }
     if (!resp.ok || !resp.body) throw new Error("Failed to start stream");
@@ -341,6 +341,11 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error('AI Tutor error:', error);
+      // 429 et 402 ont déjà leur message ; les autres échecs restaient muets.
+      const deja = error instanceof Error && (error.message === 'Rate limited' || error.message === 'Payment required');
+      if (!deja) {
+        toast({ title: "Tuteur indisponible", description: "La réponse n'a pas pu être obtenue. Réessayez dans un instant.", variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }

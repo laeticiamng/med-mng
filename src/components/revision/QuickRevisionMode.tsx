@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { CheckCircle2, XCircle, Music, Brain, ArrowRight, RotateCcw, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 
 interface QuickRevisionItem {
   item_code: string;
@@ -166,7 +167,7 @@ export const QuickRevisionMode = () => {
                     🎵 Les paroles et l'audio de la chanson de cet item sont disponibles sur sa fiche (onglet Musique).
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    L'audio se génère à la demande depuis votre compte (crédits).
+                    La génération audio est incluse dans Med MNG Premium ({QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).
                   </p>
                 </div>
 
