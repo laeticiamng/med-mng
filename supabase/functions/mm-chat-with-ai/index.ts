@@ -55,7 +55,7 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Une erreur est survenue lors du traitement de votre demande.' 
+        error: (error instanceof Error ? error.message : String(error)) || 'Une erreur est survenue lors du traitement de votre demande.' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

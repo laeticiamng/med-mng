@@ -147,7 +147,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
           return errorResponse(502, ApiErrorCode.UPSTREAM_ERROR, 'Service audio indisponible');
         }
 
-        const responseHeaders = {
+        const responseHeaders: Record<string, string> = {
           ...corsHeaders,
           ...securityHeaders,
           'Content-Type': 'audio/mpeg',
@@ -170,7 +170,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
         });
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        if (fetchError.name === 'AbortError') {
+        if ((fetchError instanceof Error ? fetchError.name : undefined) === 'AbortError') {
           log('error', 'Song streaming timeout', { songId });
           return errorResponse(504, ApiErrorCode.STREAM_TIMEOUT, 'Timeout lors du streaming audio');
         }

@@ -63,7 +63,7 @@ serve(async (req) => {
 
     // Limiter à 4 compétences max par appel pour éviter les timeouts
     const MAX_COMPETENCES_PER_CALL = 4;
-    const competencesToProcess = allMissingCompetences.slice(0, MAX_COMPETENCES_PER_CALL);
+    let competencesToProcess = allMissingCompetences.slice(0, MAX_COMPETENCES_PER_CALL);
     const hasMore = allMissingCompetences.length > MAX_COMPETENCES_PER_CALL;
 
     console.log(`📋 Found ${allMissingCompetences.length} competences to complete`);

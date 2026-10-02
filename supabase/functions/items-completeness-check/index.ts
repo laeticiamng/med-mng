@@ -69,7 +69,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Erreur vérification complétude:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: (error instanceof Error ? error.message : String(error)),
       type: 'completeness_check_error'
     }), {
       status: 500,

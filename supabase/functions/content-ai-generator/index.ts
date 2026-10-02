@@ -56,7 +56,7 @@ serve(async (req) => {
 
     if (existingContent && !regenerate) {
       console.log('📚 Contenu existant trouvé, pas de régénération');
-      const fieldMap = {
+      const fieldMap: Record<string, string> = {
         comic: 'comic_panels',
         novel: 'novel_text', 
         poem: 'poem_text'

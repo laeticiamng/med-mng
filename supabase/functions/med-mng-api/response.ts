@@ -18,7 +18,7 @@ export function errorResponse(status: number, error: string, message: string, de
     code: status,    // Code HTTP standard
     message,         // Message lisible
     timestamp: new Date().toISOString(),
-    path: globalThis.currentPath || 'unknown'  // Pour debug
+    path: (globalThis as any).currentPath || 'unknown'  // Pour debug
   };
   
   if (details) {

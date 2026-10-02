@@ -163,11 +163,11 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     }
 
   } catch (error) {
-    console.error('[AUTH] ❌ Erreur:', error.message)
+    console.error('[AUTH] ❌ Erreur:', (error instanceof Error ? error.message : String(error)))
     return {
       success: false,
       cookies: '',
-      error: error.message,
+      error: (error instanceof Error ? error.message : String(error)),
       debugInfo
     }
   }

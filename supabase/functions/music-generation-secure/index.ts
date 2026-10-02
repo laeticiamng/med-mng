@@ -234,7 +234,7 @@ serve(async (req) => {
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Music generation failed',
+      error: (error instanceof Error ? error.message : String(error)) || 'Music generation failed',
       details: 'Please try again or contact support if the problem persists'
     }), {
       status: 500,

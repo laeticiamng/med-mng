@@ -266,7 +266,7 @@ serve(async (req) => {
     console.error('❌ Error in items-completeness-api:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Une erreur interne est survenue'
+      error: (error instanceof Error ? error.message : String(error)) || 'Une erreur interne est survenue'
     }), {
       status: 500,
       headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }

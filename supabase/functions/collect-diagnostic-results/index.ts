@@ -80,10 +80,10 @@ serve(async (req) => {
     });
     
   } catch (error) {
-    logs.push(`💥 Erreur critique: ${error.message}`);
+    logs.push(`💥 Erreur critique: ${(error instanceof Error ? error.message : String(error))}`);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: (error instanceof Error ? error.message : String(error)),
       logs: logs
     }), {
       status: 500,

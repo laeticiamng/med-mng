@@ -82,7 +82,9 @@ serve(async (req) => {
       });
     }
 
-    const song = userSong.med_mng_songs;
+    const song = userSong.med_mng_songs as unknown as {
+      id: any; title: any; suno_audio_id: any; meta: any; lyrics: any;
+    };
 
     // Vérifier si les paroles sont déjà en cache
     let lyrics = song.lyrics;
@@ -204,7 +206,7 @@ serve(async (req) => {
     console.error('Lyrics sync manager error:', error);
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      details: error.message 
+      details: (error instanceof Error ? error.message : String(error)) 
     }), {
       status: 500,
       headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }

@@ -360,8 +360,8 @@ async function handleValidation(req: Request): Promise<Response> {
     // Basic validation logic (would be more sophisticated in real implementation)
     const validationResult = {
       valid: true,
-      errors: [],
-      warnings: [],
+      errors: [] as string[],
+      warnings: [] as string[],
       endpoint,
       method,
       timestamp: new Date().toISOString()

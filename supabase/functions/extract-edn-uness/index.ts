@@ -36,7 +36,7 @@ interface SessionStorage {
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
 // Récupération des secrets UNESS
 const UNESS_EMAIL = Deno.env.get('UNESS_EMAIL')
@@ -345,7 +345,7 @@ async function authenticateUNESS(username: string, password: string, existingSes
     console.error('❌ Erreur authentification:', error)
     return {
       success: false,
-      error: error.message,
+      error: (error instanceof Error ? error.message : String(error)),
       sessionData: null
     }
   }
@@ -391,7 +391,7 @@ async function followRedirectionToLisa(cookies: Map<string, string>, userAgent: 
     
     return { success: false, error: 'Accès LiSA refusé' }
   } catch (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) }
   }
 }
 
@@ -488,8 +488,8 @@ async function extractCompletEdnItems(
           totalProcessed++
           
         } catch (itemError) {
-          console.error(`❌ Erreur item ${item.numero}:`, itemError.message)
-          errors.push(`Item ${item.numero}: ${itemError.message}`)
+          console.error(`❌ Erreur item ${item.numero}:`, (itemError instanceof Error ? itemError.message : String(itemError)))
+          errors.push(`Item ${item.numero}: ${(itemError instanceof Error ? itemError.message : String(itemError))}`)
           totalErrors++
         }
         
@@ -521,7 +521,7 @@ async function extractCompletEdnItems(
       totalErrors: totalErrors + 1,
       itemsWithPrintableVersion,
       extractedItems,
-      errors: [...errors, `Erreur critique: ${error.message}`]
+      errors: [...errors, `Erreur critique: ${(error instanceof Error ? error.message : String(error))}`]
     }
   }
 }
@@ -628,7 +628,7 @@ async function extractItemsFromHTML(html: string, cookies: string) {
   }
   
   // Extraire tous les liens vers les items
-  const itemLinks = []
+  const itemLinks: { url: string; title: string }[] = []
   
   // Chercher dans les catégories MediaWiki
   console.log('🔍 Recherche des items dans les catégories...')
@@ -670,7 +670,7 @@ async function extractItemsFromHTML(html: string, cookies: string) {
     console.log('⚠️ Aucun item trouvé, vérification du contenu HTML...')
     
     // Debug: afficher les premiers éléments trouvés
-    const debugInfo = []
+    const debugInfo: { text: string; href: string | undefined }[] = []
     $('a').slice(0, 10).each((i, elem) => {
       debugInfo.push({
         text: $(elem).text().trim(),
@@ -756,7 +756,7 @@ async function extractItemsFromHTML(html: string, cookies: string) {
       }
       
       // Extraire les compétences
-      const competences = extractCompetences($final, finalHtml)
+      const competences = extractCompetencesAdvanced(finalHtml)
       
       console.log(`✅ Item ${itemNumber}: ${competences.rang_a.length} rang A, ${competences.rang_b.length} rang B`)
       
@@ -769,7 +769,7 @@ async function extractItemsFromHTML(html: string, cookies: string) {
       })
       
     } catch (itemError) {
-      console.error(`❌ Erreur item ${item.title}:`, itemError.message)
+      console.error(`❌ Erreur item ${item.title}:`, (itemError instanceof Error ? itemError.message : String(itemError)))
     }
     
     // Pause entre les requêtes
@@ -928,7 +928,7 @@ async function extractSingleItem(item: {numero: number, titre: string, url: stri
     }
     
   } catch (error) {
-    console.error(`❌ Erreur extraction item ${item.numero}:`, error.message)
+    console.error(`❌ Erreur extraction item ${item.numero}:`, (error instanceof Error ? error.message : String(error)))
     return null
   }
 }

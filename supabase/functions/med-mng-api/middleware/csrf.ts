@@ -154,7 +154,7 @@ function cleanCacheIfNeeded(): void {
 }
 
 // Clean expired tokens from database (background task)
-async function cleanExpiredTokensFromDB(supabase: ReturnType<typeof createClient>): Promise<void> {
+async function cleanExpiredTokensFromDB(supabase: any): Promise<void> {
   try {
     const { error, count } = await supabase
       .from('csrf_tokens')

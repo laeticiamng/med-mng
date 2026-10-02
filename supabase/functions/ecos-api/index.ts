@@ -104,7 +104,7 @@ serve(async (req) => {
 
       const allCompetences = new Set();
       situations?.forEach(situation => {
-        situation.competences_associees?.forEach(comp => allCompetences.add(comp));
+        situation.competences_associees?.forEach((comp: any) => allCompetences.add(comp));
       });
 
       return new Response(JSON.stringify({
@@ -133,7 +133,7 @@ serve(async (req) => {
 
       situations.forEach(situation => {
         if (situation.competences_associees) {
-          situation.competences_associees.forEach(comp => {
+          situation.competences_associees.forEach((comp: any) => {
             competenceStats.set(comp, (competenceStats.get(comp) || 0) + 1);
             totalCompetences++;
           });
@@ -189,7 +189,7 @@ serve(async (req) => {
 
       // Recherche par mots-clés
       if (keywords && keywords.length > 0) {
-        const keywordFilters = keywords.map(keyword => 
+        const keywordFilters = keywords.map((keyword: any) => 
           `intitule_sd.ilike.%${keyword}%, contenu_complet_html.ilike.%${keyword}%`
         ).join(',');
         query = query.or(keywordFilters);
@@ -245,7 +245,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in ecos-api:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error instanceof Error ? error.message : String(error)) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

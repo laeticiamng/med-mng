@@ -151,7 +151,7 @@ serve(async (req) => {
       total: 10,
       cached: false,
       fallback: true,
-      error: error.message
+      error: (error instanceof Error ? error.message : String(error))
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

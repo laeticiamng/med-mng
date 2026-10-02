@@ -97,10 +97,10 @@ async function getDataCompleteness(supabase: any) {
 
     const ednStats = {
       total: ednItems.length,
-      with_rang_a: ednItems.filter(item => item.tableau_rang_a).length,
-      with_rang_b: ednItems.filter(item => item.tableau_rang_b).length,
-      with_quiz: ednItems.filter(item => avecQuiz.has(item.item_code)).length,
-      with_scene: ednItems.filter(item => item.scene_immersive).length
+      with_rang_a: ednItems.filter((item: any) => item.tableau_rang_a).length,
+      with_rang_b: ednItems.filter((item: any) => item.tableau_rang_b).length,
+      with_quiz: ednItems.filter((item: any) => avecQuiz.has(item.item_code)).length,
+      with_scene: ednItems.filter((item: any) => item.scene_immersive).length
     };
 
     // Check OIC competences
@@ -113,9 +113,9 @@ async function getDataCompleteness(supabase: any) {
 
     const oicStats = {
       total: oicData.length,
-      rang_a: oicData.filter(comp => comp.rang === 'A').length,
-      rang_b: oicData.filter(comp => comp.rang === 'B').length,
-      unique_items: [...new Set(oicData.map(comp => comp.item_parent))].length
+      rang_a: oicData.filter((comp: any) => comp.rang === 'A').length,
+      rang_b: oicData.filter((comp: any) => comp.rang === 'B').length,
+      unique_items: [...new Set(oicData.map((comp: any) => comp.item_parent))].length
     };
 
     return {
@@ -123,7 +123,7 @@ async function getDataCompleteness(supabase: any) {
       edn_items: ednStats,
       oic_competences: oicStats,
       completeness_score: calculateCompletenessScore(ednStats, oicStats),
-      gaps: identifyDataGaps(ednItems.map(item => ({ ...item, a_quiz: avecQuiz.has(item.item_code) })), oicData)
+      gaps: identifyDataGaps(ednItems.map((item: any) => ({ ...item, a_quiz: avecQuiz.has(item.item_code) })), oicData)
     };
   } catch (error) {
     throw error;
@@ -157,9 +157,9 @@ function calculateCompletenessScore(ednStats: any, oicStats: any): number {
 function identifyDataGaps(ednItems: any[], oicData: any[]): string[] {
   const gaps: string[] = [];
   
-  const itemsWithoutRangA = ednItems.filter(item => !item.tableau_rang_a);
-  const itemsWithoutRangB = ednItems.filter(item => !item.tableau_rang_b);
-  const itemsWithoutQuiz = ednItems.filter(item => !item.a_quiz);
+  const itemsWithoutRangA = ednItems.filter((item: any) => !item.tableau_rang_a);
+  const itemsWithoutRangB = ednItems.filter((item: any) => !item.tableau_rang_b);
+  const itemsWithoutQuiz = ednItems.filter((item: any) => !item.a_quiz);
   
   if (itemsWithoutRangA.length > 0) {
     gaps.push(`${itemsWithoutRangA.length} items missing Rang A content`);

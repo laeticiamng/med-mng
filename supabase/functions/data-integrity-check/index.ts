@@ -167,7 +167,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         error: 'Erreur lors du check d\'intégrité',
-        details: error.message
+        details: (error instanceof Error ? error.message : String(error))
       }),
       {
         status: 500,
@@ -216,7 +216,7 @@ async function performTableCheck(supabase: any, tableName: string): Promise<Chec
       type: 'check_failed',
       severity: 'critical',
       count: 1,
-      description: `Échec du check pour ${tableName}: ${error.message}`
+      description: `Échec du check pour ${tableName}: ${(error instanceof Error ? error.message : String(error))}`
     });
   }
 

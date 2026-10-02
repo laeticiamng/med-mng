@@ -98,7 +98,7 @@ serve(async (req) => {
         } = await req.json();
 
         const actualCreditsRequired = credits_required || 
-          CREDITS_COST[service_type as keyof typeof CREDITS_COST]?.[operation_type as any] || 
+          (CREDITS_COST[service_type as keyof typeof CREDITS_COST] as Record<string, number> | undefined)?.[operation_type] || 
           CREDITS_COST.other.default;
 
         const { data: currentQuota, error: quotaError } = await supabase.rpc('med_mng_get_remaining_quota');
@@ -137,7 +137,7 @@ serve(async (req) => {
         } = await req.json();
 
         const actualCreditsToUse = credits_to_use || 
-          CREDITS_COST[service_type as keyof typeof CREDITS_COST]?.[operation_type as any] || 
+          (CREDITS_COST[service_type as keyof typeof CREDITS_COST] as Record<string, number> | undefined)?.[operation_type] || 
           CREDITS_COST.other.default;
 
         const { data: result, error } = await supabase.rpc('med_mng_decrement_quota', {

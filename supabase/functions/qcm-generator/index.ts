@@ -292,7 +292,7 @@ Critères:
       }
 
       // Create prompt for error song
-      const errorConcepts = incorrect_responses.map(r => ({
+      const errorConcepts = incorrect_responses.map((r: any) => ({
         concept: r.medical_concept,
         question: r.question_text,
         correct_answer: r.correct_answer,
@@ -303,7 +303,7 @@ Critères:
       const songPrompt = `Crée une chanson pédagogique pour mémoriser les erreurs du QCM sur l'item ${session.item_code}.
 
 Erreurs à corriger:
-${errorConcepts.map((error, i) => `
+${errorConcepts.map((error: any, i: number) => `
 ${i + 1}. Concept: ${error.concept}
 Question: ${error.question}
 Bonne réponse: ${error.correct_answer}
@@ -431,7 +431,7 @@ Format de réponse JSON:
 
   } catch (error) {
     console.error('Error in qcm-generator:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error instanceof Error ? error.message : String(error)) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

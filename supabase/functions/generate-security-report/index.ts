@@ -81,8 +81,8 @@ serve(async (req) => {
 
 function generateHTMLReport(
   metrics: any,
-  alerts: any[],
-  historical: any[]
+  alerts: any[] | null,
+  historical: any[] | null
 ): string {
   const date = new Date().toLocaleDateString("fr-FR");
   const criticalAlerts = alerts?.filter(a => a.severity === "critical").length || 0;
@@ -233,7 +233,7 @@ function getScoreGrade(score: number): string {
   return "F";
 }
 
-function generateRecommendations(metrics: any, alerts: any[]): string[] {
+function generateRecommendations(metrics: any, alerts: any[] | null): string[] {
   const recommendations: string[] = [];
 
   if (metrics?.security_score < 90) {

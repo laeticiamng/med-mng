@@ -196,7 +196,7 @@ IMPORTANT: Utilise des titres courts et concis pour les compétences, évite les
         
       } catch (parseError) {
         console.error('❌ Failed to parse AI response');
-        console.error('Parse error:', parseError.message);
+        console.error('Parse error:', (parseError instanceof Error ? parseError.message : String(parseError)));
         console.error('Full AI response:', aiContent);
         
         // Retourner une analyse par défaut en cas d'erreur
@@ -211,7 +211,7 @@ IMPORTANT: Utilise des titres courts et concis pour les compétences, évite les
           incomplete_rang_a: [],
           incomplete_rang_b: [],
           competence_details: [],
-          suggestions: `Erreur de parsing: ${parseError.message}. Contenu tronqué ou invalide.`
+          suggestions: `Erreur de parsing: ${(parseError instanceof Error ? parseError.message : String(parseError))}. Contenu tronqué ou invalide.`
         };
       }
 

@@ -68,7 +68,7 @@ serve(async (req) => {
         code: 500,
         message: 'Error handling service failed',
         timestamp: new Date().toISOString(),
-        details: error.message 
+        details: (error instanceof Error ? error.message : String(error)) 
       }),
       { 
         status: 500,
@@ -198,8 +198,8 @@ async function trackErrorPattern(error: any, context: any, supabase: any) {
     .limit(20);
 
   const errorCount = recentErrors?.length || 0;
-  const uniqueUsers = new Set(recentErrors?.map(e => e.user_id).filter(Boolean)).size;
-  const uniqueUrls = new Set(recentErrors?.map(e => e.metadata?.page).filter(Boolean)).size;
+  const uniqueUsers = new Set(recentErrors?.map((e: any) => e.user_id).filter(Boolean)).size;
+  const uniqueUrls = new Set(recentErrors?.map((e: any) => e.metadata?.page).filter(Boolean)).size;
 
   // Pattern detection thresholds
   const isPattern = (
@@ -322,7 +322,7 @@ async function handleErrorNotifications(error: any, context: any, errorId: strin
 }
 
 async function sendExternalAlerts(error: any, context: any, errorId: string) {
-  const alerts = [];
+  const alerts: any[] = [];
 
   // Only send external alerts for critical errors or system failures
   if (error.severity !== 'critical' && error.category !== 'system') {
@@ -385,7 +385,7 @@ function getUserFriendlyErrorMessage(error: any): string {
   }
 }
 
-async function getErrorPatterns(supabase: any, timeframe: string, category?: string, severity?: string) {
+async function getErrorPatterns(supabase: any, timeframe: string, category?: string | null, severity?: string | null) {
   const timeframeMs = parseTimeframe(timeframe);
   const since = new Date(Date.now() - timeframeMs).toISOString();
 
@@ -428,9 +428,9 @@ async function getErrorStats(supabase: any, timeframe: string) {
 
   const stats = {
     total: data.length,
-    by_category: {},
-    by_severity: {},
-    by_hour: {}
+    by_category: {} as Record<string, number>,
+    by_severity: {} as Record<string, number>,
+    by_hour: {} as Record<number, number>
   };
 
   data.forEach((log: any) => {
@@ -451,7 +451,7 @@ async function getErrorStats(supabase: any, timeframe: string) {
   );
 }
 
-async function getRecentErrors(supabase: any, timeframe: string, category?: string, severity?: string) {
+async function getRecentErrors(supabase: any, timeframe: string, category?: string | null, severity?: string | null) {
   const timeframeMs = parseTimeframe(timeframe);
   const since = new Date(Date.now() - timeframeMs).toISOString();
 

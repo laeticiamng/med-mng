@@ -185,7 +185,7 @@ async function generateAuditReport(supabase: any) {
         total_errors: errorLogs?.length || 0,
         total_activities: userActivities?.length || 0,
         total_operations: operationLogs?.length || 0,
-        active_users: [...new Set(userActivities?.map(a => a.user_id) || [])].length
+        active_users: [...new Set(userActivities?.map((a: any) => a.user_id) || [])].length
       },
       error_analysis: errorStats,
       activity_analysis: activityStats,
@@ -221,11 +221,11 @@ function analyzeUserActivity(activities: any[]) {
     return acc;
   }, {});
 
-  const dailyActivity = activities.reduce((acc, activity) => {
+  const dailyActivity = activities.reduce((acc: Record<string, number>, activity: any) => {
     const date = activity.timestamp.split('T')[0];
     acc[date] = (acc[date] || 0) + 1;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 
   return {
     total: activities.length,

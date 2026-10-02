@@ -109,14 +109,14 @@ function analyzeUserActivity(data: any[]) {
   const totalEvents = data.length;
   
   // Calculer les sessions par utilisateur
-  const userSessions = data.reduce((acc, d) => {
+  const userSessions = data.reduce((acc: Record<string, number>, d) => {
     const userId = d.user_id || 'anonymous';
     acc[userId] = (acc[userId] || 0) + 1;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 
   const uniqueUsers = Object.keys(userSessions).length;
-  const returningUsers = Object.values(userSessions).filter((count: number) => count > 1).length;
+  const returningUsers = Object.values(userSessions).filter((count) => count > 1).length;
   const newUsers = uniqueUsers - returningUsers;
   
   // Simuler durée moyenne de session

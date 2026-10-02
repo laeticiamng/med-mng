@@ -55,8 +55,8 @@ serve(async (req) => {
   } catch (error) {
     console.error("❌ Erreur extraction ECOS:", error);
     return new Response(JSON.stringify({ 
-      error: error.message,
-      details: error.stack 
+      error: (error instanceof Error ? error.message : String(error)),
+      details: (error instanceof Error ? error.stack : undefined) 
     }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -142,7 +142,7 @@ async function extractEcosSituations(supabase: any, username: string, password: 
       totalErrors++;
       
       // En cas d'erreur de session, tenter une reconnexion
-      if (error.message.includes('session') || error.message.includes('401')) {
+      if ((error instanceof Error ? error.message : String(error)).includes('session') || (error instanceof Error ? error.message : String(error)).includes('401')) {
         console.log("🔄 Tentative de reconnexion CAS...");
         try {
           const newSessionCookies = await authenticateCAS(username, password);

@@ -51,14 +51,14 @@ serve(async (req) => {
     console.log(`✅ Chargé ${allOicCompetences.length} compétences OIC depuis backup_oic_competences`);
 
     // 2. Créer un index par item_parent et rang
-    const oicByItemAndRang = new Map();
+    const oicByItemAndRang = new Map<string, any[]>();
     
     for (const comp of allOicCompetences) {
       const key = `${comp.item_parent}_${comp.rang}`;
       if (!oicByItemAndRang.has(key)) {
         oicByItemAndRang.set(key, []);
       }
-      oicByItemAndRang.get(key).push(comp);
+      oicByItemAndRang.get(key)!.push(comp);
     }
 
     console.log(`📊 Index créé avec ${oicByItemAndRang.size} groupes`);
@@ -241,7 +241,7 @@ Réponds en JSON:
             }
           }
         } catch (aiError) {
-          console.error(`❌ Erreur IA pour ${result.item_code}:`, aiError.message);
+          console.error(`❌ Erreur IA pour ${result.item_code}:`, (aiError instanceof Error ? aiError.message : String(aiError)));
         }
       }
     }

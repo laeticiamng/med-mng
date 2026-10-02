@@ -150,7 +150,7 @@ serve(async (req) => {
         errorCount++;
         errors.push({
           row: i + 2,
-          error: error.message
+          error: (error instanceof Error ? error.message : String(error))
         });
 
         // Marquer comme erreur
@@ -158,7 +158,7 @@ serve(async (req) => {
           .from("import_raw_data")
           .update({ 
             processed: true, 
-            error_message: error.message 
+            error_message: (error instanceof Error ? error.message : String(error)) 
           })
           .eq("batch_id", batchId)
           .eq("row_number", i + 2);
@@ -189,7 +189,6 @@ serve(async (req) => {
       .eq("id", batchId);
 
     return new Response(JSON.stringify({
-      success: true,
       processed: processedCount,
       success: successCount,
       errors: errorCount,
@@ -200,7 +199,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("Import error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error instanceof Error ? error.message : String(error)) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

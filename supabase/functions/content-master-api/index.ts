@@ -32,7 +32,7 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error('❌ Erreur Content Master API:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error instanceof Error ? error.message : String(error)) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
@@ -233,7 +233,7 @@ async function generateMasterContent(req: Request, supabase: any) {
       console.error(`❌ Erreur génération ${contentType}:`, error);
       results[contentType] = {
         success: false,
-        error: error.message
+        error: (error instanceof Error ? error.message : String(error))
       };
     }
   }
@@ -437,14 +437,14 @@ async function getContentStats(req: Request, supabase: any) {
   // Calculer les statistiques
   const stats = {
     total_views: views.length,
-    unique_items: new Set(views.map(v => v.item_id)).size,
-    avg_duration: views.length > 0 ? Math.round(views.reduce((sum, v) => sum + (v.view_duration || 0), 0) / views.length) : 0,
-    completion_rate: views.length > 0 ? Math.round((views.filter(v => v.completed).length / views.length) * 100) : 0,
-    by_content_type: views.reduce((acc: any, view) => {
+    unique_items: new Set(views.map((v: any) => v.item_id)).size,
+    avg_duration: views.length > 0 ? Math.round(views.reduce((sum: number, v: any) => sum + (v.view_duration || 0), 0) / views.length) : 0,
+    completion_rate: views.length > 0 ? Math.round((views.filter((v: any) => v.completed).length / views.length) * 100) : 0,
+    by_content_type: views.reduce((acc: any, view: any) => {
       acc[view.content_type] = (acc[view.content_type] || 0) + 1;
       return acc;
     }, {}),
-    by_item: views.reduce((acc: any, view) => {
+    by_item: views.reduce((acc: any, view: any) => {
       acc[view.item_id] = (acc[view.item_id] || 0) + 1;
       return acc;
     }, {}),

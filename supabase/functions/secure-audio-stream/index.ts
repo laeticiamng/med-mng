@@ -174,12 +174,12 @@ serve(async (req) => {
 
     // Log async pour éviter de bloquer la réponse
     setTimeout(() => {
-      supabase.rpc('log_audio_access', {
+      Promise.resolve(supabase.rpc('log_audio_access', {
         user_id: user.id,
         song_id: audioId,
         access_type: 'stream',
         ip_address: req.headers.get('x-forwarded-for') || 'unknown'
-      }).catch(e => console.warn('Log failed:', e));
+      })).catch((e: unknown) => console.warn('Log failed:', e));
     }, 0);
 
     return new Response(sunoResponse.body, {

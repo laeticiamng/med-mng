@@ -135,7 +135,7 @@ serve(async (req) => {
     
     const errorResponse: VoiceGenerationResponse = {
       success: false,
-      error: error.message
+      error: (error instanceof Error ? error.message : String(error))
     };
 
     return new Response(JSON.stringify(errorResponse), {

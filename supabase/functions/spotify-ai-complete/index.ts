@@ -431,7 +431,7 @@ function getStatusFeedback(status: string, elapsedMs: number): any {
   return feedbacks[status as keyof typeof feedbacks] || feedbacks.starting;
 }
 
-function generateSecureStreamingUrl(songId: string, userId?: string): string {
+function generateSecureStreamingUrl(songId: string, userId?: string | null): string {
   // En production, utiliser une vraie signature cryptographique
   const timestamp = Date.now();
   const signature = btoa(`${songId}-${userId}-${timestamp}`);

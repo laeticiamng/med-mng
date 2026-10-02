@@ -31,7 +31,7 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
       });
     } catch (error) {
       console.error('Quota fetch error:', error);
-      return errorResponse(500, 'SERVER_ERROR', error.message);
+      return errorResponse(500, 'SERVER_ERROR', (error instanceof Error ? error.message : String(error)));
     }
   }
 
@@ -81,14 +81,14 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
           p_credits_used: credits_required,
           p_request_details: request_details,
           p_response_status: 'success'
-        }).then(() => {}).catch(err => console.error('Log usage error:', err));
+        }).then(() => {}).catch((err: unknown) => console.error('Log usage error:', err));
       }
 
       return jsonResponse(result, result.success ? 200 : 402);
       
     } catch (error) {
       console.error('Check and consume error:', error);
-      return errorResponse(500, 'SERVER_ERROR', error.message);
+      return errorResponse(500, 'SERVER_ERROR', (error instanceof Error ? error.message : String(error)));
     }
   }
 
@@ -107,7 +107,7 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
       return jsonResponse(stats || {});
     } catch (error) {
       console.error('Stats error:', error);
-      return errorResponse(500, 'SERVER_ERROR', error.message);
+      return errorResponse(500, 'SERVER_ERROR', (error instanceof Error ? error.message : String(error)));
     }
   }
 

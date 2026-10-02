@@ -194,9 +194,9 @@ async function exportUserData(supabase: any, user_id?: string, email?: string) {
 async function purgeUserData(supabase: any, user_id: string) {
   const purgeResult = {
     user_id,
-    tables_processed: [],
+    tables_processed: [] as { table: string; records_deleted: number }[],
     total_purged: 0,
-    errors: []
+    errors: [] as { table: string; error: string }[]
   };
 
   const tablesToPurge = [

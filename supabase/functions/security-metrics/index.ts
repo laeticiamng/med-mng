@@ -113,7 +113,7 @@ serve(async (req) => {
       .limit(30);
 
     // Check for new alerts
-    const alerts = [];
+    const alerts: any[] = [];
     
     // Alert if security score drops below 90
     if (securityScore < 90) {
