@@ -147,7 +147,10 @@ const handleRequest = async (req: Request): Promise<Response> => {
     const { supabase, user } = authResult;
     
     // CSRF Protection for authenticated routes
-    const csrfError = csrfProtection(req, user?.id || '');
+    // csrfProtection est asynchrone : sans await, la promesse (toujours « vraie ») était
+    // renvoyée telle quelle → réponse null → plantage et échec CORS de toutes les routes
+    // authentifiées (bibliothèque, lecteur, favoris).
+    const csrfError = await csrfProtection(req, user?.id || '');
     if (csrfError) {
       MonitoringService.endRequest(requestId, 403);
       return csrfError;
@@ -252,7 +255,7 @@ const handleRequest = async (req: Request): Promise<Response> => {
  * toucher aux routes.
  */
 serve(async (req: Request): Promise<Response> => {
-  const response = await handleRequest(req);
+  const response = (await handleRequest(req)) ?? errorResponse(500, 'SERVER_ERROR', 'Empty response');
   const headers = new Headers(response.headers);
   headers.set('Access-Control-Allow-Origin', resolveCorsOrigin(req));
   headers.set('Vary', 'Origin');
