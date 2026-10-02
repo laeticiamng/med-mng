@@ -360,6 +360,9 @@ const App = () => {
                                     <Route path="/signup" element={<Navigate to={ROUTE_PATHS.medMngSignup} replace />} />
                                     <Route path="/login" element={<Navigate to={ROUTE_PATHS.medMngLogin} replace />} />
                                     <Route path="/pricing" element={<Navigate to={ROUTE_PATHS.medMngPricing} replace />} />
+                                    <Route path="/tarifs" element={<Navigate to={ROUTE_PATHS.medMngPricing} replace />} />
+                                    <Route path="/cgv" element={<Navigate to={ROUTE_PATHS.cgv} replace />} />
+                                    <Route path="/med-mng/subscribe" element={<Navigate to={ROUTE_PATHS.medMngPricing} replace />} />
                                     <Route path={ROUTE_PATHS.medMngResetPassword} element={<S><MedMngResetPassword /></S>} />
 
                                     {/* Med MNG (protected) */}
