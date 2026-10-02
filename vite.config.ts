@@ -64,8 +64,27 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // index.html n'est PLUS pré-caché et le service worker ne sert plus de page de
+        // repli : chaque navigation part sur le réseau en mode « navigate ». Constat du
+        // 02.10.2026 : l'hébergeur épingle chaque visiteur sur un déploiement via le cookie
+        // __dpl, renouvelé seulement par une vraie navigation. Avec index.html servi par le
+        // cache du service worker, les visiteurs réguliers restaient jusqu'à 7 jours sur une
+        // ancienne version (correctifs invisibles, risque de chunks manquants).
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
+        navigateFallback: null,
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            // Pages : réseau d'abord (dernière version), copie locale seulement hors ligne.
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 20 },
+              cacheableResponse: { statuses: [200] }
+            }
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -94,21 +113,8 @@ export default defineConfig(({ mode }) => ({
               }
             }
           },
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-api-cache',
-              networkTimeoutSeconds: 10,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5 // 5 minutes
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
+          // Plus de cache des réponses Supabase : données personnelles (y compris l'état
+          // d'abonnement) conservées dans le navigateur, risque d'état périmé après paiement.
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
