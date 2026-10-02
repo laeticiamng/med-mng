@@ -211,7 +211,7 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
     // Sauvegarder dans user_activities pour persistance
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('user_activities').insert({
+      await (supabase as any).from('user_activities').insert({
         user_id: user.id,
         activity_type: 'drag_drop_quiz',
         count: 1,

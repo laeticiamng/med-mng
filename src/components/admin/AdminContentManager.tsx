@@ -157,7 +157,7 @@ export const AdminContentManager = () => {
   const handleValidateItem = async (itemId: string, itemCode: string) => {
     try {
       // Persister la validation dans la base de données
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('edn_items_complete')
         .update({
           is_validated: true,

@@ -31,7 +31,7 @@ export interface EtatContenuItem {
 /** `null` si la RPC est absente ou en erreur. */
 export async function chargerEtatContenuImmersif(): Promise<EtatContenuItem[] | null> {
   try {
-    const { data, error } = await supabase.rpc('mm_etat_contenu_immersif');
+    const { data, error } = await (supabase as any).rpc('mm_etat_contenu_immersif');
     if (error) {
       if (import.meta.env.DEV) console.warn('[mm_etat_contenu_immersif] indisponible :', error.message);
       return null;

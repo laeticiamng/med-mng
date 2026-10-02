@@ -135,7 +135,7 @@ export class MigrationHelpers {
    */
   static async saveItemV2(itemV2: ItemEDNV2, originalId: string) {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('edn_items_immersive')
         .update({
           // Nouveaux champs v2

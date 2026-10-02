@@ -263,7 +263,7 @@ export const useAnalytics = () => {
     if (!user) return;
 
     try {
-      await supabase.from('operation_logs').insert({
+      await (supabase as any).from('operation_logs').insert({
         type: 'error',
         message: `${context}: ${error.message}`,
         metadata: { stack: error.stack, context }

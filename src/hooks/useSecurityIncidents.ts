@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
 export type IncidentStatus = 'open' | 'acknowledged' | 'investigating' | 'resolved' | 'escalated';
@@ -60,7 +61,7 @@ export function useSecurityIncidents() {
       status: IncidentStatus;
       notes?: string;
     }) => {
-      const updates: Record<string, unknown> = { status };
+      const updates: TablesUpdate<'security_alerts'> = { status };
 
       if (status === 'resolved') {
         updates.resolved_at = new Date().toISOString();

@@ -194,7 +194,7 @@ export async function completeIC2Item() {
     if (import.meta.env.DEV) console.log('🔧 Mise à jour COMPLÈTE du contenu IC-2 selon E-LiSA (7 Rang A + 2 Rang B)...');
     
     // Mise à jour complète de l'item IC-2 avec TOUS les éléments
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('edn_items_immersive')
       .upsert({
         id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
