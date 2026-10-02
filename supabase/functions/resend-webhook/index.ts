@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
             if (currentTest) {
               await supabaseClient
                 .from("email_ab_tests")
-                .update({ [field]: (currentTest[field] || 0) + 1 })
+                .update({ [field]: ((currentTest as Record<string, any>)[field] || 0) + 1 })
                 .eq("id", abResult.ab_test_id);
 
               // Recalculer le gagnant

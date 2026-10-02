@@ -99,7 +99,7 @@ export async function clientMedMng(
     if (email) {
       const liste = await stripe.customers.list({ email, limit: 20 });
       const trouve = liste.data.find(
-        (c) => c.metadata?.app === MM_APP && c.metadata?.supabase_user_id === userId,
+        (c: { metadata?: Record<string, string> | null }) => c.metadata?.app === MM_APP && c.metadata?.supabase_user_id === userId,
       );
       if (trouve) return trouve.id;
     }

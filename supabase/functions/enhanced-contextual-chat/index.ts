@@ -225,7 +225,7 @@ ${ragContext}
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Enhanced chat failed',
+      error: (error instanceof Error ? error.message : '') || 'Enhanced chat failed',
       source: 'error'
     }), {
       status: 500,
@@ -298,7 +298,7 @@ async function searchEdnKnowledgeBase(
       ...item,
       relevance_score: calculateRelevanceScore(item, query, searchTerms),
       source: 'edn_local' as const
-    })).sort((a, b) => b.relevance_score - a.relevance_score);
+    })).sort((a: any, b: any) => b.relevance_score - a.relevance_score);
 
   } catch (error) {
     console.error('Erreur searchEdnKnowledgeBase:', error);

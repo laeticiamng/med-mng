@@ -73,7 +73,7 @@ serve(async (req) => {
             received_at: new Date().toISOString()
           });
         } catch (e) {
-          console.log('Webhook log skipped:', e.message);
+          console.log('Webhook log skipped:', e instanceof Error ? e.message : String(e));
         }
 
         return new Response(JSON.stringify({ 
@@ -86,7 +86,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ WEBHOOKS Error:', error);
     return new Response(JSON.stringify({ 
-      error: error.message 
+      error: error instanceof Error ? error.message : String(error) 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

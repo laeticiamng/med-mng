@@ -90,7 +90,7 @@ serve(async (req) => {
 
     // Prepare form data
     const formData = new FormData();
-    const blob = new Blob([audioData], { type: 'audio/webm' });
+    const blob = new Blob([audioData as BlobPart], { type: 'audio/webm' });
     formData.append('file', blob, filename);
     formData.append('model', 'whisper-1');
     formData.append('language', language);
