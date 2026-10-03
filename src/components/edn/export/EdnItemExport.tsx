@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { MESSAGE_SANS_RANG_B } from '@/config/rangB';
+import { estCompetenceOICReelle } from '@/utils/tableauTransformations';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Download, FileText, Loader2 } from 'lucide-react';
@@ -92,23 +94,20 @@ export function EdnItemExport({
       let oicCompetencesA: OicCompetence[] = [];
       let oicCompetencesB: OicCompetence[] = [];
       
+      // item_parent est stocké sur 3 chiffres (« 001 ») : la requête par
+      // « IC-1 » ne renvoyait jamais rien et le PDF retombait sur les anciens
+      // tableaux. Les lignes génériques « IC-1-B » ne sont pas des compétences.
+      let referentielBCharge = false;
       if (options.includeOicCompetences) {
-        const { data: compA } = await supabase
-          .from('oic_competences')
-          .select('*')
-          .eq('item_parent', itemCode)
-          .eq('rang', 'A')
-          .limit(100);
+        const itemParent = String(parseInt(itemCode.replace(/\D/g, '') || '0', 10)).padStart(3, '0');
+        const [{ data: compA }, { data: compB, error: erreurB }] = await Promise.all([
+          supabase.from('oic_competences').select('*').eq('item_parent', itemParent).eq('rang', 'A').order('objectif_id').limit(100),
+          supabase.from('oic_competences').select('*').eq('item_parent', itemParent).eq('rang', 'B').order('objectif_id').limit(100),
+        ]);
 
-        const { data: compB } = await supabase
-          .from('oic_competences')
-          .select('*')
-          .eq('item_parent', itemCode)
-          .eq('rang', 'B')
-          .limit(100);
-
-        oicCompetencesA = compA || [];
-        oicCompetencesB = compB || [];
+        oicCompetencesA = (compA || []).filter(c => estCompetenceOICReelle(c.objectif_id));
+        oicCompetencesB = (compB || []).filter(c => estCompetenceOICReelle(c.objectif_id));
+        referentielBCharge = !erreurB;
       }
 
       // Section Rang A
@@ -116,7 +115,7 @@ export function EdnItemExport({
         doc.setTextColor(59, 130, 246);
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text('📘 Rang A - Compétences Fondamentales', 20, yPos);
+        doc.text('Rang A - Compétences Fondamentales', 20, yPos);
         yPos += 10;
 
         if (oicCompetencesA.length > 0) {
@@ -125,8 +124,8 @@ export function EdnItemExport({
             head: [['ID', 'Intitulé', 'Description']],
             body: oicCompetencesA.map(c => [
               c.objectif_id || '-',
-              (c.intitule || '').substring(0, 40),
-              (c.description || '').substring(0, 80)
+              (c.intitule || '').replace(/\s+/g, ' ').trim(),
+              (c.description || '').replace(/\s+/g, ' ').trim().substring(0, 600)
             ]),
             theme: 'striped',
             headStyles: { fillColor: [59, 130, 246], fontSize: 9 },
@@ -186,7 +185,8 @@ export function EdnItemExport({
         doc.setTextColor(168, 85, 247);
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text('📗 Rang B - Compétences Avancées', 20, yPos);
+        // Pas d'emoji : la police Helvetica de jsPDF les imprimait en « Ø=Ü× ».
+        doc.text('Rang B - Compétences Avancées', 20, yPos);
         yPos += 10;
 
         if (oicCompetencesB.length > 0) {
@@ -195,8 +195,8 @@ export function EdnItemExport({
             head: [['ID', 'Intitulé', 'Description']],
             body: oicCompetencesB.map(c => [
               c.objectif_id || '-',
-              (c.intitule || '').substring(0, 40),
-              (c.description || '').substring(0, 80)
+              (c.intitule || '').replace(/\s+/g, ' ').trim(),
+              (c.description || '').replace(/\s+/g, ' ').trim().substring(0, 600)
             ]),
             theme: 'striped',
             headStyles: { fillColor: [168, 85, 247], fontSize: 9 },
@@ -240,7 +240,7 @@ export function EdnItemExport({
         } else {
           doc.setTextColor(128);
           doc.setFontSize(10);
-          doc.text('Aucune compétence Rang B disponible', 20, yPos);
+          doc.text(referentielBCharge ? MESSAGE_SANS_RANG_B : 'Aucune compétence Rang B disponible', 20, yPos);
           yPos += 10;
         }
       }
@@ -253,7 +253,7 @@ export function EdnItemExport({
         doc.setTextColor(34, 197, 94);
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text('🎵 Paroles Musicales', 20, yPos);
+        doc.text('Paroles Musicales', 20, yPos);
         yPos += 15;
 
         if (parolesRangA?.length) {

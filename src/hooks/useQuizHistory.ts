@@ -5,6 +5,7 @@ interface QuizResult {
   id: string;
   score: number;
   total_questions: number;
+  correct_answers?: number | null;
   created_at: string;
   time_spent?: number;
 }
@@ -40,7 +41,7 @@ export const useQuizHistory = (itemCode?: string) => {
 
       const { data, error } = await supabase
         .from('quiz_results')
-        .select('id, score, total_questions, created_at, time_spent')
+        .select('id, score, total_questions, correct_answers, created_at, time_spent')
         .eq('user_id', user.id)
         .eq('item_code', itemCode)
         .order('created_at', { ascending: false })
@@ -53,7 +54,14 @@ export const useQuizHistory = (itemCode?: string) => {
 
       // Calculate summary
       if (results.length > 0) {
-        const scores = results.map(r => (r.score / r.total_questions) * 100);
+        // quiz_results.score est déjà un pourcentage (quiz OIC) : le rediviser
+        // par le nombre de questions affichait « Meilleur 1000 % ». On part de
+        // correct_answers / total_questions quand ils sont présents.
+        const scores = results.map(r =>
+          r.correct_answers != null && r.total_questions > 0
+            ? (r.correct_answers / r.total_questions) * 100
+            : Math.min(100, r.score)
+        );
         setSummary({
           totalAttempts: results.length,
           bestScore: Math.max(...scores),

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
 import { BookOpen, Brain, Lock } from 'lucide-react';
 import { useFicheItemEdn } from './EdnItemContext';
+import { MESSAGE_SANS_RANG_B } from '@/config/rangB';
 import { EdnItemSeo } from './EdnItemSeo';
 import { EncartPremium } from '@/components/offre/EncartPremium';
 
@@ -24,6 +25,7 @@ export default function EdnItemApercu() {
     contenuVerrouille,
     chargementContenu,
   } = useFicheItemEdn();
+  const sansRangB = !chargementRangB && competencesRangB.length === 0;
 
   return (
     <>
@@ -78,7 +80,9 @@ export default function EdnItemApercu() {
                 <p className="text-muted-foreground text-sm">
                   {item.pitch_intro && !/^Excellence avec|fusionnées/i.test(item.pitch_intro)
                     ? item.pitch_intro
-                    : `${competencesRangA.length + competencesRangB.length} compétences officielles (rang A : ${competencesRangA.length} · rang B : ${competencesRangB.length}), issues du référentiel national LiSA 2026 (UNESS).`}
+                    : sansRangB
+                      ? `${competencesRangA.length} compétences officielles de rang A (pas de rang B pour cet item), issues du référentiel national LiSA 2026 (UNESS).`
+                      : `${competencesRangA.length + competencesRangB.length} compétences officielles (rang A : ${competencesRangA.length} · rang B : ${competencesRangB.length}), issues du référentiel national LiSA 2026 (UNESS).`}
                 </p>
               </div>
             </div>
@@ -139,7 +143,7 @@ export default function EdnItemApercu() {
               <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
                 <h4 className="font-semibold mb-3 text-accent-foreground flex items-center gap-2">
                   <Brain className="h-4 w-4" />
-                  Rang B - {competencesRangB.length} compétences
+                  {sansRangB ? 'Rang B' : `Rang B - ${competencesRangB.length} compétences`}
                 </h4>
                 {competencesRangB.length > 0 ? (
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
@@ -163,7 +167,7 @@ export default function EdnItemApercu() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{chargementRangB ? 'Chargement...' : 'Aucune compétence'}</p>
+                  <p className="text-sm text-muted-foreground">{chargementRangB ? 'Chargement...' : MESSAGE_SANS_RANG_B}</p>
                 )}
               </div>
             </div>
@@ -206,6 +210,7 @@ export default function EdnItemApercu() {
           item={item}
           competencesRangA={competencesRangA.length}
           competencesRangB={competencesRangB.length}
+          sansRangBOfficiel={sansRangB}
           contenuVerrouille={contenuVerrouille}
         />
       </div>

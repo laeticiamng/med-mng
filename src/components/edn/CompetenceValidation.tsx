@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { MESSAGE_SANS_RANG_B } from '@/config/rangB';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, Check, CheckCircle, Flame, Info, Loader2, RotateCcw, Star } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -59,7 +60,11 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
   
   // Utiliser les vraies compétences OIC depuis la base de données
   const { competences: oicCompetencesA, loading: loadingA } = useOicCompetences(item?.item_code || '', 'A');
-  const { competences: oicCompetencesB, loading: loadingB } = useOicCompetences(item?.item_code || '', 'B');
+  const { competences: oicCompetencesB, loading: loadingB, error: erreurB, codeCharge: codeRangB } = useOicCompetences(item?.item_code || '', 'B');
+  // Référentiel chargé sans erreur et aucune compétence de rang B : l'item n'a
+  // pas de rang B (ce n'est pas un manque).
+  const sansRangBOfficiel =
+    !loadingB && !erreurB && Boolean(item?.item_code) && codeRangB === item?.item_code && oicCompetencesB.length === 0;
 
   // Charger les données de maîtrise de l'utilisateur + sync avec quiz
   const loadMasteryData = useCallback(async () => {
@@ -245,7 +250,9 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         competences: [] as string[]
       },
       complete: false,
-      issues: [] as string[]
+      issues: [] as string[],
+      controles: 6,
+      sansRangB: false,
     };
 
     // Utiliser les compétences OIC réelles si disponibles
@@ -272,6 +279,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       result.rangB.present = true;
       result.rangB.count = oicCompetencesB.length;
       result.rangB.competences = oicCompetencesB.map(c => c.intitule || 'Compétence').filter(Boolean);
+    } else if (sansRangBOfficiel) {
+      // Pas de rang B au référentiel : rien à signaler.
     } else if (item.tableau_rang_b) {
       result.rangB.present = true;
       if (!Array.isArray(item.tableau_rang_b) && item.tableau_rang_b.competences_cles && item.tableau_rang_b.competences_cles.length > 0) {
@@ -297,15 +306,21 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       result.issues.push("Scène immersive manquante");
     }
 
+    // Points de contrôle réellement applicables : le rang B ne compte pas pour
+    // un item qui n'en a pas au référentiel, paroles et quiz pas quand ils sont
+    // réservés à Premium. (L'ancien calcul divisait toujours par 6 : 83 % pour
+    // un item complet sans rang B.)
+    result.controles = 3 + (sansRangBOfficiel ? 0 : 1) + (contenuVerrouille ? 0 : 2);
+    result.sansRangB = sansRangBOfficiel;
+
     // Déterminer si l'item est complet
-    result.complete = result.rangA.present && 
-                      result.rangB.present && 
-                      result.rangA.count > 0 && 
-                      result.rangB.count > 0 &&
+    result.complete = result.rangA.present &&
+                      result.rangA.count > 0 &&
+                      (sansRangBOfficiel || (result.rangB.present && result.rangB.count > 0)) &&
                       result.issues.length === 0;
 
     return result;
-  }, [item, contenuVerrouille, oicCompetencesA, oicCompetencesB]);
+  }, [item, contenuVerrouille, oicCompetencesA, oicCompetencesB, sansRangBOfficiel]);
 
   const isLoading = loadingA || loadingB;
 
@@ -376,10 +391,12 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
           
           <div className="text-center p-3 rounded-lg bg-background border">
             <div className="text-2xl font-bold text-accent">
-              {validation.rangB.count}
+              {validation.sansRangB ? '—' : validation.rangB.count}
             </div>
             <div className="text-sm text-muted-foreground">Compétences Rang B</div>
-            {validation.rangB.present ? (
+            {validation.sansRangB ? (
+              <p className="text-xs text-muted-foreground mt-1">{MESSAGE_SANS_RANG_B}</p>
+            ) : validation.rangB.present ? (
               <CheckCircle className="h-4 w-4 text-success mx-auto mt-1" />
             ) : (
               <AlertTriangle className="h-4 w-4 text-destructive mx-auto mt-1" />
@@ -388,7 +405,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
           
           <div className="text-center p-3 rounded-lg bg-background border">
             <div className="text-2xl font-bold text-success">
-              {validation.complete ? "100%" : Math.round((6 - validation.issues.length) / 6 * 100) + "%"}
+              {validation.complete ? "100%" : Math.max(0, Math.round((validation.controles - validation.issues.length) / validation.controles * 100)) + "%"}
             </div>
             <div className="text-sm text-muted-foreground">Complétude</div>
             {validation.complete ? (
@@ -580,7 +597,9 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             {validation.complete ? (
               <>
                 <CheckCircle className="h-4 w-4" />
-                Item complet - Toutes les compétences sont présentes
+                {validation.sansRangB
+                  ? 'Item complet - Toutes les compétences du référentiel sont présentes (pas de rang B pour cet item)'
+                  : 'Item complet - Toutes les compétences sont présentes'}
               </>
             ) : (
               <>

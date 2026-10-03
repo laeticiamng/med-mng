@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle, AlertCircle, XCircle, Clock, 
-  BookOpen, Brain, Music, Users, Gamepad2, Flame, Star, Trophy, Lock 
+  BookOpen, Brain, Music, Users, Gamepad2, Flame, Star, Trophy, Lock,
+  Minus,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -33,6 +34,8 @@ interface CompetencesBadgesProps {
    */
   competencesRangA?: number;
   competencesRangB?: number;
+  /** L'item n'a pas de rang B au référentiel : pastille neutre, hors complétude. */
+  sansRangBOfficiel?: boolean;
   /**
    * Le serveur a refusé le contenu immersif (item hors essai, sans abonnement
    * Premium) : paroles et quiz ne sont ni « manquants » ni « disponibles »,
@@ -54,6 +57,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
   item,
   competencesRangA,
   competencesRangB,
+  sansRangBOfficiel = false,
   contenuVerrouille = false,
 }) => {
   const isMobile = useIsMobile();
@@ -158,8 +162,9 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       label: 'Rang B',
       icon: Brain,
       available: rangBCount > 0,
+      nonApplicable: sansRangBOfficiel,
       count: rangBCount,
-      description: 'Compétences expertes',
+      description: sansRangBOfficiel ? 'Pas de rang B au référentiel' : 'Compétences expertes',
       color: rangBCount > 0 ? 'text-accent bg-accent/10 border-accent/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
@@ -193,7 +198,10 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
     }
   ];
 
-  const getStatusIcon = (available: boolean, verrouille?: boolean) => {
+  const getStatusIcon = (available: boolean, verrouille?: boolean, nonApplicable?: boolean) => {
+    if (nonApplicable) {
+      return <Minus className="h-3 w-3 text-muted-foreground" aria-label="Sans objet pour cet item" />;
+    }
     if (verrouille) {
       return <Lock className="h-3 w-3 text-primary" aria-label="Réservé à Med MNG Premium" />;
     }
@@ -206,7 +214,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
 
   // Un contenu verrouillé n'est ni présent ni absent : il ne compte pas.
   const calculateGlobalCompletion = () => {
-    const evaluees = features.filter(f => !f.verrouille);
+    const evaluees = features.filter(f => !f.verrouille && !('nonApplicable' in f && f.nonApplicable));
     if (evaluees.length === 0) return 100;
     const availableFeatures = evaluees.filter(f => f.available).length;
     return Math.round((availableFeatures / evaluees.length) * 100);
@@ -251,7 +259,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
                   {feature.count > 0 && (
                     <span className="text-xs font-bold">{feature.count}</span>
                   )}
-                  {getStatusIcon(feature.available, feature.verrouille)}
+                  {getStatusIcon(feature.available, feature.verrouille, 'nonApplicable' in feature ? feature.nonApplicable : false)}
                 </div>
               </Badge>
               <div className="text-xs text-muted-foreground text-center px-1">
