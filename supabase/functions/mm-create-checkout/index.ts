@@ -124,6 +124,8 @@ serve(async (req) => {
       client_reference_id: user.id,
       line_items: [{ price: priceId, quantity: 1 }],
       locale: "fr",
+      // Codes partenaires (corpos, tutorats, testeurs), créés dans Stripe au cas par cas.
+      allow_promotion_codes: true,
       metadata,
       subscription_data: {
         metadata: { app: MM_APP, supabase_user_id: user.id, formule },

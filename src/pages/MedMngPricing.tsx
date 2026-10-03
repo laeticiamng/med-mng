@@ -62,7 +62,7 @@ export const MedMngPricing = () => {
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Une offre simple pour préparer les EDN 2028 (D2–D3) et le rang A
+              Une offre simple pour préparer les EDN 2028 et 2029 (DFASM1–DFASM2) et le rang A
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               Les fiches officielles des 367 items sont gratuites, et 10 items d'essai sont ouverts en immersion complète.

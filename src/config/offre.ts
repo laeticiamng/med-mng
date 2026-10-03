@@ -1,8 +1,8 @@
 /**
  * Offre commerciale Med MNG — source de vérité UNIQUE côté front.
  *
- * Décision produit : une offre simple, pensée pour les D2-D3 qui préparent
- * les EDN 2027.
+ * Décision produit : une offre simple, pensée pour les DFASM1-DFASM2 qui préparent
+ * les EDN 2028 et 2029 (sessions d'octobre 2027 et 2028).
  *  - Gratuit : fiches officielles (compétences du référentiel LiSA 2026, rang A
  *    et rang B) pour les 367 items + contenu immersif complet (paroles, récit,
  *    planches, quiz) pour les 10 items d'essai listés dans `ITEMS_GRATUITS`.
