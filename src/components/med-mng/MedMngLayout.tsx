@@ -28,9 +28,11 @@ export const MedMngLayout: React.FC<MedMngLayoutProps> = ({
       <MedMngNavigation />
       
       {/* Main Content */}
-      <main id="main-content" className={`flex-1 pb-20 md:pb-0 ${className}`} role="main" tabIndex={-1}>
+      {/* div et non <main id="main-content"> : la page est déjà dans le <main
+          id="main-content"> de App.tsx (deux landmarks imbriqués, id dupliqué). */}
+      <div className={`flex-1 pb-20 md:pb-0 ${className}`}>
         {children}
-      </main>
+      </div>
       
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />

@@ -30,9 +30,11 @@ export const LanguageSelector: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
+            aria-label="Changer de langue"
             className="bg-card/95 backdrop-blur-sm border-border hover:bg-muted shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
           >
-            <Globe className="h-4 w-4 mr-2" />
+            {/* Mobile : drapeau seul, pour moins masquer le contenu. */}
+            <Globe className="hidden sm:block h-4 w-4 mr-2" />
             <span className="text-lg mr-1">{languages.find(l => l.code === currentLanguage)?.flag}</span>
             <span className="hidden sm:inline text-sm font-medium">{languages.find(l => l.code === currentLanguage)?.nativeName}</span>
           </Button>

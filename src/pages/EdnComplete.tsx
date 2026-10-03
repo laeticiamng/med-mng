@@ -28,6 +28,7 @@ import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
 import { useEdnNotes } from "@/hooks/useEdnNotes";
 import { useEdnOffline } from "@/hooks/useEdnOffline";
 import { useProgressionEdn } from "@/hooks/useProgressionEdn";
+import { rechercherCompetences, regrouperParItem, type CompetenceTrouvee } from "@/lib/rechercheCompetences";
 import { ProfileSubscription } from "@/components/med-mng/profile/ProfileSubscription";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import {
@@ -238,19 +239,37 @@ export default function EdnComplete() {
   const disciplines = useMemo(() => listerDisciplines(allItems), [allItems]);
   const optionsContenu = useMemo(() => listerOptionsContenu(allItems), [allItems]);
 
+  // Recherche sur les intitulés de compétences officielles (côté serveur : la
+  // liste ne charge pas les 4 872 compétences). Réponses périmées ignorées.
+  const [competencesTrouvees, setCompetencesTrouvees] = useState<Map<string, CompetenceTrouvee[]>>(new Map());
+  useEffect(() => {
+    let annule = false;
+    const minuteur = setTimeout(async () => {
+      const resultats = await rechercherCompetences(searchTerm);
+      if (!annule) setCompetencesTrouvees(regrouperParItem(resultats));
+    }, 300);
+    return () => {
+      annule = true;
+      clearTimeout(minuteur);
+    };
+  }, [searchTerm]);
+
   const filteredItems = useMemo(() => {
     const derniereActivite = (code: string) =>
       etats.get(normaliserCodeItem(code))?.derniereActivite?.getTime() ?? 0;
 
     return allItems.filter(item => {
-      if (!correspondRecherche(item, searchTerm)) return false;
+      if (
+        !correspondRecherche(item, searchTerm) &&
+        !(searchTerm.trim() && competencesTrouvees.has(normaliserCodeItem(item.item_code)))
+      ) return false;
       if (!appartientADiscipline(item, selectedSpecialty)) return false;
       if (!correspondContenu(item, filtreContenu)) return false;
       if (filtreStatut === 'favorites') return isFavorite(item.item_code);
       if (filtreStatut !== 'all') return statutItem(item.item_code) === filtreStatut;
       return true;
     }).sort(comparateur(sortBy, derniereActivite));
-  }, [allItems, searchTerm, filtreStatut, filtreContenu, selectedSpecialty, sortBy, isFavorite, statutItem, etats]);
+  }, [allItems, searchTerm, competencesTrouvees, filtreStatut, filtreContenu, selectedSpecialty, sortBy, isFavorite, statutItem, etats]);
 
   // Une discipline absente des données rechargées (cache périmé) ne doit pas laisser « 0 item ».
   useEffect(() => {
@@ -271,6 +290,12 @@ export default function EdnComplete() {
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [searchTerm, filtreStatut, filtreContenu, selectedSpecialty, sortBy]);
+
+  // Items trouvés uniquement grâce à une compétence (pour l'expliquer à l'utilisateur).
+  const nombreParCompetence = useMemo(
+    () => filteredItems.filter(i => !correspondRecherche(i, searchTerm) && competencesTrouvees.has(normaliserCodeItem(i.item_code))).length,
+    [filteredItems, searchTerm, competencesTrouvees]
+  );
 
   const visibleItems = useMemo(() => filteredItems.slice(0, visibleCount), [filteredItems, visibleCount]);
   const hasMore = visibleCount < filteredItems.length;
@@ -455,14 +480,14 @@ export default function EdnComplete() {
                 <div className="space-y-3 rounded-lg border bg-card p-3">
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="recherche-item" className="text-xs font-medium text-muted-foreground">
-                      Rechercher un item EDN (numéro, titre, discipline)
+                      Rechercher un item EDN (numéro, titre, discipline, compétence)
                     </Label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                       <Input
                         id="recherche-item"
                         type="search"
-                        placeholder="Ex. 1, IC-230, insuffisance cardiaque, cardiologie"
+                        placeholder="Ex. 1, IC-230, insuffisance cardiaque, otoscopie"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-9"
@@ -538,7 +563,12 @@ export default function EdnComplete() {
                   </div>
 
                   <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground" aria-live="polite">
-                    <span>{filteredItems.length} item{filteredItems.length > 1 ? 's' : ''}</span>
+                    <span>
+                      {filteredItems.length} item{filteredItems.length > 1 ? 's' : ''}
+                      {searchTerm.trim() && nombreParCompetence > 0 && (
+                        <> — dont {nombreParCompetence} par l'intitulé d'une compétence</>
+                      )}
+                    </span>
                     {filtresActifs && (
                       <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={reinitialiserFiltres}>
                         Réinitialiser les filtres

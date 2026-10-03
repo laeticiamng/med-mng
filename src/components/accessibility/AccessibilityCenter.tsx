@@ -49,7 +49,7 @@ export const AccessibilityCenter: React.FC = () => {
         size="icon"
         aria-label="Ouvrir le centre d'accessibilité"
         title="Accessibilité"
-        className="fixed bottom-24 md:bottom-40 right-6 z-40 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm bg-background/80 border-border/50 h-9 w-9 rounded-full opacity-60 hover:opacity-100"
+        className="fixed bottom-40 right-5 md:right-6 z-40 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm bg-background/80 border-border/50 h-9 w-9 rounded-full opacity-60 hover:opacity-100"
       >
         <Eye className="w-4 h-4" />
       </Button>

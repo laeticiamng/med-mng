@@ -73,7 +73,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const score = questions.filter(q => answers[q.id] === q.correctIndex).length;
-      const percentage = (score / questions.length) * 100;
+      const percentage = Math.round((score / questions.length) * 100);
 
       // Sauvegarder en base de données. supabase-js ne lève pas sur erreur
       // PostgREST : le try/catch précédent n'attrapait rien et un score perdu
@@ -258,12 +258,13 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
                     )}
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium">{q.competence.objectif_id} — {q.competence.intitule}</p>
-                      {!isCorrect && (
-                        <p className="text-xs text-muted-foreground">
-                          <span className="font-medium">Bonne réponse :</span> {q.options[q.correctIndex]}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground whitespace-pre-line">{q.explanation}</p>
+                      {/* La bonne réponse EST la description officielle : on l'affiche
+                          une seule fois, en entier (auparavant tronquée puis répétée
+                          dans l'explication avec l'intitulé déjà affiché au-dessus). */}
+                      <p className="text-xs text-muted-foreground whitespace-pre-line">
+                        {!isCorrect && <span className="font-medium">Bonne réponse : </span>}
+                        {(q.competence.description || '').trim() || q.options[q.correctIndex]}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -315,8 +316,12 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
           <h3 className="text-lg font-semibold text-foreground">{currentQ.question}</h3>
         </div>
 
+        {/* key + value « '' » : sans cela, la réponse de la question précédente
+            restait cochée à l'écran sans être enregistrée, et recliquer la même
+            position ne débloquait pas « Suivant ». */}
         <RadioGroup
-          value={answers[currentQ.id]?.toString()}
+          key={currentQ.id}
+          value={answers[currentQ.id]?.toString() ?? ''}
           onValueChange={(value) => handleAnswer(currentQ.id, parseInt(value))}
           className="space-y-3"
         >
@@ -325,9 +330,9 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
               key={index} 
               className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
             >
-              <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+              <RadioGroupItem value={index.toString()} id={`${currentQ.id}-option-${index}`} />
               <Label 
-                htmlFor={`option-${index}`} 
+                htmlFor={`${currentQ.id}-option-${index}`} 
                 className="text-foreground cursor-pointer flex-1"
               >
                 {option}

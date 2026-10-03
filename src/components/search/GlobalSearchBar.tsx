@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
+import { rechercherCompetences, regrouperParItem } from '@/lib/rechercheCompetences';
 import { cn } from '@/lib/utils';
 import { BookOpen, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -97,6 +98,32 @@ export const GlobalSearchBar: React.FC = () => {
             relevance: item.title.toLowerCase().includes(qMin) ? 100 : 50,
           });
         });
+      }
+
+      // Items trouvés par l'intitulé d'une compétence officielle (« otoscopie »
+      // → IC-150), absents des résultats par titre.
+      if (!numero) {
+        const dejaTrouves = new Set(searchResults.map(r => r.title.split(' - ')[0]));
+        const parItem = regrouperParItem(await rechercherCompetences(q));
+        const codes = [...parItem.keys()].filter(c => !dejaTrouves.has(c)).slice(0, 8);
+        if (codes.length > 0) {
+          const { data: itemsCompetences } = await supabase
+            .from('edn_items_complete')
+            .select('id, item_code, title, slug')
+            .eq('status', 'active')
+            .in('item_code', codes);
+          (itemsCompetences ?? []).forEach((item) => {
+            const competence = parItem.get(item.item_code)?.[0];
+            searchResults.push({
+              id: item.id,
+              title: `${item.item_code} - ${item.title}`,
+              description: competence ? `Compétence : ${competence.intitule}` : undefined,
+              category: 'edn',
+              url: `/edn-complete/${item.slug || item.item_code.toLowerCase()}`,
+              relevance: 40,
+            });
+          });
+        }
       }
 
       // Cas cliniques (lecture soumise aux droits de l'utilisateur).

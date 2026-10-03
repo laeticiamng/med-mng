@@ -31,6 +31,7 @@ export const usePWAMetrics = () => {
 
   const metricsRef = useRef<any>({});
   const sessionIdRef = useRef<string>('');
+  const envoiRefuseRef = useRef(false);
   const pageViewsRef = useRef(0);
   const hasTrackedInitialView = useRef(false);
 
@@ -150,7 +151,7 @@ export const usePWAMetrics = () => {
   const sendMetricUpdate = async (data: any, _immediate = false) => {
     try {
       // Skip if offline or no session ID yet
-      if (!navigator.onLine || !sessionIdRef.current) return;
+      if (!navigator.onLine || !sessionIdRef.current || envoiRefuseRef.current) return;
       
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -182,6 +183,10 @@ export const usePWAMetrics = () => {
           metricPayload as any,
           { onConflict: 'session_id', ignoreDuplicates: false }
         );
+        // 42501 (RLS) : l'upsert exige une policy SELECT sur pwa_metrics ; sans
+        // elle, chaque métrique de chaque page renvoyait un 403. On arrête
+        // d'envoyer pour la session au premier refus.
+        if (error?.code === '42501') envoiRefuseRef.current = true;
         if (error && !error.message.includes('duplicate')) {
           if (import.meta.env.DEV) console.debug('PWA metrics upsert error:', error.message);
         }

@@ -200,7 +200,7 @@ const MedMngProfileComponent = () => {
               </div>
               
               <div className="flex-1 text-center md:text-left">
-                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                <div className="flex flex-col items-center md:flex-row md:items-center gap-4 mb-4">
                   <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
                     {profile?.name || 'Utilisateur'}
                   </h1>
@@ -208,9 +208,10 @@ const MedMngProfileComponent = () => {
                 </div>
                 
                 <div className="flex flex-col md:flex-row gap-4 text-primary-foreground/80">
-                  <div className="flex items-center gap-2 justify-center md:justify-start">
-                    <Mail className="h-4 w-4" />
-                    <span>{profile?.email}</span>
+                  <div className="flex min-w-0 items-center gap-2 justify-center md:justify-start">
+                    <Mail className="h-4 w-4 shrink-0" />
+                    {/* break-all : une adresse longue débordait de la carte sur mobile. */}
+                    <span className="min-w-0 break-all">{profile?.email}</span>
                   </div>
                   <div className="flex items-center gap-2 justify-center md:justify-start">
                     <Calendar className="h-4 w-4" />

@@ -30,8 +30,10 @@ export const useActivityTracking = () => {
           user_id: user.id,
           activity_type: activity.activity_type,
           count: activity.count || 1,
-          duration_seconds: activity.duration_seconds || 0,
-          score: activity.score,
+          // Colonnes integer : un score de 12,5 % (1 bonne réponse sur 8)
+          // faisait échouer l'insertion (400, 22P02).
+          duration_seconds: Math.round(activity.duration_seconds || 0),
+          score: activity.score == null ? activity.score : Math.round(activity.score),
           metadata: activity.metadata || {}
         });
 

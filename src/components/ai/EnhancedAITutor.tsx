@@ -355,22 +355,27 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
     return (
       <Button
         onClick={() => { setIsOpen(true); if (!currentConversationId) startNewConversation(); }}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 bg-gradient-to-br from-primary to-primary/80"
+        // Mobile : au-dessus de la barre de navigation basse (/med-mng/*) et de la
+        // barre d'appel à l'action de l'accueil, qu'il recouvrait (onglet « Profil »).
+        className="fixed bottom-24 right-4 h-12 w-12 md:bottom-6 md:right-6 md:h-14 md:w-14 rounded-full shadow-lg z-50 bg-gradient-to-br from-primary to-primary/80"
         size="icon"
+        aria-label="Ouvrir le tuteur IA"
+        title="Tuteur IA"
       >
         <MessageCircle className="h-6 w-6" />
       </Button>
     );
   }
 
-  const cardSize = isExpanded 
-    ? 'w-[600px] h-[700px]' 
-    : isMinimized 
-      ? 'w-72 h-14' 
-      : 'w-96 h-[500px]';
+  // Mobile : pleine largeur (w-96 = 384 px débordait d'un écran de 390 px).
+  const cardSize = isExpanded
+    ? 'h-[80vh] md:w-[600px] md:h-[700px]'
+    : isMinimized
+      ? 'h-14 md:w-72'
+      : 'h-[70vh] md:w-96 md:h-[500px]';
 
   return (
-    <Card className={`fixed bottom-6 right-6 z-50 shadow-2xl transition-all ${cardSize}`}>
+    <Card className={`fixed inset-x-2 bottom-2 md:inset-x-auto md:bottom-6 md:right-6 z-50 shadow-2xl transition-all ${cardSize}`}>
       <CardHeader className="p-3 border-b flex flex-row items-center justify-between bg-gradient-to-r from-primary/5 to-accent/5">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
