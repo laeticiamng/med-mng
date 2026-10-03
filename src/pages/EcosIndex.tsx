@@ -202,7 +202,7 @@ const EcosIndex = () => {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground text-sm sm:text-base">
             <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span>~15 min/situation</span>
+            <span>7 min par station</span>
           </div>
         </div>
 

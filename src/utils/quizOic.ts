@@ -41,6 +41,20 @@ export const couperOption = (texte: string, max = LONGUEUR_MAX_OPTION): string =
   return `${(dernierEspace > max * 0.6 ? coupe.slice(0, dernierEspace) : coupe).replace(/[\s,;:.–-]+$/, '')}…`;
 };
 
+/** Hachage FNV-1a (avec mélange final) d'une clé, ramené à [0, n). */
+export const positionDepuisCle = (cle: string, n: number): number => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < cle.length; i++) {
+    h = Math.imul((h ^ cle.charCodeAt(i)) >>> 0, 0x01000193) >>> 0;
+  }
+  // Mélange final (fmix32) : sans lui, des clés qui ne diffèrent que par le
+  // dernier caractère (OIC-001-01-A, OIC-001-02-A…) redonnent un cycle.
+  h = Math.imul((h ^ (h >>> 16)) >>> 0, 0x85ebca6b) >>> 0;
+  h = Math.imul((h ^ (h >>> 13)) >>> 0, 0xc2b2ae35) >>> 0;
+  h = (h ^ (h >>> 16)) >>> 0;
+  return h % n;
+};
+
 const descriptionUtilisable = (c: OicCompetence): string | null => {
   const d = normaliser(c.description || '');
   if (d.length < 20) return null;
@@ -91,7 +105,10 @@ export function genererQuestionsOic(
       choisis.push(autres[(depart + k) % autres.length].texte);
     }
 
-    const positionBonne = index % NOMBRE_OPTIONS_QUIZ;
+    // Position de la bonne réponse : déterministe (même quiz d'une visite à
+    // l'autre) mais sans motif lisible. L'ancien `index % 4` donnait A, B, C, D,
+    // A, B… : la bonne réponse se devinait sans lire la question.
+    const positionBonne = positionDepuisCle(comp.objectif_id || String(index), NOMBRE_OPTIONS_QUIZ);
     const options = [...choisis];
     options.splice(positionBonne, 0, bonne);
 

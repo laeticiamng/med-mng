@@ -7,8 +7,9 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EcosHeaderProps {
-  timeLeft: number;
-  formatTime: (seconds: number) => string;
+  /** Facultatif : le chronomètre de la station (7 min) est affiché dans la page. */
+  timeLeft?: number;
+  formatTime?: (seconds: number) => string;
   scenarioId: string;
   specialty: string;
 }
@@ -55,10 +56,12 @@ export const EcosHeader = ({ timeLeft, formatTime, scenarioId, specialty }: Ecos
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span className="font-mono">{formatTime(timeLeft)}</span>
-            </div>
+            {timeLeft !== undefined && formatTime && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span className="font-mono">{formatTime(timeLeft)}</span>
+              </div>
+            )}
             <div className="text-success">
               {scenarioId} • {specialty}
             </div>

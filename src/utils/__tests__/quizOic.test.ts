@@ -40,6 +40,17 @@ describe('genererQuestionsOic', () => {
     expect(genererQuestionsOic(cibles, [], 10)).toHaveLength(10);
   });
 
+  it('place la bonne réponse sans motif cyclique (A, B, C, D…)', () => {
+    const cibles = Array.from({ length: 10 }, (_, i) => comp(i + 1));
+    const positions = genererQuestionsOic(cibles, [], 10).map((q) => q.correctIndex);
+    const cycle = positions.map((_, i) => i % 4);
+    expect(positions).not.toEqual(cycle);
+    // Déterministe : même quiz à chaque génération.
+    expect(genererQuestionsOic(cibles, [], 10).map((q) => q.correctIndex)).toEqual(positions);
+    // Les quatre positions restent utilisées.
+    expect(new Set(positions).size).toBeGreaterThanOrEqual(3);
+  });
+
   it('coupe les options longues au mot', () => {
     const long = 'mot '.repeat(200);
     const coupe = couperOption(long, 50);

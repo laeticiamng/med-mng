@@ -80,6 +80,17 @@ export const POINTS_CONFIG = {
   aiQuestion: 5,
 };
 
+/** Libellé enregistré dans gamification_activities.activity_name (colonne obligatoire). */
+const LIBELLES_ACTIVITE: Record<string, string> = {
+  itemReviewed: 'Item révisé',
+  itemMastered: 'Item maîtrisé',
+  examCompleted: 'Quiz terminé',
+  perfectExam: 'Quiz parfait',
+  dailyStreak: 'Série quotidienne',
+  clinicalCase: 'Situation ECOS terminée',
+  aiQuestion: "Question à l'assistant",
+};
+
 export function useGamification() {
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -217,13 +228,17 @@ export function useGamification() {
     if (!userId || userId === '00000000-0000-0000-0000-000000000000') return false;
     
     try {
-      await supabase.from('gamification_activities').insert({
+      // `activity_name` est NOT NULL en base : sans lui, chaque insertion était
+      // refusée (23502) et l'XP restait à 0 malgré quiz et ECOS terminés.
+      const { error } = await supabase.from('gamification_activities').insert({
         user_id: userId,
         activity_type: reason,
+        activity_name: LIBELLES_ACTIVITE[reason] ?? reason,
         points_earned: points,
         created_at: new Date().toISOString()
       } as any);
-      
+      if (error) throw error;
+
       // Reload stats to reflect new points
       await loadStats(userId);
       return true;

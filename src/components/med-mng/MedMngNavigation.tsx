@@ -137,6 +137,8 @@ export const MedMngNavigation: React.FC = () => {
               variant={isActive(ROUTE_PATHS.medMngProfile) ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => handleNavigation(ROUTE_PATHS.medMngProfile, 'Paramètres')}
+              aria-label="Paramètres du profil"
+              title="Paramètres du profil"
               className="flex items-center gap-2 px-3"
             >
               <Settings className="h-4 w-4" />
@@ -146,6 +148,8 @@ export const MedMngNavigation: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
               className="flex items-center gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3"
             >
               <LogOut className="h-4 w-4" />
@@ -158,6 +162,7 @@ export const MedMngNavigation: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate(ROUTE_PATHS.home)}
+              aria-label="Accueil"
               className="p-2"
             >
               <Home className="h-4 w-4" />
@@ -167,6 +172,8 @@ export const MedMngNavigation: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
               className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-2"
             >
               <LogOut className="h-4 w-4" />

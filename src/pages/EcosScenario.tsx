@@ -6,7 +6,6 @@ import { StepContent } from '@/components/ecos/StepContent';
 import { StepProgress } from '@/components/ecos/StepProgress';
 import { Badge } from '@/components/ui/badge';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useEcosTimer } from '@/hooks/useEcosTimer';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -103,7 +102,6 @@ const EcosScenario = () => {
   const [dbScenario, setDbScenario] = useState<EcosScenarioData | null>(null);
   const [timerPaused, setTimerPaused] = useState(true);
   
-  const { timeLeft, formatTime } = useEcosTimer({ initialTime: 900 });
   const { logActivity } = useActivityTracking();
   const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
 
@@ -166,7 +164,7 @@ const EcosScenario = () => {
       id: String(dbScenario.sd_id),
       title: dbScenario.intitule_sd,
       specialty: 'Situation de départ ECOS',
-      duration: 15,
+      duration: 7,
       pitch: `Situation clinique : ${dbScenario.intitule_sd}. Prenez en charge ce patient de manière structurée.`,
       patient: {
         name: 'Patient(e)',
@@ -335,9 +333,9 @@ const EcosScenario = () => {
       </div>
 
       <div className="relative z-10">
+        {/* Pas de second chronomètre dans l'en-tête : il affichait « 15:00 »
+            figé, en contradiction avec le chronomètre réel de 7 min. */}
         <EcosHeader 
-          timeLeft={timeLeft}
-          formatTime={formatTime}
           scenarioId={scenarioData.id}
           specialty={scenarioData.specialty}
         />
