@@ -19,7 +19,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
-import { exigerAdministrateur, exigerConnexion, exigerPremium, fonctionRetiree } from '../_shared/mm-garde.ts';
+import { exigerAdministrateur, exigerConnexion, fonctionRetiree } from '../_shared/mm-garde.ts';
 import { 
   SunoAPIClient, 
   getCorrectSunoModel, 
@@ -115,8 +115,12 @@ serve(async (req) => {
         'La génération audio MED MNG passe par la fonction mm-generate-music (abonnement Premium, 30 générations par mois).',
       );
     }
+    // generate_lyrics (Suno), process_audio (Suno) et generate_voice (ElevenLabs) :
+    // aucune page ne les appelle et aucun quota ne les limite ; un abonné pouvait
+    // les appeler sans fin aux frais de la plateforme. Réservées aux administrateurs
+    // (revue de sécurité du 04.10.2026).
     if (action === 'generate_lyrics' || action === 'process_audio' || action === 'generate_voice') {
-      const acces = await exigerPremium(req, corsHeaders);
+      const acces = await exigerAdministrateur(req, corsHeaders);
       if (acces instanceof Response) return acces;
     }
     if (action === 'get_credits') {

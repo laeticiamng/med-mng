@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -23,10 +24,17 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Réservé aux administrateurs (ou à la clé de service) — revue de sécurité du
+  // 04.10.2026 : sans authentification (verify_jwt = false), la fonction envoyait
+  // un e-mail à n'importe quelle adresse fournie, avec des variables insérées
+  // telles quelles dans le HTML (relais d'e-mails ouvert). Aucune page ne l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
+
   try {
     const { type, email, name, variables = {} }: EmailRequest = await req.json();
     
-    console.log(`📧 Sending email type: ${type} to: ${email}`);
+    console.log(`📧 Sending email type: ${type}`);
 
     // Récupérer le template d'email depuis la base
     const { data: template, error: templateError } = await supabase
@@ -69,13 +77,13 @@ serve(async (req) => {
     });
 
     const emailResult = await emailResponse.json();
-    console.log('✅ Email envoyé avec succès:', emailResult);
+    console.log('✅ Email envoyé :', emailResult?.id ?? 'sans identifiant');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         emailId: emailResult.id,
-        message: `Email ${type} envoyé à ${email}` 
+        message: `Email ${type} envoyé` 
       }), 
       {
         status: 200,
