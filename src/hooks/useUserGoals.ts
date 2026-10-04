@@ -2,6 +2,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+/** Catégories d'objectifs proposées par Med MNG (formulaire de « Mes objectifs »). */
+export const CATEGORIES_MED_MNG = ['study', 'exam', 'music', 'health'] as const;
+
 export interface UserGoal {
   id: string;
   title: string;
@@ -23,10 +26,17 @@ export function useUserGoals() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
+      // CONSTAT (revue critique 04.10.2026) : la base est partagée avec
+      // EmotionsCare, dont le déclencheur d'inscription crée trois objectifs pour
+      // tout nouveau compte (« Premier scan émotionnel », « Première respiration
+      // guidée », « Première entrée journal » ; catégories onboarding, wellness,
+      // reflection). Ils s'affichaient ici comme « Objectifs actifs 3 ». Seules
+      // les catégories proposées par Med MNG sont lues.
       const { data, error } = await supabase
         .from('user_goals')
         .select('*')
         .eq('user_id', user.id)
+        .in('category', CATEGORIES_MED_MNG as unknown as string[])
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -268,7 +268,7 @@ export const toggleFavoriteItem = async ({
 export const fetchProgressOverview = async (
   userId: string
 ): Promise<ProgressOverview> => {
-  const [itemsCountResponse, progressResponse, profileResponse, sessionsResponse] =
+  const [itemsCountResponse, progressResponse, serieResponse] =
     await Promise.all([
       (supabase as any)
         .from('edn_items_complete')
@@ -279,17 +279,17 @@ export const fetchProgressOverview = async (
         .select('content_id, mastery_level, last_accessed, attempts_count')
         .eq('user_id', userId)
         .eq('content_type', 'item'),
-      supabase
-        .from('profiles')
-        .select('streak_current, streak_best, weekly_goal')
-        .eq('id', userId)
-        .maybeSingle(),
+      // CONSTAT (revue critique 04.10.2026, vérifié en production) : la page
+      // « Progression » lisait profiles.streak_current / weekly_goal et
+      // study_sessions.date / items_revised, colonnes qui n'existent pas (400,
+      // 42703) : la page finissait sur « Quelque chose n'a pas fonctionné »
+      // pour tout le monde. La série vient de user_gamification_stats (comme
+      // l'en-tête du site) ; les items vus cette semaine, de user_progress.
       (supabase as any)
-        .from('study_sessions')
-        .select('date, items_revised')
+        .from('user_gamification_stats')
+        .select('current_streak, longest_streak')
         .eq('user_id', userId)
-        .order('date', { ascending: false })
-        .limit(7),
+        .maybeSingle(),
     ]);
 
   if (itemsCountResponse.error) {
@@ -300,12 +300,9 @@ export const fetchProgressOverview = async (
     throw progressResponse.error;
   }
 
-  if (profileResponse.error) {
-    throw profileResponse.error;
-  }
-
-  if (sessionsResponse.error) {
-    throw sessionsResponse.error;
+  // Série indisponible : la page reste utilisable (série à 0).
+  if (serieResponse.error && import.meta.env.DEV) {
+    console.warn('[medMngItemsService] série indisponible', serieResponse.error);
   }
 
   // Get item details for progress items
@@ -367,14 +364,17 @@ export const fetchProgressOverview = async (
   ).length;
   const notStartedCount = validProgressItems.filter((item: any) => item.status === 'not_started')
     .length;
-  const profileData = profileResponse.data as any;
-  const streakCurrent = profileData?.streak_current ?? 0;
-  const streakBest = profileData?.streak_best ?? 0;
-  const weeklyGoal = profileData?.weekly_goal ?? 10;
-  const weeklyRevisedCount = (sessionsResponse.data ?? []).reduce(
-    (sum: number, session: any) => sum + (session.items_revised ?? 0),
-    0
-  );
+  const serie = (serieResponse.error ? null : serieResponse.data) as
+    | { current_streak?: number | null; longest_streak?: number | null }
+    | null;
+  const streakCurrent = serie?.current_streak ?? 0;
+  const streakBest = Math.max(serie?.longest_streak ?? 0, streakCurrent);
+  // Aucun objectif hebdomadaire n'est enregistré par utilisateur : 10 items par défaut.
+  const weeklyGoal = 10;
+  const ilYaSeptJours = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weeklyRevisedCount = validProgressItems.filter(
+    (item: ProgressItem) => item.lastSeenAt && new Date(item.lastSeenAt).getTime() >= ilYaSeptJours
+  ).length;
 
   const specialtyStats: Record<string, { total: number; revised: number }> = {};
   validProgressItems.forEach((item: any) => {
@@ -402,10 +402,17 @@ export const fetchProgressOverview = async (
       total: values.total,
       revised: values.revised,
     })),
-    recentActivity: (sessionsResponse.data ?? []).map((session: any) => ({
-      date: session.date,
-      revisedCount: session.items_revised ?? 0,
-    })),
+    // Items vus par jour sur les 7 derniers jours (user_progress.last_accessed).
+    recentActivity: Object.entries(
+      validProgressItems.reduce((parJour: Record<string, number>, item: ProgressItem) => {
+        if (!item.lastSeenAt || new Date(item.lastSeenAt).getTime() < ilYaSeptJours) return parJour;
+        const jour = item.lastSeenAt.slice(0, 10);
+        parJour[jour] = (parJour[jour] ?? 0) + 1;
+        return parJour;
+      }, {}),
+    )
+      .sort(([a], [b]) => (a < b ? 1 : -1))
+      .map(([date, revisedCount]) => ({ date, revisedCount: Number(revisedCount) })),
     itemsToReview: validProgressItems
       .filter((item: any) => item.status !== 'revised')
       .sort((a: any, b: any) => {

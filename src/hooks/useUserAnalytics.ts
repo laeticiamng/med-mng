@@ -77,11 +77,13 @@ export const useUserAnalytics = () => {
           .eq('user_id', user.id)
           .eq('content_type', 'item'),
         
-        // Profil utilisateur
-        supabase
-          .from('profiles')
-          .select('streak_current, streak_best, total_xp, weekly_goal')
-          .eq('id', user.id)
+        // Série et points. CONSTAT (revue critique 04.10.2026) : la requête lisait
+        // profiles.streak_current / streak_best / total_xp / weekly_goal, colonnes
+        // inexistantes (400, 42703) : série, points et niveau restaient à 0.
+        (supabase as any)
+          .from('user_gamification_stats')
+          .select('current_streak, longest_streak, total_points')
+          .eq('user_id', user.id)
           .maybeSingle(),
         
         // CONSTAT : la table 'med_mng_library' n'existe pas. La vraie source de lecture
@@ -93,12 +95,13 @@ export const useUserAnalytics = () => {
           .select('id, is_liked')
           .eq('user_id', user.id),
         
-        // Sessions d'étude
+        // Sessions d'étude (les colonnes date / items_revised n'existent pas :
+        // une session = started_at, duration_minutes ; 400 auparavant).
         (supabase as any)
           .from('study_sessions')
-          .select('date, items_revised, duration_minutes')
+          .select('started_at, duration_minutes')
           .eq('user_id', user.id)
-          .order('date', { ascending: false })
+          .order('started_at', { ascending: false })
           .limit(30),
         
         // Badges
@@ -134,18 +137,24 @@ export const useUserAnalytics = () => {
       const totalListeningMinutes = songsInLibrary * 4;
 
       // Gamification
-      const currentStreak = profileData?.streak_current ?? 0;
-      const bestStreak = profileData?.streak_best ?? 0;
-      const totalXP = profileData?.total_xp ?? 0;
+      const currentStreak = profileData?.current_streak ?? 0;
+      const bestStreak = Math.max(profileData?.longest_streak ?? 0, currentStreak);
+      const totalXP = profileData?.total_points ?? 0;
       const level = Math.floor(totalXP / XP_PER_LEVEL) + 1;
       const badgesUnlocked = badgesData.length;
 
       // Tendances hebdomadaires (7 derniers jours)
-      const last7Days = sessionsData.slice(0, 7).map((s: any) => ({
-        date: s.date,
-        itemsRevised: s.items_revised ?? 0,
-        minutesStudied: s.duration_minutes ?? 0,
-      }));
+      // Une entrée par jour (sessions regroupées par date de début).
+      const parJour = new Map<string, { itemsRevised: number; minutesStudied: number }>();
+      sessionsData.forEach((s: any) => {
+        const jour = typeof s.started_at === 'string' ? s.started_at.slice(0, 10) : null;
+        if (!jour) return;
+        const cumul = parJour.get(jour) ?? { itemsRevised: 0, minutesStudied: 0 };
+        cumul.itemsRevised += 1;
+        cumul.minutesStudied += s.duration_minutes ?? 0;
+        parJour.set(jour, cumul);
+      });
+      const last7Days = [...parJour.entries()].slice(0, 7).map(([date, v]) => ({ date, ...v }));
 
       // Performance par spécialité - calcul réel depuis les items
       let specialtyPerformance: UserAnalytics['specialtyPerformance'] = [];

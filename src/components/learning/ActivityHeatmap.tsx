@@ -26,6 +26,11 @@ const ACTIVITY_LABELS: Record<string, string> = {
   flashcard: '🃏 Flashcard',
   clinical_case: '🏥 Cas clinique',
   study: '📚 Étude',
+  ai_question: '💬 Question à l\'IA',
+  music_generation: '🎵 Chanson',
+  ecos: '🩺 ECOS',
+  review: '🔁 Révision',
+  clinical: '🏥 Cas clinique',
 };
 
 export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
@@ -231,6 +236,8 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
             </p>
             <div className="flex flex-wrap gap-2">
               {Object.entries(activityStats)
+                // Seuls les types réellement pratiqués (plus de « review 0 », « clinical 0 »…).
+                .filter(([, count]) => Number.isFinite(count) && count > 0)
                 .sort(([, a], [, b]) => b - a)
                 .map(([type, count]) => (
                   <Badge 

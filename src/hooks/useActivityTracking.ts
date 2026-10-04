@@ -17,10 +17,47 @@ interface HeatmapData {
   activities: Record<ActivityType, number>;
 }
 
+/**
+ * Événements d'interface enregistrés sous le type « study » sans être de la
+ * révision (navigation, pages légales, réglages, connexion, erreurs…).
+ *
+ * CONSTAT (revue critique 04.10.2026, vérifié en production) : un compte créé
+ * le jour même, qui n'avait fait que parcourir le site, affichait « Étude 96 »
+ * et « 106/50 objectif hebdo » sur « Ma progression » : chaque clic du menu,
+ * chaque ouverture de l'espace et la simple lecture des CGV comptaient comme de
+ * l'étude, et alimentaient la série de jours. Ces événements ne sont plus
+ * enregistrés dans user_activity_log.
+ */
+const ACTIONS_HORS_REVISION = new Set([
+  'view_pricing', 'view_cgv', 'view_cgu', 'view_politique_confidentialite', 'view_cookies_policy',
+  'view_mentions_legales', 'view_faq', 'view_about', 'view_profile', 'view_user_settings', 'view_settings',
+  'view_system_settings', 'view_platform_settings', 'view_design_system', 'copy_design_token',
+  'view_accessibility_dashboard', 'view_security_monitoring', 'view_modular_dashboard',
+  'view_advanced_analytics', 'view_learning_analytics', 'view_realtime_analytics', 'view_progress_export',
+  'admin_panel_access', 'login_success', 'signup_success', 'user_signed_in', 'checkout_start', '404_error',
+  'install_pwa_viewed', 'change_language', 'share_badge', 'favorites_viewed', 'mng_method_viewed',
+  'content_library_viewed', 'ecos_index_view', 'open',
+]);
+const TYPES_HORS_REVISION = new Set([
+  'app_session_start', 'open_notifications', 'open_help', 'accessibility_skip_link', 'view_system_fallback',
+  'error_displayed', 'admin_access_granted', 'streak_display_view',
+]);
+
+export const estEvenementDInterface = (activity: { activity_type: string; metadata?: Record<string, unknown> }): boolean => {
+  if (activity.activity_type !== 'study') return false;
+  const m = activity.metadata ?? {};
+  return (
+    m.component === 'navigation' ||
+    (typeof m.action === 'string' && ACTIONS_HORS_REVISION.has(m.action)) ||
+    (typeof m.type === 'string' && TYPES_HORS_REVISION.has(m.type))
+  );
+};
+
 export const useActivityTracking = () => {
   // Log an activity
   const logActivity = useCallback(async (activity: ActivityLog) => {
     try {
+      if (estEvenementDInterface(activity)) return true;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
@@ -89,8 +126,12 @@ export const useActivityTracking = () => {
             }
           };
         }
-        byDate[dateStr].count += log.count;
-        byDate[dateStr].activities[log.activity_type as ActivityType] += log.count;
+        // Types inconnus (ex. « page_view ») ignorés ; count absent = 0 (sinon NaN affiché).
+        const type = log.activity_type as ActivityType;
+        if (!(type in byDate[dateStr].activities)) return;
+        const n = Number(log.count) || 0;
+        byDate[dateStr].count += n;
+        byDate[dateStr].activities[type] += n;
       });
 
       // Fill in missing dates
