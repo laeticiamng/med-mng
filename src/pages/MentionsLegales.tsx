@@ -126,9 +126,11 @@ const MentionsLegales = () => {
               <div className="bg-success/10 p-6 rounded-lg">
                 <h4 className="font-semibold text-success mb-3 text-lg">🩺 Parcours ECOS :</h4>
                 <ul className="space-y-2 text-muted-foreground text-sm">
-                  <li>• Fiches cliniques spécifiques à chaque situation de départ (SD)</li>
-                  <li>• Une chanson MNG dédiée par SD (sans distinction A/B)</li>
-                  <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
+                  {/* fix(allégation) 04.10.2026 : aucune chanson n'existe pour les
+                      situations ECOS, et il y a 12 situations rédigées pour Med MNG
+                      (pas une fiche par situation de départ du référentiel). */}
+                  <li>• 12 situations cliniques d'entraînement rédigées pour Med MNG (dossier du patient, déroulé guidé)</li>
+                  <li>• Chronomètre et grille d'auto-évaluation générique</li>
                 </ul>
               </div>
             </div>

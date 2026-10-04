@@ -66,7 +66,7 @@ export const AppleMusicPlayer = () => {
                     « Paroles actuelles » n'existait dans aucun item. */}
                 <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
                   <p className="text-sm text-muted-foreground">
-                    <TranslatedText text="Chaque item est mis en chanson à la demande, à partir de ses compétences officielles. La génération se lance depuis votre compte." />
+                    <TranslatedText text="Chaque item peut être mis en chanson à partir de ses compétences officielles : la génération audio est incluse dans Med MNG Premium (30 chansons par mois)." />
                   </p>
                 </div>
               </div>
@@ -80,12 +80,15 @@ export const AppleMusicPlayer = () => {
                     className="h-12 sm:h-14 md:h-16 px-6 sm:px-8 md:px-10 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 w-full sm:w-auto"
                   >
                     <Music className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
-                    <TranslatedText text="S'inscrire pour écouter" />
+                    <TranslatedText text="Créer un compte gratuit" />
                   </Button>
                 </motion.div>
               </Link>
               <p className="text-sm text-muted-foreground">
-                <TranslatedText text="Créez un compte gratuit pour générer et écouter vos chansons" />
+                {/* fix(allégation) 04.10.2026 : un compte gratuit ne génère pas de chanson
+                    (mm-generate-music répond 402) ; il ouvre les paroles, le récit, les
+                    planches et le quiz des 10 items d'essai. */}
+                <TranslatedText text="Gratuit : paroles, récit, planches et quiz de 10 items d'essai. Génération audio avec Premium." />
               </p>
             </div>
 
