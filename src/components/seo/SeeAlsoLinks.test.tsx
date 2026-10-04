@@ -20,6 +20,8 @@ describe('SeeAlsoLinks', () => {
     expect(cibles.length).toBeGreaterThan(3);
     expect(cibles).not.toContain(ROUTE_PATHS.seoSimulationEdn);
     expect(cibles).not.toContain(ROUTE_PATHS.seoCasCliniqueEdn);
+    // Vague 3 (D44) : « Exemple de cas clinique » (cas rédigé, sans source) retiré.
+    expect(cibles).not.toContain(ROUTE_PATHS.seoExempleCasClinique);
     expect(screen.queryByText(/Simulateur d'examen/)).toBeNull();
   });
 });

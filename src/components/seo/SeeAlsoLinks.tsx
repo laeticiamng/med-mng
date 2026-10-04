@@ -4,6 +4,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 
 // Sans « Simulateur d'examen EDN en ligne » ni « Cas cliniques corrigés pour l'EDN » : examens blancs
 // et cas cliniques générés retirés (DC7) ; ces deux adresses redirigent vers les fiches officielles.
+// Sans « Exemple de cas clinique interactif » (D44) : cas rédigé sans source, redirigé vers /ecos.
 const ALL_PILLAR_PAGES = [
   { path: ROUTE_PATHS.seoPreparationEcos, title: 'Préparation ECOS 2027 – Guide complet' },
   { path: ROUTE_PATHS.seoReussirEdn, title: 'Réussir l\'EDN : stratégie et planning' },
@@ -12,7 +13,6 @@ const ALL_PILLAR_PAGES = [
   { path: ROUTE_PATHS.seoClassementEdnExplique, title: 'Classement EDN expliqué' },
   { path: ROUTE_PATHS.seoRangAvsRangB, title: 'Rang A vs Rang B : que réviser ?' },
   { path: ROUTE_PATHS.seoTravaillerCasCliniques, title: 'Travailler les cas cliniques efficacement' },
-  { path: ROUTE_PATHS.seoExempleCasClinique, title: 'Exemple de cas clinique interactif' },
 ];
 
 interface SeeAlsoLinksProps {

@@ -503,13 +503,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/travailler-cas-cliniques',
     ogType: 'article',
   },
-  '/exemple-cas-clinique': {
-    title: 'Exemple de Cas Clinique Corrigé - EDN',
-    description: 'Exemple de cas clinique EDN entièrement corrigé. Démarche diagnostique, examens complémentaires et prise en charge commentée.',
-    keywords: `${BASE_KEYWORDS}, exemple cas clinique, corrigé, démarche diagnostique, prise en charge`,
-    canonical: '/exemple-cas-clinique',
-    ogType: 'article',
-  },
 
   // === AUDIT (noindex) ===
   '/audit': {

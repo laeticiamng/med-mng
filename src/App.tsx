@@ -139,7 +139,6 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 const QuickRevision = lazy(() => import("./pages/QuickRevision"));
 
 // ⚔️ KARAOKE DUELS
-const KaraokeDuel = lazy(() => import("./pages/KaraokeDuel"));
 
 // 🎵 DAILY SRS PLAYLIST
 const DailySRSPlaylist = lazy(() => import("./pages/DailySRSPlaylist"));
@@ -176,7 +175,6 @@ const ErreursFrquentesEcos = lazy(() => import("./pages/seo/ErreursFrquentesEcos
 const ClassementEdnExplique = lazy(() => import("./pages/seo/ClassementEdnExplique"));
 const RangAvsRangB = lazy(() => import("./pages/seo/RangAvsRangB"));
 const TravaillerCasCliniques = lazy(() => import("./pages/seo/TravaillerCasCliniques"));
-const ExempleCasClinique = lazy(() => import("./pages/seo/ExempleCasClinique"));
 
 const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense fallback={<PageLoader />}>{children}</Suspense>
@@ -341,7 +339,10 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.seoClassementEdnExplique} element={<S><ClassementEdnExplique /></S>} />
                                     <Route path={ROUTE_PATHS.seoRangAvsRangB} element={<S><RangAvsRangB /></S>} />
                                     <Route path={ROUTE_PATHS.seoTravaillerCasCliniques} element={<S><TravaillerCasCliniques /></S>} />
-                                    <Route path={ROUTE_PATHS.seoExempleCasClinique} element={<S><ExempleCasClinique /></S>} />
+                                    {/* « Exemple de cas clinique » : retiré (D44, 04.10.2026). Cas rédigé pour Med MNG
+                                        (« Diagnostic principal : SCA ST+ »), sans source. Les situations ECOS guidées
+                                        (grille d'auto-évaluation) le remplacent. */}
+                                    <Route path={ROUTE_PATHS.seoExempleCasClinique} element={<Navigate to={ROUTE_PATHS.ecosIndex} replace />} />
                                     <Route path={ROUTE_PATHS.declarationAccessibilite} element={<S><DeclarationAccessibilite /></S>} />
 
                                     {/* Auth (public) */}
@@ -394,8 +395,10 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.specialtyPaths} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.specialtyPathDetail} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
-                                    {/* Karaoke Duels */}
-                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<ProtectedRoute><S><KaraokeDuel /></S></ProtectedRoute>} />
+                                    {/* Duel karaoké : retiré (D53, 04.10.2026). Aucune entrée dans l'interface,
+                                        aucun duel en base, questions rédigées à la main avec des codes d'item faux
+                                        (« Sus-décalage ST » rattaché à IC-228, qui est « Ulcère de jambe »). */}
+                                    <Route path={ROUTE_PATHS.karaokeDuel} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Daily SRS Playlist */}
                                     <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<ProtectedRoute><S><DailySRSPlaylist /></S></ProtectedRoute>} />

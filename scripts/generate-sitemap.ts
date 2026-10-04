@@ -75,7 +75,6 @@ function getPriority(route: string): number {
   if (route === '/') return 1.0;
   if (route === '/med-mng/pricing') return 0.9;
   if (route === '/edn-complete') return 0.9;
-  if (route === '/demo') return 0.8;
   if (route.includes('edn') || route.includes('ecos')) return 0.8;
   if (route.includes('exam') || route.includes('clinical') || route.includes('flashcard') || route.includes('srs')) return 0.8;
   if (route.includes('login') || route.includes('signup')) return 0.7;
@@ -87,16 +86,16 @@ function getPriority(route: string): number {
 
 // All public routes for the sitemap
 const PUBLIC_ROUTES: string[] = [
+  // Pages retirées, à ne jamais remettre (redirigées dans App.tsx) : /demo et /parcours (04.10.2026),
+  // /chat, /exam-mode, /clinical-cases, /smart-study-planner, /simulation-examen-edn,
+  // /cas-cliniques-edn (DC7), /exemple-cas-clinique (D44, cas rédigé sans source), /duel (D53).
   '/',
-  '/demo',
   '/med-mng/login',
   '/med-mng/signup',
   '/med-mng/pricing',
   '/edn-complete',
   '/edn/music-library',
   '/srs-review',
-  '/exam-mode',
-  '/clinical-cases',
   '/flashcards',
   // '/ecos' retiré le 25/09/2026 : ECOS n'est plus proposé dans la navigation.
   '/leaderboard',
@@ -104,22 +103,17 @@ const PUBLIC_ROUTES: string[] = [
   // CONSTAT : ce sitemap déclarait encore /pomodoro, /karaoke, /shared-music, /store et
   // /community aux moteurs de recherche, alors que les pages correspondantes ont été
   // supprimées (commit ca5d38cb) : 5 URL indexables qui renvoyaient une 404. Retirées.
-  '/smart-study-planner',
   '/generator',
   '/mng-method',
-  '/chat',
   '/library',
   // Pillar pages SEO
   '/preparation-ecos-2027',
   '/reussir-edn',
   '/fiches-ecos-interactives',
-  '/simulation-examen-edn',
-  '/cas-cliniques-edn',
   '/erreurs-frequentes-ecos',
   '/classement-edn-explique',
   '/rang-a-vs-rang-b',
   '/travailler-cas-cliniques',
-  '/exemple-cas-clinique',
   '/mentions-legales',
   '/politique-confidentialite',
   '/cgu',

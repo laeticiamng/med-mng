@@ -139,9 +139,10 @@ test.describe('Pages retirées à la contre-vérification de la vague 2', () => 
 });
 
 /**
- * Vague 3 (04.10.2026) : français uniquement (D42).
+ * Vague 3 (04.10.2026) : français uniquement (D42) ; pages retirées « Exemple de cas clinique » (D44)
+ * et /duel (D53).
  */
-test.describe('Vague 3 — français uniquement', () => {
+test.describe('Vague 3 — français uniquement, pages retirées', () => {
   /** Libellés que produisait l'ancien sélecteur réglé sur « English » (relevés en production le 04.10). */
   const LIBELLES_ANGLAIS = ['Home', 'Pricing', 'Login', 'Sign up', 'English', 'Learn medicine', 'Create a free account', 'Discover', 'Why it works', 'Close'];
 
@@ -180,5 +181,25 @@ test.describe('Vague 3 — français uniquement', () => {
     expect(await page.evaluate(() => localStorage.getItem('medmng-language'))).toBeNull();
     expect(erreurs).toEqual([]);
     await ctx.close();
+  });
+
+  test('D44 : « Exemple de cas clinique » → situations ECOS ; absent du sitemap et des liens @attend-deploiement', async ({ page, request }) => {
+    await page.goto('/exemple-cas-clinique');
+    await expect(page).toHaveURL(/\/ecos$/);
+    await expect(page.locator('main')).not.toContainText('SCA ST+');
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).not.toContain('https://medmng.com/exemple-cas-clinique<');
+    expect(await (await request.get('/llms.txt')).text()).not.toContain('exemple-cas-clinique');
+    // « Voir aussi » (pages publiques) : plus de lien vers la page retirée.
+    await page.goto('/rang-a-vs-rang-b');
+    await expect(page.getByRole('navigation', { name: 'Articles connexes' })).toBeVisible();
+    await expect(page.locator('a[href="/exemple-cas-clinique"]')).toHaveCount(0);
+  });
+
+  test('D53 : /duel → fiches officielles ; absent du sitemap @attend-deploiement', async ({ page, request }) => {
+    await page.goto('/duel');
+    await expect(page).toHaveURL(/\/edn-complete$/);
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).not.toContain('https://medmng.com/duel<');
   });
 });
