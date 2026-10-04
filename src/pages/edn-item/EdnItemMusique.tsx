@@ -1,4 +1,5 @@
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
+import { MesChansonsItem } from '@/components/edn/music/MesChansonsItem';
 import { useFicheItemEdn } from './EdnItemContext';
 import { EdnItemSeo } from './EdnItemSeo';
 
@@ -21,6 +22,11 @@ export default function EdnItemMusique() {
         tableauRangA={contenu.tableau_rang_a}
         tableauRangB={contenu.tableau_rang_b}
       />
+      {/* Chansons déjà générées pour cet item (elles n'apparaissaient plus ici
+          après un rechargement, seulement dans « Ma bibliothèque »). */}
+      <div className="mt-6">
+        <MesChansonsItem itemCode={item.item_code} />
+      </div>
     </>
   );
 }
