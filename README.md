@@ -1,632 +1,72 @@
 # Med MNG — réviser les 367 items EDN en musique
 
-**État au 4 octobre 2026 · production : https://medmng.com (Lovable) · éditeur : EmotionsCare SASU**
+**Production : https://medmng.com** · éditeur : EmotionsCare SASU · état au 4 octobre 2026
 
-> Cette première section décrit l'état réel du produit. Le reste du document (sections suivantes) date de février 2026 et décrit aussi des modules hérités qui ne font pas partie de l'offre : en cas de doute, cette section fait foi.
+Application web (PWA) de révision pour les étudiants de 2e cycle (DFASM1–DFASM2, EDN 2028 et 2029). Pour chaque item : la fiche des compétences officielles (référentiel LiSA 2026, UNESS) et un contenu « immersif » (paroles de chanson, récit, planches, quiz), mis en musique à la demande.
 
-## État actuel (octobre 2026)
+## Offre
 
-**Cible** : étudiants DFASM1–DFASM2 (EDN 2028 et 2029).
-
-| Offre | Contenu |
+| Formule | Contenu |
 |---|---|
-| Gratuit | Fiches officielles des 367 items (compétences rang A et rang B, référentiel LiSA 2026, table `oic_competences`) ; contenu immersif (paroles, récit, planches, quiz) de 10 items d'essai (`ITEMS_GRATUITS`, `src/config/offre.ts`, et fonction SQL `mm_item_gratuit`) ; 12 situations ECOS d'entraînement rédigées pour Med MNG |
-| Premium — 69 €/an ou 9,90 €/mois | Contenu immersif des 367 items ; 30 générations audio par mois (Suno) ; bibliothèque personnelle |
+| **Gratuit** | Fiches officielles des 367 items (rang A et rang B, table `oic_competences`) ; contenu immersif complet de 10 items d'essai, IC-1 à IC-10 (`ITEMS_GRATUITS` dans `src/config/offre.ts` et fonction SQL `mm_item_gratuit`) ; 12 situations ECOS d'entraînement rédigées pour Med MNG |
+| **Premium — 69 €/an ou 9,90 €/mois** | Contenu immersif des 367 items ; 30 générations audio de chansons par mois ; bibliothèque personnelle |
 
-**Parcours techniques principaux**
-- Contenu immersif : RPC `mm_contenu_immersif_item` (verrou Premium côté serveur).
-- Génération audio : `mm-generate-music` (abonnement, quota mensuel, registre `mm_generations_audio`) → `mm-suno-callback` → `mm-music-status` (rattrapage). Les fichiers sont copiés dans le compartiment `mm-chansons` (Suno ne les garde que 14 jours).
-- Paiement : `mm-create-checkout`, `mm-stripe-webhook` → `user_subscriptions`, `mm-customer-portal`.
-- Base Supabase **partagée avec EmotionsCare** (projet `yaincoxihiqdksxgrsrk`) : ne pas modifier les tables, politiques ou fonctions communes sans vérifier l'impact sur EmotionsCare.
+Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copilote IA, tuteur IA, cas cliniques, examens blancs, QCM et planning générés par IA. Leurs anciennes adresses redirigent vers `/edn-complete` (ou `/ecos`) et leurs fonctions serveur sont réservées aux administrateurs.
 
-**Sécurité des fonctions Edge** : elles sont déployées avec `verify_jwt = false`, et la clé publique (anon) est elle-même un JWT valide. Toute fonction qui dépense des crédits payants (Suno, OpenAI, passerelle IA, Perplexity, Firecrawl, ElevenLabs) doit donc contrôler l'appelant dans son code avec `supabase/functions/_shared/mm-garde.ts` (`exigerConnexion`, `exigerPremium`, `exigerAdministrateur`). Côté front, un appel direct (`fetch`) doit envoyer le jeton de session (`src/lib/enTetesFonction.ts`), pas la clé publique.
+## Fonctionnalités (ce qui est réellement proposé)
 
-**Vérifications** : `npx tsc --noEmit -p tsconfig.app.json`, `npm test` (les tests d'intégration réseau de `test/**` échouent hors ligne : 68 échecs connus, identiques à `origin/main` au 04.10.2026), `npx vite build`, et `deno check supabase/functions/<fonction>/index.ts`.
+- **Items EDN** (`/edn-complete`, `/edn-complete/:item/{apercu,rang-a,rang-b,quiz,musique,planches,recit,stats}`) : fiche rang A / rang B, export PDF, recherche par numéro, titre, discipline ou intitulé de compétence (liste et ⌘K).
+- **Contenu immersif** : lu par la RPC `mm_contenu_immersif_item` (verrou Premium **côté serveur** ; les colonnes Premium sont illisibles en lecture directe, erreur 42501).
+- **Quiz par item** : une question par compétence officielle, quatre énoncés officiels, réponse correcte à une position stable mais non cyclique.
+- **Génération audio** (Premium) : `/med-mng/create` et onglet Musique de la fiche.
+- **ECOS** (`/ecos`, `/ecos/:id`) : 12 stations guidées (dossier du patient, « Je dis / Je fais / Je conclus », chronomètre, grille d'auto-évaluation générique).
+- **Espace personnel** : bibliothèque (`/med-mng/music-library`), progression (`/med-mng/progress`), favoris, profil (abonnement, portail Stripe, export et suppression du compte).
 
-**Suivi** : l'audit de finalisation, les défauts ouverts et les décisions en attente sont tenus hors dépôt (FINALISATION.md de la session d'audit).
+## Architecture
 
----
+- **Front** : React 18, TypeScript, Vite, Tailwind/shadcn, TanStack Query. Projet Lovable ; hébergement Lovable (réseau Cloudflare).
+- **Back** : Supabase `yaincoxihiqdksxgrsrk` (région eu-central-1, Francfort) — **partagé avec EmotionsCare** : ne modifier aucune table, politique ou fonction commune sans vérifier l'impact sur EmotionsCare (exemple : `whisper-transcribe` est appelée par EmotionsCare).
+- **Génération audio** : `mm-generate-music` (abonnement, quota mensuel, registre `mm_generations_audio`) → sunoapi.org → `mm-suno-callback` (ou rattrapage `mm-music-status`) ; le fichier est copié dans le compartiment `mm-chansons` (l'URL fournie par Suno expire au bout de 14 jours). Si les paroles enregistrées d'un item ne sont pas rédigées, `generer-paroles-item` les réécrit depuis les compétences officielles (passerelle IA de Lovable, Google Gemini).
+- **Planches** : `illustrer-case` dessine une seule fois chaque case (OpenAI), conservée dans `bd-illustrations`.
+- **Paiement** : `mm-create-checkout` → Stripe Checkout ; `mm-stripe-webhook` → `user_subscriptions` ; `mm-customer-portal` (résiliation).
+- **Prestataires réellement appelés** : liste à jour dans la politique de confidentialité (`src/pages/PolitiqueConfidentialite.tsx`).
 
-## 📋 Table des Matières
+### Sécurité des fonctions Edge
 
-- [🎯 Vision & Philosophie](#-vision--philosophie)
-- [🧭 Priorités MVP](#-priorités-mvp-avant-lancement)
-- [✨ Fonctionnalités](#-fonctionnalités)
-- [🚀 Démarrage Rapide](#-démarrage-rapide)
-- [🏗️ Architecture](#️-architecture)
-- [📁 Structure du Projet](#-structure-du-projet)
-- [🛣️ Routes & Navigation](#️-routes--navigation)
-- [🔧 Hooks & Services](#-hooks--services)
-- [🎨 Design System](#-design-system)
-- [🗄️ Base de Données](#️-base-de-données)
-- [⚡ Edge Functions](#-edge-functions)
-- [🧪 Tests](#-tests)
-- [📱 PWA & Offline](#-pwa--offline)
-- [🔐 Sécurité](#-sécurité)
-- [📊 Monitoring & Analytics](#-monitoring--analytics)
-- [🚀 Déploiement](#-déploiement)
-- [🤝 Contribution](#-contribution)
+La clé publique (anon) est un JWT valide : `verify_jwt` ne suffit pas. Toute fonction qui dépense des crédits payants contrôle l'appelant dans son code avec `supabase/functions/_shared/mm-garde.ts` (`exigerConnexion`, `exigerPremium`, `exigerAdministrateur`, `fonctionRetiree`). Côté front, un `fetch` direct envoie le jeton de session (`src/lib/enTetesFonction.ts`), jamais la clé publique.
 
----
+## Déploiement
 
-## 🎯 Vision & Philosophie
+1. **Front** : pousser sur `main` (GitHub `laeticiamng/med-mng`), puis « Publish » dans Lovable.
+2. **Fonctions Edge** : `supabase functions deploy <fonction>` (le `supabase/config.toml` du dépôt contient des clés refusées par la CLI : déployer depuis un dossier de déploiement dédié).
+3. **Migrations** : `supabase/migrations/*.sql`, appliquées une par une après relecture (base partagée).
 
-### Positionnement Unique
+Secrets (Supabase, jamais dans le dépôt) : `SUNO_API_KEY`, `LOVABLE_API_KEY`, `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, etc.
 
-MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-panique académique** :
-
-| ❌ Ce que nous ne sommes PAS | ✅ Ce que nous sommes |
-|------------------------------|----------------------|
-| Plateforme de révision classique | Régulation cognitive anti-panique |
-| Accumulateur de ressources | Clarificateur de priorités |
-| Exhaustivité avant tout | Action immédiate avant compréhension |
-
-### Principes Fondateurs
-
-1. **🎵 Musique = Apprentissage** : Chaque chanson IA contient un item médical complet
-2. **🧠 Décision avant Contenu** : Guider plutôt qu'accumuler
-3. **⚡ Clarté avant Exhaustivité** : Réduire la charge cognitive
-4. **🎯 Action avant Compréhension** : Débloquer immédiatement
-
----
-
-## 🧭 Priorités MVP (avant lancement)
-
-Objectif : livrer **3 parcours clés parfaitement stables** avant de ré-ouvrir le reste des modules.
-
-1. **Inscription → Item EDN → Écoute audio**
-2. **Chat IA → Réponse sourcée**
-3. **Générer une chanson → Écouter → Sauvegarder**
-
-Ce README décrit le socle technique, mais l'interface expose volontairement un périmètre réduit en MVP. Les fonctionnalités secondaires sont mises en arrière-plan jusqu'à validation des parcours essentiels et de la qualité des données. Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour le détail des limites connues.
-
-### 🔎 Inventaire technique (indicatif)
-
-- 80+ pages React (toutes ne sont pas exposées en MVP)
-- ~108 fonctions Edge dans `supabase/functions/` (beaucoup héritées ; les fonctions payantes sont protégées par `_shared/mm-garde.ts`)
-- 5 routeurs unifiés côté backend (audio, core, content, system, webhooks)
-
----
-
-## ✨ Fonctionnalités
-
-> **MVP** : seules les fonctionnalités liées aux parcours clés sont mises en avant dans l'interface. Les modules annexes restent présents dans le code mais sont volontairement masqués.
-
-### 🎵 Apprentissage Musical (Core)
-
-| Fonctionnalité | Description |
-|----------------|-------------|
-| **Génération Suno IA** | Création de chansons pédagogiques personnalisées (V4.5) |
-| **Paroles Médicales** | Lyrics contenant les concepts clés de chaque item |
-| **Répétition Espacée** | Refrain = concepts essentiels (SRS audio) |
-| **Bibliothèque Musicale** | Organisation par items, spécialités, playlists |
-| **UnifiedAudioPlayer** | Lecteur audio avec variantes (minimal, compact, card) |
-
-### 🏥 Medical AI Copilot
-
-| Mode | Description |
-|------|-------------|
-| **Quick Answer** | Réponses concises pour questions simples |
-| **Research** | Analyse approfondie avec sources académiques |
-| **Clinical Assistant** | Raisonnement médical structuré |
-| **Scrape-Analyze** | Extraction de guidelines médicales |
-| **Voice Query** | Questions vocales transcrites |
-
-### 📚 Contenu EDN/ECOS
-
-| Module | Description |
-|--------|-------------|
-| **Items EDN Complets** | 362+ items avec contenu enrichi |
-| **Mode Immersif** | Apprentissage gamifié avec animations |
-| **ECOS Simulator** | Simulations cliniques avec timer 7min + grilles UNESS |
-| **Tableaux Rang A/B** | Concepts fondamentaux et experts |
-
-### 🧠 Apprentissage Intelligent
-
-| Outil | Description |
-|-------|-------------|
-| **SRS Review** | Répétition espacée adaptative + export stats |
-| **Exam Mode** | QCM avec feedback animé + confetti + export PDF |
-| **Flashcards** | Cartes 3D avec raccourcis clavier + import Anki |
-| **Cas Cliniques IA** | Génération de cas par intelligence artificielle |
-| **Chat IA Médical** | Assistant streaming avec sources + feedback persisté |
-
-### 📊 Progression & Gamification
-
-| Feature | Description |
-|---------|-------------|
-| **Dashboard Progression** | Heatmap d'activité, anneaux animés |
-| **Système de Points** | XP, niveaux, streaks |
-| **Badges & Achievements** | Récompenses débloquables |
-| **Leaderboard** | Classement communautaire temps réel |
-| **Défis Quotidiens** | Challenges avec récompenses XP |
-| **Objectifs Personnels** | Suivi d'objectifs SMART |
-
-### 🧘 Bien-être & Productivité
-
-| Feature | Description |
-|---------|-------------|
-| **Pomodoro Timer** | Sessions de travail focalisé avec presets |
-| **Mood Tracker** | Suivi quotidien humeur/énergie/stress |
-| **Smart Study Planner** | Planification intelligente avec sync calendrier |
-
-### 👥 Communauté
-
-| Fonctionnalité | Description | Status |
-|----------------|-------------|--------|
-| **Community Hub** | Forum discussions, posts, likes, bookmarks | ✅ Implémenté |
-| **Forum Topics** | Sujets thématiques avec réponses et likes | ✅ Implémenté |
-| **Mentorat** | Système de matching mentor/étudiant | ✅ Implémenté |
-| **Ressources Partagées** | Partage de documents et ressources | ✅ Implémenté |
-| **Étude Collaborative** | Sessions d'étude en groupe | ✅ Implémenté |
-| **Événements** | Inscriptions aux événements communautaires | ✅ Implémenté |
-| **Modération** | Signalements et outils modération | ⚠️ Basique |
-
----
-
-## 🚀 Démarrage Rapide
-
-### Prérequis
+## Développement et tests
 
 ```bash
-Node.js 20+
-pnpm 8+ (recommandé) ou npm
-Git
+npm install
+npm run dev                               # http://localhost:5173
+npx tsc --noEmit -p tsconfig.app.json     # types
+npm test                                  # Vitest (src/** et test/**)
+npx vite build                            # build de production
+deno check supabase/functions/<fonction>/index.ts
 ```
 
-### Installation
+`npm test` : les tests d'intégration réseau de `test/**` échouent hors ligne (68 échecs connus au 04.10.2026, identiques sur `origin/main`).
+
+### E2E de production
+
+Suite Playwright non destructive dans [`e2e-prod/`](./e2e-prod/README.md) (comptes de test par variables d'environnement, jamais dans le dépôt) :
 
 ```bash
-# 1. Cloner le repository
-git clone https://github.com/med-mng/med-mng.git
-cd med-mng
-
-# 2. Installer les dépendances
-pnpm install
-
-# 3. Configurer l'environnement
-cp .env.example .env
-# Éditer .env avec vos clés
-
-# 4. Lancer en développement
-pnpm dev
+E2E_FREE_EMAIL=… E2E_FREE_PASSWORD=… E2E_PREMIUM_EMAIL=… E2E_PREMIUM_PASSWORD=… \
+  npx playwright test -c e2e-prod/playwright.config.ts
 ```
 
-### URLs d'Accès
+Elle couvre les pages publiques, les fiches, le quiz, la recherche, l'ECOS, le verrou Premium (API et interface), les sondes de sécurité des fonctions Edge, Stripe Checkout et le portail (atteints sans payer), la connexion et la déconnexion. La génération audio réelle (`@couteux`) ne part qu'avec `E2E_GENERATION=1`. Les anciens dossiers `tests/`, `test/e2e/` et `cypress/` visent un serveur local et des modules hérités.
 
-| Environnement | URL |
-|---------------|-----|
-| **Développement** | http://localhost:5173 |
-| **Preview** | https://id-preview--1b544bf9-a0a9-40d7-aa20-d14835dcd1a3.lovable.app |
-| **Production** | https://med-mng.lovable.app |
+## Suivi
 
----
-
-## 🏗️ Architecture
-
-### Stack Technique
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                      FRONTEND                            │
-│  React 18 + TypeScript + Vite + Tailwind + Framer Motion │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                    STATE MANAGEMENT                      │
-│        TanStack Query + Zustand + React Context          │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                 UNIFIED API CLIENT                       │
-│     medicalCopilot │ audioApi │ coreApi │ contentApi     │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│              5 EDGE FUNCTION ROUTERS                     │
-│  ai-audio │ ai-core │ ai-content │ system │ webhooks     │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                    BACKEND SERVICES                      │
-│   Supabase (Auth + 135+ Tables + Storage + Functions)    │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                    EXTERNAL APIS                         │
-│  Suno │ OpenAI │ Perplexity │ Firecrawl │ ElevenLabs │   │
-│  Whisper │ Stripe │ Resend │ Google Calendar             │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Technologies Clés
-
-| Catégorie | Technologies |
-|-----------|--------------|
-| **Framework** | React 18.3, TypeScript 5.0 |
-| **Build** | Vite 5, SWC |
-| **Styling** | Tailwind CSS 3.4, CSS Variables |
-| **UI Components** | shadcn/ui, Radix UI |
-| **Animations** | Framer Motion 12 |
-| **State** | TanStack Query 5, Zustand 5 |
-| **Backend** | Supabase (PostgreSQL + Auth + ~108 fonctions Edge, base partagée avec EmotionsCare) |
-| **Music AI** | Suno API V4.5 |
-| **Chat AI** | OpenAI GPT-4o, Perplexity |
-| **Voice** | ElevenLabs TTS, Whisper STT |
-| **Web Scraping** | Firecrawl |
-| **Payments** | Stripe (subscriptions) |
-| **Charts** | Recharts |
-| **Forms** | React Hook Form + Zod |
-| **PDF/Excel Export** | jsPDF, xlsx native |
-| **Testing** | Vitest, Playwright, Testing Library |
-
----
-
-## 📁 Structure du Projet
-
-```
-med-mng/
-├── 📁 src/
-│   ├── 📁 pages/                    # 80+ pages
-│   │   ├── Index.tsx                # Page d'accueil
-│   │   ├── EdnComplete.tsx          # Items EDN
-│   │   ├── ExamMode.tsx             # Mode examen + PDF export
-│   │   ├── Flashcards.tsx           # Flashcards + Anki import
-│   │   ├── MedChat.tsx              # Chat IA streaming + feedback
-│   │   ├── MedMngCreate.tsx         # Création musicale
-│   │   ├── MedMngProgress.tsx       # Progression
-│   │   ├── EcosScenario.tsx         # ECOS + timer + grilles UNESS
-│   │   ├── SRSReview.tsx            # SRS + export stats
-│   │   └── ...
-│   │
-│   ├── 📁 components/               # Composants réutilisables
-│   │   ├── 📁 ui/                   # Design system (50+ composants)
-│   │   ├── 📁 ecos/                 # ECOS (timer, grilles)
-│   │   ├── 📁 exam/                 # Exam (PDF export)
-│   │   ├── 📁 srs/                  # SRS (export stats)
-│   │   ├── 📁 edn/                  # EDN (tableaux, items)
-│   │   ├── 📁 music/                # Audio (UnifiedAudioPlayer)
-│   │   ├── 📁 ai/                   # AI (UnifiedChat)
-│   │   ├── 📁 layout/               # Premium layouts
-│   │   └── 📁 admin/                # Admin components
-│   │
-│   ├── 📁 hooks/                    # 160+ hooks organisés
-│   │   ├── 📁 learning/             # Flashcards, SRS, Exam
-│   │   ├── 📁 audio/                # useUnifiedAudio, playlists
-│   │   ├── 📁 gamification/         # XP, badges, streaks
-│   │   ├── 📁 analytics/            # Tracking, metrics
-│   │   ├── 📁 auth/                 # Authentication
-│   │   ├── 📁 ui/                   # UI state
-│   │   ├── 📁 social/               # Community, sharing
-│   │   └── 📁 data/                 # Data fetching
-│   │
-│   ├── 📁 lib/                      # Utilitaires & Clients API
-│   │   ├── api/                     # API clients
-│   │   │   ├── medicalCopilot.ts    # Medical AI Copilot client
-│   │   │   ├── unifiedApiClient.ts  # Unified API client
-│   │   │   └── ...
-│   │   └── utils.ts                 # Fonctions helper
-│   │
-│   ├── 📁 config/                   # Configuration
-│   │   ├── routes.ts                # 90+ routes définies
-│   │   ├── navigation.ts            # Navigation config
-│   │   └── env.ts                   # Environment config
-│   │
-│   └── 📁 services/                 # Business logic services
-│       ├── healthService.ts
-│       ├── ecosService.ts
-│       └── ...
-│
-├── 📁 supabase/
-│   ├── 📁 functions/                # ~108 fonctions Edge
-│   │   ├── ai-audio/                # Routeur audio
-│   │   ├── ai-core/                 # Routeur OpenAI
-│   │   ├── ai-content/              # Routeur contenu
-│   │   ├── system/                  # Routeur système
-│   │   ├── webhooks/                # Routeur webhooks
-│   │   ├── medical-ai-copilot/      # Orchestrateur IA
-│   │   ├── medical-ai-copilot-stream/ # Streaming SSE
-│   │   └── ...
-│   └── 📁 migrations/               # Migrations SQL
-│
-├── 📁 docs/                         # Documentation
-│   ├── ARCHITECTURE_PLATEFORME.md
-│   ├── AUDIT_COMPLET_MODULES.md
-│   ├── AUDIT_COHERENCE_PLATEFORME.md
-│   └── ...
-│
-├── 📁 tests/                        # Tests E2E Playwright
-│   └── e2e/                         # ~200 tests
-│
-└── 📄 Configuration files
-```
-
----
-
-## 🛣️ Routes & Navigation
-
-### Routes Principales
-
-| Route | Page | Description |
-|-------|------|-------------|
-| `/` | Index | Page d'accueil |
-| `/edn-complete` | EdnComplete | Bibliothèque items EDN |
-| `/chat` | MedChat | Assistant IA streaming |
-| `/med-mng/create` | MedMngCreate | Génération musicale |
-| `/med-mng/music-library` | MedMngLibrary | Bibliothèque audio |
-| `/med-mng/signup` | MedMngSignup | Inscription |
-
-Les routes d'administration et les modules secondaires restent disponibles pour l'équipe, mais ne sont pas exposés dans la navigation MVP.
-
----
-
-## 🔧 Hooks & Services
-
-### Architecture Domain-Driven
-
-```
-src/hooks/
-├── 📁 learning/     # useFlashcards, useSRS, useExamMode
-├── 📁 audio/        # useUnifiedAudio, usePlaylists
-├── 📁 gamification/ # useGamification, useAchievements
-├── 📁 analytics/    # useActivityTracking, useMetrics
-├── 📁 auth/         # useAuth, useSubscription
-├── 📁 ui/           # useTheme, useResponsive
-├── 📁 social/       # useCommunity, useSharing
-└── 📁 data/         # useEdnItems, useOicCompetences
-```
-
-### Clients API Unifiés
-
-```typescript
-import { medicalCopilot } from '@/lib/api/medicalCopilot';
-import { audioApi, coreApi, contentApi, systemApi } from '@/lib';
-
-// Medical AI Copilot (streaming)
-await medicalCopilot.stream(question, mode, onDelta, onDone);
-
-// Audio generation
-const result = await audioApi.generateMusic({ lyrics, style });
-
-// Chat IA
-const response = await coreApi.chat(messages);
-
-// Health check
-const health = await systemApi.health();
-```
-
----
-
-## 🎨 Design System
-
-### Tokens Sémantiques (index.css)
-
-```css
-:root {
-  /* Couleurs principales */
-  --background: 0 0% 3.9%;
-  --foreground: 0 0% 98%;
-  --primary: 47 100% 50%;
-  --secondary: 270 50% 40%;
-  --accent: 280 100% 70%;
-  
-  /* Feedback sémantique */
-  --success: 142 76% 36%;
-  --warning: 38 92% 50%;
-  --destructive: 0 84% 60%;
-  
-  /* Gradients premium */
-  --gradient-medical: linear-gradient(135deg, ...);
-  --gradient-hero: linear-gradient(180deg, ...);
-}
-```
-
-### ⚠️ Règle Critique
-
-**NE JAMAIS utiliser de couleurs hardcodées.** Toujours utiliser les tokens :
-
-```tsx
-// ❌ Mauvais
-<span className="text-green-500">Succès</span>
-
-// ✅ Correct
-<span className="text-success">Succès</span>
-```
-
----
-
-## 🗄️ Base de Données
-
-### Vue d'Ensemble
-
-| Métrique | Valeur |
-|----------|--------|
-| **Tables** | 723 |
-| **RLS Enabled** | ✅ Toutes |
-| **Security Grade** | En validation |
-
-### Tables Principales
-
-| Catégorie | Tables |
-|-----------|--------|
-| **Contenu** | `edn_items_complete`, `ecos_situations`, `oic_competences` |
-| **Musique** | `med_mng_songs`, `generated_music_tracks`, `playlists` |
-| **Utilisateurs** | `profiles`, `med_mng_subscriptions`, `user_roles` |
-| **Apprentissage** | `flashcards`, `flashcard_decks`, `srs_reviews` |
-| **Gamification** | `achievements`, `user_badges`, `gamification_activities` |
-| **AI** | `chat_conversations`, `chat_messages`, `ai_chat_feedback` |
-
----
-
-## ⚡ Edge Functions
-
-### Architecture Consolidée (5 Routeurs)
-
-| Routeur | Actions | Description |
-|---------|---------|-------------|
-| **`ai-audio`** | generate, status, credits, extend | Suno/ElevenLabs |
-| **`ai-core`** | chat, image, embed | OpenAI GPT-4o |
-| **`ai-content`** | qcm, clinical-case, recommendations | Génération pédagogique |
-| **`system`** | health, metrics, quota | Monitoring |
-| **`webhooks`** | stripe, auth, suno-callback | Callbacks externes |
-
-### Medical AI Copilot
-
-| Function | Description |
-|----------|-------------|
-| `medical-ai-copilot` | Orchestrateur principal (multi-mode) |
-| `medical-ai-copilot-stream` | Streaming SSE temps réel |
-
-### Appel depuis le Frontend
-
-```typescript
-import { medicalCopilot } from '@/lib/api/medicalCopilot';
-
-// Mode classique
-const response = await medicalCopilot.query(question, 'research');
-
-// Mode streaming (recommandé)
-await medicalCopilot.stream(
-  question,
-  'research',
-  (delta) => setContent(prev => prev + delta),
-  () => setIsLoading(false)
-);
-```
-
----
-
-## 🧪 Tests
-
-### Configuration
-
-```bash
-# Tests unitaires (Vitest)
-pnpm test
-
-# Tests E2E (Playwright)
-pnpm test:e2e
-
-# Coverage
-pnpm test:coverage
-```
-
-### Couverture E2E
-
-~200 tests Playwright couvrant :
-- Learning System (Flashcards, SRS, Exam)
-- EDN & Music
-- Admin & ECOS
-- User Flows (Auth, Subscriptions)
-
----
-
-## 📱 PWA & Offline
-
-- ✅ Installation sur mobile/desktop
-- ✅ Mode offline avec Service Worker
-- ✅ Push notifications
-- ✅ Cache audio intelligent
-- ✅ Core Web Vitals tracking
-
----
-
-## 🔐 Sécurité
-
-### Mesures en place (à valider avant lancement public)
-
-| Mesure | Status |
-|--------|--------|
-| RLS sur toutes les tables | ✅ |
-| Rate Limiting API | ✅ |
-| SECURITY DEFINER functions | ✅ |
-| Explicit search_path | ✅ |
-| HTTPS only | ✅ |
-| Secrets en Edge Functions | ✅ |
-| Admin role verification (server-side) | ✅ |
-
----
-
-## 📊 Monitoring & Analytics
-
-### Dashboards
-
-| Route | Dashboard |
-|-------|-----------|
-| `/diagnostics` | Debug (dev only) |
-| `/platform-status` | Statut plateforme |
-| `/rls-documentation` | Audit sécurité RLS |
-| `/statistics` | Stats utilisateur |
-
----
-
-## 🚀 Déploiement
-
-### Environnements
-
-| Env | Déploiement |
-|-----|-------------|
-| **Preview** | Automatique sur chaque commit |
-| **Production** | Click "Publish" dans Lovable |
-
-### Secrets Edge Functions
-
-```bash
-# APIs Premium (configurés dans Supabase)
-SUNO_API_KEY=
-OPENAI_API_KEY=
-PERPLEXITY_API_KEY=
-FIRECRAWL_API_KEY=
-ELEVENLABS_API_KEY=
-STRIPE_SECRET_KEY=
-RESEND_API_KEY=
-```
-
----
-
-## 🤝 Contribution
-
-### Standards de Code
-
-- TypeScript strict
-- ESLint + Prettier
-- Tests pour nouvelles features
-- **Tokens sémantiques obligatoires**
-- Domain-driven organization
-
----
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [ARCHITECTURE_PLATEFORME.md](./docs/ARCHITECTURE_PLATEFORME.md) | Architecture consolidée |
-| [AUDIT_COMPLET_MODULES.md](./docs/AUDIT_COMPLET_MODULES.md) | Audit détaillé |
-| [AUDIT_COHERENCE_PLATEFORME.md](./docs/AUDIT_COHERENCE_PLATEFORME.md) | Cohérence design |
-
----
-
-## 📞 Support
-
-- **Documentation** : `/docs`
-- **Issues** : GitHub Issues
-- **Email** : support@med-mng.app
-
----
-
-<p align="center">
-  <strong>🎵 MED-MNG v9.6.3 - Apprendre la médecine en musique 🎵</strong>
-  <br>
-  <em>Made with ❤️ for medical students</em>
-  <br><br>
-  <strong>🏥 Medical AI Copilot • ⚡ Real-time Streaming • 🔐 Grade A+ Security</strong>
-</p>
-
----
-
-*Dernière mise à jour : 4 Février 2026 - Version 9.6.3 (MVP en consolidation)*
+Le rapport de finalisation (défauts ouverts, décisions CEO, vérifications de production) est tenu hors dépôt. Historique des versions : [CHANGELOG.md](./CHANGELOG.md).

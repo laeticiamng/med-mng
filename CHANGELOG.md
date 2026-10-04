@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-04] — Finalisation, vague 2
+### Retiré (décision DC7 : contenu médical généré non vérifié, hors offre)
+- Chat et copilote IA, tuteur IA (flottant et sur la fiche), cas cliniques, examens blancs, QCM et planning générés par IA, « Générer depuis un item » des flashcards. Les anciennes adresses redirigent vers `/edn-complete` (ou `/ecos`) ; les fonctions serveur correspondantes sont réservées aux administrateurs.
+### Sécurité
+- Fonctions payantes sans appelant dans l'application réservées aux administrateurs (generate-content, generate-image, generate-comic-images, generate-medical-lyrics, generate-voice, translate, ai-core, ai-content, synchronized-lyrics ; actions generate_lyrics, process_audio, generate_voice d'`ai-audio`).
+- `send-welcome-email` et `send-emails` ne sont plus des relais d'e-mails ouverts.
+### Corrigé
+- Politique de confidentialité et mentions légales : prestataires réellement appelés (DC8). « Référentiel LiSA 2026 (UNESS) » au lieu de « source publique » (DC4).
+- Titres des 12 stations ECOS par motif de consultation, sans le diagnostic (DC9, migration `20261004140000`).
+- Quiz : « Terminer » inactif tant que la dernière question est sans réponse.
+- Profil › Paramètres : réglages factices et export factice retirés.
+### Tests
+- Suite E2E de production `e2e-prod/` (Playwright, non destructive).
+
 ## [2026-10-04] — Finalisation (audit et revue critique)
 ### Sécurité
 - La génération audio n'est plus accessible sans abonnement : `ai-audio` (generate_music, extend) et `music-generation` (POST /generate) sont retirés ; `music-generation-secure` est retirée.
