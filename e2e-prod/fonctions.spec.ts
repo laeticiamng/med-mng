@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { GRATUIT, appelerFonction, dispo, jeton } from './helpers';
+import { GRATUIT, PREMIUM, appelerFonction, dispo, jeton, rest } from './helpers';
 
 /**
  * Sondes de sécurité des fonctions Edge (aucune génération déclenchée) :
@@ -48,9 +48,13 @@ test.describe('Fonctions Edge — contrôle d’accès', () => {
     }
     const ancienne = await appelerFonction(request, 'music-generation/generate', CORPS_INVALIDE, token);
     expect(ancienne.status).toBe(410);
-    // Génération audio réservée à Premium : refus avant toute génération (corps invalide de toute façon).
+    // Génération audio réservée à Premium : 402 PREMIUM_REQUIS. Le contrôle d'abonnement précède la
+    // lecture des paroles ; les paroles vides garantissent qu'aucune génération ne part même s'il
+    // venait à manquer (réponse 400 PAROLES_VIDES, qui fait alors échouer ce test : un 400 ne
+    // prouvait pas le verrou).
     const generation = await appelerFonction(request, 'mm-generate-music', { lyrics: '', itemCode: 'IC-1', rang: 'A' }, token);
-    expect([400, 402], 'mm-generate-music (gratuit)').toContain(generation.status);
+    expect(generation.status, 'mm-generate-music (gratuit)').toBe(402);
+    expect(generation.json?.code).toBe('PREMIUM_REQUIS');
   });
 
   test('compte gratuit : 403 sur les fonctions IA hors offre (DC7) et sans appelant @attend-deploiement', async ({ request }) => {
@@ -71,4 +75,39 @@ test.describe('Fonctions Edge — contrôle d’accès', () => {
     const r = await appelerFonction(request, 'send-welcome-email', CORPS_INVALIDE, 'anon');
     expect(r.status).toBe(401);
   });
+
+  test('alertes, rapports et ancien suivi Suno : 401 sans en-tête, 403 pour un compte gratuit @attend-deploiement', async ({ request }) => {
+    // Correctif 3b5fc283. send-accessibility-report n'est PAS sondée : l'ancienne version ne lit pas
+    // le corps et enverrait le rapport aux destinataires configurés.
+    test.skip(!dispo(GRATUIT), 'E2E_FREE_* absents');
+    const { token } = await jeton(request, GRATUIT);
+    const ouvertes: string[] = [];
+    for (const nom of ['send-security-alert', 'send-scheduled-reports', 'music-status']) {
+      const sans = await appelerFonction(request, nom, CORPS_INVALIDE, null);
+      const gratuit = await appelerFonction(request, nom, CORPS_INVALIDE, token);
+      if (sans.status !== 401 || gratuit.status !== 403 || gratuit.json?.code !== 'ADMIN_REQUIS') {
+        ouvertes.push(`${nom}=${sans.status}/${gratuit.status}`);
+      }
+    }
+    expect(ouvertes, 'fonctions encore ouvertes').toEqual([]);
+  });
+
+  test('Premium : paroles rédigées d’IC-150 rendues telles quelles, sans IA ni réécriture @attend-deploiement', async ({ request }) => {
+    // Correctif 6d62cff9. Seulement avec E2E_PAROLES=1, APRÈS le redéploiement de generer-paroles-item :
+    // l'ancienne version produirait une nouvelle version des paroles par l'IA (1 à 3 appels ; rien
+    // n'est enregistré grâce à « enregistrer: false »).
+    test.skip(process.env.E2E_PAROLES !== '1', 'E2E_PAROLES=1 non défini (à lancer après le redéploiement)');
+    test.skip(!dispo(PREMIUM), 'E2E_PREMIUM_* absents');
+    const { token } = await jeton(request, PREMIUM);
+    const contenu = await rest(request, 'rpc/mm_contenu_immersif_item', { methode: 'POST', corps: { p_item_code: 'IC-150' }, token });
+    const publiees = ((contenu.json as { paroles_rang_a?: unknown[] })?.paroles_rang_a ?? [])
+      .filter((l): l is string => typeof l === 'string' && l.trim().length > 0);
+    expect(publiees.length, 'paroles rang A publiées d’IC-150').toBeGreaterThan(4);
+    const r = await appelerFonction(request, 'generer-paroles-item', { itemCode: 'IC-150', rang: 'A', enregistrer: false }, token);
+    expect(r.status).toBe(200);
+    expect(r.json?.deja_redigees).toBe(true);
+    expect(r.json?.enregistre).toBe(false);
+    expect(r.json?.paroles).toEqual(publiees);
+  });
 });
+

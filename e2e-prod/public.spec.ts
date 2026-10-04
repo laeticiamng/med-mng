@@ -123,3 +123,17 @@ test.describe('Allégations corrigées en vague 2', () => {
     }
   });
 });
+
+test.describe('Pages retirées à la contre-vérification de la vague 2', () => {
+  test('/demo et /parcours → fiches officielles ; absentes du sitemap @attend-deploiement', async ({ page, request }) => {
+    // Correctif 2a4ffcf2 : démo aux anciens numéros d'items, parcours par spécialité vides.
+    for (const depart of ['/demo', '/parcours', '/parcours/cardiologie']) {
+      await page.goto(depart);
+      await expect(page, depart).toHaveURL(/\/edn-complete$/);
+    }
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    for (const retiree of ['/demo', '/parcours']) {
+      expect(sitemap).not.toContain(`https://medmng.com${retiree}<`);
+    }
+  });
+});

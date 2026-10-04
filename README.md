@@ -11,7 +11,7 @@ Application web (PWA) de révision pour les étudiants de 2e cycle (DFASM1–DFA
 | **Gratuit** | Fiches officielles des 367 items (rang A et rang B, table `oic_competences`) ; contenu immersif complet de 10 items d'essai, IC-1 à IC-10 (`ITEMS_GRATUITS` dans `src/config/offre.ts` et fonction SQL `mm_item_gratuit`) ; 12 situations ECOS d'entraînement rédigées pour Med MNG |
 | **Premium — 69 €/an ou 9,90 €/mois** | Contenu immersif des 367 items ; 30 générations audio de chansons par mois ; bibliothèque personnelle |
 
-Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copilote IA, tuteur IA, cas cliniques, examens blancs, QCM et planning générés par IA. Leurs anciennes adresses redirigent vers `/edn-complete` (ou `/ecos`) et leurs fonctions serveur sont réservées aux administrateurs.
+Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copilote IA, tuteur IA, cas cliniques, examens blancs, QCM et planning générés par IA. Leurs anciennes adresses redirigent vers `/edn-complete` (ou `/ecos`) et leurs fonctions serveur sont réservées aux administrateurs. Retirées aussi le même jour : la démo `/demo` (anciens numéros d'items) et les parcours par spécialité `/parcours` (9 sur 10 vides), redirigés vers `/edn-complete`.
 
 ## Fonctionnalités (ce qui est réellement proposé)
 
@@ -26,7 +26,7 @@ Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copi
 
 - **Front** : React 18, TypeScript, Vite, Tailwind/shadcn, TanStack Query. Projet Lovable ; hébergement Lovable (réseau Cloudflare).
 - **Back** : Supabase `yaincoxihiqdksxgrsrk` (région eu-central-1, Francfort) — **partagé avec EmotionsCare** : ne modifier aucune table, politique ou fonction commune sans vérifier l'impact sur EmotionsCare (exemple : `whisper-transcribe` est appelée par EmotionsCare).
-- **Génération audio** : `mm-generate-music` (abonnement, quota mensuel, registre `mm_generations_audio`) → sunoapi.org → `mm-suno-callback` (ou rattrapage `mm-music-status`) ; le fichier est copié dans le compartiment `mm-chansons` (l'URL fournie par Suno expire au bout de 14 jours). Si les paroles enregistrées d'un item ne sont pas rédigées, `generer-paroles-item` les réécrit depuis les compétences officielles (passerelle IA de Lovable, Google Gemini).
+- **Génération audio** : `mm-generate-music` (abonnement, quota mensuel, registre `mm_generations_audio`) → sunoapi.org → `mm-suno-callback` (ou rattrapage `mm-music-status`) ; le fichier est copié dans le compartiment `mm-chansons` (l'URL fournie par Suno expire au bout de 14 jours). Si les paroles enregistrées d'un item ne sont pas rédigées, `generer-paroles-item` les réécrit depuis les compétences officielles (passerelle IA de Lovable, Google Gemini) et les enregistre ; des paroles déjà rédigées sont rendues telles quelles (seul le jeton d'administration de `scripts/regenerer.mjs` peut les remplacer).
 - **Planches** : `illustrer-case` dessine une seule fois chaque case (OpenAI), conservée dans `bd-illustrations`.
 - **Paiement** : `mm-create-checkout` → Stripe Checkout ; `mm-stripe-webhook` → `user_subscriptions` ; `mm-customer-portal` (résiliation).
 - **Prestataires réellement appelés** : liste à jour dans la politique de confidentialité (`src/pages/PolitiqueConfidentialite.tsx`).

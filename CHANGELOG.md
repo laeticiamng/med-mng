@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-04] — Finalisation, vague 2 (contre-vérification)
+### Sécurité
+- `generer-paroles-item` : un abonné ne peut plus réécrire les paroles publiées d'un item (paroles rédigées rendues telles quelles ; réécriture réservée au jeton d'administration).
+- `send-security-alert`, `send-scheduled-reports`, `send-accessibility-report` et l'ancien `music-status` réservés aux administrateurs.
+### Retiré
+- `/demo` (anciens numéros d'items, cas clinique et « mode examen » rédigés à la main) et `/parcours` (9 spécialités sur 10 vides, intitulés d'étapes faux) : redirigés vers `/edn-complete`, retirés du sitemap.
+### Tests
+- E2E : `mm-generate-music` doit répondre 402 `PREMIUM_REQUIS` à un compte gratuit (un 400 ne prouvait pas le verrou) ; sondes des fonctions ci-dessus ; pages retirées.
+
 ## [2026-10-04] — Finalisation, vague 2
 ### Retiré (décision DC7 : contenu médical généré non vérifié, hors offre)
 - Chat et copilote IA, tuteur IA (flottant et sur la fiche), cas cliniques, examens blancs, QCM et planning générés par IA, « Générer depuis un item » des flashcards. Les anciennes adresses redirigent vers `/edn-complete` (ou `/ecos`) ; les fonctions serveur correspondantes sont réservées aux administrateurs.
