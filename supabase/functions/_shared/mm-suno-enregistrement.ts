@@ -12,6 +12,16 @@
  *   user_generated_music (historique du générateur)
  *   + une ligne generated_music_tracks par piste Suno (suno_track_id ≠ task_id),
  *     jamais comptée dans le quota.
+ *
+ * Fichiers audio : Suno ne conserve les fichiers que 14 jours
+ * (https://docs.sunoapi.org/suno-api/generate-music, « Generated files are
+ * retained for 14 days »). Chaque audio reçu est copié dans le compartiment
+ * public `mm-chansons` (migration 20261004110000) et c'est cette URL stable qui
+ * est enregistrée ; si la copie échoue, l'URL Suno est gardée (comportement
+ * antérieur).
+ *
+ * Registre du quota : `mm_generations_audio` (migration 20261004120000), écrit
+ * uniquement par le serveur — la génération passe à 'terminee' ou 'echouee'.
  */
 
 import type { PisteSuno, StatutGenerationSuno } from './mm-suno-requete.ts';
@@ -37,6 +47,77 @@ export interface PistePrincipale {
 
 const metadonnees = (valeur: unknown): Record<string, unknown> =>
   valeur && typeof valeur === 'object' && !Array.isArray(valeur) ? (valeur as Record<string, unknown>) : {};
+
+/** Compartiment Supabase Storage (public) des chansons MED MNG. */
+export const COMPARTIMENT_CHANSONS = 'mm-chansons';
+/** Au-delà, la copie est abandonnée (une chanson de 6 min en MP3 pèse ~6–10 Mo). */
+const TAILLE_MAX_AUDIO = 25 * 1024 * 1024;
+const DELAI_TELECHARGEMENT_MS = 20_000;
+
+/** Chemin du fichier dans le compartiment : <utilisateur>/<piste>.mp3 (caractères sûrs uniquement). */
+export const cheminAudioChanson = (userId: string | null, pisteId: string): string =>
+  `${(userId ?? 'sans-compte').replace(/[^A-Za-z0-9_-]/g, '_')}/${pisteId.replace(/[^A-Za-z0-9_-]/g, '_')}.mp3`;
+
+/**
+ * Copie l'audio Suno (fichier temporaire, 14 jours) dans `mm-chansons` et
+ * renvoie l'URL publique stable ; null si la copie est impossible (l'appelant
+ * garde alors l'URL Suno). Idempotent : une URL déjà stable est renvoyée telle quelle.
+ */
+export async function copierAudioDansStockage(
+  supabase: ClientSupabase,
+  userId: string | null,
+  pisteId: string,
+  audioUrl: string | null,
+  telecharger: typeof fetch = fetch,
+): Promise<string | null> {
+  if (!audioUrl || !pisteId) return null;
+  if (audioUrl.includes(`/storage/v1/object/public/${COMPARTIMENT_CHANSONS}/`)) return audioUrl;
+  try {
+    const reponse = await telecharger(audioUrl, { signal: AbortSignal.timeout(DELAI_TELECHARGEMENT_MS) });
+    if (!reponse.ok) {
+      console.warn(`⚠️ Audio Suno illisible (${reponse.status}) : copie abandonnée pour la piste ${pisteId}`);
+      return null;
+    }
+    const octets = new Uint8Array(await reponse.arrayBuffer());
+    if (octets.byteLength === 0 || octets.byteLength > TAILLE_MAX_AUDIO) {
+      console.warn(`⚠️ Taille audio inattendue (${octets.byteLength} octets) : copie abandonnée pour la piste ${pisteId}`);
+      return null;
+    }
+    const chemin = cheminAudioChanson(userId, pisteId);
+    const { error } = await supabase.storage
+      .from(COMPARTIMENT_CHANSONS)
+      .upload(chemin, octets, { contentType: 'audio/mpeg', upsert: true, cacheControl: '31536000' });
+    if (error) {
+      console.warn('⚠️ Copie de l\'audio dans le stockage impossible :', error.message);
+      return null;
+    }
+    const { data } = supabase.storage.from(COMPARTIMENT_CHANSONS).getPublicUrl(chemin);
+    const url = data?.publicUrl ?? null;
+    if (url) console.log(`💾 Audio de la piste ${pisteId} conservé : ${chemin}`);
+    return url;
+  } catch (err) {
+    console.warn('⚠️ Copie de l\'audio impossible :', err instanceof Error ? err.message : err);
+    return null;
+  }
+}
+
+/** Statut d'une génération dans le registre du quota (sans effet si la table n'existe pas encore). */
+export async function majRegistreGeneration(
+  supabase: ClientSupabase,
+  taskId: string,
+  statut: 'terminee' | 'echouee',
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('mm_generations_audio')
+      .update({ statut, updated_at: new Date().toISOString() })
+      .eq('task_id', taskId)
+      .neq('statut', statut);
+    if (error) console.warn('⚠️ Registre des générations non mis à jour :', error.message);
+  } catch (err) {
+    console.warn('⚠️ Registre des générations non mis à jour :', err);
+  }
+}
 
 /** Ligne principale d'une génération : la première créée pour ce task_id. */
 export async function trouverPistePrincipale(supabase: ClientSupabase, taskId: string): Promise<PistePrincipale | null> {
@@ -75,6 +156,16 @@ export async function enregistrerPistesSuno(
   origine: string,
 ): Promise<ResultatEnregistrement> {
   const principale = await trouverPistePrincipale(supabase, taskId);
+  // Fichiers Suno conservés 14 jours seulement : on enregistre l'URL de la copie.
+  // (Rien n'est copié pour une génération inconnue ou déjà marquée échouée.)
+  if (principale && principale.generation_status !== 'failed') {
+    pistes = await Promise.all(
+      pistes.map(async (p) => {
+        const stable = await copierAudioDansStockage(supabase, principale.user_id, p.id, p.audioUrl);
+        return stable ? { ...p, audioUrl: stable } : p;
+      }),
+    );
+  }
   const pisteAvecAudio = pistes.find((p) => p.audioUrl) ?? null;
   const maintenant = new Date().toISOString();
 
@@ -108,6 +199,7 @@ export async function enregistrerPistesSuno(
 
     if (pisteAvecAudio) {
       await enregistrerEnBibliotheque(supabase, principale, pisteAvecAudio, taskId);
+      await majRegistreGeneration(supabase, taskId, 'terminee');
     }
   }
 
@@ -302,4 +394,5 @@ export async function marquerGenerationEchouee(
     .eq('id', principale.id);
   if (error) console.error('❌ Marquage échec impossible:', error.message);
   else console.log(`❌ Génération ${taskId} marquée échouée (${origine}, code ${code ?? '?'})`);
+  await majRegistreGeneration(supabase, taskId, 'echouee');
 }

@@ -107,6 +107,15 @@ const reponseJson = (corps: unknown, status = 200) =>
  * comptées. Les générations échouées ('failed') ne sont pas décomptées.
  * (med_mng_songs n'est alimentée qu'à la fin : inutilisable pour un quota,
  * une génération en cours n'y figurant pas.)
+ *
+ * CONSTAT (audit 04.10.2026) : les politiques RLS de generated_music_tracks
+ * (table partagée avec EmotionsCare) laissent chaque utilisateur modifier ou
+ * supprimer ses propres lignes : en passant ses générations à 'failed' par
+ * l'API REST, un abonné remettait son compteur à zéro (générations Suno
+ * illimitées, facturées). Le décompte retenu est donc le plus élevé de ce
+ * décompte historique et du registre `mm_generations_audio`, que seul le
+ * serveur écrit (migration 20261004120000). Tant que la migration n'est pas
+ * appliquée, le registre est ignoré et le comportement est inchangé.
  */
 async function verifierDroitGeneration(
   // deno-lint-ignore no-explicit-any
@@ -161,7 +170,25 @@ async function verifierDroitGeneration(
       .map((p: { task_id: string }) => p.task_id),
   ).size;
 
-  if (utilisees >= QUOTA_MENSUEL_PREMIUM) {
+  // Registre serveur (non modifiable par l'utilisateur) ; absent → ignoré.
+  let selonRegistre = 0;
+  const { count: nbRegistre, error: errRegistre } = await supabase
+    .from('mm_generations_audio')
+    .select('task_id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('created_at', debutMois)
+    .neq('statut', 'echouee');
+  if (errRegistre) {
+    console.warn('ℹ️ Registre des générations indisponible (migration non appliquée ?) :', errRegistre.message);
+  } else {
+    selonRegistre = nbRegistre ?? 0;
+  }
+  const utiliseesRetenues = Math.max(utilisees, selonRegistre);
+  if (selonRegistre > utilisees) {
+    console.warn(`⚠️ Quota : ${utilisees} génération(s) visibles dans generated_music_tracks contre ${selonRegistre} au registre pour ${userId}`);
+  }
+
+  if (utiliseesRetenues >= QUOTA_MENSUEL_PREMIUM) {
     return {
       status: 429,
       code: 'QUOTA_ATTEINT',
@@ -327,6 +354,16 @@ serve(async (req) => {
     const insertion = await insertMusicTrack(supabase, donneesPiste);
     if (!insertion.success) {
       console.error('⚠️ Ligne principale non enregistrée : le suivi côté client ne verra pas cette génération.', insertion.error);
+    }
+
+    // Registre du quota (écrit par le serveur seul) ; une erreur ne bloque pas la génération.
+    if (userId) {
+      const { error: errRegistre } = await supabase
+        .from('mm_generations_audio')
+        .insert({ task_id: taskId, user_id: userId, statut: 'en_cours' });
+      if (errRegistre && errRegistre.code !== '23505') {
+        console.warn('⚠️ Génération non inscrite au registre du quota :', errRegistre.message);
+      }
     }
 
     await insertGenerationMetric(supabase, {
