@@ -38,7 +38,7 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
     switch (type) {
       case 'tip': return 'bg-warning/10 border-warning/20 text-warning-foreground';
       case 'shortcut': return 'bg-primary/5 border-primary/20 text-primary';
-      case 'advanced': return 'bg-accent/10 border-accent/20 text-accent-foreground';
+      case 'advanced': return 'bg-accent/10 border-accent/20 text-emerald-700 dark:text-emerald-400';
       default: return 'bg-background border-border text-foreground';
     }
   };

@@ -141,7 +141,7 @@ export default function EdnItemApercu() {
 
               {/* Rang B - Affichage complet */}
               <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
-                <h4 className="font-semibold mb-3 text-accent-foreground flex items-center gap-2">
+                <h4 className="font-semibold mb-3 text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
                   <Brain className="h-4 w-4" />
                   {sansRangB ? 'Rang B' : `Rang B - ${competencesRangB.length} compétences`}
                 </h4>

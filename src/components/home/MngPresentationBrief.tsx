@@ -106,7 +106,7 @@ export const MngPresentationBrief = () => {
                 <Music className="h-6 w-6 text-accent" />
                 <CardTitle className="text-lg">Innovation</CardTitle>
               </div>
-              <Badge className="bg-accent/20 text-accent-foreground">Breveté</Badge>
+              <Badge className="bg-accent/20 text-emerald-700 dark:text-emerald-400">Breveté</Badge>
             </div>
           </CardHeader>
           <CardContent>

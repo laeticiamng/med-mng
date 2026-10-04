@@ -140,7 +140,7 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
           {hasPremiumStyles && (
             <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-accent/10 to-accent/5 rounded-lg border border-accent/20">
               <Sparkles className="h-4 w-4 text-accent" />
-              <p className="text-sm text-accent-foreground">
+              <p className="text-sm text-emerald-700 dark:text-emerald-400">
                 Cette composition utilise des styles premium pour une expérience musicale exceptionnelle
               </p>
             </div>

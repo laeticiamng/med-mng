@@ -23,7 +23,7 @@ interface SearchResult {
 
 const CATEGORY_CONFIG = {
   edn: { icon: FileText, label: 'EDN', color: 'bg-primary/20 text-primary' },
-  clinical: { icon: BookOpen, label: 'Cas cliniques', color: 'bg-accent/20 text-accent-foreground' },
+  clinical: { icon: BookOpen, label: 'Cas cliniques', color: 'bg-accent/20 text-emerald-700 dark:text-emerald-400' },
 };
 
 export const GlobalSearchBar: React.FC = () => {

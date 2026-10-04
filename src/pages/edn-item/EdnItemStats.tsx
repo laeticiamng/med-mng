@@ -32,7 +32,7 @@ export default function EdnItemStats() {
                 <div className="text-sm text-muted-foreground">Rang A</div>
               </div>
               <div className="text-center p-4 rounded-lg bg-accent/5 border border-accent/20">
-                <div className="text-3xl font-bold text-accent-foreground">{competencesRangB.length}</div>
+                <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">{competencesRangB.length}</div>
                 <div className="text-sm text-muted-foreground">Rang B</div>
               </div>
               <div className="text-center p-4 rounded-lg bg-success/5 border border-success/20">
@@ -62,7 +62,7 @@ export default function EdnItemStats() {
                   ))}
                   {competencesRangB.slice(0, 5).map((comp, idx) => (
                     <div key={`b-${idx}`} className="flex items-start gap-2 p-2 bg-accent/5 rounded text-sm">
-                      <span className="font-mono text-accent-foreground text-xs">{comp.objectif_id}</span>
+                      <span className="font-mono text-emerald-700 dark:text-emerald-400 text-xs">{comp.objectif_id}</span>
                       <span className="text-foreground">{comp.intitule?.substring(0, 80)}...</span>
                     </div>
                   ))}

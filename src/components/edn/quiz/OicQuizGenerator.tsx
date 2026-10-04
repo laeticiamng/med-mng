@@ -169,8 +169,8 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
                   className="h-auto p-6 flex flex-col items-center gap-3 border-2 border-accent/30 hover:bg-accent/10 hover:border-accent"
                   onClick={() => handleStartQuiz('B')}
                 >
-                  <Badge className="bg-accent/10 text-accent-foreground border-accent/30">Rang B</Badge>
-                  <span className="text-2xl font-bold text-accent-foreground">{totalCompetencesB}</span>
+                  <Badge className="bg-accent/10 text-emerald-700 dark:text-emerald-400 border-accent/30">Rang B</Badge>
+                  <span className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{totalCompetencesB}</span>
                   <span className="text-sm text-muted-foreground">Compétences de rang B</span>
                 </Button>
                 )}

@@ -73,7 +73,7 @@ export function StreakDisplay({ stats, compact = false }: StreakDisplayProps) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/10 text-accent-foreground">
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/10 text-emerald-700 dark:text-emerald-400">
                 <Zap className="h-4 w-4" />
                 <span className="font-bold text-sm">{stats.totalPoints.toLocaleString()}</span>
               </div>

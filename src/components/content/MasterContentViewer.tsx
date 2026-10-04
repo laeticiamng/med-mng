@@ -149,7 +149,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
               </CardDescription>
             </div>
             <div className="flex items-center gap-4">
-              <Badge className="bg-accent/10 text-accent-foreground border-accent/30">
+              <Badge className="bg-accent/10 text-emerald-700 dark:text-emerald-400 border-accent/30">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Vérifié
               </Badge>

@@ -106,7 +106,7 @@ export const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                 <div className="text-xs text-muted-foreground">Meilleur</div>
               </div>
               <div className="bg-background/60 rounded-lg p-2 text-center">
-                <div className="text-lg font-bold text-accent-foreground">
+                <div className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
                   {stats.successRate}%
                 </div>
                 <div className="text-xs text-muted-foreground">Réussite</div>

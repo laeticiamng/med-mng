@@ -102,7 +102,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
     return (
       <Card className="w-full">
         <CardHeader className={`${rang === 'A' ? 'bg-primary/5' : 'bg-accent/5'} border-b`}>
-          <CardTitle className={`${rang === 'A' ? 'text-primary' : 'text-accent-foreground'} flex items-center justify-between`}>
+          <CardTitle className={`${rang === 'A' ? 'text-primary' : 'text-emerald-700 dark:text-emerald-400'} flex items-center justify-between`}>
             <span>{itemCode} Rang {rang} - Compétences OIC</span>
             <Badge variant="outline" className="ml-2 text-muted-foreground">
               Aucune
@@ -112,7 +112,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
         <CardContent className="p-6 text-center">
           <div className="space-y-3">
             <div className={`w-16 h-16 mx-auto rounded-full ${rang === 'A' ? 'bg-primary/10' : 'bg-accent/10'} flex items-center justify-center`}>
-              <Book className={`w-8 h-8 ${rang === 'A' ? 'text-primary' : 'text-accent-foreground'}`} />
+              <Book className={`w-8 h-8 ${rang === 'A' ? 'text-primary' : 'text-emerald-700 dark:text-emerald-400'}`} />
             </div>
             <h4 className="font-semibold text-foreground">
               Aucune compétence de rang {rang}
