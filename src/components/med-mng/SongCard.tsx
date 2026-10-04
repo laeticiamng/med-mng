@@ -159,8 +159,15 @@ export const SongCard: React.FC<SongCardProps> = ({
     });
   };
 
+  // La durée enregistrée par Suno est en secondes (ex. 119.6) : elle s'affichait
+  // telle quelle ; sans durée connue, une valeur fictive « 3:30 » était montrée.
   const getDuration = () => {
-    return song.meta?.duration || '3:30';
+    const brute = song.meta?.duration as unknown;
+    if (typeof brute === 'string' && brute.includes(':')) return brute;
+    const secondes = typeof brute === 'number' ? brute : Number.parseFloat(String(brute ?? ''));
+    if (!Number.isFinite(secondes) || secondes <= 0) return '';
+    const total = Math.round(secondes);
+    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
   };
 
   // Parse le titre pour extraire les informations (ex: "Rang A - EDN - electropop")
