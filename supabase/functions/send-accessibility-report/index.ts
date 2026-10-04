@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 // Simple email sender without external dependency
 async function sendEmail(to: string, subject: string, html: string) {
@@ -296,6 +297,11 @@ const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+  // Réservé aux administrateurs (ou à la clé de service) — contre-vérification vague 2
+  // (04.10.2026) : déployée avec verify_jwt = false, cette fonction envoyait le rapport d'accessibilité aux destinataires configurés et renvoyait leurs adresses à tout appelant, sans aucune authentification.
+  // Seuls des écrans d'administration l'appellent.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     console.log("📧 Starting accessibility report email function");

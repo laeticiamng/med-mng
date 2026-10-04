@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://med-mng.lovable.app",
@@ -21,6 +22,11 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+  // Réservé aux administrateurs (ou à la clé de service) — contre-vérification vague 2
+  // (04.10.2026) : déployée avec verify_jwt = false, cette fonction envoyait à l'adresse d'alerte et au webhook Slack un message entièrement fourni par l'appelant (HTML non échappé), sans aucune authentification.
+  // Seuls des écrans d'administration l'appellent.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const resendApiKey = Deno.env.get("RESEND_API_KEY");

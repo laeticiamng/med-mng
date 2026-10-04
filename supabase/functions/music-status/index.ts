@@ -5,6 +5,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 interface MusicStatusResponse {
   success: boolean;
@@ -21,6 +22,12 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+  // Réservé aux administrateurs (ou à la clé de service) — contre-vérification vague 2
+  // (04.10.2026) : déployée avec verify_jwt = false, cette fonction (ancien suivi Suno,
+  // remplacé par mm-music-status) mettait à jour des lignes generated_music_tracks avec la clé de service pour tout appelant connaissant un taskId.
+  // Aucune page ni aucune fonction ne l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const supabase = createClient(
