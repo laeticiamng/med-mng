@@ -109,5 +109,19 @@ test.describe('Fonctions Edge — contrôle d’accès', () => {
     expect(r.json?.enregistre).toBe(false);
     expect(r.json?.paroles).toEqual(publiees);
   });
-});
 
+  test('whisper-transcribe (D45) : adresse externe refusée, enregistrement trop volumineux refusé (413) @attend-deploiement', async ({ request }) => {
+    // Vague 3. Sondes sans coût : l'ancienne version échoue AVANT l'appel à OpenAI (domaine .invalid
+    // introuvable ; corps JSON invalide), la nouvelle refuse avec un code explicite.
+    test.skip(!dispo(GRATUIT), 'E2E_FREE_* absents');
+    const { token } = await jeton(request, GRATUIT);
+    const externe = await appelerFonction(request, 'whisper-transcribe', { audioUrl: 'https://exemple.invalid/note.mp3' }, token);
+    expect(externe.status, 'audioUrl externe').toBe(400);
+    expect(externe.json?.code).toBe('URL_NON_AUTORISEE');
+    const volumineux = await appelerFonction(request, 'whisper-transcribe', `{${' '.repeat(14 * 1024 * 1024)}`, token);
+    expect(volumineux.status, 'corps de 14 Mo').toBe(413);
+    expect(volumineux.json?.code).toBe('AUDIO_TROP_VOLUMINEUX');
+    // Sans en-tête : toujours 401.
+    expect((await appelerFonction(request, 'whisper-transcribe', CORPS_INVALIDE, null)).status).toBe(401);
+  });
+});
