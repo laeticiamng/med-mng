@@ -2,14 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle, AlertCircle, XCircle, Clock, 
-  BookOpen, Brain, Music, Users, Gamepad2, Flame, Star, Trophy, Lock,
+  BookOpen, Brain, Music, Gamepad2, Flame, Star, Trophy, Lock,
   Minus,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { estQuestionQuizGenerique, sceneImmersiveEstGenerique } from '@/utils/tableauTransformations';
+import { estQuestionQuizGenerique } from '@/utils/tableauTransformations';
 import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
 
 interface TableauSection {
@@ -138,7 +138,6 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
   // d'un item à l'autre, et que les paroles ne sont, pour 345 items, qu'une
   // liste de mots-clés.
   const parolesRedigees = parolesSontRedigees(item.paroles_musicales ?? []);
-  const sceneReelle = !sceneImmersiveEstGenerique(item.scene_immersive);
   const questionsReelles = Array.isArray(item.quiz_questions)
     ? (item.quiz_questions as Array<{ question?: string }>).filter(
         (q) => !estQuestionQuizGenerique(q?.question),
@@ -178,23 +177,17 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({
       color: parolesRedigees ? 'text-success bg-success/10 border-success/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
-      id: 'scene',
-      label: 'Scène',
-      icon: Users,
-      available: sceneReelle,
-      count: sceneReelle ? 1 : 0,
-      description: sceneReelle ? 'Scène clinique' : 'Aucune scène rédigée',
-      color: sceneReelle ? 'text-warning bg-warning/10 border-warning/20' : 'text-muted-foreground bg-muted border-border'
-    },
-    {
       id: 'quiz',
       label: 'Quiz',
       icon: Gamepad2,
-      available: questionsReelles > 0,
+      // L'onglet Quiz construit ses questions à partir des compétences
+      // officielles de l'item (testé en production) : il est disponible dès
+      // qu'il y a des compétences, que des questions rédigées existent ou non.
+      available: questionsReelles > 0 || rangACount + rangBCount > 0,
       verrouille: contenuVerrouille,
-      count: questionsReelles,
-      description: contenuVerrouille ? 'Réservé à Med MNG Premium' : questionsReelles > 0 ? 'Questions interactives' : 'Questions reconstruites depuis les compétences OIC',
-      color: questionsReelles > 0 ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
+      count: questionsReelles > 0 ? questionsReelles : rangACount + rangBCount,
+      description: contenuVerrouille ? 'Réservé à Med MNG Premium' : questionsReelles > 0 ? 'Questions interactives' : 'Questions sur les compétences officielles',
+      color: (questionsReelles > 0 || rangACount + rangBCount > 0) ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
     }
   ];
 
