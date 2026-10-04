@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -196,28 +195,21 @@ export default function EdnItemLayout() {
                 <span className={`font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{numeroItem}</span>
               </div>
               <div className="min-w-0">
-                <h1 className={`${isMobile ? 'text-base' : 'text-2xl'} font-bold mb-1`}>
-                  {isMobile ? item.item_code : `${item.item_code}: ${item.title}`}
+                {/* Sur mobile, le titre de l'item était remplacé par son seul code
+                    (« IC-1 ») suivi d'un sous-titre qui répétait ce code. */}
+                <h1 className={`${isMobile ? 'text-base leading-snug line-clamp-3' : 'text-2xl'} font-bold mb-1`}>
+                  {`${item.item_code}: ${item.title}`}
                 </h1>
-                <p className="text-primary-foreground/80 text-sm">
-                  {item.subtitle || `Item de connaissance EDN ${item.item_code}`}
-                </p>
+                {!isMobile && (
+                  <p className="text-primary-foreground/80 text-sm">
+                    {item.subtitle || `Item de connaissance EDN ${item.item_code}`}
+                  </p>
+                )}
               </div>
             </div>
 
-            {!isMobile && (
-              <div className="flex gap-2 mt-4 flex-wrap">
-                {ongletsVisibles.slice(1).map((onglet) => {
-                  const Icone = onglet.icone;
-                  return (
-                    <Badge key={onglet.segment} className="bg-background/20 text-primary-foreground border-background/20">
-                      <Icone className="h-3 w-3 mr-1" />
-                      {onglet.label}
-                    </Badge>
-                  );
-                })}
-              </div>
-            )}
+            {/* Les pastilles « Rang A · Quiz · Musique… » qui répétaient, non cliquables,
+                les onglets affichés juste en dessous ont été retirées. */}
           </div>
         </header>
 

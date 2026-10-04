@@ -1,7 +1,7 @@
 // Unified Global Search across all modules
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger, VisuallyHidden } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
@@ -197,6 +197,11 @@ export const GlobalSearchBar: React.FC = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
+        {/* Titre lu par les lecteurs d'écran (Radix l'exige ; erreur console sinon). */}
+        <VisuallyHidden>
+          <DialogTitle>Rechercher un item ou une compétence</DialogTitle>
+          <DialogDescription>Numéro, titre d'item EDN ou intitulé de compétence.</DialogDescription>
+        </VisuallyHidden>
         <div className="flex items-center border-b px-4">
           <Search className="h-5 w-5 text-muted-foreground shrink-0" />
           <Input
