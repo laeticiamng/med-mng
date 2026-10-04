@@ -96,7 +96,7 @@ const EcosIndex = () => {
     <>
       <SEOHead
         title="Simulations ECOS"
-        description="Entraînez-vous aux ECOS avec des situations cliniques réalistes. Situations issues du référentiel, déroulé guidé, chronomètre et grille d'auto-évaluation."
+        description="Entraînez-vous aux ECOS avec des situations cliniques réalistes. 12 situations d'entraînement, déroulé guidé, chronomètre et grille d'auto-évaluation."
         keywords="ECOS, simulation, clinique, médecine, examen"
         canonical="/ecos"
       />

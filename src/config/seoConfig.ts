@@ -456,7 +456,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/fiches-ecos-interactives': {
     title: 'Fiches ECOS Interactives - Toutes Spécialités',
-    description: 'Fiches ECOS interactives par spécialité. Scénarios réalistes, grilles de notation et feedback détaillé pour chaque station.',
+    description: 'Situations ECOS d\'entraînement : vignette clinique, déroulé guidé, chronomètre et grille d\'auto-évaluation.',
     keywords: `${BASE_KEYWORDS}, fiches ECOS, interactives, scénarios, spécialités, grilles`,
     canonical: '/fiches-ecos-interactives',
     ogType: 'article',

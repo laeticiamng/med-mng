@@ -345,7 +345,7 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   Les ECOS (Examens Cliniques Objectifs Structurés) évaluent vos compétences sur des
-                  consultations simulées. Med MNG propose des situations ECOS issues du référentiel, avec un
+                  consultations simulées. Med MNG propose 12 situations ECOS d'entraînement rédigées pour la plateforme, avec un
                   déroulé guidé (je questionne, j'examine, je conclus), un chronomètre et une grille
                   d'auto-évaluation. Il n'y a pas de patient virtuel. Consultez la section{' '}
                   <Link to={ROUTE_PATHS.ecosIndex} className="text-primary hover:underline">ECOS</Link>.

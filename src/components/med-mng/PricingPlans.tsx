@@ -25,7 +25,9 @@ interface PricingPlansProps {
 const INCLUS_GRATUIT = [
   `Fiches officielles des ${NOMBRE_ITEMS_TOTAL} items : compétences rang A et rang B (référentiel LiSA 2026)`,
   `Contenu immersif complet de ${NOMBRE_ITEMS_GRATUITS} items d'essai : paroles, récit, planches, quiz`,
-  'Situations ECOS du référentiel',
+  // Les 12 situations sont des cas rédigés pour Med MNG (aucune source UNESS en base) :
+  // « du référentiel » laissait croire à des stations officielles.
+  "12 situations ECOS d'entraînement",
 ];
 
 const INCLUS_PREMIUM = [
