@@ -104,7 +104,7 @@ export const MainNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-card/90 backdrop-blur-xl border-b border-border/50 shadow-sm dark:bg-card/80 safe-area-top">
+    <nav id="main-navigation" aria-label="Navigation principale" className="sticky top-0 z-50 bg-card/90 backdrop-blur-xl border-b border-border/50 shadow-sm dark:bg-card/80 safe-area-top">
       <div className="container mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}

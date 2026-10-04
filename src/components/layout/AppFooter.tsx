@@ -72,7 +72,10 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
                   dans le footer anonyme plus bas. La page n’est pas restaurée : ses
                   promesses commerciales sont à relire avant toute remise en ligne. */}
               <div className="space-y-1.5">
-                <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Bibliothèque</Link>
+                {/* « Ma bibliothèque » = les chansons de l'utilisateur. L'ancien lien menait à
+                    /library, un catalogue vide (« 0 chanson sur 0 ») même pour un abonné
+                    qui venait de générer une chanson. */}
+                <Link to={ROUTE_PATHS.medMngMusicLibrary} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Ma bibliothèque</Link>
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
                 <Link to={ROUTE_PATHS.faq} className="block text-muted-foreground hover:text-primary text-xs transition-colors">FAQ</Link>
                 <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">À propos</Link>
