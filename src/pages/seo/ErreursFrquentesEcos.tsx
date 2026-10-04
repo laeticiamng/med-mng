@@ -168,7 +168,8 @@ const ErreursFrquentesEcos = () => {
               {[
                 { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
                 { title: "Fiches ECOS interactives", path: ROUTE_PATHS.seoFichesEcos },
-                { title: "Cas cliniques EDN", path: ROUTE_PATHS.seoCasCliniqueEdn },
+                // « Cas cliniques EDN » retiré : l'adresse redirige vers « Fiches ECOS interactives » (DC7), déjà listée.
+                { title: "Travailler les cas cliniques", path: ROUTE_PATHS.seoTravaillerCasCliniques },
                 { title: "Réussir l'EDN", path: ROUTE_PATHS.seoReussirEdn },
               ].map((article) => (
                 <Link key={article.path} to={article.path}>

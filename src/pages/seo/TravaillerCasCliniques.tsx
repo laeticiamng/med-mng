@@ -150,7 +150,8 @@ const TravaillerCasCliniques = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               {[
                 { title: "Erreurs fréquentes aux ECOS", path: "/erreurs-frequentes-ecos" },
-                { title: "Cas cliniques EDN", path: ROUTE_PATHS.seoCasCliniqueEdn },
+                // « Cas cliniques EDN » retiré : l'adresse redirige vers « Fiches ECOS interactives » (DC7), déjà listée.
+                { title: "Rang A vs rang B : que réviser ?", path: ROUTE_PATHS.seoRangAvsRangB },
                 { title: "Réussir l'EDN", path: ROUTE_PATHS.seoReussirEdn },
                 { title: "Fiches ECOS interactives", path: ROUTE_PATHS.seoFichesEcos },
               ].map((article) => (

@@ -144,7 +144,8 @@ const ClassementEdnExplique = () => {
               {[
                 { title: "Réussir l'EDN : guide complet", path: ROUTE_PATHS.seoReussirEdn },
                 { title: "Rang A vs Rang B", path: "/rang-a-vs-rang-b" },
-                { title: "Simulation examen EDN", path: ROUTE_PATHS.seoSimulationEdn },
+                // « Simulation examen EDN » retiré : simulateur d'examen hors offre (DC7), l'adresse redirige vers /edn-complete.
+                { title: "Fiches ECOS interactives", path: ROUTE_PATHS.seoFichesEcos },
                 { title: "Préparation ECOS 2027", path: ROUTE_PATHS.seoPreparationEcos },
               ].map((article) => (
                 <Link key={article.path} to={article.path}>

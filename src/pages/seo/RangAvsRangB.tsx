@@ -142,7 +142,8 @@ const RangAvsRangB = () => {
                 { title: "Réussir l'EDN", path: ROUTE_PATHS.seoReussirEdn },
                 { title: "Classement EDN expliqué", path: "/classement-edn-explique" },
                 { title: "Fiches ECOS interactives", path: ROUTE_PATHS.seoFichesEcos },
-                { title: "Simulation examen EDN", path: ROUTE_PATHS.seoSimulationEdn },
+                // « Simulation examen EDN » retiré : simulateur d'examen hors offre (DC7), l'adresse redirige vers /edn-complete.
+                { title: "Travailler les cas cliniques", path: ROUTE_PATHS.seoTravaillerCasCliniques },
               ].map((article) => (
                 <Link key={article.path} to={article.path}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">

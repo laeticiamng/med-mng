@@ -284,3 +284,37 @@ test.describe('Mesure d’audience — description exacte', () => {
     expect(await page.evaluate(() => sessionStorage.getItem('conversion_session'))).toBeNull();
   });
 });
+
+/**
+ * Contre-vérification de la vague 3 (04.10.2026) : liens internes vers des adresses retirées
+ * (redirigées).
+ */
+test.describe('Contre-vérification de la vague 3', () => {
+  /** Adresses retirées et redirigées dans App.tsx (DC7, D44, D49, D53). */
+  const RETIREES = [
+    '/demo', '/parcours', '/chat', '/exam-mode', '/clinical-cases', '/smart-study-planner', '/study-planner',
+    '/examen-blanc-national', '/simulation-examen-edn', '/cas-cliniques-edn', '/exemple-cas-clinique', '/duel',
+  ];
+
+  test('pages du sitemap : aucun lien interne vers une adresse retirée @attend-deploiement', async ({ page, request }) => {
+    // « Articles liés » de deux pages proposaient « Cas cliniques EDN » (redirigé vers « Fiches ECOS
+    // interactives », déjà listé) ; « Voir aussi » de 8 pages, « Exemple de cas clinique » (D44).
+    test.setTimeout(300_000);
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    const chemins = [...sitemap.matchAll(/<loc>https:\/\/medmng\.com([^<]*)<\/loc>/g)].map((m) => m[1] || '/');
+    expect(chemins.length).toBeGreaterThan(10);
+    const fautifs: string[] = [];
+    for (const chemin of chemins) {
+      await page.goto(chemin);
+      await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => {});
+      const liens = await page.locator('a[href]').evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
+      for (const lien of liens) {
+        const u = new URL(lien);
+        if (u.origin !== new URL(page.url()).origin) continue;
+        const p = u.pathname.replace(/\/$/, '') || '/';
+        if (RETIREES.includes(p) || p.startsWith('/parcours/')) fautifs.push(`${chemin} → ${p}`);
+      }
+    }
+    expect([...new Set(fautifs)]).toEqual([]);
+  });
+});
