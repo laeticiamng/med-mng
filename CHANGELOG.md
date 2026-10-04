@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-04] — Finalisation, vague 3
+### Retiré
+- Sélecteur de langue (drapeau flottant) : il ne traduisait que quelques libellés ; l'interface est en français uniquement, un ancien choix « English » est effacé (D42).
+- Page SEO « Exemple de cas clinique » (cas rédigé sans source) → `/ecos` ; `/duel` (questions aux codes d'item faux) → `/edn-complete` (D44, D53).
+### Corrigé (allégations, à relire par la CEO)
+- Bandeau cookies, politique cookies et politique de confidentialité : statistiques de l'hébergeur Lovable décrites (pages vues, cookie `session-id` de 30 minutes, toujours actives) ; « Plausible Analytics » (jamais chargé) et les cookies fictifs retirés ; inventaire réel des cookies et du stockage.
+- La visite de la page Tarifs par un visiteur non connecté n'est plus enregistrée sans son accord (mesure d'audience Med MNG optionnelle, choix « Refuser / Accepter la mesure »).
+### Sécurité
+- `whisper-transcribe` : 20 transcriptions par compte et par jour, audio de 10 Mo au maximum, `audioUrl` limitée au stockage du projet (plus de téléchargement d'adresse quelconque) (D45).
+### Audio
+- `mm-music-status` copie dans `mm-chansons` l'audio d'une génération terminée resté sur un fichier Suno temporaire (14 jours) (D40).
+
 ## [2026-10-04] — Finalisation, vague 2 (contre-vérification)
 ### Sécurité
 - `generer-paroles-item` : un abonné ne peut plus réécrire les paroles publiées d'un item (paroles rédigées rendues telles quelles ; réécriture réservée au jeton d'administration).

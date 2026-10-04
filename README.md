@@ -30,10 +30,12 @@ Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copi
 - **Planches** : `illustrer-case` dessine une seule fois chaque case (OpenAI), conservée dans `bd-illustrations`.
 - **Paiement** : `mm-create-checkout` → Stripe Checkout ; `mm-stripe-webhook` → `user_subscriptions` ; `mm-customer-portal` (résiliation).
 - **Prestataires réellement appelés** : liste à jour dans la politique de confidentialité (`src/pages/PolitiqueConfidentialite.tsx`).
+- **Langue** : interface en français uniquement (pas de sélecteur de langue).
+- **Mesure d'audience** : l'hébergeur Lovable injecte `/~flock.js` (pages vues, cookie `session-id` de 30 minutes), hors du code et sans consentement ; la mesure propre à Med MNG avant connexion (`src/lib/conversionTracking.ts`) n'a lieu qu'avec l'accord du bandeau (`src/lib/consentementCookies.ts`). Tout changement doit être reporté dans le bandeau, la politique cookies et la politique de confidentialité (un E2E vérifie le comportement réel de `/~flock.js`).
 
 ### Sécurité des fonctions Edge
 
-La clé publique (anon) est un JWT valide : `verify_jwt` ne suffit pas. Toute fonction qui dépense des crédits payants contrôle l'appelant dans son code avec `supabase/functions/_shared/mm-garde.ts` (`exigerConnexion`, `exigerPremium`, `exigerAdministrateur`, `fonctionRetiree`). Côté front, un `fetch` direct envoie le jeton de session (`src/lib/enTetesFonction.ts`), jamais la clé publique.
+La clé publique (anon) est un JWT valide : `verify_jwt` ne suffit pas. Toute fonction qui dépense des crédits payants contrôle l'appelant dans son code avec `supabase/functions/_shared/mm-garde.ts` (`exigerConnexion`, `exigerPremium`, `exigerAdministrateur`, `fonctionRetiree`). Côté front, un `fetch` direct envoie le jeton de session (`src/lib/enTetesFonction.ts`), jamais la clé publique. Une fonction payante ouverte à tout compte connecté reçoit en plus une limite journalière par compte (`_shared/mm-limite-usage.ts`, table `rate_limit_counters`) : `whisper-transcribe` (utilisée par EmotionsCare) est limitée à 20 transcriptions par jour, 10 Mo d'audio, et n'accepte une `audioUrl` que du stockage du projet.
 
 ## Déploiement
 
