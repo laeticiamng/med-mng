@@ -1,6 +1,7 @@
 // Waveform visualization for music generation progress
 import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { couleurCanvas } from '@/lib/couleurCanvas';
 
 interface MusicGenerationWaveformProps {
   isGenerating: boolean;
@@ -36,16 +37,16 @@ export const MusicGenerationWaveform: React.FC<MusicGenerationWaveformProps> = (
       
       // Draw background gradient
       const bgGradient = ctx.createLinearGradient(0, 0, width, 0);
-      bgGradient.addColorStop(0, 'hsl(var(--primary) / 0.1)');
-      bgGradient.addColorStop(1, 'hsl(var(--accent) / 0.1)');
+      bgGradient.addColorStop(0, couleurCanvas('primary', 0.1));
+      bgGradient.addColorStop(1, couleurCanvas('accent', 0.1));
       ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, width, height);
       
       // Draw progress bar
       const progressWidth = (progress / 100) * width;
       const progressGradient = ctx.createLinearGradient(0, 0, progressWidth, 0);
-      progressGradient.addColorStop(0, 'hsl(var(--primary) / 0.3)');
-      progressGradient.addColorStop(1, 'hsl(var(--success) / 0.3)');
+      progressGradient.addColorStop(0, couleurCanvas('primary', 0.3));
+      progressGradient.addColorStop(1, couleurCanvas('success', 0.3));
       ctx.fillStyle = progressGradient;
       ctx.fillRect(0, 0, progressWidth, height);
       
@@ -70,11 +71,11 @@ export const MusicGenerationWaveform: React.FC<MusicGenerationWaveformProps> = (
         const gradient = ctx.createLinearGradient(x, centerY - barHeight / 2, x, centerY + barHeight / 2);
         
         if (isCompleted) {
-          gradient.addColorStop(0, 'hsl(var(--primary))');
-          gradient.addColorStop(1, 'hsl(var(--primary) / 0.6)');
+          gradient.addColorStop(0, couleurCanvas('primary'));
+          gradient.addColorStop(1, couleurCanvas('primary', 0.6));
         } else {
-          gradient.addColorStop(0, 'hsl(var(--muted-foreground) / 0.5)');
-          gradient.addColorStop(1, 'hsl(var(--muted-foreground) / 0.2)');
+          gradient.addColorStop(0, couleurCanvas('muted-foreground', 0.5));
+          gradient.addColorStop(1, couleurCanvas('muted-foreground', 0.2));
         }
         
         ctx.fillStyle = gradient;

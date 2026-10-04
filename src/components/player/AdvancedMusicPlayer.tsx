@@ -24,6 +24,7 @@ import {
     VolumeX
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { couleurCanvas } from '@/lib/couleurCanvas';
 
 interface AdvancedMusicPlayerProps {
   songId: string;
@@ -179,8 +180,8 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
         barHeight = (dataArray[i] / 255) * canvas.height;
         
         const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
-        gradient.addColorStop(0, 'hsl(var(--primary))');
-        gradient.addColorStop(1, 'hsl(var(--accent))');
+        gradient.addColorStop(0, couleurCanvas('primary'));
+        gradient.addColorStop(1, couleurCanvas('accent'));
         
         ctx.fillStyle = gradient;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
