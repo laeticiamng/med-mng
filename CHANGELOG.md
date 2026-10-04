@@ -14,6 +14,14 @@ All notable changes to this project will be documented in this file.
 ### Audio
 - `mm-music-status` copie dans `mm-chansons` l'audio d'une génération terminée resté sur un fichier Suno temporaire (14 jours) (D40).
 
+## [2026-10-05] — Finalisation, vague 3 (contre-vérification)
+### Corrigé
+- Libellés anglais restants : « Record streak » (profil), « Streak » (progression, barre mobile, « Mes succès ») → « Meilleure série », « Jours de suite », « série » ; « Répartition par type » du tableau de progression en français, sans identifiants bruts (`srs_review: 0`…) ni zéros.
+- « Articles liés » de 4 pages publiques : plus de « Simulation examen EDN » (fonction retirée) ni de « Cas cliniques EDN » (redirection en double).
+- Consentement : refuser la mesure ou retirer son accord efface aussi l'identifiant de visite (`conversion_session`) (à relire par la CEO avec les textes cookies).
+### Tests
+- E2E : aucune page du sitemap ne pointe vers une adresse retirée ; chemin « accord puis retrait » du bandeau (enregistrement intercepté) ; profil, progression et « Mes succès » sans « streak ».
+
 ## [2026-10-04] — Finalisation, vague 2 (contre-vérification)
 ### Sécurité
 - `generer-paroles-item` : un abonné ne peut plus réécrire les paroles publiées d'un item (paroles rédigées rendues telles quelles ; réécriture réservée au jeton d'administration).
