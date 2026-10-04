@@ -38,6 +38,19 @@ const DELAI_AVANT_RATTRAPAGE_MS = 45_000;
 const DELAI_ABANDON_MS = 15 * 60_000;
 const MESSAGE_ABANDON = "La génération n'a pas abouti dans le délai prévu. Elle ne vous est pas décomptée : réessayez.";
 
+/** Date de lancement (ms) : registre serveur si présent, sinon la ligne de generated_music_tracks. */
+// deno-lint-ignore no-explicit-any
+async function dateLancement(supabase: any, taskId: string, repli: string): Promise<number> {
+  try {
+    const { data, error } = await supabase
+      .from('mm_generations_audio').select('created_at').eq('task_id', taskId).maybeSingle();
+    if (!error && data?.created_at) return new Date(data.created_at).getTime();
+  } catch {
+    // registre absent : repli sur la ligne
+  }
+  return new Date(repli).getTime();
+}
+
 const reponseJson = (corps: unknown, status = 200) =>
   new Response(JSON.stringify(corps), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
@@ -112,7 +125,13 @@ serve(async (req) => {
       return reponseJson(reponseDepuisLigne(ligne));
     }
 
-    const age = Date.now() - new Date(ligne.created_at).getTime();
+    // Âge de la génération : date du registre serveur (mm_generations_audio),
+    // que l'utilisateur ne peut pas modifier. CONSTAT (revue critique 04.10.2026) :
+    // created_at de generated_music_tracks est modifiable par son propriétaire
+    // (RLS) ; en l'antidatant, l'abandon à 15 min (« non décomptée ») se
+    // déclenchait aussitôt et la génération sortait du quota. Sans registre
+    // (migration 20261004120000 non appliquée, génération antérieure) : la ligne.
+    const age = Date.now() - (await dateLancement(supabase, taskId, ligne.created_at));
     if (age < DELAI_AVANT_RATTRAPAGE_MS) {
       return reponseJson(reponseDepuisLigne(ligne));
     }
