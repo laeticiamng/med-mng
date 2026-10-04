@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -20,6 +21,11 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+  // Réservé aux administrateurs (ou à la clé de service) — décision CEO DC7 du 04.10.2026 :
+  // chat / QCM générés par IA, hors de l'offre (contenu médical non vérifié), retirés de
+  // l'interface. Avant : tout compte connecté, même gratuit, pouvait l'appeler (OpenAI).
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     console.log('💬 CHAT IA CONTEXTUEL EDN - Début');

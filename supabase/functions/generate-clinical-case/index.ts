@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { completionIA } from '../_shared/ia-resiliente.ts';
-import { exigerConnexion } from '../_shared/mm-garde.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 const ALLOWED_ORIGINS = [
   Deno.env.get("ALLOWED_ORIGIN") || "https://med-mng.com",
@@ -21,10 +21,10 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
-  // Réservé aux utilisateurs connectés (ou à la clé de service) : déployée avec verify_jwt = false, cette fonction
-  // dépensait des crédits d'API payants pour tout appelant, même anonyme
-  // (revue critique du 04.10.2026, _shared/mm-garde.ts).
-  const acces = await exigerConnexion(req, corsHeaders);
+  // Réservé aux administrateurs (ou à la clé de service) — décision CEO DC7 du 04.10.2026 :
+  // fonction IA hors de l'offre (contenu médical généré, non vérifié), retirée de l'interface.
+  // Avant : tout compte connecté, même gratuit, pouvait l'appeler aux frais de la plateforme.
+  const acces = await exigerAdministrateur(req, corsHeaders);
   if (acces instanceof Response) return acces;
 
   try {
