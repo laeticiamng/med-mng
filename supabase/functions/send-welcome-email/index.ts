@@ -87,7 +87,8 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailResponse.error) {
-      console.error("❌ E-mail de bienvenue refusé par Resend :", emailResponse.error.message ?? 'erreur inconnue');
+      // Nom de l'erreur seulement : le message de Resend peut contenir une adresse e-mail.
+      console.error("❌ E-mail de bienvenue refusé par Resend :", emailResponse.error.name ?? 'erreur inconnue');
       return repondre({ success: false, error: "L'e-mail de bienvenue n'a pas pu être envoyé." }, 502);
     }
 
