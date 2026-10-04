@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { completionIA } from '../_shared/ia-resiliente.ts'
+import { lignesNonVides, parolesRedigees } from '../_shared/mm-paroles.ts'
 
 /**
  * Génère les paroles d'un item EDN à partir de SES compétences OIC officielles.
@@ -270,7 +271,7 @@ serve(async (req) => {
 
     const { data: item, error: eItem } = await supabase
       .from('edn_items_complete')
-      .select('id, item_code, title')
+      .select('id, item_code, title, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
       .eq('item_code', itemCode)
       .maybeSingle()
     if (eItem) {
@@ -278,6 +279,30 @@ serve(async (req) => {
       return repondre({ error: 'erreur', message: 'Service momentanément indisponible, réessayez plus tard.' }, 500)
     }
     if (!item) return repondre({ error: `item ${itemCode} introuvable` }, 404)
+
+    // Abonné Premium (sans jeton d'administration) : les paroles DÉJÀ RÉDIGÉES
+    // de l'item sont rendues telles quelles, sans appel au modèle ni écriture.
+    // CONSTAT (contre-vérification vague 2, 04.10.2026) : la fonction ne
+    // vérifiait pas l'état des paroles enregistrées. Le front ne l'appelle que
+    // pour des paroles non rédigées, mais tout abonné (essai compris) pouvait
+    // l'appeler directement, sans quota, et RÉÉCRIRE les paroles publiées de
+    // n'importe quel item pour tous les utilisateurs. Seul le jeton
+    // d'administration (scripts/regenerer.mjs) peut désormais les remplacer.
+    if (!jetonAdmin) {
+      const enregistrees = lignesNonVides(
+        rang === 'A' ? item.paroles_rang_a : rang === 'B' ? item.paroles_rang_b : item.paroles_rang_ab,
+      )
+      if (parolesRedigees(enregistrees)) {
+        return repondre({
+          itemCode, rang,
+          titre: item.title,
+          lignes: enregistrees.length,
+          paroles: enregistrees,
+          enregistre: false,
+          deja_redigees: true,
+        })
+      }
+    }
 
     const numero = String(itemCode).replace(/^IC-/, '').padStart(3, '0')
     const { data: brutes, error: eComp } = await supabase
@@ -337,7 +362,11 @@ serve(async (req) => {
 
     const lignes = paroles.split('\n').map((l) => l.trimEnd())
 
-    if (enregistrer) {
+    // Sans jeton d'administration, les paroles produites sont toujours enregistrées :
+    // l'appel suivant rend alors les paroles rédigées sans nouvel appel au modèle
+    // (« enregistrer: false » permettait des générations répétées, sans quota).
+    const enregistrerEffectif = jetonAdmin ? enregistrer : true
+    if (enregistrerEffectif) {
       const colonne = rang === 'A' ? 'paroles_rang_a' : rang === 'B' ? 'paroles_rang_b' : 'paroles_rang_ab'
       const maj: Record<string, unknown> = { [colonne]: lignes, updated_at: new Date().toISOString() }
       if (rang === 'A') maj.paroles_musicales = lignes
@@ -352,7 +381,7 @@ serve(async (req) => {
       lignes: lignes.length,
       essais: essais.length,
       paroles: lignes,
-      enregistre: enregistrer,
+      enregistre: enregistrerEffectif,
     })
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
