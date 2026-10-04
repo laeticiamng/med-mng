@@ -185,14 +185,17 @@ const TravaillerCasCliniques = () => {
 
           {/* CTA */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Entraînez-vous sur des cas cliniques interactifs</h2>
-            <p className="text-muted-foreground mb-6">Correction détaillée, score par compétence, progression suivie.</p>
+            {/* Contre-vérification vague 2 (04.10.2026) : ce bloc promettait des « cas cliniques interactifs »
+                avec « correction détaillée, score par compétence » ; les cas cliniques générés sont retirés (DC7).
+                Il décrit désormais ce que l'offre gratuite contient réellement. */}
+            <h2 className="text-2xl font-bold text-foreground mb-3">Entraînez-vous sur les situations ECOS de Med MNG</h2>
+            <p className="text-muted-foreground mb-6">12 situations guidées (dossier du patient, « Je dis / Je fais / Je conclus », chronomètre, grille d'auto-évaluation) et les fiches officielles des 367 items, gratuitement.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
                 <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
               </Link>
-              <Link to="/exemple-cas-clinique">
-                <Button variant="outline" size="lg">Voir un exemple gratuit</Button>
+              <Link to={ROUTE_PATHS.ecosIndex}>
+                <Button variant="outline" size="lg">Essayer une situation ECOS</Button>
               </Link>
             </div>
           </section>
