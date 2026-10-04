@@ -30,6 +30,8 @@ import {
     X
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { enTetesFonction } from '@/lib/enTetesFonction';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -84,6 +86,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   const { toast } = useToast();
   const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
   const { logActivity } = useActivityTracking();
+  const { user: utilisateur } = useAuth();
 
   const CHAT_URL = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/ai-tutor`;
 
@@ -198,10 +201,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
 
     const resp = await fetch(CHAT_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU`,
-      },
+      headers: await enTetesFonction(),
       body: JSON.stringify({ messages: userMessages, itemContext: enrichedContext }),
     });
 
@@ -350,6 +350,10 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       setIsLoading(false);
     }
   };
+
+  // Le tuteur exige une session (ai-tutor refuse les appels anonymes depuis la
+  // revue critique du 04.10.2026) : la bulle n'est plus proposée aux visiteurs.
+  if (!utilisateur) return null;
 
   if (!isOpen) {
     return (

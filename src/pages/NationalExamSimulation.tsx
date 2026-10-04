@@ -12,6 +12,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { Helmet } from 'react-helmet-async';
 import confetti from 'canvas-confetti';
+import { enTetesFonction } from '@/lib/enTetesFonction';
 import {
   Play, Clock, AlertTriangle, CheckCircle, XCircle,
   Shield, Target, Brain, Loader2, ArrowLeft,
@@ -112,10 +113,7 @@ const NationalExamSimulation: React.FC = () => {
     try {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-national-exam`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
+        headers: await enTetesFonction(),
         body: JSON.stringify({ userId: user.id, questionCount: 120 }),
       });
 

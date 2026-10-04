@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Loader2, Maximize2, MessageCircle, Minimize2, Send, User, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { enTetesFonction } from '@/lib/enTetesFonction';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -40,10 +41,7 @@ export function AITutor({ itemContext }: AITutorProps) {
   const streamChat = async (userMessages: Message[]) => {
     const resp = await fetch(CHAT_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU`,
-      },
+      headers: await enTetesFonction(),
       body: JSON.stringify({ messages: userMessages, itemContext }),
     });
 

@@ -23,6 +23,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { enTetesFonction } from '@/lib/enTetesFonction';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -270,10 +271,7 @@ export const medicalCopilot = {
     
     const response = await fetch(`${SUPABASE_URL}/functions/v1/medical-ai-copilot-stream`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      },
+      headers: await enTetesFonction(),
       body: JSON.stringify({ query, mode, specialty }),
     });
 

@@ -10,6 +10,7 @@ import {
   Loader2, AlertCircle, Stethoscope, RotateCcw,
 } from 'lucide-react';
 import type { ItemDetail, ItemNote } from '@/types/medMngItems';
+import { enTetesFonction } from '@/lib/enTetesFonction';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -79,10 +80,7 @@ export const ContextualAITutor: React.FC<ContextualAITutorProps> = ({
 
     const resp = await fetch(CHAT_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
+      headers: await enTetesFonction(),
       body: JSON.stringify({
         messages: allMessages,
         itemContext: buildItemContext(),
