@@ -82,6 +82,20 @@ test.describe('Compte gratuit', () => {
     await expect(page.locator('main [role=switch]')).toHaveCount(0);
   });
 
+  test('« Mes succès » : pas d’onglet Certificats, aucune erreur 4xx @attend-deploiement', async ({ page }) => {
+    // Correctif de la contre-vérification : l'onglet « Certificats » échouait en 400 (user_badges)
+    // et aurait délivré des certificats « Vérifié » à partir de badges auto-attribuables.
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/achievements');
+    await expect(page.locator('main')).toContainText('Succès & Progression');
+    await expect(page.getByRole('tab', { name: 'Certificats' })).toHaveCount(0);
+    for (const onglet of ['Classement', 'Défis', 'Progression']) {
+      await page.getByRole('tab', { name: onglet }).click();
+      await page.waitForTimeout(1500);
+    }
+    expect(erreurs).toEqual([]);
+  });
+
   test('DC7 : plus de tuteur IA flottant pour un compte connecté @attend-deploiement', async ({ page }) => {
     await page.goto('/edn-complete');
     await expect(page.locator('main')).toContainText('367 items');

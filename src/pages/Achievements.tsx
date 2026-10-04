@@ -1,4 +1,3 @@
-import { CertificateGenerator } from '@/components/gamification/CertificateGenerator';
 import { GamificationPanel } from '@/components/gamification/GamificationPanel';
 import { Leaderboard } from '@/components/gamification/Leaderboard';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Award, Flame, Medal, Star, Sparkles, Target, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, Award, Flame, Star, Sparkles, Target, Trophy, Users } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -144,7 +143,7 @@ const Achievements: React.FC = () => {
 
         {/* Tabs pour les différentes sections */}
         <Tabs defaultValue="gamification" className="mb-8">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="gamification" className="flex items-center gap-2">
               <Award className="h-4 w-4" />
               <span className="hidden sm:inline">Progression</span>
@@ -152,10 +151,6 @@ const Achievements: React.FC = () => {
             <TabsTrigger value="leaderboard" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Classement</span>
-            </TabsTrigger>
-            <TabsTrigger value="certificates" className="flex items-center gap-2">
-              <Medal className="h-4 w-4" />
-              <span className="hidden sm:inline">Certificats</span>
             </TabsTrigger>
             <TabsTrigger value="challenges" className="flex items-center gap-2">
               <Target className="h-4 w-4" />
@@ -171,9 +166,10 @@ const Achievements: React.FC = () => {
             <Leaderboard />
           </TabsContent>
 
-          <TabsContent value="certificates">
-            <CertificateGenerator />
-          </TabsContent>
+          {/* Onglet « Certificats » retiré (contre-vérification vague 2, 04.10.2026) : sa requête
+              (user_badges avec une jointure badge:badge_id inexistante) échouait en 400, l'onglet
+              restait vide pour tous ; corrigé, il aurait délivré un « CERTIFICAT … Vérifié » à partir
+              de badges que chaque compte peut s'attribuer lui-même (politique RLS d'insertion). */}
 
           <TabsContent value="challenges">
             {/* Section motivation et défis */}
