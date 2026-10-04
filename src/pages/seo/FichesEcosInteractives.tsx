@@ -13,12 +13,12 @@ const FichesEcosInteractives = () => {
   // Les 12 situations réellement disponibles sur /ecos (table ecos_situations_uness).
   // À mettre à jour si de nouvelles situations sont ajoutées.
   const specialties = [
-    { icon: <Heart className="h-5 w-5" />, name: 'Cardiologie / Urgences', examples: ['Douleur thoracique aiguë', 'Syndrome coronarien aigu ST+', 'Polytraumatisé (accident de la voie publique)'] },
-    { icon: <Stethoscope className="h-5 w-5" />, name: 'Neurologie / Gériatrie', examples: ['AVC ischémique en phase aiguë', 'Personne âgée confuse aux urgences'] },
-    { icon: <FileText className="h-5 w-5" />, name: 'Pédiatrie', examples: ['Enfant avec fièvre et éruption cutanée', 'Allergie alimentaire sévère chez l\'enfant'] },
-    { icon: <MessageSquare className="h-5 w-5" />, name: 'Psychiatrie', examples: ['Adolescent avec idées suicidaires', 'Dépression du post-partum'] },
-    { icon: <AlertTriangle className="h-5 w-5" />, name: 'Obstétrique', examples: ['Femme enceinte avec contractions prématurées'] },
-    { icon: <Pill className="h-5 w-5" />, name: 'Autres', examples: ['Patient diabétique avec pied infecté', 'Colique néphrétique hyperalgique'] },
+    { icon: <Heart className="h-5 w-5" />, name: 'Cardiologie / Urgences', examples: ['Douleur thoracique brutale chez un homme de 58 ans', 'Douleur thoracique depuis 1 h 30 chez une femme de 65 ans', "Accident de moto contre une voiture chez un homme d'environ 35 ans"] },
+    { icon: <Stethoscope className="h-5 w-5" />, name: 'Neurologie / Gériatrie', examples: ['Hémiplégie droite et aphasie brutales chez un homme de 72 ans', "Femme de 82 ans « pas comme d'habitude » depuis 24 heures"] },
+    { icon: <FileText className="h-5 w-5" />, name: 'Pédiatrie', examples: ['Fièvre et éruption cutanée chez une fillette de 4 ans', 'Urticaire généralisée et gêne respiratoire chez un garçon de 3 ans'] },
+    { icon: <MessageSquare className="h-5 w-5" />, name: 'Psychiatrie', examples: ['Idées de mort chez un adolescent de 16 ans', 'Fatigue et désintérêt pour son bébé à J21 du post-partum chez une femme de 29 ans'] },
+    { icon: <AlertTriangle className="h-5 w-5" />, name: 'Obstétrique', examples: ['Contractions douloureuses à 28 SA chez une femme de 32 ans'] },
+    { icon: <Pill className="h-5 w-5" />, name: 'Autres', examples: ['Plaie du pied depuis 3 semaines chez un homme diabétique de 67 ans', 'Douleur lombaire droite depuis 6 heures chez un homme de 42 ans'] },
   ];
 
   return (
