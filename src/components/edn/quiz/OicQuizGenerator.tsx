@@ -352,7 +352,14 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
           </Button>
 
           {currentQuestion === questions.length - 1 ? (
-            <Button onClick={handleFinish} className="bg-success hover:bg-success/90">
+            // Comme « Suivant » : pas de fin de quiz sans réponse à la dernière question
+            // (E2E de production du 04.10.2026 : « Terminer » était actif sans choix,
+            // et la question restée sans réponse comptait comme fausse).
+            <Button
+              onClick={handleFinish}
+              disabled={answers[currentQ.id] === undefined}
+              className="bg-success hover:bg-success/90"
+            >
               Terminer
             </Button>
           ) : (
