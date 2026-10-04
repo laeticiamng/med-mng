@@ -171,9 +171,9 @@ async function logInternalEvent(eventName: string, params?: Record<string, any>)
       await (supabase as any).from('user_activity_log').insert({
         user_id: user.id,
         activity_type: eventName,
-        action: params?.action || eventName,
-        metadata: params,
-        session_id: sessionId
+        // La table n'a ni colonne `action` ni `session_id` : les envoyer faisait
+        // échouer chaque insertion (400 PGRST204). Ils vont dans metadata.
+        metadata: { ...(params ?? {}), action: params?.action || eventName, session_id: sessionId },
       });
       return; // Successfully uploaded
     }
