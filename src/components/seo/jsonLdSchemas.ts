@@ -164,7 +164,7 @@ export const createFAQPageSchema = () => ({
       name: 'Qu\'est-ce que Med MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel public UNESS/LiSA, ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
+        text: 'Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel LiSA 2026 (UNESS), ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
       },
     },
     {

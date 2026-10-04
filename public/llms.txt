@@ -2,7 +2,7 @@
 # Ce fichier aide les assistants IA (ChatGPT, Perplexity, Claude) à décrire Med MNG correctement.
 # Dernière mise à jour : 2026-09-24
 
-> Med MNG est une application web de révision pour les étudiants en médecine de 2e cycle (DFASM1-DFASM2) qui préparent les EDN 2028 et 2029 (sessions d'octobre 2027 et 2028). Pour chacun des 367 items, elle présente les compétences officielles de rang A et de rang B (référentiel public UNESS/LiSA 2026) et un contenu immersif : paroles de chanson mnémotechniques, récit, planches et quiz, avec génération audio des chansons.
+> Med MNG est une application web de révision pour les étudiants en médecine de 2e cycle (DFASM1-DFASM2) qui préparent les EDN 2028 et 2029 (sessions d'octobre 2027 et 2028). Pour chacun des 367 items, elle présente les compétences officielles de rang A et de rang B (référentiel LiSA 2026, UNESS) et un contenu immersif : paroles de chanson mnémotechniques, récit, planches et quiz, avec génération audio des chansons.
 
 ## Identité
 
@@ -15,7 +15,7 @@
 
 ## Contenu
 
-- 367 items EDN : compétences rang A et rang B issues du référentiel public
+- 367 items EDN : compétences rang A et rang B issues du référentiel LiSA 2026 (UNESS)
 - Contenu immersif par item : paroles de chanson (rang A, rang B, A+B), récit, planches, quiz
 - Génération audio des chansons à la demande
 - Situations ECOS guidées avec grille d'auto-évaluation

@@ -65,7 +65,7 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Med MNG est une plateforme de révision pour les 367 items de l'EDN (Épreuves Dématérialisées
                   Nationales). Pour chaque item, vous trouvez une fiche, les compétences rang A et rang B du
-                  référentiel public UNESS/LiSA, un quiz et des paroles de chanson générées par intelligence
+                  référentiel LiSA 2026 (UNESS), un quiz et des paroles de chanson générées par intelligence
                   artificielle, que vous pouvez mettre en musique. C'est la méthode MNG : Music Neuro Learning Generator.
                 </AccordionContent>
               </AccordionItem>
@@ -116,8 +116,8 @@ const FAQ = () => {
                   Les chansons sont-elles fiables médicalement ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Les paroles sont générées à partir des compétences rang A et rang B du référentiel public
-                  UNESS/LiSA. Comme tout contenu généré par IA, elles peuvent contenir des imprécisions.
+                  Les paroles sont générées à partir des compétences rang A et rang B du référentiel LiSA 2026
+                  (UNESS). Comme tout contenu généré par IA, elles peuvent contenir des imprécisions.
                   Med MNG est un outil <strong>complémentaire</strong> à vos cours, pas un substitut. Vérifiez
                   toujours avec vos sources officielles (Collèges, polycopiés de faculté). Med MNG n'a aucun
                   partenariat officiel avec l'UNESS ni le CNG.

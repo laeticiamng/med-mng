@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     question: "Sur quoi repose le contenu ?",
-    answer: "Les compétences de chaque item (rang A et rang B) proviennent du référentiel public UNESS/LiSA. Med MNG n'a aucun partenariat officiel avec l'UNESS ni le CNG. Les paroles et quiz sont générés par IA et doivent être vérifiés avec vos sources officielles."
+    answer: "Les compétences de chaque item (rang A et rang B) proviennent du référentiel LiSA 2026 (UNESS). Med MNG n'a aucun partenariat officiel avec l'UNESS ni le CNG. Les paroles et quiz sont générés par IA et doivent être vérifiés avec vos sources officielles."
   },
   {
     question: "Puis-je utiliser Med MNG sur mobile ?",

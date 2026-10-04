@@ -97,7 +97,7 @@ const About = () => {
                 <div className="bg-card p-4 rounded-lg border border-border text-center">
                   <Music className="h-8 w-8 text-primary mx-auto mb-2" />
                   <h4 className="font-semibold text-foreground mb-1">Musique IA</h4>
-                  <p className="text-sm">Paroles générées par IA à partir des compétences officielles du référentiel (source publique UNESS/LiSA), à vérifier avec vos sources</p>
+                  <p className="text-sm">Paroles générées par IA à partir des compétences officielles du référentiel LiSA 2026 (UNESS), à vérifier avec vos sources</p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border border-border text-center">
                   <Brain className="h-8 w-8 text-accent mx-auto mb-2" />
@@ -190,7 +190,7 @@ const About = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Rigueur scientifique</h4>
                 <p className="text-sm text-muted-foreground">
-                  Les compétences de chaque item proviennent du référentiel public UNESS/LiSA. Les
+                  Les compétences de chaque item proviennent du référentiel LiSA 2026 (UNESS). Les
                   contenus générés par IA peuvent contenir des erreurs : signalez-les-nous.
                 </p>
               </div>

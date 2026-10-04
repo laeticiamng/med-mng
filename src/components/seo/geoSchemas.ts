@@ -110,7 +110,7 @@ export const createDatasetSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Dataset',
   name: 'Base de données EDN complète - 367 items R2C',
-  description: 'Les 367 items du programme EDN (R2C) avec compétences rang A / rang B issues du référentiel public UNESS/LiSA, fiche, quiz et paroles de chanson par item.',
+  description: 'Les 367 items du programme EDN (R2C) avec compétences rang A / rang B issues du référentiel LiSA 2026 (UNESS), fiche, quiz et paroles de chanson par item.',
   url: `${SITE_URL}/edn-complete`,
   license: 'https://creativecommons.org/licenses/by-nc/4.0/',
   creator: {
@@ -211,7 +211,7 @@ export const createExpertiseSchema = () => ({
   isAccessibleForFree: true,
   genre: 'Éducation médicale',
   keywords: 'EDN, ECOS, médecine, apprentissage musical, IA, répétition espacée, R2C, items EDN',
-  abstract: 'Med MNG associe la révision des 367 items EDN (compétences rang A / rang B issues du référentiel public UNESS/LiSA) à des paroles de chanson générées par IA, des quiz et des situations ECOS guidées.',
+  abstract: 'Med MNG associe la révision des 367 items EDN (compétences rang A / rang B issues du référentiel LiSA 2026, UNESS) à des paroles de chanson générées par IA, des quiz et des situations ECOS guidées.',
   publisher: {
     '@type': 'Organization',
     name: 'EmotionsCare',

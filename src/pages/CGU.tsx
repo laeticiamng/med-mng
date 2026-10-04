@@ -93,7 +93,7 @@ const CGU = () => {
               <div className="bg-accent/10 p-4 rounded-lg">
                 <p className="font-semibold text-foreground mb-2">Services proposés :</p>
                 <ul className="space-y-1 text-sm">
-                  <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel public UNESS/LiSA), quiz</li>
+                  <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel LiSA 2026, UNESS), quiz</li>
                   <li>• Paroles de chansons pédagogiques générées par IA et génération audio par IA à la demande (prestataires listés dans la politique de confidentialité)</li>
                   <li>• Récits et planches illustrées générés par IA (en cours de génération)</li>
                   <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>

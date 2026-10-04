@@ -117,7 +117,7 @@ export const MngPresentation = () => {
                 <Headphones className="h-5 w-5 text-warning" />
                 <h4 className="font-semibold text-warning-foreground">1. Paroles générées par IA</h4>
               </div>
-              <p className="text-sm text-foreground">Paroles écrites à partir des compétences du référentiel (source publique UNESS/LiSA), par rang A, rang B ou A+B</p>
+              <p className="text-sm text-foreground">Paroles écrites à partir des compétences du référentiel LiSA 2026 (UNESS), par rang A, rang B ou A+B</p>
             </div>
             <div className="bg-primary/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
@@ -160,7 +160,7 @@ export const MngPresentation = () => {
             <div className="bg-success/10 p-4 rounded-lg border-l-4 border-success">
               <p className="text-sm text-foreground">
                 <strong>Génération à la demande</strong> à partir des compétences rang A / rang B de chaque item
-                (référentiel public UNESS/LiSA). Les contenus générés par IA peuvent contenir des erreurs : vérifiez-les.
+                (référentiel LiSA 2026, UNESS). Les contenus générés par IA peuvent contenir des erreurs : vérifiez-les.
               </p>
             </div>
             <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
