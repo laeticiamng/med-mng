@@ -26,7 +26,7 @@ interface PatientCardProps {
 
 export const PatientCard = ({ patient }: PatientCardProps) => {
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { stats, loadStats } = useGamification();
   const hasTrackedRef = useRef(false);
 
   useEffect(() => {
@@ -46,11 +46,10 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
           count: 1,
           metadata: { component: 'patient_card', action: 'view', patientName: patient.name }
         });
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await addPoints(user.id, 10, 'patient_card_view');
-        }
+        // Plus de +10 XP à l'affichage (revue critique 04.10.2026) : chaque
+        // ouverture ou rechargement d'une station rapportait 10 points sans rien
+        // faire. Les points ECOS sont attribués à la fin de la station
+        // (EcosScenario, POINTS_CONFIG.clinicalCase).
       }
     };
     trackView();

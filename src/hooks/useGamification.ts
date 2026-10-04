@@ -313,7 +313,13 @@ export function useGamification() {
     const aiResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'ai_question');
     const examResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'exam');
     const musicResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'music_generation');
-    const flashcardResult = await (supabase.from('flashcards').select('id', { count: 'exact', head: true }) as any).eq('user_id', userId);
+    // flashcards n'a pas de colonne user_id (400 à chaque vérification des
+    // badges) : les cartes de l'utilisateur sont celles de ses paquets.
+    const { data: paquets } = await (supabase as any).from('flashcard_decks').select('id').eq('user_id', userId);
+    const idsPaquets = ((paquets ?? []) as { id: string }[]).map((d) => d.id);
+    const flashcardResult = idsPaquets.length > 0
+      ? await (supabase as any).from('flashcards').select('id', { count: 'exact', head: true }).in('deck_id', idsPaquets)
+      : { count: 0 };
     
     const totalReviews = reviewsResult.count || 0;
     const clinicalCount = clinicalResult.count || 0;
