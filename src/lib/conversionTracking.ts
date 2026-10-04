@@ -4,16 +4,16 @@
  * Visiteur non connecté : seulement avec l'accord du bandeau cookies (mesure d'audience).
  */
 import { supabase } from '@/integrations/supabase/client';
-import { mesureAudienceAcceptee } from '@/lib/consentementCookies';
+import { CLE_IDENTIFIANT_VISITE, mesureAudienceAcceptee } from '@/lib/consentementCookies';
 
 type ConversionEvent = 'page_view' | 'signup' | 'checkout_start' | 'checkout_complete';
 
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'server';
-  let sid = sessionStorage.getItem('conversion_session');
+  let sid = sessionStorage.getItem(CLE_IDENTIFIANT_VISITE);
   if (!sid) {
     sid = crypto.randomUUID?.() ?? `s_${Date.now()}`;
-    sessionStorage.setItem('conversion_session', sid);
+    sessionStorage.setItem(CLE_IDENTIFIANT_VISITE, sid);
   }
   return sid;
 }

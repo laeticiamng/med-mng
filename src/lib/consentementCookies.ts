@@ -51,6 +51,21 @@ export function lirePreferencesCookies(): PreferencesCookies | null {
   }
 }
 
+/** Identifiant aléatoire de la visite (stockage de session) utilisé par la mesure d'audience Med MNG. */
+export const CLE_IDENTIFIANT_VISITE = 'conversion_session';
+
+/**
+ * Oublie l'identifiant de visite (refus ou retrait de l'accord) : sans cela, l'identifiant créé
+ * pendant l'accord restait dans l'onglet jusqu'à sa fermeture (contre-vérification vague 3).
+ */
+function oublierIdentifiantVisite(): void {
+  try {
+    window.sessionStorage.removeItem(CLE_IDENTIFIANT_VISITE);
+  } catch {
+    // stockage indisponible : rien n'est conservé
+  }
+}
+
 export function enregistrerPreferencesCookies(analytics: boolean): PreferencesCookies {
   const preferences: PreferencesCookies = { essential: true, analytics, version: VERSION_CONSENTEMENT };
   try {
@@ -59,6 +74,7 @@ export function enregistrerPreferencesCookies(analytics: boolean): PreferencesCo
   } catch {
     // stockage indisponible : le bandeau sera simplement reproposé
   }
+  if (!analytics) oublierIdentifiantVisite();
   return preferences;
 }
 
@@ -73,4 +89,5 @@ export function effacerChoixCookies(): void {
   } catch {
     // stockage indisponible : rien n'est enregistré
   }
+  oublierIdentifiantVisite();
 }

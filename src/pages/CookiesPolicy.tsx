@@ -202,7 +202,7 @@ const CookiesPolicy = () => {
                         <td className="p-2 font-mono text-xs">conversion_session</td>
                         <td className="p-2">Navigateur (stockage de session)</td>
                         <td className="p-2">Identifiant aléatoire de la visite (page Tarifs, inscription, paiement)</td>
-                        <td className="p-2">Jusqu'à la fermeture de l'onglet</td>
+                        <td className="p-2">Jusqu'à la fermeture de l'onglet ou au retrait de votre accord</td>
                       </tr>
                       <tr>
                         <td className="p-2 font-mono text-xs">analytics_session</td>

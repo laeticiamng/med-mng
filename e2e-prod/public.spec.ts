@@ -287,7 +287,7 @@ test.describe('Mesure d’audience — description exacte', () => {
 
 /**
  * Contre-vérification de la vague 3 (04.10.2026) : liens internes vers des adresses retirées
- * (redirigées).
+ * (redirigées) et retrait de l'accord à la mesure d'audience.
  */
 test.describe('Contre-vérification de la vague 3', () => {
   /** Adresses retirées et redirigées dans App.tsx (DC7, D44, D49, D53). */
@@ -316,5 +316,31 @@ test.describe('Contre-vérification de la vague 3', () => {
       }
     }
     expect([...new Set(fautifs)]).toEqual([]);
+  });
+
+  test('visiteur : accord puis « Modifier mon choix » et refus → identifiant de visite oublié, plus rien d’envoyé @attend-deploiement', async ({ page }) => {
+    // L'enregistrement est intercepté : rien n'est écrit dans la base de production.
+    const envois: string[] = [];
+    await page.route('**/rest/v1/analytics_events**', async (route) => {
+      envois.push(route.request().method());
+      await route.fulfill({ status: 201, body: '' });
+    });
+    await page.goto('/med-mng/pricing');
+    await page.getByRole('button', { name: 'Accepter la mesure' }).click();
+    await page.reload();
+    await expect(page.locator('main')).toContainText('69 €/an');
+    await expect.poll(() => envois.length, { timeout: 10_000 }).toBeGreaterThan(0);
+    expect(await page.evaluate(() => sessionStorage.getItem('conversion_session'))).not.toBeNull();
+
+    await page.goto('/legal/cookies');
+    await page.getByRole('button', { name: 'Modifier mon choix' }).click();
+    await page.getByRole('button', { name: 'Refuser la mesure' }).click();
+    expect(await page.evaluate(() => sessionStorage.getItem('conversion_session'))).toBeNull();
+    const avant = envois.length;
+    await page.goto('/med-mng/pricing');
+    await expect(page.locator('main')).toContainText('69 €/an');
+    await page.waitForTimeout(3000);
+    expect(envois.length, 'envois après le refus').toBe(avant);
+    expect(await page.evaluate(() => sessionStorage.getItem('conversion_session'))).toBeNull();
   });
 });

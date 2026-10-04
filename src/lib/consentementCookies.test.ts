@@ -76,6 +76,20 @@ describe('mesure du parcours d’abonnement (trackConversionEvent)', () => {
     expect(sessionStorage.getItem('conversion_session')).toBeTruthy();
   });
 
+  it('refus ou retrait de l’accord : l’identifiant de visite créé pendant l’accord est oublié', async () => {
+    enregistrerPreferencesCookies(true);
+    await trackConversionEvent('page_view', { page: 'pricing' });
+    expect(sessionStorage.getItem('conversion_session')).toBeTruthy();
+    enregistrerPreferencesCookies(false);
+    expect(sessionStorage.getItem('conversion_session')).toBeNull();
+
+    enregistrerPreferencesCookies(true);
+    await trackConversionEvent('page_view', { page: 'pricing' });
+    expect(sessionStorage.getItem('conversion_session')).toBeTruthy();
+    effacerChoixCookies();
+    expect(sessionStorage.getItem('conversion_session')).toBeNull();
+  });
+
   it('compte connecté : enregistré avec le compte (exécution du service)', async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValue({ data: { user: { id: 'u1' } }, error: null } as never);
     await trackConversionEvent('checkout_start', { plan: 'annuel' });
