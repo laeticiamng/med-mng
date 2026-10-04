@@ -49,20 +49,15 @@ const parseHtmlToSteps = (htmlSource: string | null) => {
     ]
   });
   
-  // Extract "Je fais" section - clinical exam actions
-  const actions = [];
-  const actionKeywords = ['examen', 'palpation', 'auscultation', 'inspection', 'constantes'];
-  actionKeywords.forEach(keyword => {
-    if (html.toLowerCase().includes(keyword)) {
-      actions.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
-    }
-  });
-  
+  // « Je fais » : déroulé d'examen. L'ancienne détection par mots-clés trouvait
+  // « examen » dans le titre « Examen clinique » de chaque dossier et réduisait
+  // l'étape à une seule case intitulée « Examen » : on propose toujours le
+  // déroulé complet (les données d'examen fournies sont dans le dossier).
   steps.push({
     title: 'Je fais',
     subtitle: 'Examen clinique',
     icon: HandIcon,
-    actions: actions.length > 0 ? actions : [
+    actions: [
       'Prise des constantes vitales',
       'Inspection générale',
       'Auscultation',
@@ -171,7 +166,10 @@ const EcosScenario = () => {
         age: null,
         sex: null,
         avatar: '🏥',
-        background: competencesStr || 'Consultez le dossier médical'
+        background: competencesStr,
+        // Dossier de la situation (présentation, antécédents, examen) : il
+        // n'était jamais affiché pendant la station.
+        dossierHtml: dbScenario.contenu_complet_html,
       },
       steps: parsedSteps
     };

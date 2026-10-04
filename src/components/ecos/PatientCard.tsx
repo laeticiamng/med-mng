@@ -4,13 +4,20 @@ import { useGamification } from '@/hooks/useGamification';
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Stethoscope, Flame } from 'lucide-react';
+import { sanitizeHtml } from '@/utils/sanitize';
+
+/** Balises gardées dans le dossier de la situation (aucun attribut, aucun lien). */
+const BALISES_DOSSIER = ['h2', 'h3', 'h4', 'p', 'ul', 'ol', 'li', 'strong', 'em', 'b', 'i', 'br'];
 
 interface Patient {
   name: string;
   age: number | null;
   sex: string | null;
   avatar: string;
+  /** Thèmes de la situation (ex. « Urgences, Cardiologie »). */
   background: string;
+  /** Dossier de la situation de départ (HTML de la base, nettoyé avant affichage). */
+  dossierHtml?: string | null;
 }
 
 interface PatientCardProps {
@@ -49,6 +56,10 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
     trackView();
   }, [patient.name]);
 
+  const dossier = patient.dossierHtml
+    ? sanitizeHtml(patient.dossierHtml, { ALLOWED_TAGS: BALISES_DOSSIER, ALLOWED_ATTR: [] }).trim()
+    : '';
+
   return (
     <Card className="bg-card/10 backdrop-blur-sm border-border/20 mb-8">
       <div className="p-6">
@@ -70,7 +81,16 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
             </div>
           )}
         </div>
-        <p className="text-foreground/80 text-sm">{patient.background}</p>
+        {patient.background && (
+          <p className="text-foreground/80 text-sm">{patient.background}</p>
+        )}
+        {dossier && (
+          <section
+            aria-label="Dossier du patient"
+            className="mt-4 rounded-lg border border-border bg-background/80 p-4 text-sm leading-relaxed text-foreground [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:text-sm [&_h3]:font-semibold [&_h4]:text-sm [&_h4]:font-semibold [&_li]:ml-5 [&_li]:list-disc [&_p]:mb-2"
+            dangerouslySetInnerHTML={{ __html: dossier }}
+          />
+        )}
       </div>
     </Card>
   );
