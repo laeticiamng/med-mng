@@ -1,245 +1,61 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { toast } from '@/hooks/use-toast';
-import {
-    Bell,
-    Download,
-    Globe,
-    Moon,
-    RefreshCw,
-    Trash2,
-    Volume2
-} from 'lucide-react';
-import React, { useState } from 'react';
+import { Download, Globe, Trash2 } from 'lucide-react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 
 interface ProfileSettingsProps {
-  profile?: any;
+  profile?: unknown;
 }
 
+/**
+ * Profil › Paramètres.
+ *
+ * CONSTAT (vague 2, 04.10.2026) : cet onglet affichait des réglages qui
+ * n'étaient enregistrés nulle part (notifications, e-mails, effets sonores,
+ * lecture automatique, qualité audio, mode sombre, langue) : un état local
+ * perdu au rechargement, avec le message « Vos préférences ont été
+ * sauvegardées ». « Exporter mes données » n'exportait rien (simple message)
+ * et « Vider le cache » effaçait tout le stockage local, session comprise.
+ *
+ * Ne restent que des actions réelles : l'export et la suppression du compte
+ * (page « Mes données », export JSON et suppression confirmée), et l'indication
+ * des réglages qui existent vraiment (thème et langue, en en-tête et en bas
+ * d'écran).
+ */
 export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
-  const [settings, setSettings] = useState({
-    notifications: true,
-    emailUpdates: true,
-    soundEffects: true,
-    autoPlay: false,
-    darkMode: false,
-    language: 'fr',
-    quality: 'high',
-  });
-
-  const handleSettingChange = (key: string, value: boolean | string) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-    toast({
-      title: "Paramètres mis à jour",
-      description: "Vos préférences ont été sauvegardées.",
-    });
-  };
-
-  const handleExportData = () => {
-    toast({
-      title: "Export en cours",
-      description: "Vos données seront téléchargées sous peu.",
-    });
-  };
-
-  const handleClearCache = () => {
-    localStorage.clear();
-    toast({
-      title: "Cache vidé",
-      description: "Les données temporaires ont été supprimées.",
-    });
-  };
-
   return (
     <div className="space-y-6">
-      {/* Notifications */}
       <Card className="border-0 shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Notifications
+            <Globe className="h-5 w-5" />
+            Affichage
           </CardTitle>
           <CardDescription>
-            Gérez vos préférences de notification
+            Le thème clair ou sombre se change avec le bouton « Changer de thème » en haut de page.
+            Le sélecteur de langue est en bas à gauche de l'écran ; le contenu pédagogique est en français.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="notifications">Notifications push</Label>
-              <p className="text-sm text-muted-foreground">
-                Recevoir des notifications dans le navigateur
-              </p>
-            </div>
-            <Switch
-              id="notifications"
-              checked={settings.notifications}
-              onCheckedChange={(checked) => handleSettingChange('notifications', checked)}
-            />
-          </div>
-
-          <Separator />
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="email-updates">Mises à jour par email</Label>
-              <p className="text-sm text-muted-foreground">
-                Recevoir des nouvelles et mises à jour par email
-              </p>
-            </div>
-            <Switch
-              id="email-updates"
-              checked={settings.emailUpdates}
-              onCheckedChange={(checked) => handleSettingChange('emailUpdates', checked)}
-            />
-          </div>
-        </CardContent>
       </Card>
 
-      {/* Audio & Media */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5" />
-            Audio et média
-          </CardTitle>
-          <CardDescription>
-            Configurez vos préférences audio
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="sound-effects">Effets sonores</Label>
-              <p className="text-sm text-muted-foreground">
-                Activer les sons d'interface
-              </p>
-            </div>
-            <Switch
-              id="sound-effects"
-              checked={settings.soundEffects}
-              onCheckedChange={(checked) => handleSettingChange('soundEffects', checked)}
-            />
-          </div>
-
-          <Separator />
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="auto-play">Lecture automatique</Label>
-              <p className="text-sm text-muted-foreground">
-                Démarrer automatiquement la lecture des chansons
-              </p>
-            </div>
-            <Switch
-              id="auto-play"
-              checked={settings.autoPlay}
-              onCheckedChange={(checked) => handleSettingChange('autoPlay', checked)}
-            />
-          </div>
-
-          <Separator />
-
-          <div className="space-y-2">
-            <Label>Qualité audio</Label>
-            <Select
-              value={settings.quality}
-              onValueChange={(value) => handleSettingChange('quality', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Faible (économie de données)</SelectItem>
-                <SelectItem value="medium">Moyenne</SelectItem>
-                <SelectItem value="high">Haute qualité</SelectItem>
-                <SelectItem value="premium">Premium (abonnés uniquement)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Appearance */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Moon className="h-5 w-5" />
-            Apparence
-          </CardTitle>
-          <CardDescription>
-            Personnalisez l'interface de l'application
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="dark-mode">Mode sombre</Label>
-              <p className="text-sm text-muted-foreground">
-                Utiliser un thème sombre pour l'interface
-              </p>
-            </div>
-            <Switch
-              id="dark-mode"
-              checked={settings.darkMode}
-              onCheckedChange={(checked) => handleSettingChange('darkMode', checked)}
-            />
-          </div>
-
-          <Separator />
-
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              Langue
-            </Label>
-            <Select
-              value={settings.language}
-              onValueChange={(value) => handleSettingChange('language', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fr">Français</SelectItem>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Español</SelectItem>
-                <SelectItem value="de">Deutsch</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Data Management */}
       <Card className="border-0 shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Download className="h-5 w-5" />
             Gestion des données
           </CardTitle>
-          <CardDescription>
-            Exportez ou supprimez vos données
-          </CardDescription>
+          <CardDescription>Exportez ou supprimez vos données (RGPD, articles 15, 17 et 20)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button variant="outline" onClick={handleExportData} className="flex items-center gap-2">
+          <Button asChild variant="outline" className="flex items-center gap-2 w-full md:w-auto">
+            <Link to={ROUTE_PATHS.mesDonneesRgpd}>
               <Download className="h-4 w-4" />
               Exporter mes données
-            </Button>
-            
-            <Button variant="outline" onClick={handleClearCache} className="flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" />
-              Vider le cache
-            </Button>
-          </div>
+            </Link>
+          </Button>
 
           <Separator />
 
@@ -248,8 +64,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
             <p className="text-sm text-destructive/80 mb-4">
               Cette action supprimera définitivement votre compte et toutes vos données.
             </p>
-            {/* CONSTAT (25/09/2026) : ce bouton n'avait aucun gestionnaire. La
-                suppression réelle (avec confirmation) est sur la page « Mes données ». */}
+            {/* La suppression réelle (avec confirmation) est sur la page « Mes données ». */}
             <Button asChild variant="destructive" size="sm" className="flex items-center gap-2">
               <Link to={ROUTE_PATHS.mesDonneesRgpd}>
                 <Trash2 className="h-4 w-4" />
