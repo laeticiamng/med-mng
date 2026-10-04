@@ -2,11 +2,17 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 import { getErrorMessage } from '../_shared/error-utils.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { exigerConnexion } from '../_shared/mm-garde.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
+  // Réservé aux utilisateurs connectés (ou à la clé de service) : déployée avec verify_jwt = false, cette fonction
+  // dépensait des crédits d'API payants pour tout appelant, même anonyme
+  // (revue critique du 04.10.2026, _shared/mm-garde.ts).
+  const acces = await exigerConnexion(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const { text, targetLanguage, sourceLanguage = 'fr' } = await req.json()

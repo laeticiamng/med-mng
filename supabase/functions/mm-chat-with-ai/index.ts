@@ -1,12 +1,18 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+  // Réservé aux administrateurs (ou à la clé de service) : déployée avec verify_jwt = false, cette fonction
+  // dépensait des crédits d'API payants pour tout appelant, même anonyme
+  // (revue critique du 04.10.2026, _shared/mm-garde.ts).
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const { messages, model = 'gpt-4o-mini' } = await req.json();

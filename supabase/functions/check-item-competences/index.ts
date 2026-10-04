@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { completionIA } from '../_shared/ia-resiliente.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://med-mng.lovable.app',
@@ -38,6 +39,11 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+  // Réservé aux administrateurs (ou à la clé de service) : déployée avec verify_jwt = false, cette fonction
+  // dépensait des crédits d'API payants pour tout appelant, même anonyme
+  // (revue critique du 04.10.2026, _shared/mm-garde.ts).
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const { item_code } = await req.json();
