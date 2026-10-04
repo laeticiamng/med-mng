@@ -7,6 +7,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { effacerChoixCookies } from '@/lib/consentementCookies';
 
 const CookiesPolicy = () => {
   const { logActivity } = useActivityTracking();
@@ -19,7 +20,7 @@ const CookiesPolicy = () => {
     <>
     <SEOHead
       title="Politique cookies"
-      description="Politique de cookies de Med MNG. Cookies essentiels, fonctionnels et analytiques. "
+      description="Politique de cookies de Med MNG : cookies essentiels, statistiques de l'hébergeur et mesure d'audience optionnelle."
       keywords="cookies, RGPD, confidentialité, Med MNG"
       canonical="/legal/cookies"
     />
@@ -44,7 +45,7 @@ const CookiesPolicy = () => {
                 <Cookie className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Politique de Cookies</h2>
               </div>
-              <p className="text-sm opacity-90">Dernière mise à jour : 27 septembre 2026</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 4 octobre 2026</p>
             </div>
           </Card>
 
@@ -61,116 +62,153 @@ const CookiesPolicy = () => {
                 navigation et de vous offrir une expérience personnalisée.
               </p>
               <p className="text-sm">
-                Les cookies ne contiennent pas d'informations personnelles identifiables directement et ne
-                peuvent pas endommager votre appareil.
+                La session de connexion contient l'identifiant et l'adresse e-mail de votre compte (elle vous
+                authentifie) ; les autres traceurs ci-dessous n'identifient pas directement une personne. Aucun
+                ne peut endommager votre appareil.
               </p>
             </div>
           </Card>
 
-          {/* 2. Cookies utilises */}
+          {/* 2. Cookies utilises — inventaire relevé en production le 04.10.2026 (cookies,
+              stockage local, stockage de session, IndexedDB, cache de l'application). */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Settings className="h-5 w-5 text-accent" />
-              <h3 className="text-xl font-semibold text-foreground">2. COOKIES UTILISÉS SUR Med MNG</h3>
+              <h3 className="text-xl font-semibold text-foreground">2. COOKIES ET TRACEURS UTILISÉS SUR Med MNG</h3>
             </div>
             <div className="space-y-4 text-muted-foreground">
-              {/* Cookies strictement necessaires */}
+              {/* Essentiels */}
               <div className="bg-primary/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Cookies strictement nécessaires</h4>
+                <h4 className="font-semibold text-foreground mb-2">Essentiels (toujours actifs)</h4>
                 <p className="text-sm mb-2">
-                  Ces cookies sont indispensables au fonctionnement du site. Ils ne peuvent pas être désactivés.
+                  Indispensables au fonctionnement du site et de votre compte ; ils ne peuvent pas être désactivés.
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="text-left p-2 text-foreground">Cookie</th>
+                        <th className="text-left p-2 text-foreground">Nom</th>
+                        <th className="text-left p-2 text-foreground">Où</th>
                         <th className="text-left p-2 text-foreground">Finalité</th>
                         <th className="text-left p-2 text-foreground">Durée</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-b border-border/50">
-                        <td className="p-2 font-mono text-xs">sb-*-auth-token</td>
-                        <td className="p-2">Authentification Supabase (session utilisateur)</td>
-                        <td className="p-2">Session</td>
+                        <td className="p-2 font-mono text-xs">sb-…-auth-token</td>
+                        <td className="p-2">Navigateur (stockage local)</td>
+                        <td className="p-2">Session de connexion (Supabase)</td>
+                        <td className="p-2">Jusqu'à la déconnexion</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="p-2 font-mono text-xs">medmng_cookie_consent, medmng_cookie_preferences</td>
+                        <td className="p-2">Navigateur (stockage local)</td>
+                        <td className="p-2">Votre choix dans le bandeau cookies</td>
+                        <td className="p-2">Jusqu'à modification</td>
                       </tr>
                       <tr className="border-b border-border/50">
                         <td className="p-2 font-mono text-xs">med-mng-ui-theme</td>
-                        <td className="p-2">Préférence de thème (clair/sombre)</td>
-                        <td className="p-2">1 an</td>
+                        <td className="p-2">Navigateur (stockage local)</td>
+                        <td className="p-2">Thème clair ou sombre</td>
+                        <td className="p-2">Jusqu'à modification</td>
                       </tr>
                       <tr className="border-b border-border/50">
-                        <td className="p-2 font-mono text-xs">cookie-consent</td>
-                        <td className="p-2">Enregistrement du choix cookies</td>
-                        <td className="p-2">13 mois</td>
+                        <td className="p-2 font-mono text-xs">auth_rate_limit_*</td>
+                        <td className="p-2">Navigateur (stockage local)</td>
+                        <td className="p-2">Limite des tentatives de connexion répétées (sécurité)</td>
+                        <td className="p-2">Fenêtre de 15 minutes ; blocage de 30 minutes au plus</td>
                       </tr>
-                      <tr>
-                        <td className="p-2 font-mono text-xs">med-mng-lang</td>
-                        <td className="p-2">Préférence de langue</td>
-                        <td className="p-2">1 an</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Cookies de performance */}
-              <div className="bg-accent/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Cookies de performance et analytique</h4>
-                <p className="text-sm mb-2">
-                  Ces cookies permettent de mesurer l'audience et d'améliorer nos services. Ils sont soumis à votre consentement.
-                </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left p-2 text-foreground">Cookie</th>
-                        <th className="text-left p-2 text-foreground">Finalité</th>
-                        <th className="text-left p-2 text-foreground">Durée</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="p-2 font-mono text-xs">pwa-metrics</td>
-                        <td className="p-2">Métriques d'utilisation PWA</td>
-                        <td className="p-2">30 jours</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Cookies fonctionnels */}
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <h4 className="font-semibold text-foreground mb-2">Cookies fonctionnels</h4>
-                <p className="text-sm mb-2">
-                  Ces cookies améliorent votre expérience mais ne sont pas indispensables.
-                </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left p-2 text-foreground">Stockage</th>
-                        <th className="text-left p-2 text-foreground">Finalité</th>
-                        <th className="text-left p-2 text-foreground">Durée</th>
-                      </tr>
-                    </thead>
-                    <tbody>
                       <tr className="border-b border-border/50">
-                        <td className="p-2 font-mono text-xs">edn-items-cache</td>
-                        <td className="p-2">Cache local des items EDN (chargement rapide)</td>
+                        <td className="p-2 font-mono text-xs">edn_items_cache_v4</td>
+                        <td className="p-2">Navigateur (stockage local)</td>
+                        <td className="p-2">Liste des items (chargement rapide)</td>
+                        <td className="p-2">Renouvelée à chaque mise à jour</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="p-2 font-mono text-xs">med_mng_offline_db, medmng_offline, cache de l'application</td>
+                        <td className="p-2">Navigateur (IndexedDB, cache)</td>
+                        <td className="p-2">Application installable et fiches lisibles hors connexion</td>
+                        <td className="p-2">Jusqu'à effacement des données du site</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="p-2 font-mono text-xs">__cf_bm</td>
+                        <td className="p-2">Cookie (Cloudflare, réseau de l'hébergeur)</td>
+                        <td className="p-2">Distinguer les visiteurs des robots (sécurité)</td>
+                        <td className="p-2">30 minutes</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 font-mono text-xs">__dpl</td>
+                        <td className="p-2">Cookie (Lovable, hébergeur)</td>
+                        <td className="p-2">Version du site servie</td>
                         <td className="p-2">7 jours</td>
                       </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Statistiques de l'hébergeur */}
+              <div className="bg-accent/10 p-4 rounded-lg">
+                <h4 className="font-semibold text-foreground mb-2">Statistiques de l'hébergeur (toujours actives)</h4>
+                <p className="text-sm mb-2">
+                  Lovable, qui sert le site, compte les pages vues : à chaque page, il reçoit la page visitée, le site
+                  d'origine, le navigateur, la langue et le pays déduit du fuseau horaire, avec un identifiant de
+                  visite aléatoire. Ni publicité, ni profil. Ces statistiques ne dépendent pas du bandeau.
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left p-2 text-foreground">Nom</th>
+                        <th className="text-left p-2 text-foreground">Où</th>
+                        <th className="text-left p-2 text-foreground">Finalité</th>
+                        <th className="text-left p-2 text-foreground">Durée</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="p-2 font-mono text-xs">session-id</td>
+                        <td className="p-2">Cookie (Lovable, hébergeur)</td>
+                        <td className="p-2">Identifiant de visite des statistiques de l'hébergeur</td>
+                        <td className="p-2">30 minutes</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Mesure d'audience Med MNG */}
+              <div className="bg-card p-4 rounded-lg border border-border">
+                <h4 className="font-semibold text-foreground mb-2">Mesure d'audience Med MNG (optionnelle, avec votre accord)</h4>
+                <p className="text-sm mb-2">
+                  Avant la connexion, et seulement si vous l'acceptez dans le bandeau, la visite de la page Tarifs est
+                  enregistrée dans la base de Med MNG (Supabase, Francfort) avec un identifiant aléatoire propre à
+                  l'onglet, sans nom ni e-mail. Sans accord, rien n'est enregistré avant la connexion. Une fois
+                  connecté·e, l'utilisation du service (révisions, inscription, paiement, mesures techniques de la
+                  session) est enregistrée avec votre compte pour le faire fonctionner et l'améliorer.
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left p-2 text-foreground">Nom</th>
+                        <th className="text-left p-2 text-foreground">Où</th>
+                        <th className="text-left p-2 text-foreground">Finalité</th>
+                        <th className="text-left p-2 text-foreground">Durée</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       <tr className="border-b border-border/50">
-                        <td className="p-2 font-mono text-xs">audio-preferences</td>
-                        <td className="p-2">Préférences du lecteur audio (volume, lecture automatique)</td>
-                        <td className="p-2">1 an</td>
+                        <td className="p-2 font-mono text-xs">conversion_session</td>
+                        <td className="p-2">Navigateur (stockage de session)</td>
+                        <td className="p-2">Identifiant aléatoire de la visite (page Tarifs, inscription, paiement)</td>
+                        <td className="p-2">Jusqu'à la fermeture de l'onglet</td>
                       </tr>
                       <tr>
-                        <td className="p-2 font-mono text-xs">offline-data</td>
-                        <td className="p-2">Données hors connexion (PWA)</td>
-                        <td className="p-2">30 jours</td>
+                        <td className="p-2 font-mono text-xs">analytics_session</td>
+                        <td className="p-2">Navigateur (stockage de session)</td>
+                        <td className="p-2">Identifiant de session des statistiques d'utilisation (compte connecté)</td>
+                        <td className="p-2">Jusqu'à la fermeture de l'onglet</td>
                       </tr>
                     </tbody>
                   </table>
@@ -178,7 +216,7 @@ const CookiesPolicy = () => {
               </div>
 
               <p className="text-sm italic">
-                Med MNG n'utilise <strong>aucun cookie publicitaire</strong> ni de traceur marketing tiers.
+                Med MNG n'utilise <strong>aucun cookie publicitaire</strong> ni traceur de réseau social.
               </p>
             </div>
           </Card>
@@ -192,9 +230,14 @@ const CookiesPolicy = () => {
             <div className="space-y-3 text-muted-foreground">
               <h4 className="font-semibold text-foreground">3.1 Bannière de consentement</h4>
               <p className="text-sm">
-                Lors de votre première visite, une bannière de consentement vous permet d'accepter ou de
-                refuser les cookies non essentiels. Votre choix est conservé pendant 13 mois.
+                Lors de votre première visite, une bannière vous permet d'accepter ou de refuser la mesure
+                d'audience de Med MNG. Votre choix est conservé dans votre navigateur jusqu'à ce que vous le
+                modifiiez ; la bannière est reproposée si son contenu change. Les cookies essentiels et les
+                statistiques de l'hébergeur ne dépendent pas de ce choix.
               </p>
+              <Button variant="outline" size="sm" onClick={() => { effacerChoixCookies(); window.location.reload(); }}>
+                Modifier mon choix
+              </Button>
 
               <h4 className="font-semibold text-foreground mt-4">3.2 Paramètres du navigateur</h4>
               <p className="text-sm">
@@ -244,9 +287,11 @@ const CookiesPolicy = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
-                Les donnees collectees via les cookies sont traitees conformement a notre{' '}
+                Les données collectées via les cookies sont traitées conformément à notre{' '}
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de Confidentialité</Link>.
-                Elles sont hébergées sur les serveurs de <strong>Supabase</strong> (infrastructure AWS, région EU).
+                Les statistiques de l'hébergeur sont traitées par <strong>Lovable</strong> (États-Unis), qui sert le
+                site ; la mesure d'audience de Med MNG est enregistrée chez <strong>Supabase</strong> (Union
+                européenne, Francfort).
               </p>
               <p className="text-sm">
                 Aucune donnée de cookie n'est vendue ou partagée avec des tiers a des fins commerciales.

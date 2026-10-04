@@ -86,7 +86,7 @@ const contexte = await navigateur.newContext({ viewport: { width: 1440, height: 
 await contexte.addInitScript(() => {
   try {
     localStorage.setItem('medmng_cookie_consent', 'true');
-    localStorage.setItem('medmng_cookie_preferences', JSON.stringify({ necessary: true, analytics: false, marketing: false }));
+    localStorage.setItem('medmng_cookie_preferences', JSON.stringify({ essential: true, analytics: false, version: 2 }));
   } catch { /* stockage indisponible */ }
 });
 const page = await contexte.newPage();

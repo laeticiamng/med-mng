@@ -162,7 +162,7 @@ test.describe('Vague 3 — français uniquement, pages retirées', () => {
       ['/', 'Créer un compte gratuit'],
       ['/edn-complete', '367 items'],
       ['/edn-complete/ic-1/apercu', 'Compétences du référentiel'],
-      ['/ecos/1', 'Je fais'],
+      ['/ecos/1', 'Situation de départ'],
       ['/med-mng/pricing', '69 €/an'],
     ];
     for (const [chemin, attendu] of pages) {
@@ -201,5 +201,86 @@ test.describe('Vague 3 — français uniquement, pages retirées', () => {
     await expect(page).toHaveURL(/\/edn-complete$/);
     const sitemap = await (await request.get('/sitemap.xml')).text();
     expect(sitemap).not.toContain('https://medmng.com/duel<');
+  });
+});
+
+/**
+ * Mesure d'audience (vague 3, 04.10.2026) : l'hébergeur (Lovable) charge /~flock.js sur toutes les
+ * pages, sans attendre le bandeau. Le premier test vérifie que la description publiée correspond
+ * toujours à la réalité (il échouera si Lovable change ce comportement : mettre alors les textes à jour).
+ */
+test.describe('Mesure d’audience — description exacte', () => {
+  test('réalité : statistiques de l’hébergeur sans consentement (pages vues, cookie « session-id » de 30 min)', async ({ browser }) => {
+    const ctx = await browser.newContext({ locale: 'fr-FR', timezoneId: 'Europe/Paris' });
+    // flock.js ne mesure pas les navigateurs pilotés (navigator.webdriver) : on se présente comme un navigateur ordinaire.
+    await ctx.addInitScript(() => Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }));
+    const page = await ctx.newPage();
+    const envois: Array<Record<string, unknown>> = [];
+    page.on('request', (r) => {
+      if (new URL(r.url()).pathname === '/~api/analytics' && r.method() === 'POST') {
+        try {
+          envois.push(JSON.parse(r.postData() ?? '{}') as Record<string, unknown>);
+        } catch {
+          envois.push({});
+        }
+      }
+    });
+    await page.goto('/');
+    // Bandeau affiché : aucun choix n'a été fait.
+    await expect(page.locator('div.fixed').filter({ hasText: /cookies essentiels/i }).first()).toBeVisible();
+    await expect.poll(() => envois.length, { timeout: 15_000 }).toBeGreaterThan(0);
+    const envoi = envois[0];
+    expect(envoi.action).toBe('page_hit');
+    const contenu = JSON.parse(String(envoi.payload ?? '{}')) as Record<string, unknown>;
+    // Exactement ce que décrivent le bandeau, la politique cookies et la politique de confidentialité.
+    expect(Object.keys(contenu).sort()).toEqual(['href', 'locale', 'location', 'pathname', 'referrer', 'user-agent']);
+    expect(envois.some((e) => e.action === 'web_vital')).toBe(false);
+    const cookie = (await ctx.cookies()).find((c) => c.name === 'session-id');
+    expect(cookie, 'cookie session-id').toBeTruthy();
+    const minutes = ((cookie?.expires ?? 0) * 1000 - Date.now()) / 60_000;
+    expect(minutes).toBeGreaterThan(25);
+    expect(minutes).toBeLessThanOrEqual(30.5);
+    await ctx.close();
+  });
+
+  test('bandeau, politique cookies et confidentialité décrivent ces statistiques ; plus de « Plausible » @attend-deploiement', async ({ page }) => {
+    await page.goto('/');
+    const bandeau = page.locator('div.fixed').filter({ hasText: 'Cookies essentiels' });
+    await expect(bandeau).toContainText("L'hébergeur du site (Lovable) compte aussi les pages vues, avec un cookie de session de 30 minutes, sans publicité.");
+    await expect(bandeau.getByRole('button', { name: 'Refuser la mesure' })).toBeVisible();
+    await expect(bandeau.getByRole('button', { name: 'Accepter la mesure' })).toBeVisible();
+    await page.getByRole('button', { name: 'Paramètres des cookies' }).click();
+    await expect(page.getByRole('dialog')).toContainText("Statistiques de l'hébergeur");
+    await expect(page.getByRole('dialog')).not.toContainText('Plausible');
+    await page.keyboard.press('Escape');
+
+    await page.goto('/legal/cookies');
+    const cookies = await texte(page, "Statistiques de l'hébergeur (toujours actives)");
+    for (const nom of ['session-id', '__cf_bm', '__dpl', 'sb-…-auth-token', 'medmng_cookie_consent']) expect(cookies, nom).toContain(nom);
+    for (const faux of ['Plausible', 'pwa-metrics', 'med-mng-lang', 'audio-preferences', 'pendant 13 mois']) expect(cookies, faux).not.toContain(faux);
+
+    await page.goto('/politique-confidentialite');
+    const confidentialite = await texte(page, /SOUS-TRAITANTS/i);
+    expect(confidentialite).toContain("Statistiques de l'hébergeur");
+    expect(confidentialite).toContain('cookie de session de 30 minutes');
+    expect(confidentialite).not.toContain('Seuls des cookies strictement nécessaires');
+    expect(confidentialite).not.toContain('Données de navigation anonymisées');
+  });
+
+  test('visiteur sans accord : la page Tarifs n’enregistre rien dans la base Med MNG @attend-deploiement', async ({ page }) => {
+    const enregistrements: string[] = [];
+    page.on('request', (r) => {
+      if (r.method() === 'POST' && /\/rest\/v1\/analytics_events/.test(r.url())) enregistrements.push(r.url());
+    });
+    await page.goto('/med-mng/pricing');
+    await expect(page.locator('main')).toContainText('69 €/an');
+    await page.waitForTimeout(3000);
+    expect(enregistrements, 'avant tout choix').toEqual([]);
+    await fermerCookies(page); // « Refuser la mesure »
+    await page.reload();
+    await expect(page.locator('main')).toContainText('69 €/an');
+    await page.waitForTimeout(3000);
+    expect(enregistrements, 'après refus').toEqual([]);
+    expect(await page.evaluate(() => sessionStorage.getItem('conversion_session'))).toBeNull();
   });
 });

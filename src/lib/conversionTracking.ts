@@ -1,8 +1,10 @@
 /**
- * Conversion funnel tracking - records events to analytics_events table
- * Events: page_view, signup, checkout_start, checkout_complete
+ * Parcours d'abonnement - événements enregistrés dans analytics_events :
+ * page_view (page Tarifs), signup, checkout_start, checkout_complete.
+ * Visiteur non connecté : seulement avec l'accord du bandeau cookies (mesure d'audience).
  */
 import { supabase } from '@/integrations/supabase/client';
+import { mesureAudienceAcceptee } from '@/lib/consentementCookies';
 
 type ConversionEvent = 'page_view' | 'signup' | 'checkout_start' | 'checkout_complete';
 
@@ -22,6 +24,9 @@ export async function trackConversionEvent(
 ) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
+    // Avant connexion : mesure d'audience Med MNG uniquement avec l'accord donné dans le
+    // bandeau cookies (vague 3) ; sans accord, rien n'est enregistré ni stocké (pas d'identifiant).
+    if (!user && !mesureAudienceAcceptee()) return;
 
     await (supabase as any).from('analytics_events').insert({
       event_type: eventType,

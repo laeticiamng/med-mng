@@ -31,10 +31,13 @@ export async function seConnecter(page: Page, compte: Compte, suivant?: string) 
   await page.waitForURL((u) => !u.pathname.startsWith('/med-mng/login'), { timeout: 30_000 });
 }
 
-/** Ferme le bandeau cookies (il masque le bas de l'écran sur mobile). */
+/**
+ * Ferme le bandeau cookies (il masque le bas de l'écran sur mobile) en refusant la mesure d'audience.
+ * « Refuser la mesure » depuis la vague 3 ; « Essentiels » sur l'ancienne version.
+ */
 export async function fermerCookies(page: Page) {
-  const bouton = page.getByRole('button', { name: 'Essentiels', exact: true });
-  if (await bouton.isVisible().catch(() => false)) await bouton.click();
+  const bouton = page.getByRole('button', { name: /^(Refuser la mesure|Essentiels)$/ });
+  if (await bouton.first().isVisible().catch(() => false)) await bouton.first().click();
 }
 
 /**

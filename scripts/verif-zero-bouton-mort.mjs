@@ -237,7 +237,7 @@ const preparerContexte = async (contexte, { consentement = true } = {}) => {
     try {
       if (consent) {
         localStorage.setItem('medmng_cookie_consent', 'true');
-        localStorage.setItem('medmng_cookie_preferences', JSON.stringify({ essential: true, functional: false, analytics: false }));
+        localStorage.setItem('medmng_cookie_preferences', JSON.stringify({ essential: true, analytics: false, version: 2 }));
       }
       localStorage.setItem('pwa-install-dismissed', String(Date.now()));
     } catch { /* stockage indisponible */ }
