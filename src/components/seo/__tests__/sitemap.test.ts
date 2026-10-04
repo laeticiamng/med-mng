@@ -27,7 +27,6 @@ describe('Sitemap', () => {
 
   it('should include key public routes', () => {
     const requiredRoutes = [
-      '/demo',
       '/med-mng/pricing',
       '/med-mng/login',
       '/med-mng/signup',
@@ -36,6 +35,14 @@ describe('Sitemap', () => {
     ];
     for (const route of requiredRoutes) {
       expect(sitemapContent).toContain(route);
+    }
+  });
+
+  // Pages retirées : /demo (anciens numéros d'items, cas clinique et « mode examen » rédigés à la main)
+  // et /parcours (9 spécialités vides, intitulés d'étapes faux) le 04.10.2026 ; fonctions IA hors offre (DC7).
+  it('should NOT include retired pages', () => {
+    for (const route of ['/demo', '/parcours', '/chat', '/exam-mode', '/clinical-cases', '/smart-study-planner', '/examen-blanc-national', '/simulation-examen-edn', '/cas-cliniques-edn']) {
+      expect(sitemapContent).not.toContain(`https://medmng.com${route}<`);
     }
   });
 

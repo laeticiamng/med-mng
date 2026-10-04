@@ -135,7 +135,6 @@ const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
 // 🎯 DEMO PAGE
-const Demo = lazy(() => import("./pages/Demo"));
 
 // ⚡ QUICK REVISION
 const QuickRevision = lazy(() => import("./pages/QuickRevision"));
@@ -150,8 +149,6 @@ const DailySRSPlaylist = lazy(() => import("./pages/DailySRSPlaylist"));
 const SocialShareHub = lazy(() => import("./pages/SocialShareHub"));
 
 // 🎯 SPECIALTY PATHS
-const SpecialtyPaths = lazy(() => import("./pages/SpecialtyPaths"));
-const SpecialtyPathDetail = lazy(() => import("./pages/SpecialtyPathDetail"));
 
 // 🛒 STORE PAGES — désactivés (pas de boutique active)
 // const Store = lazy(() => import("./pages/Store"));
@@ -376,15 +373,25 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><S><MedMngFavorites /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngBilling} element={<ProtectedRoute><S><BillingPage /></S></ProtectedRoute>} />
 
-                                    {/* Demo (public) */}
-                                    <Route path={ROUTE_PATHS.demo} element={<S><Demo /></S>} />
+                                    {/* Démo (public) : retirée (contre-vérification vague 2, 04.10.2026). Elle
+                                        présentait 10 « items EDN » sous l'ancienne numérotation (« 228 Douleur
+                                        thoracique aiguë » alors que l'item 228 du référentiel LiSA 2026 est
+                                        « Ulcère de jambe » ; 8 numéros sur 10 faux), un cas clinique et un « mode
+                                        examen » rédigés à la main (fonctionnalités retirées, DC7). Les fiches
+                                        officielles, le quiz et l'ECOS sont essayables sans compte. */}
+                                    <Route path={ROUTE_PATHS.demo} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Quick Revision (public) */}
                                     <Route path={ROUTE_PATHS.quickRevision} element={<S><QuickRevision /></S>} />
 
-                                    {/* Specialty Paths */}
-                                    <Route path={ROUTE_PATHS.specialtyPaths} element={<S><SpecialtyPaths /></S>} />
-                                    <Route path={ROUTE_PATHS.specialtyPathDetail} element={<S><SpecialtyPathDetail /></S>} />
+                                    {/* Parcours par spécialité : retirés (contre-vérification vague 2, 04.10.2026).
+                                        9 spécialités sur 10 n'avaient aucune étape (« 0 étapes », avec des heures
+                                        estimées) ; en cardiologie, 5 étapes sur 8 portaient un intitulé qui n'est
+                                        pas celui de l'item ouvert (« 232 Insuffisance cardiaque » : l'item 232 est
+                                        « Fibrillation atriale ») et le parcours finissait par une « Certification
+                                        Cardiologie ». */}
+                                    <Route path={ROUTE_PATHS.specialtyPaths} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
+                                    <Route path={ROUTE_PATHS.specialtyPathDetail} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Karaoke Duels */}
                                     <Route path={ROUTE_PATHS.karaokeDuel} element={<ProtectedRoute><S><KaraokeDuel /></S></ProtectedRoute>} />

@@ -79,24 +79,8 @@ const NE_PAS_CLIQUER_EXACT = /^(explique-moi|quels sont|génère-moi|donne-moi|l
 // ---- Parcours multi-étapes (pages dont les boutons n'apparaissent qu'au fil des clics)
 // Chaque étape : nom exact d'un bouton, ou { contient: 'texte' } pour une carte cliquable.
 // L'état atteint après k étapes est analysé comme une page à part entière.
-const PARCOURS = {
-  '/demo': [
-    'Commencer la démo',
-    { contient: '#228' },
-    'Essayer les flashcards',
-    { contient: 'Cliquez pour retourner' },
-    'Carte suivante',
-    { contient: 'Cliquez pour retourner' },
-    'Écouter la musique IA',
-    'Essayer un cas clinique',
-    { contient: 'Réaliser un ECG' },
-    'Valider',
-    'Tester le mode examen',
-    { contient: 'ECG 12 dérivations' },
-    'Valider',
-    'Voir les résultats',
-  ],
-};
+// /demo (seul parcours décrit ici) redirige vers /edn-complete depuis le 04.10.2026.
+const PARCOURS = {};
 
 // ---- Erreurs console/réseau tolérées quand on n'est pas connecté --------------
 const IGNORER_RESEAU = [
