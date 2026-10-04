@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 import { getErrorMessage } from '../_shared/error-utils.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { corsHeaders } from '../_shared/cors.ts'
+import { exigerAdministrateur, fonctionRetiree } from '../_shared/mm-garde.ts'
 
 interface SunoGenerationRequest {
   item_id: string
@@ -48,160 +49,19 @@ serve(async (req) => {
     const action = url.pathname.split('/').pop()
 
     // POST /generate - Générer une nouvelle chanson
+    // CONSTAT (revue critique 04.10.2026) : ce point d'entrée exigeait une session
+    // mais ni abonnement ni quota — tout compte gratuit pouvait générer des
+    // chansons Suno sans limite. Aucun écran ne l'appelle plus (services/musicService
+    // generateSong n'est pas utilisé) : la génération passe par mm-generate-music.
     if (req.method === 'POST' && action === 'generate') {
-      const authHeader = req.headers.get('authorization')
-      if (!authHeader) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+      return fonctionRetiree(corsHeaders, 'La génération audio MED MNG passe par la fonction mm-generate-music (abonnement Premium, 30 générations par mois).')
+    }
 
-      // Vérifier le quota utilisateur
-      const { data: { user }, error: authError } = await supabase.auth.getUser(
-        authHeader.replace('Bearer ', '')
-      )
-      
-      if (authError || !user) {
-        return new Response(
-          JSON.stringify({ error: 'Invalid token' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      const request: SunoGenerationRequest = await req.json()
-      const generationId = crypto.randomUUID()
-      const startTime = new Date()
-
-      console.log(`🎵 Starting generation for ${request.item_code} Rang ${request.rang_type}`)
-
-      // Logger le début de génération
-      const generationLog: Partial<GenerationLog> = {
-        id: generationId,
-        user_id: user.id,
-        item_id: request.item_id,
-        item_code: request.item_code,
-        rang_type: request.rang_type,
-        status: 'pending',
-        generation_start: startTime.toISOString(),
-        prompt_used: '',
-        metadata: {
-          user_agent: req.headers.get('user-agent'),
-          ip: req.headers.get('x-forwarded-for'),
-          custom_prompt: request.custom_prompt
-        }
-      }
-
-      try {
-        // Créer le prompt optimisé Suno
-        const optimizedPrompt = createSunoPrompt(request)
-        generationLog.prompt_used = optimizedPrompt
-
-        // Insérer le log initial
-        await supabase.from('music_generation_logs').insert(generationLog)
-
-        // Mettre à jour le statut à "generating"
-        await supabase
-          .from('music_generation_logs')
-          .update({ status: 'generating' })
-          .eq('id', generationId)
-
-        console.log(`🎤 Generated prompt: ${optimizedPrompt}`)
-
-        // Appel API Suno
-        const sunoResponse = await generateWithSuno(SUNO_API_KEY, optimizedPrompt, request)
-        
-        const endTime = new Date()
-        const durationSeconds = Math.round((endTime.getTime() - startTime.getTime()) / 1000)
-
-        console.log(`✅ Generation completed in ${durationSeconds}s`)
-
-        // Mettre à jour le log avec succès
-        await supabase
-          .from('music_generation_logs')
-          .update({
-            status: 'completed',
-            generation_end: endTime.toISOString(),
-            duration_seconds: durationSeconds,
-            suno_song_id: sunoResponse.id,
-            metadata: {
-              ...generationLog.metadata,
-              suno_metadata: sunoResponse.metadata
-            }
-          })
-          .eq('id', generationId)
-
-        // Ajouter automatiquement à la bibliothèque utilisateur
-        await supabase.from('emotionscare_user_songs').insert({
-          user_id: user.id,
-          song_id: sunoResponse.song_uuid,
-          created_at: new Date().toISOString()
-        })
-
-        // Créer une alerte si génération trop lente (>30s par défaut)
-        if (durationSeconds > 30) {
-          await createPerformanceAlert(supabase, {
-            type: 'slow_music_generation',
-            severity: durationSeconds > 60 ? 'critical' : 'warning',
-            message: `Génération lente: ${durationSeconds}s pour ${request.item_code}`,
-            metadata: {
-              generation_id: generationId,
-              duration_seconds: durationSeconds,
-              item_code: request.item_code
-            }
-          })
-        }
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            generation_id: generationId,
-            song: sunoResponse,
-            duration_seconds: durationSeconds,
-            added_to_library: true
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-
-      } catch (error: unknown) {
-        console.error(`❌ Generation failed:`, error)
-        
-        const endTime = new Date()
-        const durationSeconds = Math.round((endTime.getTime() - startTime.getTime()) / 1000)
-        const errMsg = getErrorMessage(error)
-
-        // Logger l'échec
-        await supabase
-          .from('music_generation_logs')
-          .update({
-            status: 'failed',
-            generation_end: endTime.toISOString(),
-            duration_seconds: durationSeconds,
-            error_message: errMsg
-          })
-          .eq('id', generationId)
-
-        // Créer une alerte d'erreur
-        await createPerformanceAlert(supabase, {
-          type: 'music_generation_error',
-          severity: 'critical',
-          message: `Erreur génération: ${errMsg}`,
-          metadata: {
-            generation_id: generationId,
-            item_code: request.item_code,
-            error: errMsg
-          }
-        })
-
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: errMsg,
-            generation_id: generationId
-          }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    // GET /logs et /stats : journaux des générations (identifiants, adresse IP,
+    // navigateur) — réservés aux administrateurs (ils étaient publics).
+    if (req.method === 'GET' && (action === 'logs' || action === 'stats')) {
+      const acces = await exigerAdministrateur(req, corsHeaders)
+      if (acces instanceof Response) return acces
     }
 
     // GET /logs - Dashboard admin des générations

@@ -39,14 +39,23 @@ Deno.test("ai-audio: retourne erreur pour action invalide", async () => {
 // TEST: get_credits
 // ============================================================================
 
-Deno.test("ai-audio: get_credits retourne les crédits", async () => {
+// Revue critique 04.10.2026 : les crédits Suno de la plateforme ne sont plus
+// lisibles avec la seule clé publique (réservé aux administrateurs), et
+// generate_music / extend sont retirés (génération : mm-generate-music).
+Deno.test("ai-audio: get_credits refusé avec la seule clé publique", async () => {
   const response = await invokeFunction("get_credits");
   const data = await response.json();
-  
-  assertEquals(response.status, 200);
-  assertExists(data.credits);
-  // credits peut être -1 si API key manquante
-  assertEquals(typeof data.credits, "number");
+
+  assertEquals(response.status, 401);
+  assertEquals(data.code, "AUTH_REQUISE");
+});
+
+Deno.test("ai-audio: generate_music retiré (410)", async () => {
+  const response = await invokeFunction("generate_music", { lyrics: "test", itemCode: "IC-1" });
+  const data = await response.json();
+
+  assertEquals(response.status, 410);
+  assertEquals(data.code, "RETIREE");
 });
 
 // ============================================================================

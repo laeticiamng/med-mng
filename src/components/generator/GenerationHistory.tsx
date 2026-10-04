@@ -18,7 +18,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { BatchActionsBar } from './BatchActionsBar';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
-import { ExtendMusicButton } from './ExtendMusicButton';
 import { GenerationFilters, type DateRangeType, type FilterType, type SortType } from './GenerationFilters';
 import { GenerationStats } from './GenerationStats';
 import { ShareMusicDialog } from './ShareMusicDialog';
@@ -794,16 +793,10 @@ export const GenerationHistory: React.FC = React.memo(() => {
                     >
                       <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${track.is_favorite ? 'fill-destructive' : ''}`} />
                     </Button>
-                    {/* Bouton extension Suno */}
-                    <ExtendMusicButton
-                      audioId={track.task_id || track.id}
-                      trackTitle={track.title || track.item_code}
-                      currentDuration={track.duration || 240}
-                      size="sm"
-                      variant="ghost"
-                      showLabel={false}
-                      disabled={!track.audio_url}
-                    />
+                    {/* Bouton « Étendre » retiré (revue critique 04.10.2026) : la version
+                        étendue n'était enregistrée nulle part (« disponible dans quelques
+                        minutes » sans suite) et chaque clic lançait une génération Suno
+                        hors quota. L'action « extend » d'ai-audio est retirée. */}
                     {/* Bouton partage - hidden on very small screens */}
                     <Button
                       size="sm"

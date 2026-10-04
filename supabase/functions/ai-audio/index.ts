@@ -19,6 +19,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur, exigerConnexion, exigerPremium, fonctionRetiree } from '../_shared/mm-garde.ts';
 import { 
   SunoAPIClient, 
   getCorrectSunoModel, 
@@ -102,15 +103,34 @@ serve(async (req) => {
 
     console.log(`🎵 AI-AUDIO [${action}] - User: ${userId || 'anonymous'}`);
 
+    // CONSTAT (revue critique 04.10.2026, vérifié en production) : sans aucun
+    // en-tête, cette fonction (verify_jwt = false) acceptait toutes les actions,
+    // dont generate_music (forceGeneration) : n'importe qui pouvait générer des
+    // chansons Suno sans compte ni abonnement, hors quota. La génération MED MNG
+    // passe par mm-generate-music (Premium, 30/mois, registre serveur).
+    if (action === 'generate_music' || action === 'extend') {
+      // extend : aucun appel du front n'enregistre la version étendue (bouton retiré).
+      return fonctionRetiree(
+        corsHeaders,
+        'La génération audio MED MNG passe par la fonction mm-generate-music (abonnement Premium, 30 générations par mois).',
+      );
+    }
+    if (action === 'generate_lyrics' || action === 'process_audio' || action === 'generate_voice') {
+      const acces = await exigerPremium(req, corsHeaders);
+      if (acces instanceof Response) return acces;
+    }
+    if (action === 'get_credits') {
+      const acces = await exigerAdministrateur(req, corsHeaders);
+      if (acces instanceof Response) return acces;
+    }
+    if (action === 'manage_playlist') {
+      const acces = await exigerConnexion(req, corsHeaders);
+      if (acces instanceof Response) return acces;
+    }
+
     switch (action) {
-      case 'generate_music':
-        return await handleGenerateMusic(supabase, payload, userId, startTime);
-      
       case 'get_status':
         return await handleGetStatus(supabase, payload);
-      
-      case 'extend':
-        return await handleExtend(payload);
       
       case 'generate_lyrics':
         return await handleGenerateLyrics(payload);
