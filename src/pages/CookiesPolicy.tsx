@@ -131,11 +131,6 @@ const CookiesPolicy = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-b border-border/50">
-                        <td className="p-2 font-mono text-xs">sentry-*</td>
-                        <td className="p-2">Suivi des erreurs techniques (Sentry)</td>
-                        <td className="p-2">Session</td>
-                      </tr>
                       <tr>
                         <td className="p-2 font-mono text-xs">pwa-metrics</td>
                         <td className="p-2">Métriques d'utilisation PWA</td>

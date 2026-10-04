@@ -217,7 +217,7 @@ const MentionsLegales = () => {
               <h3 className="text-xl font-semibold text-foreground">6ter. SOUS-TRAITANTS ET ACCORDS DE TRAITEMENT (DPA)</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p>Conformément à l'article 28 du RGPD, des accords de traitement des données (Data Processing Agreements – DPA) ont été conclus avec nos sous-traitants techniques :</p>
+              <p>Conformément à l'article 28 du RGPD, voici les sous-traitants techniques réellement appelés par Med MNG et leurs garanties :</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead>
@@ -231,33 +231,51 @@ const MentionsLegales = () => {
                   <tbody>
                     <tr className="border-b border-border/50">
                       <td className="p-2 font-semibold">Supabase Inc.</td>
-                      <td className="p-2">Hébergement BDD, authentification</td>
+                      <td className="p-2">Base de données, authentification, stockage des fichiers, fonctions serveur</td>
                       <td className="p-2">Société américaine ; données hébergées dans l'UE (Francfort)</td>
                       <td className="p-2">DPA signé, SCC, DPF certifié</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="p-2 font-semibold">Stripe Inc.</td>
-                      <td className="p-2">Traitement paiements</td>
+                      <td className="p-2">Paiement et gestion de l'abonnement</td>
                       <td className="p-2">USA / Irlande</td>
                       <td className="p-2">DPA signé, PCI-DSS, SCC</td>
                     </tr>
                     <tr className="border-b border-border/50">
-                      <td className="p-2 font-semibold">OpenAI</td>
-                      <td className="p-2">Génération contenus pédagogiques</td>
-                      <td className="p-2">USA</td>
-                      <td className="p-2">DPA signé, SCC, chiffrement</td>
+                      <td className="p-2 font-semibold">Lovable</td>
+                      <td className="p-2">Hébergement de l'application web (réseau Cloudflare)</td>
+                      <td className="p-2">Réseau Cloudflare (mondial)</td>
+                      <td className="p-2">Conditions de traitement du prestataire</td>
                     </tr>
                     <tr className="border-b border-border/50">
-                      <td className="p-2 font-semibold">Suno AI</td>
-                      <td className="p-2">Génération musique IA</td>
+                      <td className="p-2 font-semibold">sunoapi.org</td>
+                      <td className="p-2">Génération de l'audio des chansons Premium (modèle Suno)</td>
+                      <td className="p-2">Hors UE</td>
+                      <td className="p-2">Conditions de traitement du prestataire ; aucune donnée d'identité transmise</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="p-2 font-semibold">Passerelle IA de Lovable (Google Gemini)</td>
+                      <td className="p-2">Réécriture des paroles d'un item depuis ses compétences officielles, si besoin, avant une génération Premium</td>
+                      <td className="p-2">Hors UE</td>
+                      <td className="p-2">Aucune donnée personnelle transmise</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="p-2 font-semibold">OpenAI</td>
+                      <td className="p-2">Dessin des illustrations des planches</td>
                       <td className="p-2">USA</td>
-                      <td className="p-2">DPA signé, SCC</td>
+                      <td className="p-2">DPA signé, SCC, chiffrement ; aucune donnée personnelle transmise</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="p-2 font-semibold">Resend</td>
+                      <td className="p-2">Envoi de l'e-mail de bienvenue</td>
+                      <td className="p-2">USA</td>
+                      <td className="p-2">Conditions de traitement du prestataire</td>
                     </tr>
                     <tr>
-                      <td className="p-2 font-semibold">Sentry</td>
-                      <td className="p-2">Monitoring erreurs techniques</td>
+                      <td className="p-2 font-semibold">Google Fonts (Google)</td>
+                      <td className="p-2">Polices de caractères (adresse IP transmise)</td>
                       <td className="p-2">USA</td>
-                      <td className="p-2">DPA signé, SCC, données anonymisées</td>
+                      <td className="p-2">Conditions de traitement du prestataire, DPF</td>
                     </tr>
                   </tbody>
                 </table>

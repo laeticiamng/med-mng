@@ -38,7 +38,7 @@ const PolitiqueConfidentialite = () => {
                 <h2 className="text-2xl font-bold">Med MNG - Politique de Confidentialité</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/70">Dernière mise à jour : 27 septembre 2026</p>
+              <p className="text-sm text-primary-foreground/70">Dernière mise à jour : 4 octobre 2026</p>
             </div>
           </Card>
 
@@ -190,7 +190,7 @@ const PolitiqueConfidentialite = () => {
             </div>
             <div className="text-muted-foreground">
               <div className="bg-success/10 p-4 rounded-lg space-y-2">
-                <p>• <strong>Hébergement :</strong> Serveurs sécurisés via Supabase</p>
+                <p>• <strong>Hébergement :</strong> Supabase (Union européenne, Francfort) pour les données ; Lovable pour l'application web</p>
                 <p>• <strong>Chiffrement :</strong> En transit et au repos</p>
                 <p>• <strong>Sauvegardes :</strong> Automatisées et sécurisées</p>
                 <p>• <strong>Accès :</strong> Restreint aux seules personnes habilitées</p>
@@ -211,12 +211,14 @@ const PolitiqueConfidentialite = () => {
                 <AlertDescription>
                   <p className="font-semibold text-primary mb-2">Sous-traitants techniques (RGPD Article 28)</p>
                   <ul className="text-sm space-y-1">
-                    <li>• <strong>Supabase</strong> - Base de données et authentification, hébergées dans l'Union européenne (Francfort, Allemagne)</li>
-                    <li>• <strong>Lovable</strong> - Hébergement de l'application web</li>
-                    <li>• <strong>OpenAI (États-Unis)</strong> - Génération des paroles et des explications pédagogiques</li>
-                    <li>• <strong>Suno (États-Unis)</strong> - Génération des musiques</li>
-                    <li>• <strong>Stripe</strong> - Traitement des paiements</li>
-                    <li>• <strong>Sentry (États-Unis)</strong> - Suivi des erreurs techniques (sans contenu de révision)</li>
+                    <li>• <strong>Supabase</strong> - Base de données, authentification, stockage des fichiers (chansons générées, illustrations) et fonctions serveur, hébergés dans l'Union européenne (Francfort, Allemagne)</li>
+                    <li>• <strong>Lovable</strong> - Hébergement de l'application web (réseau Cloudflare)</li>
+                    <li>• <strong>Stripe</strong> - Paiement et gestion de l'abonnement Premium (page de paiement et portail de résiliation)</li>
+                    <li>• <strong>sunoapi.org</strong> - Génération de l'audio des chansons (Premium) avec le modèle musical Suno, à partir des paroles de l'item et du style choisi</li>
+                    <li>• <strong>Passerelle IA de Lovable (modèles Google Gemini)</strong> - Uniquement lorsque les paroles enregistrées d'un item ne sont pas rédigées : réécriture des paroles à partir des compétences officielles de l'item, avant une génération audio Premium</li>
+                    <li>• <strong>OpenAI (États-Unis)</strong> - Dessin, une seule fois, de l'illustration d'une case des planches à partir de sa description</li>
+                    <li>• <strong>Resend (États-Unis)</strong> - Envoi de l'e-mail de bienvenue (adresse e-mail et prénom)</li>
+                    <li>• <strong>Google Fonts (Google, États-Unis)</strong> - Polices de caractères chargées depuis les serveurs de Google (votre adresse IP leur est transmise)</li>
                   </ul>
                 </AlertDescription>
               </Alert>
@@ -226,9 +228,11 @@ const PolitiqueConfidentialite = () => {
                 <AlertDescription>
                   <p className="font-semibold text-warning mb-2">Transferts vers les États-Unis</p>
                   <p className="text-sm text-warning/80">
-                    Pour générer une chanson ou une explication, le texte pédagogique concerné (item, thème, style) est envoyé à OpenAI
-                    et à Suno, sans votre nom ni votre adresse e-mail. Ces transferts reposent sur l'exécution du service que vous
-                    demandez et sont encadrés par :
+                    Pour générer l'audio d'une chanson (Premium), les paroles de l'item et le style choisi sont envoyés à sunoapi.org ;
+                    si les paroles enregistrées ne sont pas rédigées, les compétences officielles de l'item sont d'abord envoyées à la
+                    passerelle IA de Lovable (Google Gemini). Pour dessiner une case des planches, sa description est envoyée à OpenAI.
+                    Aucun de ces envois ne contient votre nom ni votre adresse e-mail. Ces transferts, comme l'envoi de l'e-mail de
+                    bienvenue (Resend) et le chargement des polices (Google Fonts), reposent sur l'exécution du service et sont encadrés par :
                   </p>
                   <ul className="text-sm space-y-1 mt-2 ml-4">
                     <li>• les <strong>clauses contractuelles types</strong> de la Commission européenne, ou la certification du fournisseur au <strong>Data Privacy Framework UE-États-Unis</strong> lorsqu'elle existe ;</li>
@@ -296,7 +300,6 @@ const PolitiqueConfidentialite = () => {
                 <ul className="text-sm space-y-1">
                   <li>• Chiffrement au repos (hébergeur) et en transit (HTTPS/TLS)</li>
                   <li>• Row Level Security (RLS) sur toutes les tables Supabase</li>
-                  <li>• Monitoring temps réel via Sentry</li>
                   <li>• Sauvegardes automatisées chiffrées</li>
                   <li>• Revue régulière des règles d'accès à la base et des dépendances</li>
                 </ul>
