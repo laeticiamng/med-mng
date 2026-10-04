@@ -41,8 +41,6 @@
 - Fiches ECOS : https://medmng.com/fiches-ecos-interactives
 - Préparation ECOS 2027 : https://medmng.com/preparation-ecos-2027
 - Réussir les EDN : https://medmng.com/reussir-edn
-- Simulation examen : https://medmng.com/simulation-examen-edn
-- Cas cliniques : https://medmng.com/cas-cliniques-edn
 
 ## Contact
 

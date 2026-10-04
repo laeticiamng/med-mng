@@ -82,9 +82,10 @@ export function StudyCalendarSync() {
       ical.push(`DTSTAMP:${formatICalDate(new Date())}`);
       ical.push(`DTSTART:${formatICalDate(examDate)}`);
       ical.push(`DTEND:${formatICalDate(endExamDate)}`);
-      ical.push('SUMMARY:🎯 Med MNG: Examen blanc hebdomadaire');
-      ical.push('DESCRIPTION:Session d\'examen blanc recommandee pour tester vos connaissances. Mode examen IA disponible !');
-      ical.push(`LOCATION:${window.location.origin}/exam-mode`);
+      // L'examen blanc généré par IA est retiré (DC7) : séance hebdomadaire de quiz et d'ECOS.
+      ical.push('SUMMARY:🎯 Med MNG: Quiz et ECOS de la semaine');
+      ical.push('DESCRIPTION:Quiz des items revus cette semaine et une situation ECOS guidee.');
+      ical.push(`LOCATION:${window.location.origin}/edn-complete`);
       ical.push('STATUS:CONFIRMED');
       ical.push('END:VEVENT');
     }

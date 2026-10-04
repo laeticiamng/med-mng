@@ -204,9 +204,9 @@ const ExempleCasClinique = () => {
           {/* CTA */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
             <Lock className="h-8 w-8 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-3">Entraînez-vous sur d'autres cas cliniques</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-3">Continuez à vous entraîner</h2>
             <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-              Cas cliniques générés par IA à partir des items, à vérifier avec vos sources, et situations ECOS guidées.
+              12 situations ECOS guidées (gratuites) et le quiz de chaque item : 10 items d'essai gratuits, les 367 avec Premium.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>

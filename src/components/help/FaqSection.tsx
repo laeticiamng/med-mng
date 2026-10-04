@@ -189,8 +189,8 @@ export const FaqSection: React.FC = () => {
         <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
           <p className="text-sm text-muted-foreground text-center">
             Vous avez une autre question ? 
-            <Link to={ROUTE_PATHS.chat} className="text-primary font-medium ml-1 hover:underline">
-              Contactez l'Assistant IA
+            <Link to={ROUTE_PATHS.faq} className="text-primary font-medium ml-1 hover:underline">
+              Consultez la FAQ
             </Link>
           </p>
         </div>

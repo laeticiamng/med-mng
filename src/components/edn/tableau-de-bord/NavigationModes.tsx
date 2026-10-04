@@ -9,7 +9,6 @@ import { ROUTE_PATHS } from '@/config/routes';
 import {
   BarChart3,
   Brain,
-  CalendarDays,
   ChevronDown,
   CreditCard,
   Gamepad2,
@@ -46,7 +45,7 @@ interface Groupe {
 // retirés : ce chiffre additionnait d'anciens quotas musique + QCM + chat
 // (table user_quotas) que rien ne décompte et qui ne correspondent pas à
 // l'offre ; le vrai compteur (générations audio Premium) est dans « Abonnement ».
-const GROUPES: Groupe[] = [
+export const GROUPES: Groupe[] = [
   {
     id: 'reviser',
     libelle: 'Réviser',
@@ -62,8 +61,9 @@ const GROUPES: Groupe[] = [
     libelle: "S'entraîner",
     icon: Target,
     entrees: [
-      { libelle: 'Examen blanc', icon: Target, route: ROUTE_PATHS.examMode },
-      { libelle: 'Cas cliniques', icon: Gamepad2, route: ROUTE_PATHS.clinicalCases },
+      // Examen blanc, cas cliniques et planning générés par IA : retirés (décision
+      // CEO DC7, 04.10.2026 — contenu médical non vérifié, hors de l'offre).
+      { libelle: 'Situations ECOS', description: '12 stations guidées', icon: Gamepad2, route: ROUTE_PATHS.ecosIndex },
     ],
   },
   {
@@ -142,16 +142,6 @@ export function NavigationModes({ onglet, onOnglet }: NavigationModesProps) {
         );
       })}
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="h-8 gap-1.5 px-2.5"
-        onClick={() => navigate(ROUTE_PATHS.smartStudyPlanner)}
-      >
-        <CalendarDays className="h-4 w-4" aria-hidden="true" />
-        Planning IA
-      </Button>
     </nav>
   );
 }

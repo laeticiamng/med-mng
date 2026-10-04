@@ -126,25 +126,7 @@ export const GlobalSearchBar: React.FC = () => {
         }
       }
 
-      // Cas cliniques (lecture soumise aux droits de l'utilisateur).
-      const { data: cases } = await supabase
-        .from('ai_clinical_cases')
-        .select('id, title, specialty')
-        .or(`title.ilike.%${q}%,specialty.ilike.%${q}%`)
-        .limit(3);
-
-      if (cases) {
-        cases.forEach((caseItem: any) => {
-          searchResults.push({
-            id: caseItem.id,
-            title: caseItem.title,
-            description: caseItem.specialty,
-            category: 'clinical',
-            url: `/clinical-cases`,
-            relevance: 35,
-          });
-        });
-      }
+      // Cas cliniques générés par IA : retirés de l'offre (DC7, 04.10.2026), plus proposés.
 
       // Sort by relevance
       searchResults.sort((a, b) => b.relevance - a.relevance);

@@ -67,8 +67,8 @@ export const createHowToSchema = () => ({
     {
       '@type': 'HowToStep',
       position: 3,
-      name: 'S\'évaluer avec QCM, QROC et cas cliniques',
-      text: 'Testez vos connaissances avec le quiz de chaque item, des examens blancs de QCM générés par IA et des situations ECOS guidées avec grille d\'auto-évaluation.',
+      name: 'S\'évaluer avec les quiz et les situations ECOS',
+      text: 'Testez vos connaissances avec le quiz de chaque item et 12 situations ECOS guidées avec grille d\'auto-évaluation.',
     },
     {
       '@type': 'HowToStep',

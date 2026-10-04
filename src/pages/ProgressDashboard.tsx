@@ -31,7 +31,6 @@ import {
     Award,
     BookOpen,
     Brain,
-    Calendar,
     ChevronLeft,
     Clock,
     Flame,
@@ -456,9 +455,9 @@ export default function ProgressDashboard() {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => navigate(ROUTE_PATHS.examMode)}
+                onClick={() => navigate(ROUTE_PATHS.ednComplete)}
               >
-                Passer un examen
+                Faire un quiz par item
               </Button>
             </CardContent>
           </Card>
@@ -497,9 +496,9 @@ export default function ProgressDashboard() {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => navigate(ROUTE_PATHS.clinicalCases)}
+                onClick={() => navigate(ROUTE_PATHS.ecosIndex)}
               >
-                Explorer les cas
+                Situations ECOS
               </Button>
             </CardContent>
           </Card>
@@ -547,7 +546,8 @@ export default function ProgressDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Examen blanc, cas cliniques et planning générés par IA : retirés (DC7, 04.10.2026). */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Button 
                 variant="outline" 
                 className="h-auto py-4 flex-col gap-2"
@@ -564,26 +564,18 @@ export default function ProgressDashboard() {
               <Button 
                 variant="outline" 
                 className="h-auto py-4 flex-col gap-2"
-                onClick={() => navigate(ROUTE_PATHS.examMode)}
+                onClick={() => navigate(ROUTE_PATHS.ednComplete)}
               >
                 <Trophy className="h-6 w-6 text-accent" />
-                <span className="text-xs">Examen blanc</span>
+                <span className="text-xs">Quiz par item</span>
               </Button>
               <Button 
                 variant="outline" 
                 className="h-auto py-4 flex-col gap-2"
-                onClick={() => navigate(ROUTE_PATHS.clinicalCases)}
+                onClick={() => navigate(ROUTE_PATHS.ecosIndex)}
               >
                 <Activity className="h-6 w-6 text-success" />
-                <span className="text-xs">Cas clinique</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-auto py-4 flex-col gap-2"
-                onClick={() => navigate(ROUTE_PATHS.smartStudyPlanner)}
-              >
-                <Calendar className="h-6 w-6 text-warning" />
-                <span className="text-xs">Planning IA</span>
+                <span className="text-xs">Situations ECOS</span>
               </Button>
             </div>
           </CardContent>

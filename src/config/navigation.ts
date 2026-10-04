@@ -128,7 +128,6 @@ export const LEGAL_PAGES: NavItem[] = [
 export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.home, label: 'Accueil', category: 'Principal' },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', category: 'Apprentissage' },
-  { path: ROUTE_PATHS.chat, label: 'Chat IA', category: 'Outils' },
   { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Musique' },
   { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', category: 'Musique' },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },

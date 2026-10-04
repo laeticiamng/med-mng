@@ -104,7 +104,7 @@ export const useLearningAnalytics = () => {
           generatedInsights.push({
             type: 'recommendation',
             title: 'Utilisez les Flashcards',
-            description: 'Les flashcards sont sous-utilisées. Elles peuvent améliorer votre rétention de 30%.',
+            description: 'Les flashcards sont sous-utilisées : quelques cartes revues chaque jour entretiennent la mémorisation.',
             priority: 'medium',
             actionUrl: '/flashcards'
           });
@@ -113,10 +113,10 @@ export const useLearningAnalytics = () => {
         if (!byType.clinical_case || byType.clinical_case < 5) {
           generatedInsights.push({
             type: 'recommendation',
-            title: 'Pratiquez les cas cliniques',
-            description: 'Entraînez-vous avec des cas cliniques pour améliorer votre raisonnement.',
+            title: 'Entraînez-vous sur les situations ECOS',
+            description: 'Les 12 stations guidées font travailler l’interrogatoire, l’examen et la conclusion.',
             priority: 'medium',
-            actionUrl: '/clinical-cases'
+            actionUrl: '/ecos'
           });
         }
       }

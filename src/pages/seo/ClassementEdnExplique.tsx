@@ -177,14 +177,14 @@ const ClassementEdnExplique = () => {
 
           {/* CTA */}
           <section className="text-center p-8 rounded-2xl bg-primary/5 border border-primary/20">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Entraînez-vous avec des examens blancs</h2>
-            <p className="text-muted-foreground mb-6">Examens blancs chronométrés avec score par spécialité et par rang.</p>
+            <h2 className="text-2xl font-bold text-foreground mb-3">Révisez item par item</h2>
+            <p className="text-muted-foreground mb-6">Fiches de compétences rang A / rang B du référentiel LiSA 2026 et quiz par item.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={ROUTE_PATHS.medMngSignup}>
                 <Button size="lg" className="gap-2">Créer un compte gratuit <ArrowRight className="h-4 w-4" /></Button>
               </Link>
-              <Link to={ROUTE_PATHS.seoSimulationEdn}>
-                <Button variant="outline" size="lg">Simulation EDN</Button>
+              <Link to={ROUTE_PATHS.ednComplete}>
+                <Button variant="outline" size="lg">Voir les items</Button>
               </Link>
             </div>
           </section>

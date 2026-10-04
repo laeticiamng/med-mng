@@ -2,7 +2,6 @@
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
-import { EnhancedAITutor } from '@/components/ai/EnhancedAITutor';
 import { CookieBanner } from "@/components/common/CookieBanner";
 import { PageLoader } from "@/components/common/PageLoader";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
@@ -60,11 +59,8 @@ const EdnItemRecit = lazy(() => import("./pages/edn-item/EdnItemRecit"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
 const SRSReview = lazy(() => import("./pages/SRSReview"));
-const ExamMode = lazy(() => import("./pages/ExamMode"));
-const ClinicalCases = lazy(() => import("./pages/ClinicalCases"));
 const Flashcards = lazy(() => import("./pages/Flashcards"));
 const ProgressDashboard = lazy(() => import("./pages/ProgressDashboard"));
-const SmartStudyPlanner = lazy(() => import("./pages/SmartStudyPlanner"));
 
 // 🆕 PAGES PRIORITAIRES (actives)
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
@@ -106,7 +102,6 @@ const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(m => ({ defa
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(m => ({ default: m.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(m => ({ default: m.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(m => ({ default: m.MusicAnalytics })));
-const MedChat = lazy(() => import("./pages/MedChat").then(m => ({ default: m.MedChat })));
 const MedMngProgress = lazy(() => import("./pages/MedMngProgress").then(m => ({ default: m.MedMngProgress })));
 const MedMngFavorites = lazy(() => import("./pages/MedMngFavorites").then(m => ({ default: m.MedMngFavorites })));
 const BillingPage = lazy(() => import("./pages/BillingPage"));
@@ -151,9 +146,6 @@ const KaraokeDuel = lazy(() => import("./pages/KaraokeDuel"));
 // 🎵 DAILY SRS PLAYLIST
 const DailySRSPlaylist = lazy(() => import("./pages/DailySRSPlaylist"));
 
-// 🏥 NATIONAL EXAM SIMULATION
-const NationalExamSimulation = lazy(() => import("./pages/NationalExamSimulation"));
-
 // 🤝 SOCIAL SHARE HUB
 const SocialShareHub = lazy(() => import("./pages/SocialShareHub"));
 
@@ -184,8 +176,6 @@ const About = lazy(() => import("./pages/About"));
 const PreparationEcos2027 = lazy(() => import("./pages/seo/PreparationEcos2027"));
 const ReussirEdn = lazy(() => import("./pages/seo/ReussirEdn"));
 const FichesEcosInteractives = lazy(() => import("./pages/seo/FichesEcosInteractives"));
-const SimulationExamenEdn = lazy(() => import("./pages/seo/SimulationExamenEdn"));
-const CasCliniqueEdn = lazy(() => import("./pages/seo/CasCliniqueEdn"));
 const ErreursFrquentesEcos = lazy(() => import("./pages/seo/ErreursFrquentesEcos"));
 const ClassementEdnExplique = lazy(() => import("./pages/seo/ClassementEdnExplique"));
 const RangAvsRangB = lazy(() => import("./pages/seo/RangAvsRangB"));
@@ -299,11 +289,14 @@ const App = () => {
 
                                     {/* Learning */}
                                     <Route path={ROUTE_PATHS.srsReview} element={<ProtectedRoute><S><SRSReview /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.examMode} element={<ProtectedRoute><S><ExamMode /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.clinicalCases} element={<ProtectedRoute><S><ClinicalCases /></S></ProtectedRoute>} />
+                                    {/* Fonctions IA hors offre (décision CEO DC7, 04.10.2026) : contenu médical
+                                        généré à la demande, non vérifié. Les anciennes adresses mènent à
+                                        l'équivalent de l'offre (fiches officielles et quiz par item, ECOS). */}
+                                    <Route path={ROUTE_PATHS.examMode} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
+                                    <Route path={ROUTE_PATHS.clinicalCases} element={<Navigate to={ROUTE_PATHS.ecosIndex} replace />} />
                                     <Route path={ROUTE_PATHS.flashcards} element={<ProtectedRoute><S><Flashcards /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.progressDashboard} element={<ProtectedRoute><S><ProgressDashboard /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<ProtectedRoute><S><SmartStudyPlanner /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Gamification */}
                                     <Route path={ROUTE_PATHS.leaderboard} element={<ProtectedRoute><S><Leaderboard /></S></ProtectedRoute>} />
@@ -343,8 +336,9 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.seoPreparationEcosLegacy} element={<Navigate to={ROUTE_PATHS.seoPreparationEcos} replace />} />
                                     <Route path={ROUTE_PATHS.seoReussirEdn} element={<S><ReussirEdn /></S>} />
                                     <Route path={ROUTE_PATHS.seoFichesEcos} element={<S><FichesEcosInteractives /></S>} />
-                                    <Route path={ROUTE_PATHS.seoSimulationEdn} element={<S><SimulationExamenEdn /></S>} />
-                                    <Route path={ROUTE_PATHS.seoCasCliniqueEdn} element={<S><CasCliniqueEdn /></S>} />
+                                    {/* Pages qui promettaient l'examen blanc et les cas cliniques générés par IA (retirés, DC7) */}
+                                    <Route path={ROUTE_PATHS.seoSimulationEdn} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
+                                    <Route path={ROUTE_PATHS.seoCasCliniqueEdn} element={<Navigate to={ROUTE_PATHS.seoFichesEcos} replace />} />
                                     <Route path={ROUTE_PATHS.seoErreursFrquentesEcos} element={<S><ErreursFrquentesEcos /></S>} />
                                     <Route path={ROUTE_PATHS.seoClassementEdnExplique} element={<S><ClassementEdnExplique /></S>} />
                                     <Route path={ROUTE_PATHS.seoRangAvsRangB} element={<S><RangAvsRangB /></S>} />
@@ -398,8 +392,8 @@ const App = () => {
                                     {/* Daily SRS Playlist */}
                                     <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<ProtectedRoute><S><DailySRSPlaylist /></S></ProtectedRoute>} />
 
-                                    {/* National Exam Simulation */}
-                                    <Route path={ROUTE_PATHS.nationalExam} element={<ProtectedRoute><S><NationalExamSimulation /></S></ProtectedRoute>} />
+                                    {/* Examen blanc généré par IA : retiré (DC7) */}
+                                    <Route path={ROUTE_PATHS.nationalExam} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Social Share Hub */}
                                     <Route path={ROUTE_PATHS.socialShare} element={<ProtectedRoute><S><SocialShareHub /></S></ProtectedRoute>} />
@@ -407,8 +401,8 @@ const App = () => {
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
 
-                                    {/* Chat & Audit */}
-                                    <Route path={ROUTE_PATHS.chat} element={<ProtectedRoute><S><MedChat /></S></ProtectedRoute>} />
+                                    {/* Chat et copilote IA : retirés (DC7) */}
+                                    <Route path={ROUTE_PATHS.chat} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednAudit} element={<AdminRoute><S><EdnAuditDashboard /></S></AdminRoute>} />
 
                                     {/* Admin */}
@@ -434,8 +428,8 @@ const App = () => {
                                         que rien dans l'application ne permettait de créer (tables jamais
                                         alimentées côté utilisateur) ; ses boutons « Nouvelle session »,
                                         « Nouvel objectif », modifier et supprimer n'avaient aucun gestionnaire.
-                                        Redirigé vers le planificateur réel. */}
-                                    <Route path={ROUTE_PATHS.studyPlanner} element={<Navigate to={ROUTE_PATHS.smartStudyPlanner} replace />} />
+                                        Le planificateur IA qui l'a remplacé est retiré à son tour (DC7). */}
+                                    <Route path={ROUTE_PATHS.studyPlanner} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />
@@ -467,7 +461,6 @@ const App = () => {
                                 <AccessibilityCenter />
                                 <CookieBanner />
                                 {import.meta.env.DEV && <DesignSystemDevTools />}
-                                <EnhancedAITutor />
                                 <PWAPrompt />
                                 <OfflineIndicator />
                                 <PersistentMiniPlayer />

@@ -245,7 +245,7 @@ export const createFAQPageSchema = () => ({
       name: 'Med MNG utilise-t-il l\'intelligence artificielle ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, Med MNG utilise plusieurs couches d\'IA : (1) Génération musicale IA pour créer des chansons pédagogiques uniques, (2) IA générative pour produire des QCM, QROC et cas cliniques adaptés, (3) Algorithme SRS adaptatif qui personnalise le parcours de révision, (4) Chat IA médical pour répondre aux questions de cours.',
+        text: 'Oui, pour deux usages : les paroles, récits, planches et quiz de chaque item ont été rédigés avec l\'aide de l\'IA à partir des compétences du référentiel LiSA 2026 (UNESS), et l\'audio des chansons est généré par IA (Premium). Les fiches de compétences rang A / rang B reprennent le référentiel, sans IA. Med MNG ne propose ni chat médical, ni cas cliniques, ni examens blancs générés par IA.',
       },
     },
   ],

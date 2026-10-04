@@ -172,7 +172,7 @@ const TravaillerCasCliniques = () => {
             <Accordion type="single" collapsible>
               {[
                 { q: "Combien de cas cliniques faut-il faire avant l'EDN ?", a: "Minimum 100 cas cliniques complets sur 6 mois. L'idéal est 3-4 cas/semaine avec une analyse approfondie des erreurs." },
-                { q: "Les cas cliniques Med MNG sont-ils conformes au programme ?", a: "Ils sont générés par IA à partir des items EDN. Ils peuvent contenir des erreurs : vérifiez-les avec vos sources officielles." },
+                { q: "Med MNG propose-t-il des cas cliniques ?", a: "Non : Med MNG ne génère pas de cas cliniques. Pour vous entraîner au raisonnement clinique, utilisez les 12 situations ECOS guidées et le quiz de chaque item, et les cas cliniques de vos sources officielles (collèges, SIDES)." },
                 { q: "Faut-il travailler les cas cliniques seul ou en groupe ?", a: "Les deux. Seul pour le raisonnement écrit, en groupe pour les ECOS (simulation de consultation)." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>

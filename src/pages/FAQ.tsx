@@ -148,18 +148,6 @@ const FAQ = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="med-4" className="border rounded-lg px-4">
-                <AccordionTrigger className="text-left text-sm font-medium">
-                  Comment fonctionne l'assistant de révision IA ?
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm">
-                  Le copilote médical est un assistant IA pour les questions médicales liées aux items EDN.
-                  Il peut vous aider à comprendre un concept, expliquer une pathologie ou vous proposer des
-                  cas cliniques. Il est accessible, avec un compte, depuis le menu{' '}
-                  <Link to={ROUTE_PATHS.chat} className="text-primary hover:underline">Chat</Link>.
-                  Comme tout outil IA, ses réponses doivent être vérifiées avec les sources officielles.
-                </AccordionContent>
-              </AccordionItem>
             </Accordion>
           </div>
 
@@ -390,9 +378,7 @@ const FAQ = () => {
             <div className="text-center space-y-3">
               <h3 className="text-lg font-semibold text-foreground">Vous n'avez pas trouvé votre réponse ?</h3>
               <p className="text-sm text-muted-foreground">
-                Contactez-nous à <strong>contact@emotionscare.com</strong> ou utilisez le{' '}
-                <Link to={ROUTE_PATHS.chat} className="text-primary hover:underline">copilote IA</Link> pour
-                poser votre question.
+                Contactez-nous à <strong>contact@emotionscare.com</strong>.
               </p>
               <div className="flex justify-center gap-4 pt-2">
                 <Link to={ROUTE_PATHS.medMngSignup}>

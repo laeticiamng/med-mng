@@ -43,7 +43,7 @@ export default function Flashcards() {
   const { 
     loading, decks, currentDeck, cards,
     loadDecks, createDeck, deleteDeck, loadCards, addCard, deleteCard,
-    generateFromItem, recordReview, getStats
+    recordReview, getStats
   } = useFlashcards();
   const { addPoints, unlockBadge, checkAndUnlockBadges, stats: gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
@@ -64,10 +64,7 @@ export default function Flashcards() {
   const [newCardFront, setNewCardFront] = useState('');
   const [newCardBack, setNewCardBack] = useState('');
   const [showNewCardDialog, setShowNewCardDialog] = useState(false);
-  
-  // AI generation
-  const [itemCodeToGenerate, setItemCodeToGenerate] = useState('');
-  const [showAIDialog, setShowAIDialog] = useState(false);
+
   
   // Review state
   const [reviewMode, setReviewMode] = useState(false);
@@ -131,15 +128,6 @@ export default function Flashcards() {
     if (user) getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
   };
 
-  const handleGenerateFromItem = async () => {
-    if (!currentDeck || !itemCodeToGenerate) return;
-    
-    await generateFromItem(currentDeck.id, itemCodeToGenerate);
-    setItemCodeToGenerate('');
-    setShowAIDialog(false);
-    loadCards(currentDeck.id);
-    if (user) getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
-  };
 
   const handleStartReview = () => {
     setReviewMode(true);
@@ -559,40 +547,9 @@ export default function Flashcards() {
                       </DialogContent>
                     </Dialog>
 
-                    <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" className="flex-1 gap-2">
-                          <Sparkles className="h-4 w-4" />
-                          Générer depuis un item
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Génération automatique</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Code de l'item (ex: 228)</Label>
-                            <Input 
-                              value={itemCodeToGenerate}
-                              onChange={(e) => setItemCodeToGenerate(e.target.value)}
-                              placeholder="228"
-                            />
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Des cartes seront générées automatiquement à partir des compétences de l'item.
-                          </p>
-                          <Button 
-                            onClick={handleGenerateFromItem} 
-                            disabled={loading}
-                            className="w-full gap-2"
-                          >
-                            <Sparkles className="h-4 w-4" />
-                            Générer les cartes
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    {/* « Générer depuis un item » retiré (DC7, 04.10.2026) : les cartes reprenaient les
+                        anciens tableaux JSON (intitulés génériques ou tronqués, balisage wiki), pas les
+                        compétences officielles. Les cartes se créent à la main. */}
                   </div>
 
                   {/* Cards list */}
