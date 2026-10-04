@@ -25,6 +25,7 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGamification } from '@/hooks/useGamification';
 import { useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
+import { repartitionParLibelle } from '@/lib/libellesActivite';
 import {
     Activity,
     AlertTriangle,
@@ -196,13 +197,14 @@ export default function ProgressDashboard() {
                 </div>
 
                 {/* Activity breakdown */}
-                {Object.keys(weeklyData.byType).length > 0 && (
+                {/* Libellés français, sans les zéros (identifiants bruts « srs_review: 0 »… affichés jusqu'ici). */}
+                {repartitionParLibelle(weeklyData.byType).length > 0 && (
                   <div className="mt-4 pt-4 border-t">
                     <p className="text-xs text-muted-foreground mb-2">Répartition par type</p>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(weeklyData.byType).map(([type, count]) => (
-                        <Badge key={type} variant="secondary" className="text-xs">
-                          {type}: {count}
+                      {repartitionParLibelle(weeklyData.byType).map(([libelle, count]) => (
+                        <Badge key={libelle} variant="secondary" className="text-xs">
+                          {libelle} : {count}
                         </Badge>
                       ))}
                     </div>

@@ -46,7 +46,7 @@ const MedMngProgressComponent = () => {
         icon: CheckCircle,
       },
       {
-        label: 'Streak',
+        label: 'Jours de suite',
         value: data.streakCurrent,
         icon: Flame,
       },

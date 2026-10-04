@@ -113,7 +113,7 @@ export const SRSStatsExport = ({ stats, userName }: SRSStatsExportProps) => {
       
       const metrics = [
         { icon: '📊', label: 'Rétention moyenne', value: `${stats.averageRetention}%` },
-        { icon: '🔥', label: 'Streak actuel', value: `${stats.streak} jours` },
+        { icon: '🔥', label: 'Série actuelle', value: `${stats.streak} jours` },
         { icon: '⏱', label: 'Temps d\'étude total', value: `${Math.floor(stats.totalStudyTime / 60)}h ${stats.totalStudyTime % 60}min` },
         { icon: '📚', label: 'Révisions totales', value: stats.totalReviews.toString() },
       ];
@@ -178,7 +178,7 @@ export const SRSStatsExport = ({ stats, userName }: SRSStatsExportProps) => {
         recommendations.push('📉 Votre rétention est en dessous de 70%. Réduisez les nouveaux items.');
       }
       if (stats.streak >= 7) {
-        recommendations.push('🎉 Excellent streak ! Continuez ainsi pour maximiser votre rétention.');
+        recommendations.push('🎉 Excellente série ! Continuez ainsi pour maximiser votre rétention.');
       }
       if (stats.masteredItems > stats.learningItems * 2) {
         recommendations.push('⭐ Beaucoup d\'items maîtrisés. Vous pouvez ajouter de nouveaux contenus.');
@@ -233,7 +233,7 @@ export const SRSStatsExport = ({ stats, userName }: SRSStatsExportProps) => {
       ['Maîtrisés', stats.masteredItems.toString()],
       ['Révisions totales', stats.totalReviews.toString()],
       ['Rétention moyenne (%)', stats.averageRetention.toString()],
-      ['Streak (jours)', stats.streak.toString()],
+      ['Série (jours)', stats.streak.toString()],
       ['Temps d\'étude (min)', stats.totalStudyTime.toString()],
     ].map(row => row.join(',')).join('\n');
 

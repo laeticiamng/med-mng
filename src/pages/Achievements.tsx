@@ -128,7 +128,7 @@ const Achievements: React.FC = () => {
             <CardContent className="p-6 text-center">
               <Flame className="w-12 h-12 text-orange-500 mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-foreground">{stats?.currentStreak || 0}</h3>
-              <p className="text-muted-foreground">Jours de Streak</p>
+              <p className="text-muted-foreground">Jours de suite</p>
             </CardContent>
           </Card>
           

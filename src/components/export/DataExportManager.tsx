@@ -42,7 +42,7 @@ const EXPORT_MODULES: ExportModule[] = [
   {
     id: 'progress',
     name: 'Progression globale',
-    description: 'Statistiques, XP, niveau, streaks',
+    description: 'Statistiques, XP, niveau, séries',
     icon: Trophy,
     tables: ['gamification_activities', 'user_badges', 'activity_sessions'],
     estimatedSize: '~50 KB'

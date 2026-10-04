@@ -128,7 +128,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     {
       id: '3',
       type: 'warning',
-      title: '🔥 Streak en danger !',
+      title: '🔥 Série en danger !',
       message: 'N\'oubliez pas de réviser aujourd\'hui pour maintenir votre série de 5 jours.',
       timestamp: new Date(Date.now() - 20 * 60 * 1000),
       read: false,

@@ -97,7 +97,7 @@ export function WeeklyChallenges() {
       {
         id: 'weekly_streak',
         title: 'Flamme éternelle',
-        description: 'Maintenir votre streak pendant 7 jours',
+        description: 'Réviser 7 jours de suite',
         icon: <Flame className="h-5 w-5 text-warning" />,
         target: 7,
         current: Math.min(streak, 7),

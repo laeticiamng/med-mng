@@ -248,7 +248,7 @@ const UserSettings: React.FC = () => {
                           <Flame className="h-4 w-4" />
                           <span className="text-xl font-bold">{gamificationStats.currentStreak}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">Streak</p>
+                        <p className="text-xs text-muted-foreground">Série</p>
                       </div>
                       <div className="text-center p-2 bg-primary/10 rounded-lg">
                         <div className="flex items-center justify-center gap-1 text-primary">

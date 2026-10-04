@@ -165,7 +165,7 @@ const Favorites: React.FC = () => {
             <CardContent className="p-4 text-center">
               <Flame className="h-5 w-5 text-orange-500 mx-auto mb-1" />
               <div className="text-2xl font-bold text-foreground">{stats?.currentStreak || 0}</div>
-              <div className="text-sm text-muted-foreground">Jours Streak</div>
+              <div className="text-sm text-muted-foreground">Jours de suite</div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">

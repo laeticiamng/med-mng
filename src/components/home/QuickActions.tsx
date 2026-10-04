@@ -65,7 +65,7 @@ export const QuickActions: React.FC = () => {
     {
       id: 'progress',
       title: '📊 Ma progression',
-      subtitle: 'Stats, streaks & badges',
+      subtitle: 'Statistiques, séries et badges',
       duration: 'Live',
       icon: BarChart3,
       textColor: 'text-warning',

@@ -257,7 +257,7 @@ const MedMngProfileComponent = () => {
                   </div>
                   <div className="text-center">
                     <span className="text-xl sm:text-3xl font-bold text-success">{gamificationStats.longestStreak || 0}</span>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Record streak</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Meilleure série</p>
                   </div>
                 </div>
               </div>

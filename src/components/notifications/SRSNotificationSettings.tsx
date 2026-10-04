@@ -305,7 +305,7 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Rappel de streak</Label>
+                  <Label>Rappel de série</Label>
                   <p className="text-xs text-muted-foreground">Alerte si vous risquez de perdre votre série</p>
                 </div>
                 <Switch

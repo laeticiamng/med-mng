@@ -112,7 +112,7 @@ export const MobileBottomNav: React.FC = () => {
                 <Flame className="h-3 w-3 text-warning" />
                 <span className="font-medium">{stats.currentStreak}</span>
               </TooltipTrigger>
-              <TooltipContent>Streak actuelle</TooltipContent>
+              <TooltipContent>Jours de suite</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <span className="text-muted-foreground">•</span>

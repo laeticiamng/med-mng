@@ -148,7 +148,7 @@ export const PDFExportService: React.FC = () => {
           '🏆 Série de 7 jours consécutifs',
           '⭐ 100 items révisés',
           '🎯 10 quiz parfaits',
-          '🔥 Streak de 30 jours'
+          '🔥 Série de 30 jours'
         ];
 
         achievements.forEach(achievement => {

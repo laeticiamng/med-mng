@@ -236,7 +236,7 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
           <Label>Inclure dans le rapport</Label>
           {[
             { key: 'includeStats', label: 'Statistiques générales' },
-            { key: 'includeStreak', label: 'Streak et progression' },
+            { key: 'includeStreak', label: 'Série et progression' },
             { key: 'includeBadges', label: 'Badges débloqués' },
             { key: 'includeActivityLog', label: 'Historique d\'activité' },
           ].map(({ key, label }) => (

@@ -82,7 +82,7 @@ export const SmartReminders: React.FC = () => {
         {
           id: '2',
           type: 'streak',
-          title: 'Maintenir le streak',
+          title: 'Maintenir la série',
           description: 'N\'oubliez pas votre session quotidienne',
           time: '18:00',
           days: [0, 1, 2, 3, 4, 5, 6],
@@ -248,7 +248,7 @@ export const SmartReminders: React.FC = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.streakDays}</p>
-                <p className="text-xs text-muted-foreground">Jours de streak</p>
+                <p className="text-xs text-muted-foreground">Jours de suite</p>
               </div>
             </div>
           </CardContent>
@@ -320,7 +320,7 @@ export const SmartReminders: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="srs">Révision SRS</SelectItem>
-                    <SelectItem value="streak">Streak</SelectItem>
+                    <SelectItem value="streak">Série</SelectItem>
                     <SelectItem value="goal">Objectif</SelectItem>
                     <SelectItem value="custom">Personnalisé</SelectItem>
                   </SelectContent>

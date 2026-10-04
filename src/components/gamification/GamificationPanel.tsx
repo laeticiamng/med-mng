@@ -225,7 +225,7 @@ export const GamificationPanel: React.FC = () => {
     {
       id: '3',
       title: 'Régularité',
-      description: `Maintenez votre streak de ${stats?.currentStreak || 0} jour(s)`,
+      description: `Maintenez votre série de ${stats?.currentStreak || 0} jour(s) de suite`,
       reward: '+300 XP',
       progress: stats?.currentStreak || 0,
       maxProgress: (stats?.currentStreak || 0) + 1,
@@ -292,7 +292,7 @@ export const GamificationPanel: React.FC = () => {
             <div className="text-right">
               <p className="text-sm text-muted-foreground">XP Total</p>
               <p className="text-xl font-bold text-foreground">{userLevel.xp.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Streak: {stats?.currentStreak || 0} jours 🔥</p>
+              <p className="text-xs text-muted-foreground">Série : {stats?.currentStreak || 0} jour(s) de suite 🔥</p>
             </div>
           </div>
           

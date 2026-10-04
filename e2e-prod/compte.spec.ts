@@ -106,6 +106,24 @@ test.describe('Compte gratuit', () => {
     await expect(page.locator('main')).not.toContainText(/sélecteur de langue/i);
   });
 
+  test('D42 (contre-vérification) : aucun « streak » ni type d’activité brut sur le profil, la progression et « Mes succès » @attend-deploiement', async ({ page }) => {
+    // Contre-vérification de la vague 3 : « Record streak » (profil), « Streak » (progression),
+    // « Jours de Streak » (Mes succès) et la répartition « srs_review: 0, ai_question: 0… » restaient.
+    await page.goto('/med-mng/profile');
+    await expect(page.locator('main')).toContainText('Meilleure série');
+    await expect(page.locator('main')).not.toContainText(/streak/i);
+    await page.goto('/med-mng/progress');
+    await expect(page.locator('main')).toContainText('Ma progression');
+    await expect(page.locator('main')).not.toContainText(/streak/i);
+    await page.goto('/achievements');
+    await expect(page.locator('main')).toContainText('Jours de suite');
+    await expect(page.locator('main')).not.toContainText(/streak/i);
+    await page.goto('/progress-dashboard');
+    await expect(page.locator('main')).toContainText('Ma progression');
+    await page.waitForTimeout(3000);
+    await expect(page.locator('main')).not.toContainText(/streak|srs_review|ai_question|clinical_case|music_generation|\breview:/i);
+  });
+
   test('DC7 : plus de tuteur IA flottant pour un compte connecté @attend-deploiement', async ({ page }) => {
     await page.goto('/edn-complete');
     await expect(page.locator('main')).toContainText('367 items');

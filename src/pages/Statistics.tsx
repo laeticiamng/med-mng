@@ -165,7 +165,7 @@ const Statistics = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Streak Actuel</CardTitle>
+              <CardTitle className="text-sm font-medium">Série actuelle</CardTitle>
               <Flame className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
@@ -345,7 +345,7 @@ const Statistics = () => {
               </div>
               
               <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold text-primary mb-2">🔥 Streak</h3>
+                <h3 className="font-semibold text-primary mb-2">🔥 Série</h3>
                 <p className="text-sm text-muted-foreground">
                   Vous avez une série de {streakData.current} jours consécutifs.
                   {streakData.current >= streakData.longest && streakData.current > 0 
