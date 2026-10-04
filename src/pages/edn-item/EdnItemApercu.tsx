@@ -81,7 +81,7 @@ export default function EdnItemApercu() {
                   {item.pitch_intro && !/^Excellence avec|fusionnées/i.test(item.pitch_intro)
                     ? item.pitch_intro
                     : sansRangB
-                      ? `${competencesRangA.length} compétences officielles de rang A (pas de rang B pour cet item), issues du référentiel national LiSA 2026 (UNESS).`
+                      ? `${competencesRangA.length} ${competencesRangA.length > 1 ? 'compétences officielles' : 'compétence officielle'} de rang A (pas de rang B pour cet item), issues du référentiel national LiSA 2026 (UNESS).`
                       : `${competencesRangA.length + competencesRangB.length} compétences officielles (rang A : ${competencesRangA.length} · rang B : ${competencesRangB.length}), issues du référentiel national LiSA 2026 (UNESS).`}
                 </p>
               </div>
@@ -111,7 +111,7 @@ export default function EdnItemApercu() {
               <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                 <h4 className="font-semibold mb-3 text-primary flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
-                  Rang A - {competencesRangA.length} compétences
+                  Rang A - {competencesRangA.length} {competencesRangA.length > 1 ? 'compétences' : 'compétence'}
                 </h4>
                 {competencesRangA.length > 0 ? (
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
@@ -143,7 +143,7 @@ export default function EdnItemApercu() {
               <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
                 <h4 className="font-semibold mb-3 text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
                   <Brain className="h-4 w-4" />
-                  {sansRangB ? 'Rang B' : `Rang B - ${competencesRangB.length} compétences`}
+                  {sansRangB ? 'Rang B' : `Rang B - ${competencesRangB.length} ${competencesRangB.length > 1 ? 'compétences' : 'compétence'}`}
                 </h4>
                 {competencesRangB.length > 0 ? (
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
