@@ -22,8 +22,8 @@ interface ProfileSettingsProps {
  *
  * Ne restent que des actions réelles : l'export et la suppression du compte
  * (page « Mes données », export JSON et suppression confirmée), et l'indication
- * des réglages qui existent vraiment (thème et langue, en en-tête et en bas
- * d'écran).
+ * du seul réglage d'affichage qui existe vraiment (le thème, en en-tête).
+ * Le sélecteur de langue a été retiré (D42) : Med MNG est en français.
  */
 export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   return (
@@ -36,7 +36,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           </CardTitle>
           <CardDescription>
             Le thème clair ou sombre se change avec le bouton « Changer de thème » en haut de page.
-            Le sélecteur de langue est en bas à gauche de l'écran ; le contenu pédagogique est en français.
+            Med MNG est entièrement en français.
           </CardDescription>
         </CardHeader>
       </Card>

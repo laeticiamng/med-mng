@@ -137,3 +137,48 @@ test.describe('Pages retirées à la contre-vérification de la vague 2', () => 
     }
   });
 });
+
+/**
+ * Vague 3 (04.10.2026) : français uniquement (D42).
+ */
+test.describe('Vague 3 — français uniquement', () => {
+  /** Libellés que produisait l'ancien sélecteur réglé sur « English » (relevés en production le 04.10). */
+  const LIBELLES_ANGLAIS = ['Home', 'Pricing', 'Login', 'Sign up', 'English', 'Learn medicine', 'Create a free account', 'Discover', 'Why it works', 'Close'];
+
+  test('D42 : aucun sélecteur de langue ; navigateur anglais et ancien choix « English » → tout en français @attend-deploiement', async ({ browser }) => {
+    const ctx = await browser.newContext({ locale: 'en-US' });
+    // Simule une personne qui avait choisi « English » avec l'ancien drapeau (choix gardé dans le navigateur).
+    await ctx.addInitScript(() => {
+      try {
+        localStorage.setItem('medmng-language', 'en');
+      } catch {
+        // stockage indisponible
+      }
+    });
+    const page = await ctx.newPage();
+    const erreurs = surveillerErreurs(page);
+    const pages: Array<[string, string | RegExp]> = [
+      ['/', 'Créer un compte gratuit'],
+      ['/edn-complete', '367 items'],
+      ['/edn-complete/ic-1/apercu', 'Compétences du référentiel'],
+      ['/ecos/1', 'Je fais'],
+      ['/med-mng/pricing', '69 €/an'],
+    ];
+    for (const [chemin, attendu] of pages) {
+      await page.goto(chemin);
+      const t = await texte(page, attendu, 'body');
+      await expect(page.getByRole('button', { name: /Changer de langue/i }), chemin).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.lang), chemin).toBe('fr');
+      const lignes = (await page.locator('body').innerText()).split('\n').map((l) => l.trim());
+      expect(lignes.filter((l) => LIBELLES_ANGLAIS.includes(l)), `libellés anglais sur ${chemin}`).toEqual([]);
+      expect(t, chemin).not.toContain('🇺🇸');
+    }
+    await page.goto('/');
+    await expect(page.locator('#main-navigation')).toContainText('Accueil');
+    await expect(page.locator('#main-navigation')).toContainText('Tarifs');
+    // L'ancien choix est effacé du navigateur.
+    expect(await page.evaluate(() => localStorage.getItem('medmng-language'))).toBeNull();
+    expect(erreurs).toEqual([]);
+    await ctx.close();
+  });
+});

@@ -339,7 +339,7 @@ export const SongCard: React.FC<SongCardProps> = ({
             >
               <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
               <span className="hidden sm:inline">Écouter</span>
-              <span className="sm:hidden">Play</span>
+              <span className="sm:hidden">Lire</span>
             </Button>
           </div>
         </div>

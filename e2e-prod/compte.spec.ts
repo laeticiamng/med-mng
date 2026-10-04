@@ -96,6 +96,16 @@ test.describe('Compte gratuit', () => {
     expect(erreurs).toEqual([]);
   });
 
+  test('D42 : profil en français, sans sélecteur de langue ni mention de celui-ci @attend-deploiement', async ({ page }) => {
+    // Vague 3 : le sélecteur de langue (drapeau flottant) est retiré ; Profil › Paramètres l'indiquait.
+    await page.goto('/med-mng/profile');
+    await expect(page.locator('main')).toContainText('Gratuit');
+    await expect(page.getByRole('button', { name: /Changer de langue/i })).toHaveCount(0);
+    await page.getByRole('tab', { name: 'Paramètres' }).click();
+    await expect(page.locator('main')).toContainText('Med MNG est entièrement en français.');
+    await expect(page.locator('main')).not.toContainText(/sélecteur de langue/i);
+  });
+
   test('DC7 : plus de tuteur IA flottant pour un compte connecté @attend-deploiement', async ({ page }) => {
     await page.goto('/edn-complete');
     await expect(page.locator('main')).toContainText('367 items');

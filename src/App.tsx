@@ -7,7 +7,6 @@ import { PageLoader } from "@/components/common/PageLoader";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
 import { GlobalErrorBoundary } from '@/components/error/GlobalErrorBoundary';
 import { MainNavigation } from '@/components/layout/MainNavigation';
-import { LanguageSelector } from '@/components/global/LanguageSelector';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
@@ -244,7 +243,9 @@ const App = () => {
                               <GlobalJsonLd />
                               <div id="app-root" className="min-h-screen bg-background">
                                 <MainNavigation />
-                                <LanguageSelector />
+                                {/* Sélecteur de langue retiré (D42, 04.10.2026) : le produit est en français ;
+                                    le drapeau flottant ne traduisait que quelques libellés de navigation
+                                    (dictionnaire statique) et masquait le bord du contenu sur mobile. */}
                                 <main id="main-content" tabIndex={-1}>
                                   <Routes>
                                     {/* Platform */}

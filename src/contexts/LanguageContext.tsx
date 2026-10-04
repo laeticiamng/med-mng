@@ -40,62 +40,48 @@ interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
+/** Clé où l'ancien sélecteur de langue enregistrait le choix (effacée au démarrage). */
+export const CLE_LANGUE_ENREGISTREE = 'medmng-language';
+
+/**
+ * Med MNG est en français uniquement (D42, 04.10.2026). Le sélecteur de langue
+ * (drapeau flottant) ne traduisait que quelques libellés de navigation via un
+ * dictionnaire statique ; le contenu restait en français. Il est retiré, et un
+ * ancien choix (« English »…) enregistré dans le navigateur est effacé : sinon,
+ * sans sélecteur, ces personnes resteraient bloquées sur des libellés anglais.
+ */
 export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProviderProps>(function LanguageProvider({ children }, ref) {
-  const [currentLanguage, setCurrentLanguageState] = useState<Language>(() => {
-    // Récupérer la langue depuis localStorage ou utiliser français par défaut
-    const savedLanguage = localStorage.getItem('medmng-language');
-    return (savedLanguage as Language) || 'fr';
-  });
+  const currentLanguage = 'fr' as Language;
+
+  useEffect(() => {
+    try {
+      localStorage.removeItem(CLE_LANGUE_ENREGISTREE);
+    } catch {
+      // stockage indisponible (navigation privée) : rien à effacer
+    }
+  }, []);
 
   const [translations, setTranslations] = useState<Record<string, any>>({});
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // Importer les traductions statiquement pour éviter les problèmes Vite
-  // Charger les traductions pour la langue courante
+  // Libellés français (seule langue de l'interface).
   useEffect(() => {
-    const loadTranslations = async () => {
-      try {
-        // Utiliser des imports statiques conditionnels
-        let translationModule: any;
-        switch (currentLanguage) {
-          case 'en':
-            translationModule = await import('../locales/en/common.json');
-            break;
-          case 'de':
-            translationModule = await import('../locales/de/common.json');
-            break;
-          case 'es':
-            translationModule = await import('../locales/es/common.json');
-            break;
-          case 'fr':
-          default:
-            translationModule = await import('../locales/fr/common.json');
-            break;
-        }
-        setTranslations(translationModule.default || translationModule);
-      } catch (error) {
-        console.warn(`Erreur lors du chargement des traductions pour ${currentLanguage}:`, error);
-        // Fallback vers le français
-        try {
-          const fallbackModule = await import('../locales/fr/common.json');
-          setTranslations(fallbackModule.default || fallbackModule);
-        } catch (fallbackError) {
-          console.error('Erreur lors du chargement des traductions de fallback:', fallbackError);
-          setTranslations({});
-        }
-      }
+    let actif = true;
+    import('../locales/fr/common.json')
+      .then((module) => {
+        if (actif) setTranslations((module as { default?: Record<string, any> }).default ?? (module as Record<string, any>));
+      })
+      .catch((error) => {
+        console.error('Erreur lors du chargement des libellés :', error);
+        if (actif) setTranslations({});
+      });
+    return () => {
+      actif = false;
     };
+  }, []);
 
-    loadTranslations();
-  }, [currentLanguage]);
-
-  const setCurrentLanguage = (language: Language) => {
-    setCurrentLanguageState(language);
-    localStorage.setItem('medmng-language', language);
-    
-    // Émettre un événement pour notifier les autres composants
-    window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
-  };
+  // Français uniquement : conservé pour la compatibilité des appelants, sans effet.
+  const setCurrentLanguage = (_language: Language) => {};
 
   // Fonction de traduction avec support des paramètres
   const t = (key: string, params?: Record<string, string | number>): string => {
@@ -154,7 +140,7 @@ export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProvide
         t,
         translate,
         isTranslating,
-        languages: LANGUAGES,
+        languages: LANGUAGES.filter((l) => l.code === 'fr'),
       }}
     >
       {children}

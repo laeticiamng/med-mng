@@ -497,20 +497,6 @@ export const UserProfileManager = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Langue</Label>
-                  <Select value={preferences.language} onValueChange={(value) => handlePreferenceUpdate('language', '', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fr">Français</SelectItem>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="es">Español</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
                   <Label>Qualité audio</Label>
                   <Select value={preferences.music_quality} onValueChange={(value) => handlePreferenceUpdate('music_quality', '', value)}>
                     <SelectTrigger>

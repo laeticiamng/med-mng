@@ -634,33 +634,20 @@ interface InternationalizationProviderProps {
 }
 
 export const InternationalizationProvider = React.forwardRef<HTMLDivElement, InternationalizationProviderProps>(function InternationalizationProvider({ children }, ref) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Détecter la langue du navigateur
-    const browserLanguage = navigator.language.split('-')[0] as Language;
-    const savedLanguage = localStorage.getItem('med-mng-language') as Language;
-    
-    // Vérifier si la langue est supportée
-    const supportedLanguages = ['fr', 'en', 'es', 'de', 'it'];
-    
-    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
-      return savedLanguage;
-    }
-    
-    if (supportedLanguages.includes(browserLanguage)) {
-      return browserLanguage;
-    }
-    
-    return 'fr'; // Langue par défaut
-  });
+  // Français uniquement (D42, 04.10.2026) : la langue du navigateur ou un ancien
+  // choix enregistré ne changent plus ni les libellés ni l'attribut lang du document.
+  const language = 'fr' as Language;
 
-  const setLanguage = (newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    localStorage.setItem('med-mng-language', newLanguage);
-    document.documentElement.lang = newLanguage;
-    
-    // Mettre à jour la direction du texte si nécessaire
-    document.documentElement.dir = 'ltr'; // Toutes nos langues sont LTR pour l'instant
-  };
+  useEffect(() => {
+    try {
+      localStorage.removeItem('med-mng-language');
+    } catch {
+      // stockage indisponible : rien à effacer
+    }
+  }, []);
+
+  // Conservé pour la compatibilité des appelants, sans effet.
+  const setLanguage = (_newLanguage: Language) => {};
 
   // Fonction de traduction avec support des clés imbriquées
   const t = (key: string): string => {
@@ -701,13 +688,9 @@ export const InternationalizationProvider = React.forwardRef<HTMLDivElement, Int
     }).format(date);
   };
 
-  // Liste des langues supportées
+  // Langue proposée : le français uniquement (D42).
   const languages = [
-    { code: 'fr' as Language, name: 'French', nativeName: 'Français' },
-    { code: 'en' as Language, name: 'English', nativeName: 'English' },
-    { code: 'es' as Language, name: 'Spanish', nativeName: 'Español' },
-    { code: 'de' as Language, name: 'German', nativeName: 'Deutsch' },
-    { code: 'it' as Language, name: 'Italian', nativeName: 'Italiano' },
+    { code: 'fr' as Language, name: 'Français', nativeName: 'Français' },
   ];
 
   // Mettre à jour la langue du document au montage
