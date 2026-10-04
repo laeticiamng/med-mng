@@ -16,7 +16,10 @@
  *     que mm-suno-callback (_shared/mm-suno-enregistrement.ts) — rattrapage
  *     d'un callback perdu ;
  *  3. au-delà de 15 minutes sans nouvelle, marque la génération échouée
- *     (non décomptée) pour ne pas laisser l'utilisateur attendre.
+ *     (non décomptée) pour ne pas laisser l'utilisateur attendre ;
+ *  4. génération terminée dont l'audio est encore sur un fichier Suno
+ *     temporaire (14 jours) : copie dans le compartiment mm-chansons
+ *     (conserverAudiosTemporaires), sans appel à Suno ni crédit.
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
@@ -25,6 +28,7 @@ import { corsHeaders } from '../_shared/cors.ts';
 import { getAuthenticatedUser } from '../_shared/music-database.ts';
 import { interpreterRecordInfoSuno, MESSAGE_INDISPONIBLE } from '../_shared/mm-suno-requete.ts';
 import {
+  conserverAudiosTemporaires,
   enregistrerPistesSuno,
   marquerGenerationEchouee,
   trouverPistePrincipale,
@@ -122,6 +126,15 @@ serve(async (req) => {
     }
 
     if (ligne.generation_status !== 'generating') {
+      // Génération terminée dont l'audio est resté sur un fichier Suno temporaire (14 jours) :
+      // copie dans mm-chansons tant que le fichier est lisible (vague 3, D40).
+      if (ligne.generation_status === 'completed') {
+        const conserves = await conserverAudiosTemporaires(supabase, taskId);
+        if (conserves > 0) {
+          const actualisee = await trouverPistePrincipale(supabase, taskId);
+          if (actualisee) return reponseJson(reponseDepuisLigne(actualisee));
+        }
+      }
       return reponseJson(reponseDepuisLigne(ligne));
     }
 

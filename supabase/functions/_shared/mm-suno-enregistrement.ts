@@ -101,6 +101,92 @@ export async function copierAudioDansStockage(
   }
 }
 
+/**
+ * Hôtes des fichiers audio renvoyés par sunoapi.org (conservés 14 jours), relevés dans
+ * generated_music_tracks le 04.10.2026. Liste fermée : on ne télécharge jamais une adresse quelconque.
+ */
+const HOTES_AUDIO_SUNO = /^(tempfile\.aiquickdraw\.com|musicfile\.api\.box|apiboxfiles\.erweima\.ai|musicfile\.removeai\.ai|cdn\d*\.suno\.ai)$/i;
+
+/** Vrai pour une URL de fichier Suno temporaire (à copier dans `mm-chansons`). */
+export const estAudioSunoTemporaire = (url: string | null | undefined): boolean => {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' && HOTES_AUDIO_SUNO.test(u.hostname);
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Rattrapage de conservation d'une génération TERMINÉE dont l'audio est resté sur un
+ * fichier Suno temporaire (copie échouée au callback, ou génération antérieure au
+ * compartiment `mm-chansons`) : copie chaque fichier encore lisible, puis remplace
+ * l'URL dans les pistes de la génération, la bibliothèque (med_mng_songs) et
+ * l'historique (user_generated_music) du propriétaire. Idempotent. Renvoie le
+ * nombre de fichiers conservés (un fichier déjà expiré chez Suno ne peut plus l'être).
+ *
+ * CONSTAT (vague 3, 04.10.2026) : 3 lignes du 04.10 (compte de test Premium,
+ * IC-150) étaient encore sur tempfile.aiquickdraw.com ; mm-music-status ne
+ * traitait que les générations « en cours », donc rien ne les aurait copiées
+ * avant leur expiration (~18.10).
+ */
+export async function conserverAudiosTemporaires(
+  supabase: ClientSupabase,
+  taskId: string,
+  telecharger: typeof fetch = fetch,
+): Promise<number> {
+  const { data: lignes, error } = await supabase
+    .from('generated_music_tracks')
+    .select('id, task_id, suno_track_id, user_id, audio_url, metadata, created_at')
+    .eq('task_id', taskId)
+    .order('created_at', { ascending: true });
+  if (error || !Array.isArray(lignes) || lignes.length === 0) return 0;
+  const principale = lignes[0] as { user_id: string | null; metadata: unknown };
+  const userId = principale.user_id;
+  const temporaires = [...new Set(
+    lignes.map((l: { audio_url: string | null }) => l.audio_url).filter((u: string | null) => estAudioSunoTemporaire(u)),
+  )] as string[];
+  let conserves = 0;
+  for (const ancienne of temporaires) {
+    // Identifiant de piste Suno porté par ce fichier (même nom de fichier que le callback).
+    const porteuse = lignes.find(
+      (l: { audio_url: string | null; suno_track_id: string | null; task_id: string }) =>
+        l.audio_url === ancienne && l.suno_track_id && l.suno_track_id !== l.task_id,
+    ) as { suno_track_id: string } | undefined;
+    const meta = metadonnees(principale.metadata);
+    const pisteId = porteuse?.suno_track_id ?? (typeof meta.suno_track_id === 'string' ? meta.suno_track_id : taskId);
+    const stable = await copierAudioDansStockage(supabase, userId, pisteId, ancienne, telecharger);
+    if (!stable) continue;
+    conserves++;
+    const maintenant = new Date().toISOString();
+    const { error: errPistes } = await supabase
+      .from('generated_music_tracks')
+      .update({ audio_url: stable, updated_at: maintenant })
+      .eq('task_id', taskId)
+      .eq('audio_url', ancienne);
+    if (errPistes) console.error('❌ Conservation : pistes non mises à jour :', errPistes.message);
+
+    if (userId) {
+      const { data: chansons } = await supabase
+        .from('med_mng_songs')
+        .select('id, meta')
+        .eq('user_id', userId)
+        .eq('meta->>audio_url', ancienne);
+      for (const chanson of (Array.isArray(chansons) ? chansons : []) as Array<{ id: string; meta: unknown }>) {
+        await supabase.from('med_mng_songs').update({ meta: { ...metadonnees(chanson.meta), audio_url: stable } }).eq('id', chanson.id);
+      }
+      await supabase
+        .from('user_generated_music')
+        .update({ audio_url: stable })
+        .eq('user_id', userId)
+        .eq('audio_url', ancienne);
+    }
+    console.log(`💾 Conservation : ${taskId} — fichier temporaire remplacé par ${stable}`);
+  }
+  return conserves;
+}
+
 /** Statut d'une génération dans le registre du quota (sans effet si la table n'existe pas encore). */
 export async function majRegistreGeneration(
   supabase: ClientSupabase,

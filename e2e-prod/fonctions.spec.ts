@@ -124,4 +124,25 @@ test.describe('Fonctions Edge — contrôle d’accès', () => {
     // Sans en-tête : toujours 401.
     expect((await appelerFonction(request, 'whisper-transcribe', CORPS_INVALIDE, null)).status).toBe(401);
   });
+
+  test('Premium (D40) : chansons sur fichier Suno temporaire copiées dans mm-chansons par mm-music-status @attend-deploiement', async ({ request }) => {
+    // Vague 3. Suno ne conserve les fichiers que 14 jours : seules les générations plus récentes
+    // peuvent encore être copiées. Usage normal (mm-music-status du propriétaire, aucun crédit Suno).
+    test.skip(!dispo(PREMIUM), 'E2E_PREMIUM_* absents');
+    const { token, userId } = await jeton(request, PREMIUM);
+    const HOTES_TEMPORAIRES = /^https:\/\/(tempfile\.aiquickdraw\.com|musicfile\.api\.box|apiboxfiles\.erweima\.ai|musicfile\.removeai\.ai|cdn\d*\.suno\.ai)\//;
+    const depuis = new Date(Date.now() - 13 * 24 * 3600 * 1000).toISOString();
+    const lister = async () => {
+      const r = await rest(request, `generated_music_tracks?select=task_id,audio_url,created_at&user_id=eq.${userId}&created_at=gte.${depuis}`, { token });
+      expect(r.status, 'lecture de ses générations').toBe(200);
+      return (r.json as Array<{ task_id: string; audio_url: string | null }>).filter((l) => HOTES_TEMPORAIRES.test(l.audio_url ?? ''));
+    };
+    const avant = await lister();
+    for (const taskId of [...new Set(avant.map((l) => l.task_id))]) {
+      const r = await appelerFonction(request, 'mm-music-status', { taskId }, token);
+      expect(r.status, `mm-music-status ${taskId}`).toBe(200);
+      expect(String(r.json?.audioUrl ?? ''), `audioUrl ${taskId}`).toContain(`/storage/v1/object/public/mm-chansons/${userId}/`);
+    }
+    expect(await lister(), 'générations récentes encore sur un fichier temporaire').toEqual([]);
+  });
 });
