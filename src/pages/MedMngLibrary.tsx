@@ -474,16 +474,22 @@ const MedMngLibraryComponent = () => {
               size="sm"
               onClick={() => setViewMode('grid')}
               className="rounded-none h-10 px-3"
+              aria-label="Affichage en grille"
+              aria-pressed={viewMode === 'grid'}
+              title="Affichage en grille"
             >
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               variant={viewMode === 'compact' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('compact')}
               className="rounded-none h-10 px-3"
+              aria-label="Affichage en liste"
+              aria-pressed={viewMode === 'compact'}
+              title="Affichage en liste"
             >
-              <List className="h-4 w-4" />
+              <List className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>

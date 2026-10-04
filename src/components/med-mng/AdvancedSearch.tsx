@@ -213,8 +213,10 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
               variant={hasActiveFilters ? "default" : "outline"}
               size="icon"
               className="relative"
+              aria-label={hasActiveFilters ? 'Filtres (actifs)' : 'Filtres'}
+              title="Filtres"
             >
-              <Filter className="h-4 w-4" />
+              <Filter className="h-4 w-4" aria-hidden="true" />
               {hasActiveFilters && (
                 <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full" />
               )}

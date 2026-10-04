@@ -219,8 +219,9 @@ export const SongCard: React.FC<SongCardProps> = ({
               onClick={handlePlay}
               size="lg"
               className="rounded-full bg-card text-primary hover:bg-card/90 shadow-lg min-h-[48px] min-w-[48px]"
+              aria-label={`Écouter « ${song.title} »`}
             >
-              <Play className="h-5 w-5 sm:h-6 sm:w-6 ml-1" />
+              <Play className="h-5 w-5 sm:h-6 sm:w-6 ml-1" aria-hidden="true" />
             </Button>
           </div>
 
@@ -228,12 +229,15 @@ export const SongCard: React.FC<SongCardProps> = ({
           <div className="absolute top-2 right-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
+                {/* Toujours visible sur écran tactile (aucun survol possible) ; au survol
+                    sur ordinateur. Il était invisible sur mobile. */}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-primary-foreground hover:bg-primary-foreground/20 opacity-0 group-hover:opacity-100 md:transition-opacity min-h-[44px] min-w-[44px]"
+                  className="text-primary-foreground hover:bg-primary-foreground/20 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 md:transition-opacity min-h-[44px] min-w-[44px]"
+                  aria-label={`Actions pour « ${song.title} »`}
                 >
-                  <MoreVertical className="h-4 w-4" />
+                  <MoreVertical className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -317,6 +321,8 @@ export const SongCard: React.FC<SongCardProps> = ({
               size="sm"
               onClick={handleToggleLike}
               disabled={isLikeLoading}
+              aria-label={song.is_liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              aria-pressed={Boolean(song.is_liked)}
               className={`${song.is_liked ? 'text-destructive' : 'text-muted-foreground'} hover:text-destructive transition-colors min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px]`}
             >
               {isLikeLoading ? (
