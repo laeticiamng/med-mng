@@ -1,19 +1,29 @@
-# 🏥 MED-MNG - Plateforme d'Apprentissage Médical
+# Med MNG — réviser les 367 items EDN en musique
 
-**Version 9.6.3 | Dernière mise à jour : 4 Février 2026 | Statut : MVP en consolidation**
+**État au 4 octobre 2026 · production : https://medmng.com (Lovable) · éditeur : EmotionsCare SASU**
 
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.3-61DAFB)](https://react.dev/)
-[![Supabase](https://img.shields.io/badge/Supabase-Cloud-3ECF8E)](https://supabase.com/)
-[![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://web.dev/progressive-web-apps/)
-[![Accessibility](https://img.shields.io/badge/a11y-WCAG_2.1-blue)](https://www.w3.org/WAI/standards-guidelines/wcag/)
+> Cette première section décrit l'état réel du produit. Le reste du document (sections suivantes) date de février 2026 et décrit aussi des modules hérités qui ne font pas partie de l'offre : en cas de doute, cette section fait foi.
 
-> **🎵 "Une chanson = Un item médical maîtrisé"**
->
-> MED-MNG est un outil pédagogique expérimental qui explore l'apprentissage médical par la musique générée par IA. Conçue pour les étudiants en médecine.
+## État actuel (octobre 2026)
 
-> ⚠️ **IMPORTANT** : Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour les limites, risques et transparence sur les métriques.
+**Cible** : étudiants DFASM1–DFASM2 (EDN 2028 et 2029).
+
+| Offre | Contenu |
+|---|---|
+| Gratuit | Fiches officielles des 367 items (compétences rang A et rang B, référentiel LiSA 2026, table `oic_competences`) ; contenu immersif (paroles, récit, planches, quiz) de 10 items d'essai (`ITEMS_GRATUITS`, `src/config/offre.ts`, et fonction SQL `mm_item_gratuit`) ; 12 situations ECOS d'entraînement rédigées pour Med MNG |
+| Premium — 69 €/an ou 9,90 €/mois | Contenu immersif des 367 items ; 30 générations audio par mois (Suno) ; bibliothèque personnelle |
+
+**Parcours techniques principaux**
+- Contenu immersif : RPC `mm_contenu_immersif_item` (verrou Premium côté serveur).
+- Génération audio : `mm-generate-music` (abonnement, quota mensuel, registre `mm_generations_audio`) → `mm-suno-callback` → `mm-music-status` (rattrapage). Les fichiers sont copiés dans le compartiment `mm-chansons` (Suno ne les garde que 14 jours).
+- Paiement : `mm-create-checkout`, `mm-stripe-webhook` → `user_subscriptions`, `mm-customer-portal`.
+- Base Supabase **partagée avec EmotionsCare** (projet `yaincoxihiqdksxgrsrk`) : ne pas modifier les tables, politiques ou fonctions communes sans vérifier l'impact sur EmotionsCare.
+
+**Sécurité des fonctions Edge** : elles sont déployées avec `verify_jwt = false`, et la clé publique (anon) est elle-même un JWT valide. Toute fonction qui dépense des crédits payants (Suno, OpenAI, passerelle IA, Perplexity, Firecrawl, ElevenLabs) doit donc contrôler l'appelant dans son code avec `supabase/functions/_shared/mm-garde.ts` (`exigerConnexion`, `exigerPremium`, `exigerAdministrateur`). Côté front, un appel direct (`fetch`) doit envoyer le jeton de session (`src/lib/enTetesFonction.ts`), pas la clé publique.
+
+**Vérifications** : `npx tsc --noEmit -p tsconfig.app.json`, `npm test` (les tests d'intégration réseau de `test/**` échouent hors ligne : 68 échecs connus, identiques à `origin/main` au 04.10.2026), `npx vite build`, et `deno check supabase/functions/<fonction>/index.ts`.
+
+**Suivi** : l'audit de finalisation, les défauts ouverts et les décisions en attente sont tenus hors dépôt (FINALISATION.md de la session d'audit).
 
 ---
 
@@ -73,7 +83,7 @@ Ce README décrit le socle technique, mais l'interface expose volontairement un 
 ### 🔎 Inventaire technique (indicatif)
 
 - 80+ pages React (toutes ne sont pas exposées en MVP)
-- 130+ edge functions (seules les routes critiques sont activées pour le lancement)
+- ~108 fonctions Edge dans `supabase/functions/` (beaucoup héritées ; les fonctions payantes sont protégées par `_shared/mm-garde.ts`)
 - 5 routeurs unifiés côté backend (audio, core, content, system, webhooks)
 
 ---
@@ -244,7 +254,7 @@ pnpm dev
 | **UI Components** | shadcn/ui, Radix UI |
 | **Animations** | Framer Motion 12 |
 | **State** | TanStack Query 5, Zustand 5 |
-| **Backend** | Supabase (PostgreSQL + Auth + 130+ Edge Functions) |
+| **Backend** | Supabase (PostgreSQL + Auth + ~108 fonctions Edge, base partagée avec EmotionsCare) |
 | **Music AI** | Suno API V4.5 |
 | **Chat AI** | OpenAI GPT-4o, Perplexity |
 | **Voice** | ElevenLabs TTS, Whisper STT |
@@ -313,7 +323,7 @@ med-mng/
 │       └── ...
 │
 ├── 📁 supabase/
-│   ├── 📁 functions/                # 130+ Edge Functions
+│   ├── 📁 functions/                # ~108 fonctions Edge
 │   │   ├── ai-audio/                # Routeur audio
 │   │   ├── ai-core/                 # Routeur OpenAI
 │   │   ├── ai-content/              # Routeur contenu
