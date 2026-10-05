@@ -1,6 +1,15 @@
 /**
  * 🧪 SYSTEM Edge Function Tests
- * Tests unitaires pour le routeur système (quotas, analytics, monitoring)
+ *
+ * Vague sécurité F66-MM (05.10.2026) : le routeur « system » (quotas, statistiques, alertes,
+ * journal d'erreurs, analyses de sécurité) s'exécutait avec la clé de service et acceptait la
+ * seule clé publique ; aucun appelant. Il est retiré : toute requête reçoit 410 RETIREE.
+ *
+ * Les anciens tests vérifiaient le comportement retiré en envoyant du JSON VALIDE à la
+ * production avec la clé publique (« analytics_track accepte un événement » ÉCRIVAIT en base).
+ * Ils sont remplacés par le contrat de la fonction retirée, sondé avec un corps INVALIDE
+ * (« { », octets bruts) : l'ancienne version échoue à la lecture du corps sans rien écrire,
+ * la nouvelle répond 410 avant de le lire.
  */
 
 import { assertEquals, assertExists } from "https://deno.land/std@0.224.0/assert/mod.ts";
@@ -10,54 +19,11 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "eyJhbGciOiJIUzI1
 
 const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/system`;
 
-async function invokeFunction(action: string, payload?: any) {
-  const response = await fetch(FUNCTION_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-    },
-    body: JSON.stringify({ action, payload }),
-  });
-  return response;
+async function sonder(corps: string, auth: boolean) {
+  const headers: Record<string, string> = { "Content-Type": "text/plain" };
+  if (auth) headers["Authorization"] = `Bearer ${SUPABASE_ANON_KEY}`;
+  return await fetch(FUNCTION_URL, { method: "POST", headers, body: corps });
 }
-
-// ============================================================================
-// TEST: Actions invalides
-// ============================================================================
-
-Deno.test("system: retourne erreur pour action invalide", async () => {
-  const response = await invokeFunction("invalid_action");
-  const data = await response.json();
-  
-  assertEquals(response.status, 400);
-  assertExists(data.error);
-  assertExists(data.available_actions);
-});
-
-// ============================================================================
-// TEST: health check
-// ============================================================================
-
-Deno.test("system: health check fonctionne", async () => {
-  const response = await invokeFunction("health");
-  const data = await response.json();
-  
-  assertEquals(response.status, 200);
-  assertExists(data.success);
-});
-
-// ============================================================================
-// TEST: perf_check
-// ============================================================================
-
-Deno.test("system: perf_check retourne des données", async () => {
-  const response = await invokeFunction("perf_check");
-  const data = await response.json();
-  
-  assertEquals(response.status, 200);
-  assertExists(data.success);
-});
 
 // ============================================================================
 // TEST: CORS headers
@@ -66,61 +32,26 @@ Deno.test("system: perf_check retourne des données", async () => {
 Deno.test("system: OPTIONS retourne CORS headers", async () => {
   const response = await fetch(FUNCTION_URL, { method: "OPTIONS" });
   await response.text(); // Consume body to prevent leak
-  
+
   assertEquals(response.status, 200);
   assertExists(response.headers.get("access-control-allow-origin"));
 });
 
 // ============================================================================
-// TEST: quota_get (requiert auth)
+// TEST: fonction retirée (F66-MM)
 // ============================================================================
 
-Deno.test("system: quota_get requiert authentification", async () => {
-  const response = await invokeFunction("quota_get");
+Deno.test("system: retirée — 410 RETIREE avec la clé publique, corps non lu", async () => {
+  const response = await sonder("{", true);
   const data = await response.json();
-  
-  // Sans auth, retourne 401
-  assertEquals(response.status, 401);
-  assertExists(data.error);
+
+  assertEquals(response.status, 410);
+  assertEquals(data.code, "RETIREE");
 });
 
-// ============================================================================
-// TEST: analytics_track
-// ============================================================================
+Deno.test("system: retirée — sans en-tête, jamais de succès (410, ou 401 de la passerelle)", async () => {
+  const response = await sonder("{", false);
+  await response.text();
 
-Deno.test("system: analytics_track accepte un événement", async () => {
-  const response = await invokeFunction("analytics_track", {
-    event_type: "test_event",
-    event_data: { source: "unit_test" }
-  });
-  const data = await response.json();
-  
-  // Peut réussir ou échouer selon la BDD, mais ne doit pas être 400
-  assertExists(data);
-});
-
-// ============================================================================
-// TEST: Liste des actions disponibles
-// ============================================================================
-
-Deno.test("system: liste toutes les actions disponibles", async () => {
-  const response = await invokeFunction("invalid");
-  const data = await response.json();
-  
-  const expectedActions = [
-    "quota_get", "quota_check", "quota_use", "quota_stats",
-    "analytics_track", "analytics_aggregate", "analytics_query",
-    "alerts", "unified_alerts", "log_error",
-    "security_scan", "security_metrics", "security_report",
-    "data_check", "perf_check", "health"
-  ];
-  
-  assertEquals(response.status, 400);
-  expectedActions.forEach(action => {
-    assertEquals(
-      data.available_actions.includes(action), 
-      true, 
-      `Action ${action} should be available`
-    );
-  });
+  assertEquals([401, 410].includes(response.status), true, `statut ${response.status}`);
 });
