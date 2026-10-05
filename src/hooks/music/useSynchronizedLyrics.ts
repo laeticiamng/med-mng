@@ -1,4 +1,3 @@
-import { secureSunoClient } from '@/lib/secureApiClient';
 import { useEffect, useState } from 'react';
 
 interface LyricsLine {
@@ -22,85 +21,20 @@ export const useSynchronizedLyrics = ({
 }: UseSynchronizedLyricsParams) => {
   const [lyrics, setLyrics] = useState<LyricsLine[]>([]);
   const [waveform, setWaveform] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Charger les paroles synchronisées depuis l'API
+  // Synchronisation des paroles une fois l'audio disponible.
+  // Note finale vérifiée (05.10.2026) : cette fonction interrogeait mm-music-status pour obtenir des
+  // « timestamped_lyrics » que le serveur ne renvoie pas (il ne connaît que statut et fichiers), avec
+  // un identifiant fabriqué (« IC-150-A ») : 404 à chaque chanson générée (erreur console, appel inutile),
+  // puis repli systématique sur la synchronisation automatique. Le repli devient le comportement direct.
   const loadTimestampedLyrics = async () => {
     if (!taskId && !audioId) return;
-
-    setIsLoading(true);
     setError(null);
-
-    try {
-      const result = await secureSunoClient.getGenerationStatus(taskId || audioId || '') as any;
-
-      if (result?.timestamped_lyrics) {
-        const parsedLyrics = parseTimestampedLyrics(result.timestamped_lyrics);
-        setLyrics(parsedLyrics);
-        
-        if (result.waveform) {
-          setWaveform(result.waveform);
-        }
-      } else if (rawLyrics && enableAutoSync) {
-        // Fallback: créer une synchronisation approximative
-        const autoSyncedLyrics = createAutoSyncedLyrics(rawLyrics);
-        setLyrics(autoSyncedLyrics);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
-      
-      // Fallback sur synchronisation automatique
-      if (rawLyrics && enableAutoSync) {
-        const autoSyncedLyrics = createAutoSyncedLyrics(rawLyrics);
-        setLyrics(autoSyncedLyrics);
-      }
-    } finally {
-      setIsLoading(false);
+    if (rawLyrics && enableAutoSync) {
+      setLyrics(createAutoSyncedLyrics(rawLyrics));
     }
-  };
-
-  // Parser les paroles avec timestamps
-  const parseTimestampedLyrics = (timestampedData: any): LyricsLine[] => {
-    if (Array.isArray(timestampedData)) {
-      return timestampedData.map(item => ({
-        time: item.time || 0,
-        text: item.text || '',
-        duration: item.duration
-      }));
-    }
-
-    // Si c'est un format différent, essayer de le parser
-    if (typeof timestampedData === 'string') {
-      return parseLyricsFromString(timestampedData);
-    }
-
-    return [];
-  };
-
-  // Parser les paroles depuis une chaîne avec timestamps
-  const parseLyricsFromString = (lyricsString: string): LyricsLine[] => {
-    const lines = lyricsString.split('\n');
-    const parsedLyrics: LyricsLine[] = [];
-
-    lines.forEach(line => {
-      // Format [mm:ss] texte ou [mm:ss.xxx] texte
-      const match = line.match(/^\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?\]\s*(.*)$/);
-      
-      if (match) {
-        const minutes = parseInt(match[1]);
-        const seconds = parseInt(match[2]);
-        const milliseconds = match[3] ? parseInt(match[3].padEnd(3, '0')) : 0;
-        const time = minutes * 60 + seconds + milliseconds / 1000;
-        const text = match[4].trim();
-
-        if (text) {
-          parsedLyrics.push({ time, text });
-        }
-      }
-    });
-
-    return parsedLyrics.sort((a, b) => a.time - b.time);
   };
 
   // Créer une synchronisation automatique basée sur la durée réelle de l'audio
