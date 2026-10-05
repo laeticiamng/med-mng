@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertCircle, ArrowRight, CheckCircle, Code, Database, Download, Palette, RefreshCw, Zap } from 'lucide-react';
+import { AlertCircle, CheckCircle, Code, Database, Download, Palette, Zap } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -15,8 +15,6 @@ const AdminCompleteProcess = () => {
   const [auditResults, setAuditResults] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [isReimporting, setIsReimporting] = useState(false);
-  const [reimportResults, setReimportResults] = useState<any>(null);
   const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
 
@@ -106,37 +104,6 @@ const AdminCompleteProcess = () => {
     }
   };
 
-  const runReimportProcess = async () => {
-    setIsReimporting(true);
-    setReimportResults(null);
-    setError(null);
-
-    try {
-      if (import.meta.env.DEV) console.log('🔄 Début de la ré-importation complète EDN...');
-      toast.info('Ré-importation en cours...', {
-        description: 'Mise à jour de tous les contenus avec données spécifiques'
-      });
-
-      const { data, error: reimportError } = await supabase.functions.invoke('reimport-edn-complete', {
-        body: { action: 'reimport_all' }
-      });
-
-      if (reimportError) throw reimportError;
-
-      setReimportResults(data);
-      toast.success('Ré-importation terminée!', {
-        description: `${data.stats?.success || 0} items mis à jour avec contenu spécifique`
-      });
-
-    } catch (error: any) {
-      if (import.meta.env.DEV) console.error('Erreur ré-importation:', error);
-      setError(error.message);
-      toast.error('Erreur lors de la ré-importation');
-    } finally {
-      setIsReimporting(false);
-    }
-  };
-
   const getCurrentPhaseInfo = () => {
     return phases.find(p => p.id === currentPhase) || phases[0];
   };
@@ -159,7 +126,7 @@ const AdminCompleteProcess = () => {
           <CardContent>
             <Button 
               onClick={runCompleteProcess}
-              disabled={isRunning || isReimporting}
+              disabled={isRunning}
               size="lg"
               className="w-full md:w-auto"
             >
@@ -168,60 +135,19 @@ const AdminCompleteProcess = () => {
           </CardContent>
         </Card>
 
-        {/* Header - Ré-importation avec contenu spécifique */}
-        <Card className="border-2 border-success/30 bg-gradient-to-r from-success/5 to-success/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-success">
-              <RefreshCw className="h-6 w-6" />
-              Ré-importation Complète avec Contenu Spécifique
-            </CardTitle>
-            <CardDescription>
-              Remplace le contenu générique par des données spécifiques et uniques pour chaque item EDN (recommandé)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-success/10 rounded-lg">
-                <h4 className="font-semibold text-success mb-2">✅ Améliorations incluses :</h4>
-                <ul className="text-sm text-success/80 space-y-1">
-                  <li>• Compétences Rang A/B spécifiques par domaine</li>
-                  <li>• Paroles musicales personnalisées</li>
-                  <li>• Scènes immersives contextualisées</li>
-                  <li>• Quiz adaptés au contenu</li>
-                </ul>
-              </div>
-              <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
-                <h4 className="font-semibold text-warning mb-2">⚡ Contenu par spécialité :</h4>
-                <ul className="text-xs text-warning/80 space-y-1">
-                  <li>• IC-1 à IC-10 : Fondamentaux médicaux</li>
-                  <li>• IC-23 à IC-42 : Gynéco-obstétrique</li>
-                  <li>• IC-60 à IC-80 : Psychiatrie</li>
-                  <li>• IC-290 à IC-320 : Cancérologie</li>
-                  <li>• IC-331 à IC-367 : Médecine d'urgence</li>
-                </ul>
-              </div>
-            </div>
-            
-            <Button 
-              onClick={runReimportProcess}
-              disabled={isRunning || isReimporting}
-              size="lg"
-              className="w-full bg-success hover:bg-success/90 text-success-foreground"
-            >
-              {isReimporting ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Ré-importation en cours...
-                </>
-              ) : (
-                <>
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                  Lancer la Ré-importation Intelligente
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Ré-importation retirée (contre-vérification de la vague sécurité F66-MM, 05.10.2026). Le bouton
+            « Lancer la Ré-importation Intelligente » appelait reimport-edn-complete, qui RÉÉCRIVAIT les
+            tableaux de rang A/B, les paroles, la scène et le quiz des 367 items avec des gabarits
+            (« Item N - Compétences spécialisées en … »), contrairement à ce que la carte annonçait
+            (« contenu spécifique et unique »). La fonction répond désormais 410 : le bouton ne
+            pouvait plus qu'afficher une erreur. Même décision que generate-lyrics-from-oic (18.09.2026). */}
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            La ré-importation automatique des 367 items a été retirée : elle remplaçait le contenu rédigé
+            (tableaux de rang A/B, paroles, scène, quiz) par des gabarits génériques.
+          </AlertDescription>
+        </Alert>
 
         {/* Progress */}
         {isRunning && (
@@ -295,64 +221,6 @@ const AdminCompleteProcess = () => {
                   </div>
                   <div className="text-sm text-primary/80">Items total</div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Reimport Results */}
-        {reimportResults && (
-          <Card className="border-success/30">
-            <CardHeader>
-              <CardTitle className="text-success">Résultats de la Ré-importation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-primary/10 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">
-                      {reimportResults.stats?.processed || 0}
-                    </div>
-                    <div className="text-sm text-primary/80">Items traités</div>
-                  </div>
-                  <div className="text-center p-4 bg-success/10 rounded-lg">
-                    <div className="text-2xl font-bold text-success">
-                      {reimportResults.stats?.success || 0}
-                    </div>
-                    <div className="text-sm text-success/80">Mis à jour</div>
-                  </div>
-                  <div className="text-center p-4 bg-destructive/10 rounded-lg">
-                    <div className="text-2xl font-bold text-destructive">
-                      {reimportResults.stats?.errors || 0}
-                    </div>
-                    <div className="text-sm text-destructive/80">Erreurs</div>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
-                  <h4 className="font-semibold text-success mb-2">🎉 Contenu mis à jour avec succès :</h4>
-                  <div className="grid md:grid-cols-2 gap-2 text-sm text-success/80">
-                    <div>✅ Compétences Rang A spécifiques</div>
-                    <div>✅ Compétences Rang B approfondies</div>
-                    <div>✅ Paroles musicales personnalisées</div>
-                    <div>✅ Scènes immersives contextualisées</div>
-                    <div>✅ Quiz interactifs adaptés</div>
-                    <div>✅ Contenus uniques par spécialité</div>
-                  </div>
-                </div>
-
-                {reimportResults.errors && reimportResults.errors.length > 0 && (
-                  <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                    <h4 className="font-semibold text-destructive mb-2">Erreurs rencontrées :</h4>
-                    <div className="text-sm text-destructive/80 max-h-32 overflow-y-auto">
-                      {reimportResults.errors.map((error: any, index: number) => (
-                        <div key={index} className="mb-1">
-                          • Item {error.item_code}: {error.error}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
