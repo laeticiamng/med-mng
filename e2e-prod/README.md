@@ -20,6 +20,7 @@ Chromium hors réseau standard : `PW_EXECUTABLE=/chemin/vers/chrome`. Captures d
 | `E2E_PREMIUM_EMAIL` / `E2E_PREMIUM_PASSWORD` | compte **Premium** (abonnement actif ou en essai) : contenu ouvert, bibliothèque, portail Stripe |
 | `E2E_SUPABASE_URL` / `E2E_SUPABASE_ANON_KEY` | facultatif : sinon lues dans le JavaScript public du site (clé publique) |
 | `E2E_GENERATION=1` | autorise le test de génération audio réelle |
+| `E2E_F66MM_DEPLOYE=1` | autorise les sondes F66-MM dont l'ancienne version travaillerait dès l'appel (orphelines au code inconnu, lectures et écritures en clé de service) — **seulement après vérification des versions déployées** |
 | `E2E_PAROLES=1` | autorise le test « paroles rédigées rendues telles quelles » de `generer-paroles-item` — **seulement après son redéploiement** (l'ancienne version ferait 1 à 3 appels à l'IA, sans rien enregistrer) |
 | `E2E_RETRIES` | relances (défaut 0) |
 
@@ -35,6 +36,8 @@ Sans compte fourni, les tests qui en ont besoin sont ignorés. La déconnexion S
 - **critique.spec.ts** — non-régression de la critique finale (05.10.2026) : récit et planches décrits tels qu'ils sont (IC-1, image dessinée pour l'item), FAQ/CGU/méthode sans « en cours de génération » ; IC-30 sans chanson « Rang A » ; notes personnelles (visiteur invité à se connecter ; saisie hors ligne gardée puis envoyée, même onglet fermé ; ouverture puis départ rapide sans écriture ni perte — la note du compte gratuit est remise en état dans tous les cas) ; onglet ouvert hors connexion (message dédié, rechargement au retour du réseau, sans service worker) ; quiz sans classement ni « 100 % » inventé ; recherche singulier/pluriel et accents (liste, ⌘K) ; quiz terminé hors connexion (score non enregistré signalé, rien d'écrit).
 - **deconnexion.teardown.ts** (en dernier) — inscription bloquée sans CGU (aucune requête), mauvais mot de passe, connexion vers la page demandée, `next` externe ignoré, déconnexion.
 - **generation.spec.ts** — génération audio réelle (voir ci-dessous).
+
+- **f66mm.spec.ts** — vague sécurité F66-MM (05.10.2026) : fonctions MED MNG du projet partagé joignables avec la seule clé publique. (1) Garde-fous LOCAUX (127.0.0.1, aucun appel de production) : le corps des sondes part octet pour octet (`Buffer` « { », JSON invalide) ; une chaîne envoyée en `application/json` serait réécrite en JSON valide ; `appelerFonction` (helpers) envoie bien une chaîne en octets bruts (`text/plain`). (2) `@attend-deploiement`, sûres même contre l'ancienne version (elle lisait le corps avant toute opération) : 401 `AUTH_REQUISE` (administrateur, `illustrer-case`), 401 sans URL signée (`mm-suno-callback`), 410 `RETIREE` + témoin `x-mm-fonction-retiree`. (3) Seulement avec `E2E_F66MM_DEPLOYE=1`, à poser APRÈS avoir vérifié dans la liste des fonctions Supabase que chacune a une version postérieure au déploiement : 18 fonctions du dépôt dont l'ancienne version travaillait dès l'appel, les 110 orphelines retirées (témoin OPTIONS exigé AVANT la sonde : `reimport-edn-complete` réécrivait le contenu des 367 items) et `illustrer-case` → 402 pour un compte gratuit sur un item Premium. Listes : `supabase/functions/_shared/f66mm_regles.test.ts`.
 
 ## Étiquettes
 

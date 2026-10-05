@@ -140,6 +140,8 @@ export async function appelerFonction(
   // Corps chaîne : envoyé en text/plain pour qu'il parte TEL QUEL. En application/json, Playwright
   // convertit une chaîne non-JSON en chaîne JSON valide (« "{" ») : la sonde devenait un corps valide
   // et des fonctions sans contrôle d'accès ont généré du contenu (incident du 04.10.2026, rapport).
+  // Vérifié contre un serveur local (f66mm.spec.ts, « garde-fous locaux ») : octets reçus exactement
+  // « { », content-type text/plain ; et une chaîne envoyée en application/json arrive bien « "{" ».
   const headers: Record<string, string> = { 'content-type': typeof corps === 'string' ? 'text/plain' : 'application/json' };
   if (auth === 'anon') {
     headers.apikey = sb.anon;
