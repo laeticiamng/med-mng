@@ -19,6 +19,13 @@ export interface ValeurFicheItemEdn {
   chargementRangA: boolean;
   chargementRangB: boolean;
   /**
+   * Le référentiel ne contient AUCUNE compétence de ce rang pour l'item (établi
+   * seulement une fois le chargement abouti pour cet item). Ex. IC-30 et IC-142
+   * n'ont que des compétences de rang B ; IC-1 n'a que du rang A.
+   */
+  rangAVide: boolean;
+  rangBVide: boolean;
+  /**
    * Contenu immersif (paroles, quiz, planches, récit) refusé par le serveur :
    * l'item n'est pas un item d'essai et l'utilisateur n'est pas abonné
    * Premium. Les sous-pages remplacent alors ce contenu par `EncartPremium`.

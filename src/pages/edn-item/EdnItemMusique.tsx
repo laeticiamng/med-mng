@@ -5,7 +5,12 @@ import { EdnItemSeo } from './EdnItemSeo';
 
 /** `/edn-complete/:slug/musique` — ancien onglet « Musique » de la modale. */
 export default function EdnItemMusique() {
-  const { item, contenu } = useFicheItemEdn();
+  const { item, contenu, rangAVide } = useFicheItemEdn();
+  // Item sans aucune compétence de rang A (IC-30, IC-142) : pas de chanson « Rang A ».
+  // Sans cela, les mots-clés bruts de paroles_musicales s'affichaient comme « Rang A »
+  // avec un bouton « Générer la chanson Rang A » voué à l'échec (generer-paroles-item :
+  // « aucune compétence de rang A … Aucune chanson n'est générée »).
+  const sansRangA = (lignes: string[] | null | undefined) => (rangAVide ? [] : lignes);
 
   return (
     <>
@@ -14,8 +19,8 @@ export default function EdnItemMusique() {
           (contenu réservé aux items d'essai et à Premium) ; la route parente
           n'affiche cette sous-page qu'une fois le contenu renvoyé par le serveur. */}
       <ParolesMusicales
-        paroles={contenu.paroles_musicales.length > 0 ? contenu.paroles_musicales : item.paroles_musicales}
-        paroles_rang_a={contenu.paroles_rang_a ?? item.paroles_rang_a}
+        paroles={sansRangA(contenu.paroles_musicales.length > 0 ? contenu.paroles_musicales : item.paroles_musicales) ?? []}
+        paroles_rang_a={sansRangA(contenu.paroles_rang_a ?? item.paroles_rang_a) ?? undefined}
         paroles_rang_b={contenu.paroles_rang_b ?? item.paroles_rang_b}
         paroles_rang_ab={contenu.paroles_rang_ab ?? item.paroles_rang_ab}
         itemCode={item.item_code}

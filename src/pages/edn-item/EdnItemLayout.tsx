@@ -167,6 +167,8 @@ export default function EdnItemLayout() {
     competencesRangB,
     chargementRangA,
     chargementRangB,
+    rangAVide,
+    rangBVide,
     contenuVerrouille,
     chargementContenu,
     numeroItem,

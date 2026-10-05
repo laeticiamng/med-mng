@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { fermerCookies, surveillerErreurs, texte } from './helpers';
+import { PREMIUM, dispo, fermerCookies, session, surveillerErreurs, texte } from './helpers';
 
 /**
  * Critique finale (05.10.2026) : non-régression des défauts trouvés par la revue indépendante.
@@ -45,5 +45,29 @@ test.describe('Critique finale — contenu immersif décrit tel qu’il est', ()
     await page.goto('/faq');
     await page.getByRole('button', { name: 'Les chansons sont-elles fiables médicalement ?' }).click();
     await expect(page.locator('body')).toContainText('Les paroles, comme les récits et les planches, sont rédigées par IA');
+  });
+});
+
+test.describe('Critique finale — musique d’un item sans rang A', () => {
+  test.skip(!dispo(PREMIUM), 'E2E_PREMIUM_* absents');
+  test.use({ storageState: session('premium') });
+
+  // IC-30 et IC-142 n'ont aucune compétence de rang A au référentiel (onglet « Rang A » déjà masqué).
+  // L'onglet Musique affichait pourtant « Musique Rang A — Pas encore de paroles rédigées », les
+  // mots-clés bruts et « Générer la chanson Rang A », refusé ensuite par le serveur.
+  test('IC-30 : pas de chanson « Rang A » ; IC-150 garde ses deux rangs @attend-deploiement', async ({ page }) => {
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/edn-complete/ic-30/musique');
+    await fermerCookies(page);
+    const t = await texte(page, 'Musique Rang B');
+    expect(t).not.toContain('Musique Rang A');
+    expect(t).not.toContain('Pas encore de paroles rédigées pour ce rang');
+    await expect(page.getByRole('button', { name: /^Générer la chanson du rang A$/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^Générer la chanson du rang B$/ }).first()).toBeVisible();
+
+    await page.goto('/edn-complete/ic-150/musique');
+    const t150 = await texte(page, 'Musique Rang B');
+    expect(t150).toContain('Musique Rang A');
+    expect(erreurs).toEqual([]);
   });
 });
