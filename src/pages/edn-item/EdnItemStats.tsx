@@ -3,7 +3,6 @@ import { PersonalNotes } from '@/components/edn/PersonalNotes';
 import { ProgressHeatmap } from '@/components/edn/quiz/ProgressHeatmap';
 import { QuizProgressChart } from '@/components/edn/quiz/QuizProgressChart';
 import { QuizHistorySummary } from '@/components/edn/QuizHistorySummary';
-import { QuizLeaderboard } from '@/components/edn/QuizLeaderboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3 } from 'lucide-react';
 import { useFicheItemEdn } from './EdnItemContext';
@@ -87,8 +86,8 @@ export default function EdnItemStats() {
             {/* Validation des compétences */}
             <CompetenceValidation item={item} contenuVerrouille={contenuVerrouille} />
 
-            {/* Classement */}
-            <QuizLeaderboard itemCode={item.item_code} limit={5} />
+            {/* « Classement » retiré (05.10.2026) : les résultats de quiz ne sont lisibles que
+                par leur propriétaire, il ne pouvait montrer que soi. */}
           </CardContent>
         </Card>
 

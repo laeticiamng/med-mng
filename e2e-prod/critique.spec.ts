@@ -181,3 +181,21 @@ test.describe('Critique finale — coupure de réseau pendant le chargement d’
     await expect(page.getByText('Connexion interrompue')).toHaveCount(0);
   });
 });
+
+test.describe('Critique finale — quiz sans classement ni partage factices', () => {
+  // quiz_results n'est lisible que par son propriétaire (RLS) : le « Classement » ne pouvait
+  // montrer que soi (« 0 participants — Soyez le premier ») ; « Partager » publiait « 100 % »
+  // quel que soit le score, avant même le quiz.
+  test('IC-1 : ni « Classement Quiz » ni score inventé à partager @attend-deploiement', async ({ page }) => {
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/edn-complete/ic-1/quiz');
+    await fermerCookies(page);
+    const t = await texte(page, "Quiz de l'item IC-1");
+    expect(t).not.toMatch(/Classement Quiz|participants|Soyez le premier/);
+    expect(t).not.toMatch(/100\s?%/);
+    await page.goto('/edn-complete/ic-1/stats');
+    const stats = await texte(page, 'Statistiques - IC-1');
+    expect(stats).not.toMatch(/Classement Quiz|participants|Soyez le premier/);
+    expect(erreurs).toEqual([]);
+  });
+});

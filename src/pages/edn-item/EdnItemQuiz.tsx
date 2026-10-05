@@ -1,10 +1,18 @@
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
-import { QuizLeaderboard } from '@/components/edn/QuizLeaderboard';
-import { SocialShare } from '@/components/social/SocialShare';
 import { useFicheItemEdn } from './EdnItemContext';
 import { EdnItemSeo } from './EdnItemSeo';
 
-/** `/edn-complete/:slug/quiz` — ancien onglet « Quiz » de la modale. */
+/**
+ * `/edn-complete/:slug/quiz` — ancien onglet « Quiz » de la modale.
+ *
+ * Retirés le 05.10.2026 (critique finale), deux fonctions factices :
+ * - « Classement Quiz » : quiz_results n'est lisible que par son propriétaire (RLS), le
+ *   classement ne pouvait montrer que soi (« 0 participants — Soyez le premier », puis
+ *   « 1er sur 1 participants ») ;
+ * - « Partager » : publiait « J'ai obtenu 100%% au quiz » quel que soit le score réel,
+ *   même avant d'avoir fait le quiz.
+ * Le score réel reste dans « Historique des quiz » (onglets Aperçu et Stats).
+ */
 export default function EdnItemQuiz() {
   const { item, contenu } = useFicheItemEdn();
 
@@ -21,17 +29,6 @@ export default function EdnItemQuiz() {
           itemCode={item.item_code}
           itemTitle={item.title}
         />
-
-        <QuizLeaderboard itemCode={item.item_code} limit={10} />
-
-        <div className="flex justify-center">
-          <SocialShare
-            type="score"
-            title={`Quiz ${item.item_code}`}
-            description={`J'ai complété le quiz ${item.title} !`}
-            value="100%"
-          />
-        </div>
       </div>
     </>
   );
