@@ -20,7 +20,7 @@
  * est enregistrée ; si la copie échoue, l'URL Suno est gardée (comportement
  * antérieur).
  *
- * Registre du quota : `mm_generations_audio` (migration 20261004120000), écrit
+ * Registre du quota : `mm_generations_audio` (migration 20261005145628), écrit
  * uniquement par le serveur — la génération passe à 'terminee' ou 'echouee'.
  */
 

@@ -115,7 +115,7 @@ const reponseJson = (corps: unknown, status = 200) =>
  * l'API REST, un abonné remettait son compteur à zéro (générations Suno
  * illimitées, facturées). Le décompte retenu est donc le plus élevé de ce
  * décompte historique et du registre `mm_generations_audio`, que seul le
- * serveur écrit (migration 20261004120000). Tant que la migration n'est pas
+ * serveur écrit (migration 20261005145628). Tant que la migration n'est pas
  * appliquée, le registre est ignoré et le comportement est inchangé.
  */
 async function verifierDroitGeneration(

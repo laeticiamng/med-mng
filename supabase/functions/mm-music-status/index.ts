@@ -143,7 +143,7 @@ serve(async (req) => {
     // created_at de generated_music_tracks est modifiable par son propriétaire
     // (RLS) ; en l'antidatant, l'abandon à 15 min (« non décomptée ») se
     // déclenchait aussitôt et la génération sortait du quota. Sans registre
-    // (migration 20261004120000 non appliquée, génération antérieure) : la ligne.
+    // (migration 20261005145628 non appliquée, génération antérieure) : la ligne.
     const age = Date.now() - (await dateLancement(supabase, taskId, ligne.created_at));
     if (age < DELAI_AVANT_RATTRAPAGE_MS) {
       return reponseJson(reponseDepuisLigne(ligne));

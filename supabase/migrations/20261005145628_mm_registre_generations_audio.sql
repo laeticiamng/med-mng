@@ -1,3 +1,4 @@
+-- APPLIQUÉE en production le 05.10.2026 (version 20261005145628, outil Supabase ; fichier renommé en conséquence). La ligne DROP POLICY IF EXISTS n'a pas été transmise : sans effet (table créée par cette même migration) ; 11 générations reprises dans le registre.
 -- MED MNG — registre serveur des générations audio (quota Premium, 04.10.2026)
 --
 -- CONSTAT : mm-generate-music décompte le quota mensuel (30) sur
