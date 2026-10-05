@@ -4,8 +4,8 @@ import { EdnItemSeo } from './EdnItemSeo';
 
 /**
  * `/edn-complete/:slug/planches` — ancien onglet « Planches » (« BD ») de la
- * modale. Ce n'est pas une bande dessinée : ce sont les compétences OIC de
- * l'item présentées en diaporama illustré.
+ * modale : cases écrites par IA pour l'item à partir de ses compétences OIC,
+ * chacune dessinée d'après sa description (illustrer-case).
  */
 export default function EdnItemPlanches() {
   const { item, contenu } = useFicheItemEdn();

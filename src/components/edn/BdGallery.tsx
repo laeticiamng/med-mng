@@ -494,13 +494,16 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          {/* Ce format était annoncé comme une « BD ». Il n'y a ni dessin ni
-              récit : les 2848 planches des 367 items réutilisent 10 photos
-              Unsplash génériques, et le texte est la liste des compétences OIC.
-              On le dit plutôt que de laisser croire à une bande dessinée. */}
+          {/* Les anciennes planches (10 photos Unsplash réutilisées, texte = liste
+              des compétences) ont été remplacées par des cases écrites pour chaque
+              item par generer-recit-item, chacune dessinée d'après sa propre
+              description (illustrer-case ; vérifié en base le 05.10.2026 : 4521
+              cases, 4522 images dans bd-illustrations, 367 items). L'ancienne
+              mention « photos génériques, non spécifiques à l'item » était fausse. */}
           <p className="text-xs text-muted-foreground mb-3">
-            Diaporama des compétences officielles de l'item. Les illustrations sont des photos
-            d'illustration génériques, non spécifiques à l'item.
+            Planches rédigées et illustrées par IA pour cet item, à partir de ses compétences
+            officielles (référentiel LiSA 2026). Les personnages et les scènes sont fictifs ; la
+            compétence officielle fait foi.
           </p>
           <div className="flex items-center justify-between">
             <Button 

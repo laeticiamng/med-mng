@@ -95,7 +95,7 @@ const CGU = () => {
                 <ul className="space-y-1 text-sm">
                   <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel LiSA 2026, UNESS), quiz</li>
                   <li>• Paroles de chansons pédagogiques générées par IA et génération audio par IA à la demande (prestataires listés dans la politique de confidentialité)</li>
-                  <li>• Récits et planches illustrées générés par IA (en cours de génération)</li>
+                  <li>• Récits et planches illustrées générés par IA pour chacun des 367 items</li>
                   <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
                   <li>• Bibliothèque personnelle de contenus</li>
                 </ul>

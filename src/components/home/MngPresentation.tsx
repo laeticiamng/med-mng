@@ -131,7 +131,7 @@ export const MngPresentation = () => {
                 <Lightbulb className="h-5 w-5 text-success" />
                 <h4 className="font-semibold text-success-foreground">3. Récit et planches</h4>
               </div>
-              <p className="text-sm text-foreground">Récit et planches BD illustrées par IA (en cours de génération)</p>
+              <p className="text-sm text-foreground">Un récit et des planches illustrées, rédigés par IA pour chaque item à partir de ses compétences officielles</p>
             </div>
             <div className="bg-accent/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">

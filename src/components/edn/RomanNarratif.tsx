@@ -536,17 +536,17 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          {/* Ce format était annoncé comme un « roman ». Mesuré sur les 3719
-              chapitres des 367 items : 90 % commencent par l'une de 9 phrases
-              d'amorce interchangeables (« Ce matin-là, aux urgences, un patient
-              arrive en détresse. »), et les titres de chapitre sont les mêmes
-              partout (« Chapitre N : Les Fondements »). Le fond utile, ce sont
-              les compétences OIC citées : on le dit plutôt que de laisser croire
-              à une histoire écrite pour cet item. */}
+          {/* Les anciens chapitres (3719 pour 367 items, 90 % ouverts par l'une
+              de 9 phrases types) ont été remplacés par des récits écrits pour
+              chaque item par generer-recit-item (vérifié en base le 05.10.2026 :
+              2641 chapitres, 2512 titres distincts, 2566 premières phrases
+              distinctes). L'ancienne mention « formules types, communes à tous
+              les items » était devenue fausse : elle dévalorisait le contenu. */}
           <p className="text-xs text-muted-foreground mb-4">
-            Mise en situation générée automatiquement autour des compétences officielles de
-            l'item. Les phrases de mise en scène sont des formules types, communes à tous les
-            items : le contenu à retenir est la compétence citée dans chaque paragraphe.
+            Récit rédigé par IA pour cet item, à partir de ses compétences officielles (référentiel
+            LiSA 2026). Les personnages, les lieux et les données des patients sont fictifs. Comme
+            tout contenu généré par IA, il peut contenir des imprécisions : la compétence officielle
+            fait foi.
           </p>
           <div className="prose prose-lg max-w-none space-y-4">
             {currentChap.content.split('\n\n').map((paragraph, index) => (

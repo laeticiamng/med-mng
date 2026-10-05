@@ -116,8 +116,9 @@ const FAQ = () => {
                   Les chansons sont-elles fiables médicalement ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Les paroles sont générées à partir des compétences rang A et rang B du référentiel LiSA 2026
-                  (UNESS). Comme tout contenu généré par IA, elles peuvent contenir des imprécisions.
+                  Les paroles, comme les récits et les planches, sont rédigées par IA à partir des compétences
+                  rang A et rang B du référentiel LiSA 2026 (UNESS). Comme tout contenu généré par IA, elles
+                  peuvent contenir des imprécisions.
                   Med MNG est un outil <strong>complémentaire</strong> à vos cours, pas un substitut. Vérifiez
                   toujours avec vos sources officielles (Collèges, polycopiés de faculté). Med MNG n'a aucun
                   partenariat officiel avec l'UNESS ni le CNG.
@@ -129,9 +130,10 @@ const FAQ = () => {
                   Les 367 items EDN sont-ils tous couverts ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Oui. Les 367 items ont une fiche, les compétences rang A et rang B, un quiz et des paroles
-                  de chanson. L'audio se génère à la demande avec Med MNG Premium. Les récits et les planches BD sont en
-                  cours de génération. Vous pouvez consulter la liste complète dans la section{' '}
+                  Oui. Les 367 items ont une fiche avec leurs compétences officielles (rang A et rang B ; quelques
+                  items n'ont qu'un des deux rangs dans le référentiel), un quiz, des paroles de chanson, un récit et
+                  des planches illustrées. L'audio se génère à la demande avec Med MNG Premium. Vous pouvez consulter
+                  la liste complète dans la section{' '}
                   <Link to={ROUTE_PATHS.ednComplete} className="text-primary hover:underline">Items EDN</Link>.
                 </AccordionContent>
               </AccordionItem>

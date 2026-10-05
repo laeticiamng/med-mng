@@ -15,8 +15,9 @@ import { BarChart3, BookOpen, Brain, FileText, Image, Music, Users, type LucideI
  * schéma. Aucun apport pour l'étudiant, donc on ne l'annonce plus.
  *
  * Les libellés « Planches de compétences » et « Parcours narré des compétences »
- * sont ceux affichés par BdGallery et RomanNarratif : ce ne sont ni une bande
- * dessinée ni un roman, mais deux présentations des compétences OIC de l'item.
+ * sont ceux affichés par BdGallery et RomanNarratif : un récit et des cases
+ * illustrées écrits par IA pour chaque item à partir de ses compétences OIC
+ * (generer-recit-item, illustrer-case).
  */
 export interface OngletItemEdn {
   segment: string;
