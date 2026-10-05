@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 interface AuditRequest {
   auditType: 'database' | 'code' | 'ui_consistency' | 'performance';
@@ -11,6 +12,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Réservé aux administrateurs (ou à la clé de service). Constat du 05.10.2026 :
+  // la fonction répondait à n'importe qui, sans compte, et autoFix lançait avec la clé
+  // de service cleanup_duplicates (suppression d'items EDN) et fix_invalid_slugs.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const supabaseClient = createClient(
