@@ -1,7 +1,7 @@
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -132,7 +132,7 @@ export const MedMngLogin = () => {
               <Music className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold text-foreground">Med MNG</span>
             </div>
-            <CardDescription>Réinitialisation du mot de passe</CardDescription>
+            <h1 className="text-sm text-muted-foreground">Réinitialisation du mot de passe</h1>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">Saisissez votre adresse e-mail pour recevoir un lien de réinitialisation.</p>
@@ -162,7 +162,8 @@ export const MedMngLogin = () => {
             <Music className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-foreground">Med MNG</span>
           </div>
-          <CardDescription>Connectez-vous à votre compte</CardDescription>
+          {/* Titre de la page (h1) : même rendu que la description de la carte. */}
+          <h1 className="text-sm text-muted-foreground">Connectez-vous à votre compte</h1>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Alerte de blocage rate limiting */}

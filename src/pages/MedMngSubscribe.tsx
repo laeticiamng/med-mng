@@ -1,6 +1,6 @@
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -70,7 +70,7 @@ export const MedMngSubscribe = () => {
       <div className="container mx-auto max-w-2xl">
         <Card className="shadow-lg">
           <CardHeader className="text-center bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-t-lg">
-            <CardTitle className="text-2xl">Finaliser votre abonnement</CardTitle>
+            <h1 className="text-2xl font-semibold leading-none tracking-tight">Finaliser votre abonnement</h1>
             <CardDescription className="text-primary-foreground/80">
               {NOM_OFFRE_PREMIUM} — formule {offre.libelle.toLowerCase()} : {offre.prixAffiche}
               {offre.equivalentMensuel ? ` (${offre.equivalentMensuel})` : ''}

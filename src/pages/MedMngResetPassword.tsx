@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -57,7 +57,7 @@ export const MedMngResetPassword = () => {
             <Music className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-foreground">Med MNG</span>
           </div>
-          <CardTitle className="text-xl">Nouveau mot de passe</CardTitle>
+          <h1 className="text-xl font-semibold leading-none tracking-tight">Nouveau mot de passe</h1>
           <CardDescription>Choisissez votre nouveau mot de passe</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

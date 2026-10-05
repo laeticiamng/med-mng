@@ -5,7 +5,7 @@ import { traduireErreurAuth } from '@/lib/erreursAuth';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
@@ -110,8 +110,9 @@ export const MedMngSignup = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-foreground">Med MNG</CardTitle>
-          <CardDescription>Créez votre compte</CardDescription>
+          <p className="text-2xl font-bold leading-none tracking-tight text-foreground">Med MNG</p>
+          {/* Titre de la page (h1) : même rendu que la description de la carte. */}
+          <h1 className="text-sm text-muted-foreground">Créez votre compte</h1>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (

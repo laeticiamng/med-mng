@@ -355,3 +355,20 @@ test.describe('Contre-vérification de la vague 3', () => {
     expect(await page.evaluate(() => sessionStorage.getItem('conversion_session'))).toBeNull();
   });
 });
+
+/**
+ * Note finale vérifiée (05.10.2026) : balayage des pages en production (1440 et 390) — connexion,
+ * inscription et nouveau mot de passe n'avaient aucun titre de page (h1) : lecteurs d'écran sans repère.
+ */
+test.describe('Note finale — titres de page', () => {
+  for (const [chemin, titre] of [
+    ['/med-mng/login', 'Connectez-vous à votre compte'],
+    ['/med-mng/signup', 'Créez votre compte'],
+    ['/med-mng/reset-password', 'Nouveau mot de passe'],
+  ] as const) {
+    test(`${chemin} : un h1 « ${titre} » @attend-deploiement`, async ({ page }) => {
+      await page.goto(chemin);
+      await expect(page.getByRole('heading', { level: 1, name: titre })).toBeVisible();
+    });
+  }
+});
