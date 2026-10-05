@@ -199,3 +199,34 @@ test.describe('Critique finale — quiz sans classement ni partage factices', ()
     expect(erreurs).toEqual([]);
   });
 });
+
+test.describe('Critique finale — recherche : singulier/pluriel, accents, pertinence', () => {
+  // Production (05.10.2026) : « accident vasculaire cérébral » ne trouvait pas l'IC-340
+  // « Accidents vasculaires cérébraux » (liste et ⌘K) ; ⌘K « diabete » classait l'IC-16
+  // « Organisation du système de soins » avant l'IC-247 « Diabète sucré » ; « AVC » donnait
+  // l'IC-221 « Athérome » avant l'IC-340.
+  test('liste et ⌘K : IC-340 trouvé au singulier, « diabete » → Diabète d’abord, « AVC » → IC-340 d’abord @attend-deploiement', async ({ page }) => {
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/edn-complete');
+    await fermerCookies(page);
+    await page.getByPlaceholder(/otoscopie/).fill('accident vasculaire cérébral');
+    await expect(page.locator('main')).toContainText('IC-340', { timeout: 20_000 });
+
+    const premier = async (q: string) => {
+      await page.keyboard.press('Escape');
+      await page.getByRole('button', { name: /Rechercher/ }).first().click();
+      const dialogue = page.getByRole('dialog');
+      await expect(dialogue.getByText('Rechercher un item ou une compétence')).toBeVisible();
+      await dialogue.locator('input').first().fill(q);
+      // « 0 résultat » s'affiche pendant la recherche : attendre une vraie ligne de résultat.
+      await expect(dialogue).toContainText(/IC-\d+ - /, { timeout: 20_000 });
+      await page.waitForTimeout(1_500);
+      // Titre du premier résultat affiché.
+      return (await dialogue.locator('p.font-medium').first().innerText()).trim();
+    };
+    expect(await premier('accident vasculaire cérébral')).toMatch(/^IC-340 - Accidents vasculaires cérébraux/);
+    expect(await premier('diabete')).toMatch(/^IC-(247|255) - Diabète/);
+    expect(await premier('AVC')).toMatch(/^IC-340 /);
+    expect(erreurs).toEqual([]);
+  });
+});

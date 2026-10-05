@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { rechercherCompetences, regrouperParItem } from '@/lib/rechercheCompetences';
+import { contientRecherche, motifRecherche } from '@/lib/motifRecherche';
 import { cn } from '@/lib/utils';
 import { BookOpen, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -79,15 +80,32 @@ export const GlobalSearchBar: React.FC = () => {
         .from('edn_items_complete')
         .select('id, item_code, title, slug, specialite')
         .eq('status', 'active');
-      const { data: ednItems } = numero
-        ? await requete.eq('item_code', `IC-${numero}`).limit(1)
-        : await requete
-            .or(`title.ilike.%${q}%,item_code.ilike.%${q}%,specialite.ilike.%${q}%`)
-            .order('item_code')
-            .limit(8);
+      // Titre : insensible aux accents et au singulier/pluriel (« diabete » → « Diabète »,
+      // « accident vasculaire cérébral » → « Accidents vasculaires cérébraux ») ; code et
+      // discipline : comme avant.
+      const motifTitre = numero ? null : motifRecherche(q);
+      const [{ data: parCode }, parTitre] = await Promise.all([
+        numero
+          ? requete.eq('item_code', `IC-${numero}`).limit(1)
+          : requete
+              .or(`title.ilike.%${q}%,item_code.ilike.%${q}%,specialite.ilike.%${q}%`)
+              .order('item_code')
+              .limit(8),
+        motifTitre
+          ? supabase
+              .from('edn_items_complete')
+              .select('id, item_code, title, slug, specialite')
+              .eq('status', 'active')
+              .filter('title', 'imatch', motifTitre)
+              .order('item_code')
+              .limit(8)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const ednItems = [...(parTitre.data ?? []), ...(parCode ?? [])].filter(
+        (item: any, i: number, tous: any[]) => tous.findIndex((x: any) => x.id === item.id) === i,
+      );
 
       if (ednItems) {
-        const qMin = q.toLowerCase();
         ednItems.forEach((item: any) => {
           searchResults.push({
             id: item.id,
@@ -95,7 +113,7 @@ export const GlobalSearchBar: React.FC = () => {
             description: item.specialite || undefined,
             category: 'edn',
             url: `/edn-complete/${item.slug || item.item_code.toLowerCase()}`,
-            relevance: item.title.toLowerCase().includes(qMin) ? 100 : 50,
+            relevance: contientRecherche(item.title, q) || item.title.toLowerCase().includes(q.toLowerCase()) ? 100 : 50,
           });
         });
       }
@@ -105,7 +123,13 @@ export const GlobalSearchBar: React.FC = () => {
       if (!numero) {
         const dejaTrouves = new Set(searchResults.map(r => r.title.split(' - ')[0]));
         const parItem = regrouperParItem(await rechercherCompetences(q));
-        const codes = [...parItem.keys()].filter(c => !dejaTrouves.has(c)).slice(0, 8);
+        // L'item dont le plus de compétences correspondent d'abord (« AVC » : l'IC-340
+        // « Accidents vasculaires cérébraux » avant l'IC-221 « Athérome », qui le cite une fois).
+        const nombre = (c: string) => parItem.get(c)?.length ?? 0;
+        const codes = [...parItem.keys()]
+          .filter(c => !dejaTrouves.has(c))
+          .sort((a, b) => nombre(b) - nombre(a))
+          .slice(0, 8);
         if (codes.length > 0) {
           const { data: itemsCompetences } = await supabase
             .from('edn_items_complete')
@@ -120,7 +144,7 @@ export const GlobalSearchBar: React.FC = () => {
               description: competence ? `Compétence : ${competence.intitule}` : undefined,
               category: 'edn',
               url: `/edn-complete/${item.slug || item.item_code.toLowerCase()}`,
-              relevance: 40,
+              relevance: 40 + Math.min(nombre(item.item_code), 9),
             });
           });
         }

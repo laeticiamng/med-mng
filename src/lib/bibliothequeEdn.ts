@@ -1,4 +1,5 @@
 import { contientResidusDeBalisage, parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
+import { contientRecherche } from './motifRecherche';
 
 /**
  * Filtres et tri de la bibliothèque /edn-complete, en fonctions pures.
@@ -137,7 +138,11 @@ const competencesCorrespondent = (liste: unknown, q: string) =>
       (c?.intitule && normaliserTexte(c.intitule).includes(q))
   );
 
-/** Recherche sur le numéro, le code, le titre, la discipline et les mots-clés. */
+/**
+ * Recherche sur le numéro, le code, le titre, la discipline et les mots-clés. Titre et
+ * sous-titre : singulier et pluriel confondus (« accident vasculaire cérébral » trouve
+ * « Accidents vasculaires cérébraux », src/lib/motifRecherche.ts).
+ */
 export const correspondRecherche = (item: ItemRecherchable, recherche: string): boolean => {
   const q = normaliserTexte(recherche);
   if (!q) return true;
@@ -145,7 +150,8 @@ export const correspondRecherche = (item: ItemRecherchable, recherche: string): 
     String(numeroItem(item.item_code)) === q ||
     normaliserTexte(item.item_code).includes(q) ||
     normaliserTexte(item.title).includes(q) ||
-    (!!item.subtitle && normaliserTexte(item.subtitle).includes(q)) ||
+    contientRecherche(item.title, recherche) ||
+    (!!item.subtitle && (normaliserTexte(item.subtitle).includes(q) || contientRecherche(item.subtitle, recherche))) ||
     (!!item.specialite && normaliserTexte(item.specialite).includes(q)) ||
     (!!item.mots_cles && item.mots_cles.some((m) => normaliserTexte(m).includes(q))) ||
     competencesCorrespondent(item.competences_oic_rang_a, q) ||
