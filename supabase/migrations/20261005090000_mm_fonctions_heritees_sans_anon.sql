@@ -1,6 +1,6 @@
 -- ============================================================================
 -- MED MNG — Fonctions héritées SECURITY DEFINER : plus exécutables par les clés
--- publiques (critique finale, 05.10.2026). À APPLIQUER APRÈS APPROBATION CEO.
+-- publiques (critique finale, 05.10.2026). Appliquée en production le 05.10.2026.
 -- ============================================================================
 -- CONSTAT (advisor « anon_security_definer_function_executable », 31 fonctions
 -- Med MNG ; définitions relues en lecture seule) : 7 fonctions SECURITY DEFINER,
