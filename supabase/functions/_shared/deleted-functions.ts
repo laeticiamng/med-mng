@@ -36,7 +36,7 @@ export const DELETED_FUNCTIONS: DeletedFunction[] = [
   { name: "process-ab-tests", status: "removed", reason: "Supprimée" },
   { name: "get-rls-policies", status: "removed", reason: "Supprimée" },
   { name: "sync-edn-tables", status: "removed", reason: "Supprimée" },
-  { name: "update-edn-unique-content", status: "removed", reason: "Supprimée" },
+  { name: "update-edn-unique-content", status: "deprecated", reason: "Code supprimé mais restée déployée ; retirée (410) par la vague sécurité F66-MM du 05.10.2026" },
   { name: "fix-oic-data-quality", status: "removed", reason: "Supprimée" },
   { name: "google-sheets-webhook", status: "removed", reason: "Supprimée" },
   { name: "spotify-medical-docs", status: "removed", reason: "Supprimée" },
