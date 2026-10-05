@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-05] — Note finale vérifiée
+### Retiré
+- « Révision rapide » (`/revision-rapide`, présente dans le sitemap) : son quiz était fabriqué (rang « A » d'un item, « Rang C – Expertise », distracteurs « Analyse financière », bonne réponse toujours la première) → redirigée vers les fiches officielles, retirée du sitemap.
+### Corrigé
+- Onglet Musique : après chaque génération, une demande de « paroles horodatées » partait vers `mm-music-status` avec un identifiant fabriqué (« IC-150-A ») et échouait en 404 ; la synchronisation automatique (même rendu) est appliquée directement.
+- Fonctions `med-mng-api`, `generate-recommendations`, `playlist-manager`, `secure-edn-extraction` : `getUser()` reçoit le jeton (sans lui, certaines versions d'auth-js répondent « session absente » à tout le monde) ; création de chanson `POST /songs` de `med-mng-api` (TypeError, toujours en 500).
+### Tests
+- Test statique Deno : aucune fonction n'appelle `getUser()` sans jeton ; vitest `useSynchronizedLyrics` ; E2E « Révision rapide » (`@attend-deploiement`).
+
 ## [2026-10-05] — Critique finale indépendante
 ### Corrigé (fiabilité, données)
 - Notes personnelles : ouvrir un item supprimait la note enregistrée puis la recréait 1 s plus tard (la quitter entre-temps la perdait) ; hors connexion, « Sauvegardé » s'affichait sans rien envoyer. Saisie gardée sur l'appareil jusqu'à confirmation, renvoyée au retour du réseau, état réel affiché ; visiteur invité à se connecter.
