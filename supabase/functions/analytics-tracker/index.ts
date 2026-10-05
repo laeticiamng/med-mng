@@ -1,108 +1,18 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+/**
+ * analytics-tracker — fonctionnalité retirée (05.10.2026, vague sécurité F66-MM).
+ *
+ * Ancien rôle : écrivait dans user_activity_logs et user_notifications pour un userId lu dans le
+ * corps (clé de service). Aucun appelant.
+ *
+ * Elle répond désormais 410 sans aucun appel en aval (ni base de données, ni fournisseur).
+ */
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { corsHeaders } from '../_shared/cors.ts';
+import { fonctionRetiree } from '../_shared/mm-garde.ts';
 
-interface TrackingEvent {
-  event: string;
-  properties: Record<string, any>;
-  userId?: string;
-}
-
-serve(async (req) => {
+serve((req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-
-  try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    const { event, properties, userId }: TrackingEvent = await req.json();
-
-    console.log('📊 Tracking event:', event, 'for user:', userId);
-
-    // Enrichir les données avec des infos contextuelles
-    const enrichedProperties = {
-      ...properties,
-      timestamp: new Date().toISOString(),
-      server_timestamp: Date.now(),
-      event_id: crypto.randomUUID()
-    };
-
-    // Enregistrer dans user_activity_logs
-    const sessionId = properties?.sessionId || crypto.randomUUID();
-    
-    const { error: logError } = await supabase
-      .from('user_activity_logs')
-      .insert({
-        user_id: userId || null,
-        session_id: sessionId,
-        activity_type: event,
-        activity_details: enrichedProperties,
-        ip_address: (req.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim(),
-        user_agent: req.headers.get('user-agent') || 'unknown',
-        url: properties?.url || 'unknown',
-        performance_metrics: properties?.performance || {}
-      });
-
-    if (logError) {
-      console.error('❌ Error logging activity:', logError);
-      throw logError;
-    }
-
-    // Mise à jour des métriques en temps réel si événement critique
-    const criticalEvents = ['music_generation', 'error', 'payment', 'subscription'];
-    if (criticalEvents.includes(event)) {
-      console.log('🚨 Critical event detected, updating metrics');
-      
-      // Ici on pourrait déclencher des webhooks ou notifications
-      const { error: notifError } = await supabase
-        .from('user_notifications')
-        .insert({
-          user_id: userId,
-          type: event === 'error' ? 'error' : 'info',
-          title: `Événement ${event}`,
-          message: `Événement ${event} tracké avec succès`,
-          category: 'system',
-          priority: event === 'error' ? 'high' : 'medium'
-        });
-
-      if (notifError) {
-        console.warn('⚠️ Failed to create notification:', notifError);
-      }
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        eventId: enrichedProperties.event_id,
-        timestamp: enrichedProperties.timestamp
-      }),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json' 
-        } 
-      }
-    );
-
-  } catch (error) {
-    console.error('❌ Analytics tracking error:', error);
-    
-    return new Response(
-      JSON.stringify({ 
-        error: 'Failed to track event',
-        details: (error instanceof Error ? error.message : String(error)) 
-      }),
-      { 
-        status: 500,
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json' 
-        } 
-      }
-    );
-  }
-})
+  return fonctionRetiree(corsHeaders, 'Cette fonctionnalité a été retirée.');
+});
