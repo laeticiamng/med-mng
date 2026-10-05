@@ -24,7 +24,11 @@ export async function validateAuth(req: Request) {
     }
   );
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  // Le jeton est passé explicitement : sans argument, getUser() lit la session du client (absente
+  // côté serveur) et, selon la version d'auth-js résolue par esm.sh au déploiement, répond
+  // « AuthSessionMissingError » à tout le monde (constaté sur EmotionsCare avec supabase-js 2.39.3).
+  const jeton = authHeader.replace(/^Bearer\s+/i, '').trim();
+  const { data: { user }, error: authError } = await supabase.auth.getUser(jeton);
 
   if (authError || !user) {
     return {

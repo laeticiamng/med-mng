@@ -170,7 +170,7 @@ const handleRequest = async (req: Request): Promise<Response> => {
           res = await handleSubscriptions(req, supabase);
           if (res) return res;
 
-          res = await handleSongs(req, supabase, path);
+          res = await handleSongs(req, supabase, path, user?.id);
           if (res) return res;
 
           res = await handleLibrary(req, supabase, path, url);

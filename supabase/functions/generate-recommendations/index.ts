@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { corsHeaders } from '../_shared/cors.ts';
 import { completionIA } from '../_shared/ia-resiliente.ts';
-import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { exigerAdministrateur, jetonAppelant } from '../_shared/mm-garde.ts';
 
 /**
  * ACCÈS (contre-vérification de la vague sécurité F66-MM, 05.10.2026) : la fonction appelait la
@@ -46,7 +46,10 @@ const handler = async (req: Request): Promise<Response> => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Jeton passé explicitement : avec supabase-js 2.39.3, getUser() sans argument répond
+    // « session absente » à tout le monde (constaté en production sur EmotionsCare) → 401 même
+    // pour un administrateur.
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(jetonAppelant(req));
     if (userError || !user) {
       throw new Error("Unauthorized");
     }

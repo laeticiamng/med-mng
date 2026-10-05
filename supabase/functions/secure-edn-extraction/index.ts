@@ -59,7 +59,7 @@ serve(async (req) => {
     const {
       data: { user },
       error: userError,
-    } = await supabaseClient.auth.getUser();
+    } = await supabaseClient.auth.getUser(authHeader.replace(/^Bearer\s+/i, '').trim());
 
     if (userError || !user) {
       throw new Error('Unauthorized: Invalid user');

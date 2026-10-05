@@ -5,7 +5,8 @@ import { log } from '../logger.ts';
 
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-export async function handleSongs(req: Request, supabase: any, path: string) {
+/** `userId` : personne authentifiée par validateAuth (index.ts), seule autrice possible d'une chanson. */
+export async function handleSongs(req: Request, supabase: any, path: string, userId?: string) {
   // GET /songs - List songs with pagination
   if (path === '/songs' && req.method === 'GET') {
     try {
@@ -82,7 +83,9 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
           title: sanitizedTitle, 
           suno_audio_id, 
           meta: meta || {},
-          user_id: supabase.auth.getUser().data.user?.id // ✅ Respect RLS
+          // getUser() renvoie une promesse : « .data.user » levait une TypeError (création toujours
+          // en 500). L'identité vient désormais de validateAuth (aucune page n'appelle cette route).
+          user_id: userId // ✅ Respect RLS
         })
         .select()
         .single();
