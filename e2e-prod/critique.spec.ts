@@ -157,3 +157,27 @@ test.describe('Critique finale — note personnelle et coupure de réseau', () =
     });
   });
 });
+
+test.describe('Critique finale — coupure de réseau pendant le chargement d’une page', () => {
+  // Sans service worker installé (première visite) : la page est téléchargée à la demande.
+  test.use({ serviceWorkers: 'block' });
+
+  // Production (05.10.2026) : hors connexion, l'onglet « Quiz » d'un item remplaçait toute
+  // l'application par « Oops ! Une erreur est survenue — Ne t'inquiète pas, ça arrive ».
+  test('onglet ouvert hors connexion : message dédié, en-tête gardé, rechargement au retour du réseau @attend-deploiement', async ({ page, context }) => {
+    await page.goto('/edn-complete/ic-2/apercu');
+    await fermerCookies(page);
+    const onglets = page.getByRole('navigation', { name: "Sections de l'item" });
+    await expect(onglets).toBeVisible({ timeout: 30_000 });
+
+    await context.setOffline(true);
+    await onglets.getByRole('link', { name: /^Quiz$/ }).click();
+    await expect(page.getByText('Connexion interrompue')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Oops ! Une erreur est survenue/)).toHaveCount(0);
+    await expect(onglets).toBeVisible();
+
+    await context.setOffline(false);
+    await expect(page.locator('main')).toContainText("Quiz de l'item IC-2", { timeout: 30_000 });
+    await expect(page.getByText('Connexion interrompue')).toHaveCount(0);
+  });
+});

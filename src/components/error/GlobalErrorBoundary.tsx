@@ -81,7 +81,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
               </div>
               <CardTitle className="text-2xl">Oops ! Une erreur est survenue</CardTitle>
               <CardDescription>
-                Ne t'inquiète pas, ça arrive. Tu peux réessayer ou retourner à l'accueil.
+                Ne vous inquiétez pas : vous pouvez réessayer ou retourner à l'accueil.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -111,7 +111,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
               </div>
 
               <p className="text-xs text-center text-muted-foreground">
-                Si le problème persiste, contacte le support.
+                Si le problème persiste, contactez le support.
               </p>
             </CardContent>
           </Card>

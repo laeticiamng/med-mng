@@ -21,6 +21,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 import { ROUTE_PATHS } from '@/config/routes';
 import { AutoSEO } from '@/components/seo/AutoSEO';
+import { ChargementPageBoundary } from '@/components/error/ChargementPageBoundary';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 // GlobalAudioProvider, LanguageProvider, TooltipProvider, AccessibilityProvider → ComposedProviders
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
@@ -176,8 +177,12 @@ const ClassementEdnExplique = lazy(() => import("./pages/seo/ClassementEdnExpliq
 const RangAvsRangB = lazy(() => import("./pages/seo/RangAvsRangB"));
 const TravaillerCasCliniques = lazy(() => import("./pages/seo/TravaillerCasCliniques"));
 
+// Page chargée à la demande : une coupure de réseau pendant son chargement affiche un message
+// dédié (en-tête et navigation conservés) au lieu de la page d'erreur générale.
 const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Suspense fallback={<PageLoader />}>{children}</Suspense>
+  <ChargementPageBoundary>
+    <Suspense fallback={<PageLoader />}>{children}</Suspense>
+  </ChargementPageBoundary>
 );
 
 // 🔄 Redirect /edn/:slug → /edn-complete/:slug with param forwarding
