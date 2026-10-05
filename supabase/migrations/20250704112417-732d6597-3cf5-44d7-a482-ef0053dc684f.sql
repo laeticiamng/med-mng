@@ -1,6 +1,9 @@
+-- Vague sécurité F66-MM (05.10.2026) : la clé service_role écrite en clair ici (migration déjà
+-- appliquée le 04.07.2025) a été retirée du fichier. Elle reste dans l'historique git : elle doit être
+-- considérée comme compromise et renouvelée (FINALISATION.md, F66-MM).
 -- Appeler la fonction de mise à jour des contenus uniques
 SELECT extensions.http_post(
   url := 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/update-edn-unique-content',
-  headers := '{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjgxMTgyNywiZXhwIjoyMDU4Mzg3ODI3fQ.lflBzNdx2DDLYagE2nT_Rk-jxnWmcKz43Q6Nc5uw5zk"}'::jsonb,
+  headers := '{"Content-Type": "application/json", "Authorization": "Bearer CLE_DE_SERVICE_RETIREE_DU_DEPOT"}'::jsonb,
   body := '{}'::jsonb
 ) as request_id;
