@@ -31,6 +31,22 @@ export function estErreurDeChargement(erreur: unknown): boolean {
   return MOTIFS_CHARGEMENT.some((m) => m.test(texte));
 }
 
+const CLE_RECHARGEMENT = 'medmng_rechargement_module';
+const lireSession = (cle: string): string | null => {
+  try {
+    return window.sessionStorage.getItem(cle);
+  } catch {
+    return null;
+  }
+};
+const ecrireSession = (cle: string, valeur: string) => {
+  try {
+    window.sessionStorage.setItem(cle, valeur);
+  } catch {
+    // stockage indisponible : pas de rechargement automatique répété de toute façon
+  }
+};
+
 interface Props {
   children: ReactNode;
 }
@@ -48,20 +64,52 @@ class BarriereChargement extends Component<PropsBarriere, State> {
     return { erreur };
   }
 
-  componentDidUpdate(propsAvant: PropsBarriere, avant: State) {
-    if (!avant.erreur && this.state.erreur && estErreurDeChargement(this.state.erreur)) {
-      window.addEventListener('online', this.recharger);
+  private surveillance: ReturnType<typeof setInterval> | null = null;
+
+  // Appelé à la validation, que l'erreur survienne au montage ou lors d'une mise à jour.
+  componentDidCatch(erreur: unknown) {
+    if (!estErreurDeChargement(erreur)) return;
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      // En ligne : fichiers d'une ancienne version du site (publication entre-temps). Un seul
+      // rechargement automatique par minute, pour ne jamais boucler.
+      const dernier = Number(lireSession(CLE_RECHARGEMENT) ?? 0);
+      if (Date.now() - dernier > 60_000) {
+        ecrireSession(CLE_RECHARGEMENT, String(Date.now()));
+        this.recharger();
+      }
+      return;
     }
+    // Hors ligne : rechargement dès le retour du réseau (événement « online », et vérification
+    // régulière au cas où l'événement arriverait avant que le réseau ne réponde).
+    window.addEventListener('online', this.auRetourDuReseau);
+    this.surveillance = setInterval(() => {
+      if (navigator.onLine) this.auRetourDuReseau();
+    }, 3_000);
+  }
+
+  componentDidUpdate(propsAvant: PropsBarriere) {
     // Autre adresse : on retente (sans démonter les pages qui fonctionnent).
     if (propsAvant.adresse !== this.props.adresse && this.state.erreur) {
-      window.removeEventListener('online', this.recharger);
+      this.arreterSurveillance();
       this.setState({ erreur: null });
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('online', this.recharger);
+    this.arreterSurveillance();
   }
+
+  arreterSurveillance() {
+    window.removeEventListener('online', this.auRetourDuReseau);
+    if (this.surveillance) clearInterval(this.surveillance);
+    this.surveillance = null;
+  }
+
+  auRetourDuReseau = () => {
+    this.arreterSurveillance();
+    // Laisser au réseau le temps de répondre avant de recharger.
+    setTimeout(this.recharger, 1_000);
+  };
 
   recharger = () => {
     window.location.reload();
@@ -79,11 +127,23 @@ class BarriereChargement extends Component<PropsBarriere, State> {
             <div className="mx-auto w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
               <WifiOff className="h-6 w-6 text-warning" aria-hidden="true" />
             </div>
-            <h2 className="text-lg font-semibold">Connexion interrompue</h2>
-            <p className="text-sm text-muted-foreground">
-              Cette page n'a pas pu se charger : la connexion Internet semble coupée. Elle se
-              rechargera automatiquement dès le retour du réseau.
-            </p>
+            {typeof navigator !== 'undefined' && !navigator.onLine ? (
+              <>
+                <h2 className="text-lg font-semibold">Connexion interrompue</h2>
+                <p className="text-sm text-muted-foreground">
+                  Cette page n'a pas pu se charger : la connexion Internet semble coupée. Elle se
+                  rechargera automatiquement dès le retour du réseau.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold">Page à recharger</h2>
+                <p className="text-sm text-muted-foreground">
+                  Cette page n'a pas pu se charger (connexion instable ou nouvelle version du site).
+                  Rechargez-la pour continuer.
+                </p>
+              </>
+            )}
             <Button onClick={this.recharger} variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Réessayer
