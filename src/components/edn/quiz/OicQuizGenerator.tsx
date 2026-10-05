@@ -70,7 +70,10 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
   const handleFinish = async () => {
     setShowResults(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    // getSession() lit la session locale : hors connexion, getUser() (appel réseau) échouait et
+    // le score n'était ni enregistré ni signalé (critique finale, 05.10.2026).
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
     if (user) {
       const score = questions.filter(q => answers[q.id] === q.correctIndex).length;
       const percentage = Math.round((score / questions.length) * 100);
@@ -90,7 +93,12 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
       });
 
       if (erreurEnregistrement) {
-        toast.error('Score non enregistré. Réessayez plus tard.');
+        toast.error(
+          typeof navigator !== 'undefined' && !navigator.onLine
+            ? 'Score non enregistré : connexion interrompue. Refaites ce quiz une fois reconnecté pour l’enregistrer.'
+            : 'Score non enregistré. Réessayez plus tard.',
+        );
+        return;
       }
 
       await addPoints(user.id, percentage === 100 ? 200 : 100, percentage === 100 ? 'perfectExam' : 'examCompleted');

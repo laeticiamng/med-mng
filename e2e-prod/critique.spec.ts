@@ -230,3 +230,27 @@ test.describe('Critique finale — recherche : singulier/pluriel, accents, perti
     expect(erreurs).toEqual([]);
   });
 });
+
+test.describe('Critique finale — quiz terminé hors connexion', () => {
+  test.skip(!dispo(GRATUIT), 'E2E_FREE_* absents');
+  test.use({ storageState: session('gratuit') });
+
+  // Production (05.10.2026) : supabase.auth.getUser() échoue hors connexion ; le score n'était
+  // ni enregistré ni signalé. Rien n'est écrit en base par ce test (envoi hors connexion).
+  test('IC-1 : score non enregistré signalé, jamais perdu en silence @attend-deploiement', async ({ page, context }) => {
+    await page.goto('/edn-complete/ic-1/quiz');
+    await fermerCookies(page);
+    await page.getByText('Choisissez le rang à réviser').waitFor({ timeout: 30_000 });
+    await page.locator('main button', { hasText: 'Rang A' }).first().click();
+    const suivant = page.locator('main button', { hasText: /^Suivant$/ }).first();
+    while (await suivant.isVisible().catch(() => false)) {
+      await page.locator('main [role=radio]').first().click();
+      await suivant.click();
+    }
+    await page.locator('main [role=radio]').first().click();
+    await context.setOffline(true);
+    await page.locator('main button', { hasText: /^Terminer$/ }).first().click();
+    await expect(page.getByText(/Score non enregistré : connexion interrompue/)).toBeVisible({ timeout: 15_000 });
+    await context.setOffline(false);
+  });
+});
