@@ -14,7 +14,10 @@ test.describe('Fiches officielles', () => {
   test('IC-1 : rang A seul, mention neutre « pas de rang B »', async ({ page }) => {
     const erreurs = surveillerErreurs(page);
     await page.goto('/edn-complete/ic-1/apercu');
-    const t = await texte(page, 'OIC-001-01-A');
+    // Attendre la description définitive : pendant le chargement du rang B, la fiche affiche
+    // brièvement « rang A : 15 · rang B : 0 » (lu trop tôt sur un serveur lent, 05.10.2026).
+    const t = await texte(page, /\d+ compétences officielles de rang A \(pas de rang B pour cet item\)/);
+    expect(t).toContain('OIC-001-01-A');
     expect(t).toMatch(/\d+ compétences officielles de rang A \(pas de rang B pour cet item\)/);
     expect(t).toContain('Pas de compétence de rang B pour cet item au référentiel EDN.');
     expect(t).not.toMatch(ANOMALIES_RANG_B);
