@@ -133,14 +133,15 @@ test.describe('Critique finale — note personnelle et coupure de réseau', () =
 
     // Production (05.10.2026) : à l'ouverture d'un item, la valeur retardée (vide pendant 1 s) faisait
     // SUPPRIMER la note enregistrée (DELETE), recréée 1 s plus tard ; quitter la page entre-temps la
-    // perdait (prouvé : note d'IC-2 effacée en ouvrant l'item puis « Quiz » 300 ms après).
+    // perdait (prouvé : note d'IC-2 effacée en ouvrant l'item puis « Quiz » 300 ms après). Depuis DC5
+    // (06.10.2026), IC-2 n'est plus un item d'essai : le test utilise IC-27, ouvert sans Premium.
     test('ouvrir un item puis le quitter tout de suite ne supprime pas sa note @attend-deploiement', async ({ page }) => {
       const zone = () => page.getByPlaceholder(/Ajoutez vos notes personnelles/);
       const ecritures: string[] = [];
       page.on('request', (r) => {
         if (/rest\/v1\/user_edn_notes/.test(r.url()) && r.method() !== 'GET') ecritures.push(r.method());
       });
-      await page.goto('/edn-complete/ic-2/apercu');
+      await page.goto('/edn-complete/ic-27/apercu');
       await fermerCookies(page);
       await expect(zone()).toBeVisible({ timeout: 30_000 });
       const origine = await zone().inputValue();
@@ -156,11 +157,11 @@ test.describe('Critique finale — note personnelle et coupure de réseau', () =
         await page.waitForTimeout(3_000);
         expect(ecritures, 'aucune écriture à la simple ouverture').toEqual([]);
 
-        await page.goto('/edn-complete/ic-2/apercu');
+        await page.goto('/edn-complete/ic-27/apercu');
         await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
       } finally {
         // Remise en état de la note du compte de test, même si une vérification a échoué.
-        await page.goto('/edn-complete/ic-2/apercu');
+        await page.goto('/edn-complete/ic-27/apercu');
         await zone().waitFor({ timeout: 30_000 });
         await page.waitForTimeout(2_500);
         await zone().fill(origine);
@@ -179,7 +180,7 @@ test.describe('Critique finale — coupure de réseau pendant le chargement d’
   // Production (05.10.2026) : hors connexion, l'onglet « Quiz » d'un item remplaçait toute
   // l'application par « Oops ! Une erreur est survenue — Ne t'inquiète pas, ça arrive ».
   test('onglet ouvert hors connexion : message dédié, en-tête gardé, rechargement au retour du réseau @attend-deploiement', async ({ page, context }) => {
-    await page.goto('/edn-complete/ic-2/apercu');
+    await page.goto('/edn-complete/ic-27/apercu');
     await fermerCookies(page);
     const onglets = page.getByRole('navigation', { name: "Sections de l'item" });
     await expect(onglets).toBeVisible({ timeout: 30_000 });
@@ -191,7 +192,7 @@ test.describe('Critique finale — coupure de réseau pendant le chargement d’
     await expect(onglets).toBeVisible();
 
     await context.setOffline(false);
-    await expect(page.locator('main')).toContainText("Quiz de l'item IC-2", { timeout: 30_000 });
+    await expect(page.locator('main')).toContainText("Quiz de l'item IC-27", { timeout: 30_000 });
     await expect(page.getByText('Connexion interrompue')).toHaveCount(0);
   });
 });

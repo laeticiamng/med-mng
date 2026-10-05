@@ -49,6 +49,25 @@ test.describe('Verrou Premium — API', () => {
     expect((ouvert.json as { verrouille?: boolean }).verrouille ?? false).toBe(false);
   });
 
+  test('DC5 : anonyme, IC-161 ouvert et IC-2 verrouillé par la RPC @attend-deploiement', async ({ request }) => {
+    // Migration 20261006020000_mm_items_essai_cliniques.sql : 10 items d'essai cliniques.
+    const ouvert = await rest(request, 'rpc/mm_contenu_immersif_item', { methode: 'POST', corps: { p_item_code: 'IC-161' } });
+    expect(ouvert.status).toBe(200);
+    expect((ouvert.json as { verrouille?: boolean }).verrouille ?? false).toBe(false);
+    expect(JSON.stringify(ouvert.json)).toMatch(/paroles_rang_a"\s*:\s*\[\s*"/);
+
+    for (const code of ['IC-2', 'IC-10', 'IC-150']) {
+      const verrouille = await rest(request, 'rpc/mm_contenu_immersif_item', { methode: 'POST', corps: { p_item_code: code } });
+      expect(verrouille.status, code).toBe(200);
+      expect(verrouille.json, code).toMatchObject({ verrouille: true });
+      expect(JSON.stringify(verrouille.json), code).not.toMatch(/paroles_rang_a"\s*:\s*\[\s*"/);
+    }
+    for (const code of ['IC-1', 'IC-154', 'IC-27', 'IC-247', 'IC-359', 'IC-224', 'IC-340', 'IC-356', 'IC-66']) {
+      const r = await rest(request, 'rpc/mm_item_gratuit', { methode: 'POST', corps: { p_item_code: code } });
+      expect(r.json, code).toBe(true);
+    }
+  });
+
   test('RPC d’abonnement refusées à la clé publique seule @attend-deploiement', async ({ request }) => {
     // Migration 20261004130000_mm_rpc_abonnement_sans_anon.sql (D07).
     for (const [rpc, corps] of [
@@ -63,6 +82,24 @@ test.describe('Verrou Premium — API', () => {
 });
 
 test.describe('Verrou Premium — interface', () => {
+  test('DC5 : compte gratuit, paroles d’IC-161 ouvertes, celles d’IC-2 réservées à Premium @attend-deploiement', async ({ browser }) => {
+    test.skip(!dispo(GRATUIT), 'E2E_FREE_* absents');
+    const ctx = await browser.newContext({ storageState: session('gratuit'), locale: 'fr-FR' });
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/edn-complete/ic-161/musique');
+      await expect(page.locator('main')).toContainText('[Couplet 1]', { timeout: 30_000 });
+      await expect(page.locator('main')).not.toContainText('Les paroles de cet item font partie de Med MNG Premium');
+
+      await page.goto('/edn-complete/ic-2/musique');
+      await expect(page.locator('main')).toContainText('Les paroles de cet item font partie de Med MNG Premium', { timeout: 30_000 });
+      await expect(page.locator('main')).not.toContainText('[Couplet 1]');
+    } finally {
+      await ctx.close();
+    }
+  });
+
+
   test('compte gratuit : paroles d’IC-150 verrouillées, offre Premium proposée', async ({ browser }) => {
     test.skip(!dispo(GRATUIT), 'E2E_FREE_* absents');
     const ctx = await browser.newContext({ storageState: session('gratuit'), locale: 'fr-FR' });

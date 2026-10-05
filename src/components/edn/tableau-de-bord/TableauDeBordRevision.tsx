@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FORMULES_PREMIUM, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM } from '@/config/offre';
+import { FORMULES_PREMIUM, ITEMS_GRATUITS, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import type { MotifRecommandation, Recommandation } from '@/lib/recommandation';
 import { AlertTriangle, ArrowRight, CalendarClock, Gift, History, Info, ListOrdered, UserPlus } from 'lucide-react';
@@ -162,7 +162,7 @@ export function LigneOffre() {
         </summary>
         <ul className="mt-2 list-disc space-y-1 pl-4 [&>li]:text-xs [&>li]:leading-normal">
           <li>Fiches officielles des {NOMBRE_ITEMS_TOTAL} items (compétences rang A et rang B) : gratuites.</li>
-          <li>Paroles, récit, planches et quiz des items IC-1 à IC-{NOMBRE_ITEMS_GRATUITS} : gratuits.</li>
+          <li>Paroles, récit, planches et quiz des {NOMBRE_ITEMS_GRATUITS} items d'essai ({ITEMS_GRATUITS.join(', ')}) : gratuits.</li>
           <li>
             {NOM_OFFRE_PREMIUM} ({annuel.prixAffiche} ou {FORMULES_PREMIUM.mensuel.prixAffiche}) : contenu immersif des{' '}
             {NOMBRE_ITEMS_TOTAL} items et génération audio.

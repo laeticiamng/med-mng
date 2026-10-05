@@ -5,7 +5,12 @@
  * les EDN 2028 et 2029 (sessions d'octobre 2027 et 2028).
  *  - Gratuit : fiches officielles (compétences du référentiel LiSA 2026, rang A
  *    et rang B) pour les 367 items + contenu immersif complet (paroles, récit,
- *    planches, quiz) pour les 10 items d'essai listés dans `ITEMS_GRATUITS`.
+ *    planches, quiz) pour les 10 items d'essai listés dans `ITEMS_GRATUITS` :
+ *    IC-1 (relation médecin-malade) et 9 items cliniques à fort poids
+ *    d'appariement (décision DC5, 06.10.2026 ; critère : nombre de groupes de
+ *    DES pondérant le rang B, arrêté du 19.04.2022, annexe 1). Liste à tenir
+ *    alignée avec la fonction SQL `public.mm_items_gratuits()`
+ *    (supabase/migrations/20261006020000_mm_items_essai_cliniques.sql).
  *  - Med MNG Premium : contenu immersif des 367 items + génération audio
  *    (quota mensuel `QUOTA_GENERATIONS_AUDIO_PREMIUM`).
  *
@@ -15,10 +20,17 @@
  * supabase/functions/mm-generate-music/index.ts (le front ne fait pas foi).
  */
 
-/** Les 10 items d'essai dont le contenu immersif est accessible sans abonnement. */
+/**
+ * Les 10 items d'essai dont le contenu immersif est accessible sans abonnement.
+ * IC-1 Relation médecin-malade, IC-161 Infections urinaires, IC-154 Infections
+ * broncho-pulmonaires communautaires, IC-27 Prévention des risques fœtaux,
+ * IC-247 Diabète de type 1 et 2, IC-359 Détresse respiratoire aiguë, IC-224 HTA,
+ * IC-340 AVC, IC-356 Appendicite, IC-66 Troubles dépressifs et anxieux.
+ * Identique à `public.mm_items_gratuits()` côté serveur (qui fait foi).
+ */
 export const ITEMS_GRATUITS: readonly string[] = [
-  'IC-1', 'IC-2', 'IC-3', 'IC-4', 'IC-5',
-  'IC-6', 'IC-7', 'IC-8', 'IC-9', 'IC-10',
+  'IC-1', 'IC-161', 'IC-154', 'IC-27', 'IC-247',
+  'IC-359', 'IC-224', 'IC-340', 'IC-356', 'IC-66',
 ] as const;
 
 export const NOMBRE_ITEMS_TOTAL = 367;
