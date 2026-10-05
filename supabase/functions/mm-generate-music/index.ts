@@ -211,20 +211,21 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const { userId } = await getAuthenticatedUser(supabase, req.headers.get('authorization'));
+
+    // Contrôle serveur : abonnement MED MNG Premium actif + quota mensuel.
+    // (Le front ne fait pas foi : ce contrôle est le seul qui compte.)
+    // Il précède la lecture du corps : un appel anonyme reçoit 401 quel que soit le corps.
+    const refus = await verifierDroitGeneration(supabase, userId);
+    if (refus) {
+      return reponseJson({ success: false, error: refus.message, code: refus.code }, refus.status);
+    }
+
     let body: RequeteGeneration;
     try {
       body = await req.json();
     } catch {
       return reponseJson({ success: false, error: 'Requête invalide.', code: 'REQUETE_INVALIDE' }, 400);
-    }
-
-    const { userId } = await getAuthenticatedUser(supabase, req.headers.get('authorization'));
-
-    // Contrôle serveur : abonnement MED MNG Premium actif + quota mensuel.
-    // (Le front ne fait pas foi : ce contrôle est le seul qui compte.)
-    const refus = await verifierDroitGeneration(supabase, userId);
-    if (refus) {
-      return reponseJson({ success: false, error: refus.message, code: refus.code }, refus.status);
     }
 
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
