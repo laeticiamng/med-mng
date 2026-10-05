@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EcosHeaderProps {
-  /** Facultatif : le chronomètre de la station (7 min) est affiché dans la page. */
+  /** Facultatif : le chronomètre de la station (8 min) est affiché dans la page. */
   timeLeft?: number;
   formatTime?: (seconds: number) => string;
   scenarioId: string;

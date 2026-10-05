@@ -41,7 +41,7 @@ const defaultCriteria: EvaluationCriteria[] = [
   
   // Interrogatoire
   { id: 'int-1', category: 'Interrogatoire', description: 'Recherche le motif principal', points: 2, isRequired: true },
-  { id: 'int-2', category: 'Interrogatoire', description: 'Caractérise les symptômes (ATCD, durée, intensité)', points: 3, isRequired: true },
+  { id: 'int-2', category: 'Interrogatoire', description: 'Caractérise les symptômes (début, durée, intensité)', points: 3, isRequired: true },
   { id: 'int-3', category: 'Interrogatoire', description: 'Recherche les antécédents pertinents', points: 2, isRequired: true },
   { id: 'int-4', category: 'Interrogatoire', description: 'Recherche les traitements en cours', points: 1, isRequired: false },
   { id: 'int-5', category: 'Interrogatoire', description: 'Recherche les allergies', points: 1, isRequired: true },
@@ -199,6 +199,12 @@ export const EcosEvaluationGrid = ({
             </div>
           </div>
         ))}
+
+        <p className="text-sm text-muted-foreground">
+          Aux ECOS nationaux, chaque station évalue un seul domaine de compétence (sur 11), avec une
+          grille propre à la station, non publiée. Cochez seulement les critères qui s'appliquent à la
+          situation.
+        </p>
 
         {/* Submit button */}
         {!isSubmitted ? (

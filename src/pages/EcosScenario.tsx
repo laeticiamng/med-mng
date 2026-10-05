@@ -9,6 +9,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { DUREE_STATION_ECOS_MINUTES } from '@/config/ecos';
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowLeft, FileText, Flame, HandIcon, Loader2, MessageCircle, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -159,7 +160,7 @@ const EcosScenario = () => {
       id: String(dbScenario.sd_id),
       title: dbScenario.intitule_sd,
       specialty: 'Situation de départ ECOS',
-      duration: 7,
+      duration: DUREE_STATION_ECOS_MINUTES,
       pitch: `Situation clinique : ${dbScenario.intitule_sd}. Prenez en charge ce patient de manière structurée.`,
       patient: {
         name: 'Patient(e)',
@@ -332,7 +333,7 @@ const EcosScenario = () => {
 
       <div className="relative z-10">
         {/* Pas de second chronomètre dans l'en-tête : il affichait « 15:00 »
-            figé, en contradiction avec le chronomètre réel de 7 min. */}
+            figé, en contradiction avec le chronomètre réel de 8 min. */}
         <EcosHeader 
           scenarioId={scenarioData.id}
           specialty={scenarioData.specialty}
@@ -370,7 +371,7 @@ const EcosScenario = () => {
           {/* Real-time Timer */}
           <div className="mb-8">
             <EcosRealTimeTimer 
-              durationMinutes={7}
+              durationMinutes={DUREE_STATION_ECOS_MINUTES}
               autoStart={false}
               onTimeUp={() => setShowEvaluation(true)}
             />

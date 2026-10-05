@@ -41,7 +41,7 @@ const GRILLES_UNESS: Record<string, UNESSGrid> = {
     id: 'ecos-cardio',
     nom: 'ECOS Cardiologie',
     specialite: 'Cardiologie',
-    dureeMinutes: 7,
+    dureeMinutes: 8,
     seuilValidation: 60,
     categories: [
       {
@@ -119,7 +119,7 @@ const GRILLES_UNESS: Record<string, UNESSGrid> = {
     id: 'ecos-neuro',
     nom: 'ECOS Neurologie',
     specialite: 'Neurologie',
-    dureeMinutes: 7,
+    dureeMinutes: 8,
     seuilValidation: 60,
     categories: [
       {
@@ -193,7 +193,7 @@ const GRILLES_UNESS: Record<string, UNESSGrid> = {
     id: 'ecos-urgences',
     nom: 'ECOS Urgences',
     specialite: 'Médecine d\'Urgence',
-    dureeMinutes: 7,
+    dureeMinutes: 8,
     seuilValidation: 60,
     categories: [
       {

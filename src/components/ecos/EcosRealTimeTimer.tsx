@@ -2,11 +2,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { DUREE_STATION_ECOS_MINUTES } from '@/config/ecos';
 import { AlertTriangle, Clock, Pause, Play, RotateCcw, Volume2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface EcosRealTimeTimerProps {
-  durationMinutes?: number; // Default 7 min per ECOS station
+  durationMinutes?: number; // Défaut : 8 min d'épreuve par station (arrêté du 13.11.2025, JO du 19.11.2025)
   onTimeUp?: () => void;
   onPause?: () => void;
   onResume?: () => void;
@@ -14,7 +15,7 @@ interface EcosRealTimeTimerProps {
 }
 
 export const EcosRealTimeTimer = ({
-  durationMinutes = 7,
+  durationMinutes = DUREE_STATION_ECOS_MINUTES,
   onTimeUp,
   onPause,
   onResume,

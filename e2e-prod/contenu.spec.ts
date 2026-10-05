@@ -146,6 +146,19 @@ test.describe('ECOS', () => {
     expect(erreurs).toEqual([]);
   });
 
+  test('DC6 : chronomètre de 8 minutes (arrêté du 13.11.2025), « 8 min par station » @attend-deploiement', async ({ page }) => {
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/ecos');
+    const index = await texte(page, 'Situation 12');
+    expect(index).toContain('8 min par station');
+    expect(index).not.toContain('7 min par station');
+    await page.goto('/ecos/1');
+    await expect(page.locator('main')).toContainText('08:00', { timeout: 30_000 });
+    await expect(page.locator('main').getByText('8 min', { exact: true })).toBeVisible();
+    await expect(page.locator('main')).not.toContainText('07:00');
+    expect(erreurs).toEqual([]);
+  });
+
   test('DC9 : titres des stations par motif de consultation, sans diagnostic @attend-deploiement', async ({ page }) => {
     // Migration 20261004140000_mm_ecos_titres_motif.sql.
     await page.goto('/ecos');
