@@ -95,31 +95,40 @@ test.describe('Critique finale — note personnelle et coupure de réseau', () =
       const origine = await zone().inputValue();
       const marque = `Note E2E hors ligne ${Date.now()}`;
 
-      await context.setOffline(true);
-      await zone().fill(marque);
-      // Plus de faux « Sauvegardé » : l'état dit la vérité.
-      await expect(page.getByText('Non enregistrée — gardée sur cet appareil')).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByText(/^(Enregistrée|Sauvegardé)$/)).toHaveCount(0);
+      let page2 = page;
+      try {
+        await context.setOffline(true);
+        await zone().fill(marque);
+        // Plus de faux « Sauvegardé » : l'état dit la vérité.
+        await expect(page.getByText('Non enregistrée — gardée sur cet appareil')).toBeVisible({ timeout: 15_000 });
+        await expect(page.getByText(/^(Enregistrée|Sauvegardé)$/)).toHaveCount(0);
 
-      // L'onglet est fermé AVANT le retour du réseau : la saisie ne doit pas être perdue.
-      await page.close();
-      await context.setOffline(false);
-      const page2 = await context.newPage();
-      await page2.goto('/edn-complete/ic-1/apercu');
-      const zone2 = page2.getByPlaceholder(/Ajoutez vos notes personnelles/);
-      await expect(zone2).toHaveValue(marque, { timeout: 30_000 });
-      await expect(page2.getByText('Enregistrée', { exact: true })).toBeVisible({ timeout: 20_000 });
+        // L'onglet est fermé AVANT le retour du réseau : la saisie ne doit pas être perdue.
+        await page.close();
+        await context.setOffline(false);
+        page2 = await context.newPage();
+        await page2.goto('/edn-complete/ic-1/apercu');
+        const zone2 = page2.getByPlaceholder(/Ajoutez vos notes personnelles/);
+        await expect(zone2).toHaveValue(marque, { timeout: 30_000 });
+        await expect(page2.getByText('Enregistrée', { exact: true })).toBeVisible({ timeout: 20_000 });
 
-      // Vraiment enregistrée dans le compte : un autre onglet sans brouillon la relit.
-      await page2.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('medmng_note_brouillon')).forEach((k) => localStorage.removeItem(k)));
-      await page2.reload();
-      await expect(page2.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveValue(marque, { timeout: 30_000 });
-
-      // Remise en état : la note d'origine du compte de test.
-      await page2.getByPlaceholder(/Ajoutez vos notes personnelles/).fill(origine);
-      await page2.waitForTimeout(3_000);
-      await page2.reload();
-      await expect(page2.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveValue(origine, { timeout: 30_000 });
+        // Vraiment enregistrée dans le compte : un autre onglet sans brouillon la relit.
+        await page2.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('medmng_note_brouillon')).forEach((k) => localStorage.removeItem(k)));
+        await page2.reload();
+        await expect(page2.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveValue(marque, { timeout: 30_000 });
+      } finally {
+        // Remise en état de la note du compte de test, même si une vérification a échoué.
+        await context.setOffline(false);
+        if (page2.isClosed()) page2 = await context.newPage();
+        await page2.goto('/edn-complete/ic-1/apercu');
+        const zoneFinale = page2.getByPlaceholder(/Ajoutez vos notes personnelles/);
+        await zoneFinale.waitFor({ timeout: 30_000 });
+        await page2.waitForTimeout(2_500);
+        await zoneFinale.fill(origine);
+        await page2.waitForTimeout(3_000);
+        await page2.reload();
+        await expect(page2.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveValue(origine, { timeout: 30_000 });
+      }
     });
 
     // Production (05.10.2026) : à l'ouverture d'un item, la valeur retardée (vide pendant 1 s) faisait
@@ -136,24 +145,29 @@ test.describe('Critique finale — note personnelle et coupure de réseau', () =
       await expect(zone()).toBeVisible({ timeout: 30_000 });
       const origine = await zone().inputValue();
       const marque = `Note E2E départ rapide ${Date.now()}`;
-      await zone().fill(marque);
-      await expect(page.getByText('Enregistrée', { exact: true })).toBeVisible({ timeout: 20_000 });
+      try {
+        await zone().fill(marque);
+        await expect(page.getByText('Enregistrée', { exact: true })).toBeVisible({ timeout: 20_000 });
 
-      ecritures.length = 0;
-      await page.reload();
-      await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
-      await page.getByRole('link', { name: /^Quiz$/ }).first().click();
-      await page.waitForTimeout(3_000);
-      expect(ecritures, 'aucune écriture à la simple ouverture').toEqual([]);
+        ecritures.length = 0;
+        await page.reload();
+        await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
+        await page.getByRole('link', { name: /^Quiz$/ }).first().click();
+        await page.waitForTimeout(3_000);
+        expect(ecritures, 'aucune écriture à la simple ouverture').toEqual([]);
 
-      await page.goto('/edn-complete/ic-2/apercu');
-      await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
-
-      // Remise en état.
-      await zone().fill(origine);
-      await page.waitForTimeout(3_000);
-      await page.reload();
-      await expect(zone()).toHaveValue(origine, { timeout: 30_000 });
+        await page.goto('/edn-complete/ic-2/apercu');
+        await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
+      } finally {
+        // Remise en état de la note du compte de test, même si une vérification a échoué.
+        await page.goto('/edn-complete/ic-2/apercu');
+        await zone().waitFor({ timeout: 30_000 });
+        await page.waitForTimeout(2_500);
+        await zone().fill(origine);
+        await page.waitForTimeout(3_000);
+        await page.reload();
+        await expect(zone()).toHaveValue(origine, { timeout: 30_000 });
+      }
     });
   });
 });

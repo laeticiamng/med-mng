@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-05] — Critique finale indépendante
+### Corrigé (fiabilité, données)
+- Notes personnelles : ouvrir un item supprimait la note enregistrée puis la recréait 1 s plus tard (la quitter entre-temps la perdait) ; hors connexion, « Sauvegardé » s'affichait sans rien envoyer. Saisie gardée sur l'appareil jusqu'à confirmation, renvoyée au retour du réseau, état réel affiché ; visiteur invité à se connecter.
+- Coupure de réseau pendant le chargement d'une page : message « Connexion interrompue » (en-tête et onglets gardés) et rechargement au retour du réseau, au lieu de la page « Oops ! » ; un seul rechargement automatique si les fichiers d'une ancienne version manquent.
+- Quiz terminé hors connexion : score non enregistré signalé (il était perdu en silence).
+### Corrigé (allégations, contenu, UX)
+- Récit et planches : mentions exactes (rédigés et illustrés par IA pour chaque item) au lieu de « formules types communes à tous les items » et « photos génériques » ; FAQ, CGU et page Méthode : plus « en cours de génération ».
+- Onglet Musique d'un item sans compétence de rang A (IC-30, IC-142) : plus de chanson « Rang A » ni de mots-clés bruts.
+- Quiz : « Classement » (ne pouvait montrer que soi) et « Partager » (score « 100 % » inventé) retirés.
+- Recherche (liste et ⌘K) : singulier/pluriel et accents confondus (« accident vasculaire cérébral » trouve l'IC-340) ; ⌘K classe d'abord les titres puis les items aux compétences les plus concernées.
+### Tests
+- `e2e-prod/critique.spec.ts` : 10 tests de non-régression (`@attend-deploiement`) ; tests unitaires : brouillon de note, motif de recherche, barrière de chargement.
+
 ## [2026-10-04] — Finalisation, vague 3
 ### Retiré
 - Sélecteur de langue (drapeau flottant) : il ne traduisait que quelques libellés ; l'interface est en français uniquement, un ancien choix « English » est effacé (D42).
