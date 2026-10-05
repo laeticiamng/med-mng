@@ -8,10 +8,21 @@
  * public « bd-illustrations » ; l'adresse dépend du texte de la description.
  *
  * Entrée : { itemCode, illustration }  →  { url }
+ *
+ * ACCÈS (vague sécurité F66-MM, 05.10.2026) : la fonction était appelable avec
+ * la seule clé publique et dessinait (OpenAI, payant) n'importe quelle case,
+ * y compris celles des items réservés à Premium. Désormais : personne connectée
+ * (exigerConnexion, AVANT la lecture du corps), puis même règle que le verrou du
+ * contenu immersif — item d'essai, abonné Premium ou administrateur
+ * (verifierAccesItem) — avant toute lecture en base et tout appel à OpenAI.
+ * Les 4 521 cases étaient déjà dessinées au 05.10.2026 (stockage public
+ * « bd-illustrations ») : le composant IllustrationCase lit d'abord l'image
+ * publique et n'appelle la fonction que pour une case jamais dessinée.
  */
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
+import { exigerConnexion, verifierAccesItem } from '../_shared/mm-garde.ts'
 
 const BUCKET = 'bd-illustrations'
 const STYLE =
@@ -29,12 +40,17 @@ serve(async (req) => {
     new Response(JSON.stringify(corps), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
   if (req.method === 'OPTIONS') return new Response(null, { headers: cors })
 
+  const appelant = await exigerConnexion(req, cors)
+  if (appelant instanceof Response) return appelant
+
   try {
     const { itemCode, illustration } = await req.json().catch(() => ({}))
     const texte = String(illustration ?? '').trim()
     if (!/^IC-\d{1,3}$/.test(String(itemCode ?? '')) || texte.length < 10 || texte.length > 1200) {
       return repondre({ error: 'requete_invalide' }, 400)
     }
+    const refus = await verifierAccesItem(appelant, String(itemCode), cors)
+    if (refus) return refus
 
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 

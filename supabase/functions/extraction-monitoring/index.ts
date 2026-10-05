@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { corsHeaders } from '../_shared/cors.ts'
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -27,6 +28,11 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
+
+  // Vague sécurité F66-MM (05.10.2026) : appelable avec la seule clé publique (verify_jwt = false)
+  // Rôle : État des extractions lu avec la clé de service ; seul ExtractionMonitoringDashboard (administration) l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const url = new URL(req.url)

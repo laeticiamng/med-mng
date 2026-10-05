@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 interface AnalyticsQuery {
   startDate?: string;
@@ -12,6 +13,11 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Vague sécurité F66-MM (05.10.2026) : appelable avec la seule clé publique (verify_jwt = false)
+  // Rôle : Agrégats d'activité lus avec la clé de service ; seul le tableau de bord d'administration (AdminDashboard) l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const supabase = createClient(

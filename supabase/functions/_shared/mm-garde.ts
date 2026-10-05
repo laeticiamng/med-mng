@@ -98,5 +98,32 @@ export async function exigerPremium(req: Request, cors: Cors): Promise<Appelant 
   return appelant;
 }
 
+/**
+ * Contenu propre à un item EDN (illustration d'une planche, etc.) : accordé pour
+ * un item d'essai (RPC mm_item_gratuit), à un abonné Premium ou administrateur
+ * (RPC mm_a_acces_premium) et à la clé de service — même règle que le verrou du
+ * contenu immersif (RPC mm_contenu_immersif_item). L'appelant doit déjà être
+ * identifié (exigerConnexion). null si l'accès est accordé, sinon 402 ou 503.
+ */
+export async function verifierAccesItem(appelant: Appelant, itemCode: string, cors: Cors): Promise<Response | null> {
+  if (appelant.service) return null;
+  const client = clientService();
+  const { data: gratuit, error: erreurGratuit } = await client.rpc('mm_item_gratuit', { p_item_code: itemCode });
+  if (erreurGratuit) {
+    console.error('❌ Vérification de l\'item d\'essai impossible :', erreurGratuit.message);
+    return repondre(cors, 503, 'VERIFICATION_IMPOSSIBLE', 'Service momentanément indisponible. Réessayez dans quelques minutes.');
+  }
+  if (gratuit === true) return null;
+  const { data: premium, error: erreurPremium } = await client.rpc('mm_a_acces_premium', { p_user_id: appelant.userId });
+  if (erreurPremium) {
+    console.error('❌ Vérification Premium impossible :', erreurPremium.message);
+    return repondre(cors, 503, 'VERIFICATION_IMPOSSIBLE', 'Service momentanément indisponible. Réessayez dans quelques minutes.');
+  }
+  if (premium !== true) {
+    return repondre(cors, 402, 'PREMIUM_REQUIS', 'Contenu inclus dans MED MNG Premium (69 €/an ou 9,90 €/mois).');
+  }
+  return null;
+}
+
 /** Fonctionnalité retirée (410) : remplace un point d'entrée coûteux sans contrôle. */
 export const fonctionRetiree = (cors: Cors, message: string) => repondre(cors, 410, 'RETIREE', message);

@@ -7,11 +7,17 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Vague sécurité F66-MM (05.10.2026) : appelable avec la seule clé publique (verify_jwt = false)
+  // Rôle : Métriques de génération musicale lues avec la clé de service ; seul useMusicMetrics (administration) l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const supabase = createClient(

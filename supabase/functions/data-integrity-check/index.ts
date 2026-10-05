@@ -1,6 +1,7 @@
 // ✅ DATA INTEGRITY CHECK - Automatisation check intégrité post-import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 interface IntegrityCheckRequest {
   action: 'run_check' | 'get_status' | 'get_latest_reports';
@@ -25,6 +26,11 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Vague sécurité F66-MM (05.10.2026) : appelable avec la seule clé publique (verify_jwt = false)
+  // Rôle : Contrôle d'intégrité des données (écritures dans data_integrity_checks et operation_logs) avec la clé de service ; seul le tableau de bord d'administration l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const supabase = createClient(
