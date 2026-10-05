@@ -11,9 +11,13 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
 import { fonctionRetiree } from '../_shared/mm-garde.ts';
 
+// Témoin de la version retirée : les sondes E2E (e2e-prod/f66mm.spec.ts) le vérifient sur la
+// réponse OPTIONS avant toute requête, pour ne jamais atteindre une ancienne version non redéployée.
+const enTetes = { ...corsHeaders, 'x-mm-fonction-retiree': 'F66-MM' };
+
 serve((req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: enTetes });
   }
-  return fonctionRetiree(corsHeaders, 'Cette fonctionnalité a été retirée.');
+  return fonctionRetiree(enTetes, 'Cette fonctionnalité a été retirée.');
 });
