@@ -118,8 +118,10 @@ test.describe('Fonctions Edge — contrôle d’accès', () => {
     const externe = await appelerFonction(request, 'whisper-transcribe', { audioUrl: 'https://exemple.invalid/note.mp3' }, token);
     expect(externe.status, 'audioUrl externe').toBe(400);
     expect(externe.json?.code).toBe('URL_NON_AUTORISEE');
-    const volumineux = await appelerFonction(request, 'whisper-transcribe', `{${' '.repeat(14 * 1024 * 1024)}`, token);
-    expect(volumineux.status, 'corps de 14 Mo').toBe(413);
+    // 9 Mo : au-delà de la limite de la fonction (~8 Mo de corps pour 6 Mo d'audio), en deçà du
+    // plafond de la plateforme (~14 Mo → 502 avant la fonction, mesuré le 05.10.2026).
+    const volumineux = await appelerFonction(request, 'whisper-transcribe', `{${' '.repeat(9 * 1024 * 1024)}`, token);
+    expect(volumineux.status, 'corps de 9 Mo').toBe(413);
     expect(volumineux.json?.code).toBe('AUDIO_TROP_VOLUMINEUX');
     // Sans en-tête : toujours 401.
     expect((await appelerFonction(request, 'whisper-transcribe', CORPS_INVALIDE, null)).status).toBe(401);

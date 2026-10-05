@@ -23,7 +23,7 @@ All notable changes to this project will be documented in this file.
 - Bandeau cookies, politique cookies et politique de confidentialité : statistiques de l'hébergeur Lovable décrites (pages vues, cookie `session-id` de 30 minutes, toujours actives) ; « Plausible Analytics » (jamais chargé) et les cookies fictifs retirés ; inventaire réel des cookies et du stockage.
 - La visite de la page Tarifs par un visiteur non connecté n'est plus enregistrée sans son accord (mesure d'audience Med MNG optionnelle, choix « Refuser / Accepter la mesure »).
 ### Sécurité
-- `whisper-transcribe` : 20 transcriptions par compte et par jour, audio de 10 Mo au maximum, `audioUrl` limitée au stockage du projet (plus de téléchargement d'adresse quelconque) (D45).
+- `whisper-transcribe` : 20 transcriptions par compte et par jour, audio de 6 Mo au maximum (05.10 : avec 10 Mo, le corps dépassait le plafond de la plateforme et le refus 413 n'était jamais atteint), `audioUrl` limitée au stockage du projet (plus de téléchargement d'adresse quelconque) (D45).
 ### Audio
 - `mm-music-status` copie dans `mm-chansons` l'audio d'une génération terminée resté sur un fichier Suno temporaire (14 jours) (D40).
 

@@ -19,8 +19,13 @@ import { reserverUtilisationJournaliere, tailleBase64Decodee } from '../_shared/
  * compte gratuit pouvait la solliciter sans fin, avec des fichiers de taille quelconque, et faire
  * télécharger au serveur n'importe quelle adresse (audioUrl).
  */
-/** Audio décodé accepté (OpenAI accepte 25 Mo ; ~10 min d'enregistrement compressé). */
-const TAILLE_MAX_AUDIO_OCTETS = 10 * 1024 * 1024;
+/**
+ * Audio décodé accepté (OpenAI accepte 25 Mo ; ~6 min d'enregistrement compressé).
+ * 6 Mo, et non 10 : la plateforme Supabase coupe elle-même les corps d'environ 14 Mo (502 au bout
+ * de ~30 s, mesuré le 05.10.2026), si bien que le refus explicite (413) de cette fonction
+ * n'était jamais atteint. Avec 6 Mo, le corps maximal (~8 Mo) reste sous ce plafond.
+ */
+const TAILLE_MAX_AUDIO_OCTETS = 6 * 1024 * 1024;
 /** Corps de requête maximal : audio en base64 (4/3) + marge pour les autres champs. */
 const TAILLE_MAX_CORPS_OCTETS = Math.ceil((TAILLE_MAX_AUDIO_OCTETS * 4) / 3) + 64 * 1024;
 /** Transcriptions par compte et par jour (UTC). La clé de service n'est pas limitée. */
@@ -80,14 +85,14 @@ serve(async (req) => {
   // Taille annoncée du corps : refus avant toute lecture.
   const longueur = Number(req.headers.get('content-length') ?? '0');
   if (longueur > TAILLE_MAX_CORPS_OCTETS) {
-    return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (10 Mo au maximum).');
+    return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (6 Mo au maximum).');
   }
 
   let corps: TranscribeRequest;
   try {
     const texte = await req.text();
     if (texte.length > TAILLE_MAX_CORPS_OCTETS) {
-      return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (10 Mo au maximum).');
+      return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (6 Mo au maximum).');
     }
     corps = JSON.parse(texte);
   } catch {
@@ -114,7 +119,7 @@ serve(async (req) => {
       return refus(400, 'REQUETE_INVALIDE', 'Requête invalide.');
     }
     if (audioBase64 && tailleBase64Decodee(audioBase64) > TAILLE_MAX_AUDIO_OCTETS) {
-      return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (10 Mo au maximum).');
+      return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (6 Mo au maximum).');
     }
     if (!audioBase64 && (typeof audioUrl !== 'string' || !audioUrlAutorisee(audioUrl))) {
       return refus(400, 'URL_NON_AUTORISEE', 'Seuls les fichiers audio du stockage de la plateforme sont acceptés.');
@@ -162,11 +167,11 @@ serve(async (req) => {
         throw new Error(`Failed to fetch audio from URL: ${audioResponse.status}`);
       }
       if (Number(audioResponse.headers.get('content-length') ?? '0') > TAILLE_MAX_AUDIO_OCTETS) {
-        return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (10 Mo au maximum).');
+        return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (6 Mo au maximum).');
       }
       audioData = new Uint8Array(await audioResponse.arrayBuffer());
       if (audioData.byteLength > TAILLE_MAX_AUDIO_OCTETS) {
-        return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (10 Mo au maximum).');
+        return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (6 Mo au maximum).');
       }
       // Extract filename from URL
       const urlParts = audioUrl.split('/');
