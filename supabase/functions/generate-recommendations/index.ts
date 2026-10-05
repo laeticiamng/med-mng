@@ -2,6 +2,16 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { corsHeaders } from '../_shared/cors.ts';
 import { completionIA } from '../_shared/ia-resiliente.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+
+/**
+ * ACCÈS (contre-vérification de la vague sécurité F66-MM, 05.10.2026) : la fonction appelait la
+ * passerelle IA (payante) pour toute personne connectée. L'inscription est libre et chacun peut
+ * écrire ses propres lignes de notification_history (politique RLS d'insertion) : 10 lignes
+ * suffisaient pour déclencher des appels payants sans limite depuis un compte gratuit. Son seul
+ * appelant est le panneau RecommendationsPanel du tableau de bord d'accessibilité, page réservée
+ * aux administrateurs (AdminRoute) : exigerAdministrateur, avant la lecture du corps et tout appel.
+ */
 
 interface Recommendation {
   title: string;
@@ -15,6 +25,10 @@ const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Réservée aux administrateurs (seul appelant : écran d'administration) — avant tout le reste.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const authHeader = req.headers.get("authorization");

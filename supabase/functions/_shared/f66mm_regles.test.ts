@@ -26,6 +26,10 @@ export const REGLES_F66MM: Record<string, Regle> = {
   'ai-chat': 'administrateur',
   // (c) administrateur — fonction à session : un compte gratuit pouvait écrire le contenu partagé
   'import-edn-data': 'administrateur',
+  // (c) administrateur — fonction à session : un compte gratuit déclenchait la passerelle IA payante
+  // (10 lignes de notification_history, qu'il peut insérer lui-même, suffisaient) ; seul appelant :
+  // RecommendationsPanel (tableau de bord d'accessibilité, AdminRoute). Contre-vérification F66-MM.
+  'generate-recommendations': 'administrateur',
   // (a) personne connectée, puis item d'essai / Premium / administrateur
   'illustrer-case': 'connexion_item',
   // (b) rappel de fournisseur : URL signée par mm-generate-music

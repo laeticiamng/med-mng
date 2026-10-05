@@ -56,6 +56,9 @@ const SONDES_SURES: Record<string, Attendu> = {
   'resend-notification': AUTH,
   'secure-streaming-proxy': AUTH,
   'ai-chat': AUTH,
+  // ancienne version (code 5ff1d069, déployée le 05.10 à 09:28 UTC) : corps lu avec repli `{}`, puis
+  // session exigée (auth.getUser) AVANT toute lecture et tout appel IA : la clé publique échoue en 500
+  'generate-recommendations': AUTH,
   // personne connectée (puis accès à l'item)
   'illustrer-case': AUTH,
   // rappel Suno : URL signée exigée
