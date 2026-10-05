@@ -129,10 +129,10 @@ const avecCle = (cle: string): RequestInit => ({
 const REGLES = lireRegles();
 
 Deno.test({
-  name: 'F66-MM démarrage : 142 fonctions, listes lues dans f66mm_regles.test.ts',
+  name: 'F66-MM démarrage : 148 fonctions, listes lues dans f66mm_regles.test.ts',
   ignore: !ACTIF,
   fn() {
-    assertEquals(Object.keys(REGLES).length, 142);
+    assertEquals(Object.keys(REGLES).length, 148);
   },
 });
 

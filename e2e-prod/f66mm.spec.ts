@@ -82,6 +82,13 @@ const SONDES_APRES_DEPLOIEMENT: Record<string, Attendu> = {
   'extraction-monitoring': AUTH,
   'music-metrics': AUTH,
   'security-metrics': AUTH,
+  // fonctions à session (l'ancienne version refusait déjà la clé publique ; gardées ici par prudence)
+  'import-edn-data': AUTH,
+  'ai-recommendations': RETIREE,
+  'cancel-ia-task': RETIREE,
+  'content-ai-generator': RETIREE,
+  'items-completeness-api': RETIREE,
+  'mm-send-push-notification': RETIREE,
 };
 
 /** Orphelines retirées (110), lues dans le test Deno (source unique). */

@@ -24,6 +24,8 @@ export const REGLES_F66MM: Record<string, Regle> = {
   'secure-streaming-proxy': 'administrateur',
   'security-metrics': 'administrateur',
   'ai-chat': 'administrateur',
+  // (c) administrateur — fonction à session : un compte gratuit pouvait écrire le contenu partagé
+  'import-edn-data': 'administrateur',
   // (a) personne connectée, puis item d'essai / Premium / administrateur
   'illustrer-case': 'connexion_item',
   // (b) rappel de fournisseur : URL signée par mm-generate-music
@@ -51,6 +53,13 @@ export const REGLES_F66MM: Record<string, Regle> = {
   'spotify-ai-complete': 'retiree',
   'system': 'retiree',
   'webhooks': 'retiree',
+  // (d) fonctions à session sans appelant atteignable, dangereuses pour un simple compte gratuit
+  // (push à tous les abonnés, IA payante sans limite, suppression sans contrôle du propriétaire)
+  'ai-recommendations': 'retiree',
+  'cancel-ia-task': 'retiree',
+  'content-ai-generator': 'retiree',
+  'items-completeness-api': 'retiree',
+  'mm-send-push-notification': 'retiree',
 };
 
 /**
@@ -127,13 +136,13 @@ function apres(source: string, depuis: number, motif: RegExp): number {
   return i < 0 ? -1 : depuis + i;
 }
 
-Deno.test('F66-MM : listes cohérentes (132 retirées dont 110 orphelines, sans doublon)', () => {
+Deno.test('F66-MM : listes cohérentes (137 retirées dont 110 orphelines, sans doublon)', () => {
   assertEquals(ORPHELINES_MED_MNG.length, 67);
   assertEquals(ORPHELINES_SANS_ORIGINE.length, 43);
   const toutes = [...Object.keys(REGLES_F66MM), ...ORPHELINES_RETIREES];
   assertEquals(new Set(toutes).size, toutes.length, 'fonction classée deux fois');
   const retirees = Object.values(REGLES_F66MM).filter((r) => r === 'retiree').length + ORPHELINES_RETIREES.length;
-  assertEquals(retirees, 132);
+  assertEquals(retirees, 137);
 });
 
 Deno.test("F66-MM : aucun dossier créé ne porte le nom d'une fonction d'EmotionsCare", () => {

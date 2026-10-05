@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders } from '../_shared/cors.ts';
+import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
 interface ImportRequest {
   batchId: string;
@@ -26,6 +27,13 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Vague sécurité F66-MM (05.10.2026) : toute personne connectée (un compte gratuit suffit) pouvait
+  // insérer des items dans le contenu partagé (edn_items_immersive) avec la clé de service, et faire
+  // télécharger une adresse arbitraire (fileUrl). Rôle : import d'items EDN ; seul l'écran
+  // d'administration AdminImport l'appelle.
+  const acces = await exigerAdministrateur(req, corsHeaders);
+  if (acces instanceof Response) return acces;
 
   try {
     const supabaseClient = createClient(
