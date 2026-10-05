@@ -157,4 +157,15 @@ describe('réponses de la vague « limites d’usage » (05.10.2026)', () => {
     expect(source).toMatch(/if \(!reservation\.autorise\) return reponseQuotaJournalier\(/);
     expect(source).toMatch(/const ENVOIS_MAX_PAR_JOUR = 2;/);
   });
+
+  it('whisper-transcribe : même contrat (429 QUOTA_JOURNALIER), compteur réservé AVANT l’appel OpenAI', () => {
+    const source = readFileSync(resolve(process.cwd(), 'supabase/functions/whisper-transcribe/index.ts'), 'utf8');
+    const reservation = source.indexOf("reserverUtilisationJournaliere(");
+    const appel = source.indexOf("fetch('https://api.openai.com/v1/audio/transcriptions'");
+    expect(reservation).toBeGreaterThan(0);
+    expect(appel).toBeGreaterThan(reservation);
+    expect(source).toMatch(/if \(!reservation\) return reponseVerificationImpossible\(corsHeaders\);/);
+    expect(source).toMatch(/reponseQuotaJournalier\(corsHeaders, 'transcriptions vocales', TRANSCRIPTIONS_MAX_PAR_JOUR\)/);
+    expect(source).not.toMatch(/LIMITE_ATTEINTE/);
+  });
 });

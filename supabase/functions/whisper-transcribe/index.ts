@@ -11,7 +11,12 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { exigerConnexion } from '../_shared/mm-garde.ts';
-import { reserverUtilisationJournaliere, tailleBase64Decodee } from '../_shared/mm-limite-usage.ts';
+import {
+  reponseQuotaJournalier,
+  reponseVerificationImpossible,
+  reserverUtilisationJournaliere,
+  tailleBase64Decodee,
+} from '../_shared/mm-limite-usage.ts';
 
 /**
  * Limites (vague 3, D45, 04.10.2026). Fonction ouverte à tout compte connecté (Med MNG et
@@ -149,11 +154,10 @@ serve(async (req) => {
         acces.userId,
         TRANSCRIPTIONS_MAX_PAR_JOUR,
       );
-      if (!reservation) {
-        return refus(503, 'VERIFICATION_IMPOSSIBLE', 'Service momentanément indisponible. Réessayez dans quelques minutes.');
-      }
+      // Réponses communes de la vague « limites d'usage » (05.10.2026) : 429 QUOTA_JOURNALIER.
+      if (!reservation) return reponseVerificationImpossible(corsHeaders);
       if (!reservation.autorise) {
-        return refus(429, 'LIMITE_ATTEINTE', `Limite de ${TRANSCRIPTIONS_MAX_PAR_JOUR} transcriptions par jour atteinte. Réessayez demain.`);
+        return reponseQuotaJournalier(corsHeaders, 'transcriptions vocales', TRANSCRIPTIONS_MAX_PAR_JOUR);
       }
     }
 
