@@ -37,6 +37,7 @@ import {
   MESSAGE_INDISPONIBLE,
   type ModeleSuno,
 } from '../_shared/mm-suno-requete.ts';
+import { signerUrlRappel } from '../_shared/mm-suno-rappel.ts';
 
 const URL_SUNO_GENERATE = 'https://api.sunoapi.org/api/v1/generate';
 
@@ -260,7 +261,13 @@ serve(async (req) => {
       variety: body.variety,
       dureeDemandee: typeof body.duration === 'number' ? body.duration : null,
       modele,
-      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mm-suno-callback`,
+      // URL de rappel signée et liée à l'utilisateur (vague sécurité F66-MM) : sunoapi.org ne
+      // signe pas ses rappels, mm-suno-callback refuse ceux dont l'URL n'est pas signée.
+      callBackUrl: await signerUrlRappel(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        userId ?? null,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      ),
     });
     const { chargeUtile, style, rang } = requete;
 

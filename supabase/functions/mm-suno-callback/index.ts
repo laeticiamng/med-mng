@@ -19,6 +19,12 @@
  *
  * Toute la logique d'écriture est dans _shared/mm-suno-enregistrement.ts,
  * partagée avec mm-music-status (rattrapage si un callback se perd).
+ *
+ * AUTHENTICITÉ (vague sécurité F66-MM, 05.10.2026) : sunoapi.org ne signe pas ses
+ * rappels. L'URL de rappel est signée par mm-generate-music et liée à
+ * l'utilisateur (_shared/mm-suno-rappel.ts) ; elle est vérifiée AVANT la lecture
+ * du corps (401 sinon), puis la génération visée doit appartenir à cet
+ * utilisateur (403 sinon) — avant toute écriture.
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
@@ -26,7 +32,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { checkIdempotency, markCompleted, markFailed } from '../_shared/idempotency.ts';
 import { interpreterCallbackSuno } from '../_shared/mm-suno-requete.ts';
-import { enregistrerPistesSuno, marquerGenerationEchouee } from '../_shared/mm-suno-enregistrement.ts';
+import { enregistrerPistesSuno, marquerGenerationEchouee, trouverPistePrincipale } from '../_shared/mm-suno-enregistrement.ts';
+import { verifierUrlRappel } from '../_shared/mm-suno-rappel.ts';
 
 const reponseJson = (corps: unknown, status = 200) =>
   new Response(JSON.stringify(corps), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -34,6 +41,13 @@ const reponseJson = (corps: unknown, status = 200) =>
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // URL de rappel signée par mm-generate-music : vérifiée avant de lire le corps.
+  const rappel = await verifierUrlRappel(req.url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+  if (!rappel) {
+    console.warn('⛔ Rappel Suno refusé : URL non signée, expirée ou falsifiée.');
+    return reponseJson({ received: false, error: 'Rappel non authentifié.' }, 401);
   }
 
   const supabase = createClient(
@@ -64,6 +78,14 @@ serve(async (req) => {
     if (!callback.taskId) {
       console.warn('⚠️ Callback sans task_id, ignoré:', JSON.stringify(corps).slice(0, 500));
       return reponseJson({ received: true, processed: false, reason: 'task_id manquant' });
+    }
+
+    // La génération visée doit appartenir à l'utilisateur de l'URL signée : une URL
+    // de rappel ne permet d'agir que sur les générations de son utilisateur.
+    const principale = await trouverPistePrincipale(supabase, callback.taskId);
+    if (!principale || (principale.user_id ?? null) !== rappel.userId) {
+      console.warn('⛔ Rappel Suno refusé : génération inconnue ou d\'un autre utilisateur.', callback.taskId);
+      return reponseJson({ received: false, error: 'Génération inconnue.' }, 403);
     }
 
     // Idempotence : un même callback (task + type) n'est traité qu'une fois
