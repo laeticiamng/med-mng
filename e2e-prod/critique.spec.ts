@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { GRATUIT, PREMIUM, dispo, fermerCookies, session, surveillerErreurs, texte } from './helpers';
+import { GRATUIT, PREMIUM, dispo, fermerCookies, rest, session, surveillerErreurs, texte } from './helpers';
 
 /**
  * Critique finale (05.10.2026) : non-régression des défauts trouvés par la revue indépendante.
@@ -266,5 +266,15 @@ test.describe('Critique finale — quiz terminé hors connexion', () => {
     await page.locator('main button', { hasText: /^Terminer$/ }).first().click();
     await expect(page.getByText(/Score non enregistré : connexion interrompue/)).toBeVisible({ timeout: 15_000 });
     await context.setOffline(false);
+  });
+});
+
+test.describe('Critique finale — fonctions héritées fermées aux clés publiques', () => {
+  // SQL 20261005090000 (à appliquer après approbation CEO). Sonde en LECTURE SEULE :
+  // med_mng_generate_qcm ne fait que lire un item et renvoyer un gabarit (aucune écriture).
+  // Aujourd'hui : 200 pour un visiteur ; après la migration : refus (droit EXECUTE retiré).
+  test('fonction héritée sans appelant refusée à la clé publique @attend-deploiement', async ({ request }) => {
+    const r = await rest(request, 'rpc/med_mng_generate_qcm', { methode: 'POST', corps: { p_item_id: 'IC-1', p_type: 'rang_a', p_difficulty: 1 } });
+    expect([401, 403], `statut ${r.status}`).toContain(r.status);
   });
 });
