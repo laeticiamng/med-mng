@@ -40,9 +40,10 @@ describe('Sitemap', () => {
 
   // Pages retirées : /demo (anciens numéros d'items, cas clinique et « mode examen » rédigés à la main)
   // et /parcours (9 spécialités vides, intitulés d'étapes faux) le 04.10.2026 ; fonctions IA hors offre (DC7) ;
-  // « Exemple de cas clinique » (D44, cas rédigé sans source) et /duel (D53) en vague 3.
+  // « Exemple de cas clinique » (D44, cas rédigé sans source) et /duel (D53) en vague 3 ;
+  // « Révision rapide » (quiz inventé, bonne réponse toujours la première) à la note finale du 05.10.2026.
   it('should NOT include retired pages', () => {
-    for (const route of ['/demo', '/parcours', '/chat', '/exam-mode', '/clinical-cases', '/smart-study-planner', '/examen-blanc-national', '/simulation-examen-edn', '/cas-cliniques-edn', '/exemple-cas-clinique', '/duel']) {
+    for (const route of ['/demo', '/parcours', '/chat', '/exam-mode', '/clinical-cases', '/smart-study-planner', '/examen-blanc-national', '/simulation-examen-edn', '/cas-cliniques-edn', '/exemple-cas-clinique', '/duel', '/revision-rapide']) {
       expect(sitemapContent).not.toContain(`https://medmng.com${route}<`);
     }
   });

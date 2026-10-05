@@ -88,7 +88,8 @@ function getPriority(route: string): number {
 const PUBLIC_ROUTES: string[] = [
   // Pages retirées, à ne jamais remettre (redirigées dans App.tsx) : /demo et /parcours (04.10.2026),
   // /chat, /exam-mode, /clinical-cases, /smart-study-planner, /simulation-examen-edn,
-  // /cas-cliniques-edn (DC7), /exemple-cas-clinique (D44, cas rédigé sans source), /duel (D53).
+  // /cas-cliniques-edn (DC7), /exemple-cas-clinique (D44, cas rédigé sans source), /duel (D53),
+  // /revision-rapide (05.10.2026 : quiz inventé, bonne réponse toujours la première).
   '/',
   '/med-mng/login',
   '/med-mng/signup',

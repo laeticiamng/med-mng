@@ -136,8 +136,7 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
 // 🎯 DEMO PAGE
 
-// ⚡ QUICK REVISION
-const QuickRevision = lazy(() => import("./pages/QuickRevision"));
+// ⚡ QUICK REVISION : retirée (note finale 05.10.2026), voir la route ci-dessous.
 
 // ⚔️ KARAOKE DUELS
 
@@ -388,8 +387,12 @@ const App = () => {
                                         officielles, le quiz et l'ECOS sont essayables sans compte. */}
                                     <Route path={ROUTE_PATHS.demo} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
-                                    {/* Quick Revision (public) */}
-                                    <Route path={ROUTE_PATHS.quickRevision} element={<S><QuickRevision /></S>} />
+                                    {/* « Révision rapide » retirée (note finale vérifiée, 05.10.2026) : son « quiz » était
+                                        inventé (rang « A » toujours juste pour un item, « Rang C – Expertise » qui n'existe
+                                        pas, distracteurs « Analyse financière », « Droit du travail », bonne réponse
+                                        toujours la première, tirage limité aux 50 premiers items). Page indexée (sitemap) :
+                                        redirigée vers les fiches officielles, où les quiz réels des items d'essai existent. */}
+                                    <Route path={ROUTE_PATHS.quickRevision} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Parcours par spécialité : retirés (contre-vérification vague 2, 04.10.2026).
                                         9 spécialités sur 10 n'avaient aucune étape (« 0 étapes », avec des heures

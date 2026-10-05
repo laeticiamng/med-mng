@@ -202,6 +202,16 @@ test.describe('Vague 3 — français uniquement, pages retirées', () => {
     const sitemap = await (await request.get('/sitemap.xml')).text();
     expect(sitemap).not.toContain('https://medmng.com/duel<');
   });
+
+  // Note finale vérifiée (05.10.2026) : « 1 item · 3 QCM » posait des questions inventées (rang « A »
+  // d'un item, « Rang C – Expertise », distracteurs « Analyse financière »), bonne réponse toujours en 1re.
+  test('« Révision rapide » → fiches officielles ; absente du sitemap, quiz inventé introuvable @attend-deploiement', async ({ page, request }) => {
+    await page.goto('/revision-rapide');
+    await expect(page).toHaveURL(/\/edn-complete$/);
+    await expect(page.locator('main')).not.toContainText('Rang C');
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).not.toContain('https://medmng.com/revision-rapide<');
+  });
 });
 
 /**
@@ -290,10 +300,11 @@ test.describe('Mesure d’audience — description exacte', () => {
  * (redirigées) et retrait de l'accord à la mesure d'audience.
  */
 test.describe('Contre-vérification de la vague 3', () => {
-  /** Adresses retirées et redirigées dans App.tsx (DC7, D44, D49, D53). */
+  /** Adresses retirées et redirigées dans App.tsx (DC7, D44, D49, D53, révision rapide). */
   const RETIREES = [
     '/demo', '/parcours', '/chat', '/exam-mode', '/clinical-cases', '/smart-study-planner', '/study-planner',
     '/examen-blanc-national', '/simulation-examen-edn', '/cas-cliniques-edn', '/exemple-cas-clinique', '/duel',
+    '/revision-rapide',
   ];
 
   test('pages du sitemap : aucun lien interne vers une adresse retirée @attend-deploiement', async ({ page, request }) => {
