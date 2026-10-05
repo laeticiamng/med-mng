@@ -1,10 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { StickyNote, Loader2, Bold, Italic, List, Hash, Eye, Edit2, Download } from 'lucide-react';
+import { StickyNote, Loader2, Bold, Italic, List, Hash, Eye, Edit2, Download, CloudOff, Check } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useEdnNotes } from '@/hooks/useEdnNotes';
+import { useEdnNotes, type EtatNote } from '@/hooks/useEdnNotes';
+import { ROUTE_PATHS } from '@/config/routes';
 import { exportToPDF } from '@/utils/exportUtils';
 import { toast } from 'sonner';
 
@@ -75,8 +77,41 @@ const formatInline = (text: string) => {
   return parts.length > 0 ? parts : text;
 };
 
+/** État réel de la note : « Enregistrée » seulement après confirmation du serveur. */
+function BadgeEtatNote({ etat, visible }: { etat: EtatNote; visible: boolean }) {
+  if (!visible || etat === 'chargement' || etat === 'non_connecte' || etat === 'lecture_impossible') return null;
+  if (etat === 'modifiee' || etat === 'enregistrement') {
+    return (
+      <Badge variant="outline" className="text-xs gap-1" role="status">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        Enregistrement…
+      </Badge>
+    );
+  }
+  if (etat === 'en_attente') {
+    return (
+      <Badge
+        variant="outline"
+        className="text-xs gap-1 border-warning/50 text-warning"
+        role="status"
+        title="Connexion impossible : la note est gardée sur cet appareil et sera envoyée automatiquement au retour du réseau."
+      >
+        <CloudOff className="h-3 w-3" />
+        Non enregistrée — gardée sur cet appareil
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="secondary" className="text-xs gap-1" role="status">
+      <Check className="h-3 w-3" />
+      Enregistrée
+    </Badge>
+  );
+}
+
 export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
-  const { currentNote, setCurrentNote, isSaving, isLoading } = useEdnNotes(itemCode);
+  const { currentNote, setCurrentNote, isLoading, etat } = useEdnNotes(itemCode);
+  const location = useLocation();
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [isExporting, setIsExporting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -170,6 +205,43 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
     );
   }
 
+  if (etat === 'lecture_impossible') {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <StickyNote className="h-4 w-4 text-warning" />
+          <span className="text-sm font-medium">Mes notes personnelles</span>
+        </div>
+        <p className="text-sm text-muted-foreground flex items-center gap-2" role="status">
+          <CloudOff className="h-4 w-4" />
+          Connexion impossible : vos notes s'afficheront automatiquement au retour du réseau.
+        </p>
+      </div>
+    );
+  }
+
+  // Visiteur : rien ne peut être enregistré. Avant, l'éditeur s'affichait quand même, avec
+  // « Sauvegardé », et la note disparaissait au rechargement.
+  if (etat === 'non_connecte') {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <StickyNote className="h-4 w-4 text-warning" />
+          <span className="text-sm font-medium">Mes notes personnelles</span>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          <Link
+            to={`${ROUTE_PATHS.medMngLogin}?next=${encodeURIComponent(location.pathname)}`}
+            className="text-primary hover:underline"
+          >
+            Connectez-vous
+          </Link>{' '}
+          pour écrire vos notes sur cet item : elles sont enregistrées dans votre compte.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -185,6 +257,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
               onClick={handleExportPDF}
               disabled={isExporting}
               className="h-7 px-2"
+              aria-label="Exporter mes notes en PDF"
             >
               {isExporting ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -193,17 +266,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
               )}
             </Button>
           )}
-          {isSaving && (
-            <Badge variant="outline" className="text-xs gap-1">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              Sauvegarde...
-            </Badge>
-          )}
-          {!isSaving && currentNote && (
-            <Badge variant="secondary" className="text-xs">
-              Sauvegardé
-            </Badge>
-          )}
+          <BadgeEtatNote etat={etat} visible={Boolean(currentNote) || etat !== 'enregistree'} />
         </div>
       </div>
 

@@ -119,6 +119,12 @@ const CookiesPolicy = () => {
                         <td className="p-2">Fenêtre de 15 minutes ; blocage de 30 minutes au plus</td>
                       </tr>
                       <tr className="border-b border-border/50">
+                        <td className="p-2 font-mono text-xs">medmng_note_brouillon:*</td>
+                        <td className="p-2">Navigateur (stockage local)</td>
+                        <td className="p-2">Note personnelle d'un item pas encore enregistrée dans votre compte (coupure de réseau)</td>
+                        <td className="p-2">Effacée dès que l'enregistrement est confirmé</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
                         <td className="p-2 font-mono text-xs">edn_items_cache_v4</td>
                         <td className="p-2">Navigateur (stockage local)</td>
                         <td className="p-2">Liste des items (chargement rapide)</td>

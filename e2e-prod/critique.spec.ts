@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { PREMIUM, dispo, fermerCookies, session, surveillerErreurs, texte } from './helpers';
+import { GRATUIT, PREMIUM, dispo, fermerCookies, session, surveillerErreurs, texte } from './helpers';
 
 /**
  * Critique finale (05.10.2026) : non-régression des défauts trouvés par la revue indépendante.
@@ -69,5 +69,91 @@ test.describe('Critique finale — musique d’un item sans rang A', () => {
     const t150 = await texte(page, 'Musique Rang B');
     expect(t150).toContain('Musique Rang A');
     expect(erreurs).toEqual([]);
+  });
+});
+
+test.describe('Critique finale — note personnelle et coupure de réseau', () => {
+  // Production (05.10.2026) : note tapée hors connexion → badge « Sauvegardé », rien d'envoyé ;
+  // au retour du réseau, rien n'était renvoyé ; après rechargement, la note était perdue.
+  // Visiteur : éditeur affiché avec « Sauvegardé », alors que rien ne peut être enregistré.
+  test('visiteur : pas d’éditeur trompeur, invitation à se connecter @attend-deploiement', async ({ page }) => {
+    await page.goto('/edn-complete/ic-1/apercu');
+    await fermerCookies(page);
+    await expect(page.locator('main')).toContainText('pour écrire vos notes sur cet item', { timeout: 30_000 });
+    await expect(page.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveCount(0);
+  });
+
+  test.describe('compte gratuit', () => {
+    test.skip(!dispo(GRATUIT), 'E2E_FREE_* absents');
+    test.use({ storageState: session('gratuit') });
+
+    test('saisie hors ligne gardée, envoyée au retour du réseau, même après fermeture de l’onglet @attend-deploiement', async ({ page, context }) => {
+      const zone = () => page.getByPlaceholder(/Ajoutez vos notes personnelles/);
+      await page.goto('/edn-complete/ic-1/apercu');
+      await fermerCookies(page);
+      await expect(zone()).toBeVisible({ timeout: 30_000 });
+      const origine = await zone().inputValue();
+      const marque = `Note E2E hors ligne ${Date.now()}`;
+
+      await context.setOffline(true);
+      await zone().fill(marque);
+      // Plus de faux « Sauvegardé » : l'état dit la vérité.
+      await expect(page.getByText('Non enregistrée — gardée sur cet appareil')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText(/^(Enregistrée|Sauvegardé)$/)).toHaveCount(0);
+
+      // L'onglet est fermé AVANT le retour du réseau : la saisie ne doit pas être perdue.
+      await page.close();
+      await context.setOffline(false);
+      const page2 = await context.newPage();
+      await page2.goto('/edn-complete/ic-1/apercu');
+      const zone2 = page2.getByPlaceholder(/Ajoutez vos notes personnelles/);
+      await expect(zone2).toHaveValue(marque, { timeout: 30_000 });
+      await expect(page2.getByText('Enregistrée', { exact: true })).toBeVisible({ timeout: 20_000 });
+
+      // Vraiment enregistrée dans le compte : un autre onglet sans brouillon la relit.
+      await page2.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('medmng_note_brouillon')).forEach((k) => localStorage.removeItem(k)));
+      await page2.reload();
+      await expect(page2.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveValue(marque, { timeout: 30_000 });
+
+      // Remise en état : la note d'origine du compte de test.
+      await page2.getByPlaceholder(/Ajoutez vos notes personnelles/).fill(origine);
+      await page2.waitForTimeout(3_000);
+      await page2.reload();
+      await expect(page2.getByPlaceholder(/Ajoutez vos notes personnelles/)).toHaveValue(origine, { timeout: 30_000 });
+    });
+
+    // Production (05.10.2026) : à l'ouverture d'un item, la valeur retardée (vide pendant 1 s) faisait
+    // SUPPRIMER la note enregistrée (DELETE), recréée 1 s plus tard ; quitter la page entre-temps la
+    // perdait (prouvé : note d'IC-2 effacée en ouvrant l'item puis « Quiz » 300 ms après).
+    test('ouvrir un item puis le quitter tout de suite ne supprime pas sa note @attend-deploiement', async ({ page }) => {
+      const zone = () => page.getByPlaceholder(/Ajoutez vos notes personnelles/);
+      const ecritures: string[] = [];
+      page.on('request', (r) => {
+        if (/rest\/v1\/user_edn_notes/.test(r.url()) && r.method() !== 'GET') ecritures.push(r.method());
+      });
+      await page.goto('/edn-complete/ic-2/apercu');
+      await fermerCookies(page);
+      await expect(zone()).toBeVisible({ timeout: 30_000 });
+      const origine = await zone().inputValue();
+      const marque = `Note E2E départ rapide ${Date.now()}`;
+      await zone().fill(marque);
+      await expect(page.getByText('Enregistrée', { exact: true })).toBeVisible({ timeout: 20_000 });
+
+      ecritures.length = 0;
+      await page.reload();
+      await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
+      await page.getByRole('link', { name: /^Quiz$/ }).first().click();
+      await page.waitForTimeout(3_000);
+      expect(ecritures, 'aucune écriture à la simple ouverture').toEqual([]);
+
+      await page.goto('/edn-complete/ic-2/apercu');
+      await expect(zone()).toHaveValue(marque, { timeout: 30_000 });
+
+      // Remise en état.
+      await zone().fill(origine);
+      await page.waitForTimeout(3_000);
+      await page.reload();
+      await expect(zone()).toHaveValue(origine, { timeout: 30_000 });
+    });
   });
 });
