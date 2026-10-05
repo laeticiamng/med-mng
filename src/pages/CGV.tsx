@@ -44,7 +44,7 @@ const CGV = () => {
                 <CreditCard className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Med MNG - CGV</h2>
               </div>
-              <p className="text-sm opacity-90">Dernière mise à jour : 24 septembre 2026</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 5 octobre 2026</p>
               <p className="text-sm opacity-90">Version 1.0</p>
             </div>
           </Card>
@@ -301,7 +301,12 @@ const CGV = () => {
                 <h4 className="font-semibold text-foreground mb-2">En cas de litige :</h4>
                 <ol className="text-sm space-y-2">
                   <li>
-                    <strong>1. Médiation :</strong> Le nom et les coordonnées du médiateur de la consommation seront indiqués ici dès son adhésion finalisée. En attendant, contactez-nous à contact@emotionscare.com en cas de litige.
+                    <strong>1. Médiation de la consommation :</strong> Conformément aux articles L.611-1 et suivants (notamment L.612-1) du Code de la
+                    consommation, le Client consommateur peut recourir gratuitement au médiateur de la consommation, après une
+                    réclamation écrite préalable adressée à notre service client (contact@emotionscare.com) restée sans réponse
+                    satisfaisante, dans le délai d'un an à compter de cette réclamation. Médiateur : Centre de la Médiation de la
+                    Consommation de Conciliateurs de Justice (CM2C), 49 rue de Ponthieu, 75008 Paris ; site : <a href="https://www.cm2c.net" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net</a> ;
+                    saisine en ligne : <a href="https://www.cm2c.net/declarer-un-litige.php" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net/declarer-un-litige.php</a>.
                   </li>
                   <li>
                     <strong>2. Juridiction compétente :</strong> À défaut de résolution amiable, le Client

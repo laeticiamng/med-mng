@@ -55,6 +55,18 @@ test.describe('Public — pages et allégations', () => {
     expect(erreurs).toEqual([]);
   });
 
+  test('médiation de la consommation : CM2C et lien de saisine dans les CGV, les CGU et les mentions @attend-deploiement', async ({ page }) => {
+    for (const chemin of ['/legal/cgv', '/cgu', '/mentions-legales']) {
+      await page.goto(chemin);
+      const t = await texte(page, 'CM2C');
+      expect(t, chemin).toContain('Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C)');
+      expect(t, chemin).toContain('49 rue de Ponthieu, 75008 Paris');
+      expect(t, chemin).not.toMatch(/en cours de désignation|dès son adhésion finalisée/i);
+      expect(t, chemin).not.toMatch(/ec\.europa\.eu|règlement en ligne des litiges/i);
+      await expect(page.locator('main a[href="https://www.cm2c.net/declarer-un-litige.php"]').first()).toBeVisible();
+    }
+  });
+
   test('SEO : robots.txt, sitemap.xml, llms.txt', async ({ request }) => {
     const robots = await request.get('/robots.txt');
     expect(robots.status()).toBe(200);
