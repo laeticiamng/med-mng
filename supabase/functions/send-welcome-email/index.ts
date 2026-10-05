@@ -3,6 +3,11 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { jetonAppelant } from '../_shared/mm-garde.ts';
+import {
+  reponseQuotaJournalier,
+  reponseVerificationImpossible,
+  reserverUtilisationJournaliere,
+} from '../_shared/mm-limite-usage.ts';
 
 /**
  * E-mail de bienvenue, envoyé par le front juste après l'inscription.
@@ -24,6 +29,13 @@ import { jetonAppelant } from '../_shared/mm-garde.ts';
  */
 
 const FENETRE_MS = 15 * 60 * 1000;
+/**
+ * Envois par compte et par jour (UTC). Vague « limites d'usage » (05.10.2026) : la fenêtre de
+ * 15 minutes ne bornait pas le NOMBRE d'envois — un compte tout juste créé (inscription libre)
+ * pouvait déclencher des centaines d'e-mails Resend à sa propre adresse. Un seul est utile ; 2
+ * laissent une nouvelle tentative si le premier envoi a échoué.
+ */
+const ENVOIS_MAX_PAR_JOUR = 2;
 const SITE = 'https://medmng.com';
 
 const echapper = (texte: string) =>
@@ -54,6 +66,11 @@ const handler = async (req: Request): Promise<Response> => {
       // Compte ancien : pas de nouvel e-mail de bienvenue (évite les envois répétés).
       return repondre({ success: true, envoye: false });
     }
+
+    // Limite journalière par compte, réservée AVANT l'envoi (un envoi en échec compte aussi).
+    const reservation = await reserverUtilisationJournaliere(admin, 'mm-bienvenue', utilisateur.id, ENVOIS_MAX_PAR_JOUR);
+    if (!reservation) return reponseVerificationImpossible(corsHeaders);
+    if (!reservation.autorise) return reponseQuotaJournalier(corsHeaders, 'e-mails de bienvenue', ENVOIS_MAX_PAR_JOUR);
 
     const corps = await req.json().catch(() => ({}));
     const prenomBrut = String((corps as { name?: unknown })?.name ?? '').trim().slice(0, 80);

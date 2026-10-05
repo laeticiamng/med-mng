@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   fenetreJourUtc,
+  reponseQuotaJournalier,
+  reponseVerificationImpossible,
   reserverUtilisationJournaliere,
   tailleBase64Decodee,
 } from '../../supabase/functions/_shared/mm-limite-usage.ts';
@@ -116,5 +120,41 @@ describe('reserverUtilisationJournaliere', () => {
     await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 2, MIDI); // crée la ligne (1)
     // L'incrément concurrent porte le compteur à 2 : la réservation suivante doit être refusée.
     expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 2, MIDI)).toEqual({ autorise: false, utilise: 2 });
+  });
+});
+
+describe('réponses de la vague « limites d’usage » (05.10.2026)', () => {
+  const CORS = { 'Access-Control-Allow-Origin': 'https://medmng.com' };
+
+  it('429 QUOTA_JOURNALIER : message français lisible tel quel, Retry-After jusqu’à minuit UTC', async () => {
+    const r = reponseQuotaJournalier(CORS, 'e-mails de bienvenue', 2, MIDI);
+    expect(r.status).toBe(429);
+    expect(r.headers.get('Access-Control-Allow-Origin')).toBe('https://medmng.com');
+    expect(r.headers.get('Retry-After')).toBe(String(12 * 3600));
+    const corps = await r.json();
+    expect(corps).toMatchObject({ success: false, code: 'QUOTA_JOURNALIER', limite: 2, reinitialisation: '2026-10-05T00:00:00.000Z' });
+    expect(corps.message).toBe('Vous avez atteint la limite quotidienne de 2 e-mails de bienvenue ; elle repart demain.');
+    expect(corps.error).toBe(corps.message);
+  });
+
+  it('503 VERIFICATION_IMPOSSIBLE quand le compteur est illisible', async () => {
+    const r = reponseVerificationImpossible(CORS);
+    expect(r.status).toBe(503);
+    expect((await r.json()).code).toBe('VERIFICATION_IMPOSSIBLE');
+  });
+
+  it('send-welcome-email : compteur réservé après la session et la fenêtre de 15 min, AVANT l’envoi Resend ; fail-closed', () => {
+    const source = readFileSync(resolve(process.cwd(), 'supabase/functions/send-welcome-email/index.ts'), 'utf8');
+    const session = source.indexOf('admin.auth.getUser(jeton)');
+    const fenetre = source.indexOf('Date.now() - creeLe > FENETRE_MS');
+    const reservation = source.indexOf("reserverUtilisationJournaliere(admin, 'mm-bienvenue', utilisateur.id, ENVOIS_MAX_PAR_JOUR)");
+    const envoi = source.indexOf('resend.emails.send(');
+    expect(session).toBeGreaterThan(0);
+    expect(fenetre).toBeGreaterThan(session);
+    expect(reservation).toBeGreaterThan(fenetre);
+    expect(envoi).toBeGreaterThan(reservation);
+    expect(source).toMatch(/if \(!reservation\) return reponseVerificationImpossible\(corsHeaders\);/);
+    expect(source).toMatch(/if \(!reservation\.autorise\) return reponseQuotaJournalier\(/);
+    expect(source).toMatch(/const ENVOIS_MAX_PAR_JOUR = 2;/);
   });
 });

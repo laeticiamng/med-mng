@@ -88,3 +88,46 @@ export async function reserverUtilisationJournaliere(
   }
   return null;
 }
+
+const EN_TETES_JSON = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
+/**
+ * Réponse 429 quand la limite journalière est atteinte (vague « limites d'usage », 05.10.2026) :
+ * code QUOTA_JOURNALIER et message en français lisible tel quel par la personne.
+ * `libelle` complète « la limite quotidienne de N … » (pluriel). `Retry-After` = secondes
+ * jusqu'à minuit UTC (début de la fenêtre suivante).
+ */
+export function reponseQuotaJournalier(
+  cors: Record<string, string>,
+  libelle: string,
+  maximum: number,
+  maintenant: Date = new Date(),
+): Response {
+  const { fin } = fenetreJourUtc(maintenant);
+  const attente = Math.max(1, Math.ceil((Date.parse(fin) - maintenant.getTime()) / 1000));
+  const message = `Vous avez atteint la limite quotidienne de ${maximum} ${libelle} ; elle repart demain.`;
+  return new Response(
+    JSON.stringify({
+      success: false,
+      code: 'QUOTA_JOURNALIER',
+      error: message,
+      message,
+      limite: maximum,
+      reinitialisation: fin,
+    }),
+    { status: 429, headers: { ...cors, ...EN_TETES_JSON, 'Retry-After': String(attente) } },
+  );
+}
+
+/** Réponse 503 quand le compteur est illisible : on ne dépense pas sans compter (fail-closed). */
+export function reponseVerificationImpossible(cors: Record<string, string>): Response {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      code: 'VERIFICATION_IMPOSSIBLE',
+      error: 'Service momentanément indisponible. Réessayez dans quelques minutes.',
+      message: 'Service momentanément indisponible. Réessayez dans quelques minutes.',
+    }),
+    { status: 503, headers: { ...cors, ...EN_TETES_JSON } },
+  );
+}
