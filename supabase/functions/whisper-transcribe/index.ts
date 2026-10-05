@@ -31,6 +31,19 @@ const TAILLE_MAX_CORPS_OCTETS = Math.ceil((TAILLE_MAX_AUDIO_OCTETS * 4) / 3) + 6
 /** Transcriptions par compte et par jour (UTC). La clé de service n'est pas limitée. */
 const TRANSCRIPTIONS_MAX_PAR_JOUR = 20;
 
+/** Lit le corps sans le garder (voir le refus 413 ci-dessous). */
+async function ignorerCorps(req: Request): Promise<void> {
+  try {
+    const lecteur = req.body?.getReader();
+    if (!lecteur) return;
+    while (!(await lecteur.read()).done) {
+      // contenu ignoré
+    }
+  } catch {
+    // connexion interrompue par le client : rien à faire
+  }
+}
+
 const refus = (status: number, code: string, error: string) =>
   new Response(JSON.stringify({ success: false, code, error }), {
     status,
@@ -82,9 +95,12 @@ serve(async (req) => {
   const acces = await exigerConnexion(req, corsHeaders);
   if (acces instanceof Response) return acces;
 
-  // Taille annoncée du corps : refus avant toute lecture.
+  // Taille annoncée du corps : refus avant tout traitement. Le corps est tout de même lu (et
+  // ignoré) : la plateforme ne transmet pas une réponse envoyée avant la fin de l'envoi d'un gros
+  // corps (le client attendait sans fin ; mesuré le 05.10.2026).
   const longueur = Number(req.headers.get('content-length') ?? '0');
   if (longueur > TAILLE_MAX_CORPS_OCTETS) {
+    await ignorerCorps(req);
     return refus(413, 'AUDIO_TROP_VOLUMINEUX', 'Enregistrement trop volumineux (6 Mo au maximum).');
   }
 
