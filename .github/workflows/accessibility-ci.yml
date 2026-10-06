@@ -1,9 +1,11 @@
 # Audit d'accessibilité (axe-core + Lighthouse) sur le build de production.
 #
 # Lancement manuel uniquement (onglet Actions > « Accessibilité » > Run workflow) :
-# tant que les contrastes de couleur ne sont pas corrigés, ce contrôle est rouge à juste
-# titre (couleur primaire #3c83f6 : texte blanc 3,63:1, minimum WCAG AA 4,5:1) et il ne doit
-# pas bloquer les pull requests. La vérification automatique (tests, types, build) est ci.yml.
+# la couleur primaire est corrigée (217 91 % 47 %, #0b5ee5 : texte blanc 5,60:1), mais il
+# reste des violations hors primaire (texte success/accent/warning sur fond clair, texte
+# « -foreground » sur teinte claire dans la page Méthode MNG, liens dans le texte non
+# soulignés, zones sans landmark) : ce contrôle reste rouge à juste titre et ne doit pas
+# bloquer les pull requests. La vérification automatique (tests, types, build) est ci.yml.
 #
 # Aucun secret. Commandes reproductibles en local :
 #   bun install --frozen-lockfile && npx vite build

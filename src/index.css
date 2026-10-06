@@ -19,10 +19,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Medical Primary - Refined Ocean Blue */
-    --primary: 217 91% 60%;
+    /* Medical Primary - Refined Ocean Blue
+       Contraste WCAG AA (≥ 4,5:1), même teinte et même saturation, luminosité seule abaissée :
+       l'ancien 60 % (#3c83f6) donnait 3,63:1 au texte blanc. Seuils calculés :
+       53,5 % suffit au texte blanc, 51 % au texte primaire sur le fond de page (#f6f7f9),
+       47 % (#0b5ee5) au texte primaire sur sa propre teinte bg-primary/10 (navigation active,
+       badges) : blanc sur primaire 5,60:1, primaire sur blanc 5,60:1, sur le fond 5,23:1,
+       sur bg-primary/10 4,54:1 à 4,84:1. Survol : même écart de 10 points qu'avant. */
+    --primary: 217 91% 47%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 217 91% 50%;
+    --primary-hover: 217 91% 37%;
     --primary-muted: 217 91% 92%;
 
     /* Medical Secondary - Elegant Slate */
@@ -101,7 +107,7 @@
     /* Sidebar - Clean Professional */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 20%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 217 91% 47%; /* = --primary (texte blanc : 5,60:1) */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 222 47% 20%;
