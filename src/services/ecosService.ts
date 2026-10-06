@@ -1,3 +1,4 @@
+import { jourLocal, serieActuelle } from '@/lib/jourLocal';
 import { supabase } from "@/integrations/supabase/client";
 
 export interface EcosSituation {
@@ -207,7 +208,7 @@ class EcosService {
       await supabase.from('user_activity_log').insert({
         user_id: userId,
         activity_type: 'ecos',
-        activity_date: new Date().toISOString().split('T')[0],
+        activity_date: jourLocal(),
         count: 1,
         metadata: { sd_id: sdId, action: 'studied' }
       });
@@ -316,21 +317,7 @@ class EcosService {
       }
 
       // Calculer le streak
-      let streak = 0;
-      const today = new Date().toISOString().split('T')[0];
-      const dates = [...new Set(data.map(d => d.activity_date))];
-
-      for (let i = 0; i < dates.length; i++) {
-        const checkDate = new Date();
-        checkDate.setDate(checkDate.getDate() - i);
-        const checkStr = checkDate.toISOString().split('T')[0];
-
-        if (dates.includes(checkStr) || (i === 0 && dates[0] === today)) {
-          streak++;
-        } else if (i > 0) {
-          break;
-        }
-      }
+      const streak = serieActuelle(data.map(d => d.activity_date));
 
       // Extraire les compétences favorites à partir des métadonnées
       const competenceCounts = new Map<string, number>();

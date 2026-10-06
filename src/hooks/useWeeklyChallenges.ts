@@ -3,6 +3,7 @@
  * Manages weekly gamification challenges with persistence
  */
 
+import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import { useCallback, useState } from 'react';
 import { useToast } from './use-toast';
@@ -88,7 +89,7 @@ export function useWeeklyChallenges() {
           .select('count')
           .eq('user_id', userId)
           .eq('activity_type', challenge.challengeType === 'review' ? 'srs_review' : challenge.challengeType)
-          .gte('activity_date', startOfWeek.toISOString().split('T')[0]);
+          .gte('activity_date', jourLocal(startOfWeek));
 
         const progress = (activityData || []).reduce((sum, a) => sum + (a.count || 0), 0);
         const isCompleted = progress >= challenge.targetValue;

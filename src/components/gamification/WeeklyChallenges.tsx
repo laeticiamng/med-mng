@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,8 +57,8 @@ export function WeeklyChallenges() {
       .from('user_activity_log')
       .select('activity_type, count')
       .eq('user_id', user.id)
-      .gte('activity_date', weekStart.toISOString().split('T')[0])
-      .lte('activity_date', weekEnd.toISOString().split('T')[0]);
+      .gte('activity_date', jourLocal(weekStart))
+      .lte('activity_date', jourLocal(weekEnd));
 
     // Also check gamification_activities for more accurate counts
     const { data: gamificationActivities } = await (supabase as any)

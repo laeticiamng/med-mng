@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useCallback, useState } from 'react';
@@ -433,12 +434,13 @@ export const useSRS = () => {
       for (let i = 0; i < days; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() + i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = jourLocal(date);
         forecast[dateStr] = 0;
       }
 
       data.forEach(item => {
-        const reviewDate = new Date(item.next_review_date).toISOString().split('T')[0];
+        if (!item.next_review_date) return;
+        const reviewDate = jourLocal(item.next_review_date);
         if (forecast.hasOwnProperty(reviewDate)) {
           forecast[reviewDate]++;
         }

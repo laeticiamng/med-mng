@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,8 +46,8 @@ export const StudyCalendar = () => {
         .from('plan_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .gte('scheduled_date', startOfMonth.toISOString().split('T')[0])
-        .lte('scheduled_date', endOfMonth.toISOString().split('T')[0])
+        .gte('scheduled_date', jourLocal(startOfMonth))
+        .lte('scheduled_date', jourLocal(endOfMonth))
         .order('scheduled_date', { ascending: true });
 
       if (error) throw error;
@@ -107,7 +108,7 @@ export const StudyCalendar = () => {
 
   const getEventsForDate = (date: Date | null) => {
     if (!date) return [];
-    const dateString = date.toISOString().split('T')[0];
+    const dateString = jourLocal(date);
     return events.filter(event => event.date === dateString);
   };
 

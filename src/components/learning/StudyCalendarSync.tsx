@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +37,7 @@ export function StudyCalendarSync() {
     // Add events for each day with reviews
     forecast.forEach((day, _index) => {
       if (day.count > 0) {
-        const startDate = new Date(day.date);
+        const startDate = versDateLocale(day.date);
         startDate.setHours(9, 0, 0, 0); // Default to 9 AM
         
         const endDate = new Date(startDate);

@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -222,7 +223,7 @@ export default function SmartStudyPlanner() {
                     type="date" 
                     value={examDate}
                     onChange={(e) => setExamDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
+                    min={jourLocal()}
                   />
                 </div>
                 <div className="space-y-2">

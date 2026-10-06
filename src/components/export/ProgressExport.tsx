@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -124,7 +125,7 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
           .from('user_activity_log')
           .select('*')
           .eq('user_id', userId)
-          .gte('activity_date', startDate.toISOString().split('T')[0])
+          .gte('activity_date', jourLocal(startDate))
           .order('activity_date', { ascending: false })
           .limit(100);
 

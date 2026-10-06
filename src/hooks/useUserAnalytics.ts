@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -147,7 +148,7 @@ export const useUserAnalytics = () => {
       // Une entrée par jour (sessions regroupées par date de début).
       const parJour = new Map<string, { itemsRevised: number; minutesStudied: number }>();
       sessionsData.forEach((s: any) => {
-        const jour = typeof s.started_at === 'string' ? s.started_at.slice(0, 10) : null;
+        const jour = typeof s.started_at === 'string' ? jourLocal(s.started_at) : null;
         if (!jour) return;
         const cumul = parJour.get(jour) ?? { itemsRevised: 0, minutesStudied: 0 };
         cumul.itemsRevised += 1;

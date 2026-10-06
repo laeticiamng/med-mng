@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useJourLocal } from './useJourLocal';
 
 export interface DailyChallenge {
   id: string;
@@ -17,14 +18,15 @@ export interface DailyChallenge {
 
 export function useDailyChallenges() {
   const queryClient = useQueryClient();
+  // Jour LOCAL, mis à jour à minuit local : les défis du jour changent à minuit pour
+  // l'utilisateur (avant : jour UTC, donc les défis de la veille jusqu'à 1 h ou 2 h en Suisse).
+  const today = useJourLocal();
 
   const { data: challenges = [], isLoading, error } = useQuery({
-    queryKey: ['daily-challenges'],
+    queryKey: ['daily-challenges', today],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
-
-      const today = new Date().toISOString().split('T')[0];
 
       // Récupérer les défis du jour
       const { data: dailyChallenges, error: challengesError } = await supabase

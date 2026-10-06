@@ -1,5 +1,9 @@
 import { calculateNextStreak } from '@/utils/progressStreak';
 
+// Instants construits en heure LOCALE : calculateNextStreak compare des jours locaux (date-fns),
+// et « 08:00Z / 18:00Z » ne sont pas le même jour à Auckland (UTC+13 en janvier).
+const local = (j: number, h: number) => new Date(2024, 0, j, h).toISOString();
+
 describe('calculateNextStreak', () => {
   it('starts streak when no last opened date', () => {
     const result = calculateNextStreak(null, 0, new Date('2024-01-10T12:00:00Z'));
@@ -8,27 +12,27 @@ describe('calculateNextStreak', () => {
 
   it('keeps streak for same day', () => {
     const result = calculateNextStreak(
-      '2024-01-10T08:00:00Z',
+      local(10, 8),
       3,
-      new Date('2024-01-10T18:00:00Z')
+      new Date(local(10, 18))
     );
     expect(result).toBe(3);
   });
 
   it('increments streak when last opened was yesterday', () => {
     const result = calculateNextStreak(
-      '2024-01-09T08:00:00Z',
+      local(9, 8),
       3,
-      new Date('2024-01-10T08:00:00Z')
+      new Date(local(10, 8))
     );
     expect(result).toBe(4);
   });
 
   it('resets streak when gap is more than one day', () => {
     const result = calculateNextStreak(
-      '2024-01-07T08:00:00Z',
+      local(7, 8),
       5,
-      new Date('2024-01-10T08:00:00Z')
+      new Date(local(10, 8))
     );
     expect(result).toBe(1);
   });

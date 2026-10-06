@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,7 +79,7 @@ const MyGoals = () => {
 
   const getDaysRemaining = (deadline: string) => {
     if (!deadline) return null;
-    const diff = new Date(deadline).getTime() - Date.now();
+    const diff = versDateLocale(deadline).getTime() - Date.now();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 

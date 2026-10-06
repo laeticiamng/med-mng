@@ -1,3 +1,4 @@
+import { jourLocal, serieActuelle, plusLongueSerie, versDateLocale } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import { useCallback } from 'react';
 
@@ -66,6 +67,8 @@ export const useActivityTracking = () => {
         .insert({
           user_id: user.id,
           activity_type: activity.activity_type,
+          // Jour local explicite : la valeur par défaut de la colonne (CURRENT_DATE) est le jour UTC.
+          activity_date: jourLocal(),
           count: activity.count || 1,
           // Colonnes integer : un score de 12,5 % (1 bonne réponse sur 8)
           // faisait échouer l'insertion (400, 22P02).
@@ -98,7 +101,7 @@ export const useActivityTracking = () => {
         .from('user_activity_log')
         .select('activity_date, activity_type, count')
         .eq('user_id', user.id)
-        .gte('activity_date', startDate.toISOString().split('T')[0])
+        .gte('activity_date', jourLocal(startDate))
         .order('activity_date', { ascending: true });
 
       if (error || !data) return [];
@@ -140,7 +143,7 @@ export const useActivityTracking = () => {
       const today = new Date();
       
       while (current <= today) {
-        const dateStr = current.toISOString().split('T')[0];
+        const dateStr = jourLocal(current);
         result.push(byDate[dateStr] || {
           date: dateStr,
           count: 0,
@@ -170,50 +173,9 @@ export const useActivityTracking = () => {
 
       if (error || !data || data.length === 0) return { current: 0, longest: 0 };
 
-      // Get unique dates
-      const uniqueDates = [...new Set(data.map(d => d.activity_date))].sort().reverse();
-      
-      // Calculate current streak
-      let currentStreak = 0;
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-      // Check if streak is active (today or yesterday has activity)
-      if (uniqueDates[0] === today || uniqueDates[0] === yesterdayStr) {
-        let checkDate = new Date(uniqueDates[0]);
-        for (const dateStr of uniqueDates) {
-          const checkStr = checkDate.toISOString().split('T')[0];
-          
-          if (dateStr === checkStr) {
-            currentStreak++;
-            checkDate.setDate(checkDate.getDate() - 1);
-          } else {
-            break;
-          }
-        }
-      }
-
-      // Calculate longest streak
-      let longestStreak = 0;
-      let tempStreak = 1;
-      
-      for (let i = 1; i < uniqueDates.length; i++) {
-        const prev = new Date(uniqueDates[i - 1]);
-        const curr = new Date(uniqueDates[i]);
-        const diffDays = Math.floor((prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) {
-          tempStreak++;
-        } else {
-          longestStreak = Math.max(longestStreak, tempStreak);
-          tempStreak = 1;
-        }
-      }
-      longestStreak = Math.max(longestStreak, tempStreak);
-
-      return { current: currentStreak, longest: longestStreak };
+      // Jours locaux, arithmétique calendaire (juste aussi les jours de changement d'heure).
+      const jours = data.map(d => d.activity_date);
+      return { current: serieActuelle(jours), longest: plusLongueSerie(jours) };
     } catch (error) {
       console.error('Error getting streak:', error);
       return { current: 0, longest: 0 };
@@ -226,7 +188,7 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = jourLocal();
 
       const { data, error } = await supabase
         .from('user_activity_log')
@@ -274,15 +236,15 @@ export const useActivityTracking = () => {
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score')
         .eq('user_id', user.id)
-        .gte('activity_date', weekAgo.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(weekAgo));
 
       // Previous week
       const { data: previousWeek } = await supabase
         .from('user_activity_log')
         .select('activity_type, count')
         .eq('user_id', user.id)
-        .gte('activity_date', twoWeeksAgo.toISOString().split('T')[0])
-        .lt('activity_date', weekAgo.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(twoWeeksAgo))
+        .lt('activity_date', jourLocal(weekAgo));
 
       const currentTotal = currentWeek?.reduce((sum, d) => sum + d.count, 0) || 0;
       const previousTotal = previousWeek?.reduce((sum, d) => sum + d.count, 0) || 0;
@@ -334,7 +296,7 @@ export const useActivityTracking = () => {
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
-        .gte('activity_date', startDate.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(startDate));
 
       const uniqueDays = new Set(data?.map(d => d.activity_date) || []);
       return uniqueDays.size;
@@ -358,8 +320,8 @@ export const useActivityTracking = () => {
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score, activity_date')
         .eq('user_id', user.id)
-        .gte('activity_date', startOfMonth.toISOString().split('T')[0])
-        .lte('activity_date', endOfMonth.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(startOfMonth))
+        .lte('activity_date', jourLocal(endOfMonth));
 
       if (error || !data) return null;
 
@@ -403,7 +365,7 @@ export const useActivityTracking = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('activity_type', type)
-        .gte('activity_date', startDate.toISOString().split('T')[0])
+        .gte('activity_date', jourLocal(startDate))
         .order('activity_date', { ascending: false });
 
       if (error) return [];
@@ -535,14 +497,14 @@ export const useActivityTracking = () => {
           .from('user_activity_log')
           .select('count')
           .eq('user_id', user.id)
-          .gte('activity_date', period1Start.toISOString().split('T')[0])
-          .lte('activity_date', period1End.toISOString().split('T')[0]),
+          .gte('activity_date', jourLocal(period1Start))
+          .lte('activity_date', jourLocal(period1End)),
         supabase
           .from('user_activity_log')
           .select('count')
           .eq('user_id', user.id)
-          .gte('activity_date', period2Start.toISOString().split('T')[0])
-          .lte('activity_date', period2End.toISOString().split('T')[0])
+          .gte('activity_date', jourLocal(period2Start))
+          .lte('activity_date', jourLocal(period2End))
       ]);
 
       const total1 = data1?.reduce((sum, d) => sum + d.count, 0) || 0;
@@ -585,7 +547,7 @@ export const useActivityTracking = () => {
     }
 
     if (bestDay && bestDay.count > 0) {
-      insights.push(`Votre meilleur jour : ${bestDay.count} activités le ${new Date(bestDay.date).toLocaleDateString('fr-FR')}`);
+      insights.push(`Votre meilleur jour : ${bestDay.count} activités le ${versDateLocale(bestDay.date).toLocaleDateString('fr-FR')}`);
     }
 
     if (activeTime) {

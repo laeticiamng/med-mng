@@ -1,3 +1,4 @@
+import { jourLocal, versDateLocale } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateCVSS, CVSSMetrics, getPatchPriority } from '@/utils/cvssCalculator';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -117,7 +118,7 @@ export function useCVSSAssessments() {
 
           assessed_by: user.id,
           patch_priority: priority.priority,
-          patch_deadline: deadline.toISOString().split('T')[0],
+          patch_deadline: jourLocal(deadline),
           notes: data.notes,
         } as any);
 
@@ -184,7 +185,7 @@ export function useCVSSAssessments() {
   const unpatchedVulns = assessments.filter(a => !a.patched);
   const overdueVulns = assessments.filter(a => {
     if (a.patched || !a.patch_deadline) return false;
-    return new Date(a.patch_deadline) < new Date();
+    return versDateLocale(a.patch_deadline) < new Date();
   });
 
   return {

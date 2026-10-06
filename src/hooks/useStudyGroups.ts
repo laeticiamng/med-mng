@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -112,7 +113,7 @@ export function useStudyGroups() {
         await supabase.from('user_activity_log').insert({
           user_id: user.id,
           activity_type: 'group_join',
-          activity_date: new Date().toISOString().split('T')[0],
+          activity_date: jourLocal(),
           count: 1,
           metadata: { group_id: groupId }
         });
@@ -208,7 +209,7 @@ export function useStudyGroups() {
         await supabase.from('user_activity_log').insert({
           user_id: user.id,
           activity_type: 'group_create',
-          activity_date: new Date().toISOString().split('T')[0],
+          activity_date: jourLocal(),
           count: 1,
           metadata: { group_name: group.name }
         });

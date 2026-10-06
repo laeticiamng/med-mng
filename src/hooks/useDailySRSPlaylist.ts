@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
@@ -387,10 +388,11 @@ export const useDailySRSPlaylist = () => {
         .insert({
           user_id: user.id,
           activity_type: 'srs_review',
-          action: 'srs_music_review',
-          item_code: item.itemCode,
+          activity_date: jourLocal(),
           score: quality * 20,
-          metadata: { source: 'daily_playlist', quality, item_title: item.title },
+          // La table n'a ni colonne `action` ni `item_code` : les envoyer faisait échouer
+          // l'insertion (400 PGRST204) et la révision ne comptait pas pour la série.
+          metadata: { source: 'daily_playlist', action: 'srs_music_review', item_code: item.itemCode, quality, item_title: item.title },
         });
     } catch (error) {
       console.error('Error marking review:', error);

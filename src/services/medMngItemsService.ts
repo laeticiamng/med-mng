@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import type {
   ItemDetail,
@@ -406,7 +407,7 @@ export const fetchProgressOverview = async (
     recentActivity: Object.entries(
       validProgressItems.reduce((parJour: Record<string, number>, item: ProgressItem) => {
         if (!item.lastSeenAt || new Date(item.lastSeenAt).getTime() < ilYaSeptJours) return parJour;
-        const jour = item.lastSeenAt.slice(0, 10);
+        const jour = jourLocal(item.lastSeenAt);
         parJour[jour] = (parJour[jour] ?? 0) + 1;
         return parJour;
       }, {}),

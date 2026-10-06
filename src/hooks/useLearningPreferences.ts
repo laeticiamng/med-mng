@@ -3,6 +3,7 @@
  * Intégré avec la table user_learning_preferences
  */
 
+import { jourLocal, ecartJours } from '@/lib/jourLocal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -143,17 +144,14 @@ export const useLearningPreferences = () => {
 
   // Définir la date d'examen
   const setExamDate = (date: Date | null) => {
-    updatePreferences.mutate({ exam_date: date ? date.toISOString().split('T')[0] : null });
+    updatePreferences.mutate({ exam_date: date ? jourLocal(date) : null });
   };
 
   // Calculer les jours restants avant l'examen
   const daysUntilExam = (): number | null => {
     if (!preferences?.exam_date) return null;
-    const examDate = new Date(preferences.exam_date);
-    const today = new Date();
-    const diffTime = examDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    // Jours calendaires entre aujourd'hui (jour local) et le jour de l'examen.
+    return ecartJours(jourLocal(preferences.exam_date), jourLocal());
   };
 
   // Obtenir des recommandations basées sur les préférences

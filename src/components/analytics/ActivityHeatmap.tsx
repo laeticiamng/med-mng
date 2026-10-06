@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -76,7 +77,7 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({
   let currentWeek: HeatmapData[] = [];
   
   heatmapData.forEach((day, index) => {
-    const dayOfWeek = new Date(day.date).getDay();
+    const dayOfWeek = versDateLocale(day.date).getDay();
     if (dayOfWeek === 0 && currentWeek.length > 0) {
       weeks.push(currentWeek);
       currentWeek = [];

@@ -1,3 +1,4 @@
+import { jourLocal, versDateLocale } from '@/lib/jourLocal';
 import { useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -27,7 +28,7 @@ export function ProgressHeatmap({ data, className }: ProgressHeatmapProps) {
     
     // Fill until we reach today
     while (currentDate <= today) {
-      const dateStr = currentDate.toISOString().split('T')[0];
+      const dateStr = jourLocal(currentDate);
       const count = dataMap.get(dateStr) || 0;
       
       currentWeek.push({ date: dateStr, count });
@@ -56,7 +57,7 @@ export function ProgressHeatmap({ data, className }: ProgressHeatmapProps) {
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
+    return versDateLocale(dateStr).toLocaleDateString('fr-FR', {
       weekday: 'short',
       day: 'numeric',
       month: 'short'

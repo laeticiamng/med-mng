@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +68,7 @@ const Statistics = () => {
         ]);
         
         setWeeklyData(heatmap.slice(-7).map(d => ({
-          name: new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short' }),
+          name: versDateLocale(d.date).toLocaleDateString('fr-FR', { weekday: 'short' }),
           activities: d.count,
           ...d.activities
         })));
