@@ -1,0 +1,55 @@
+# Une seule vérification automatique, sans aucun secret : installation figée,
+# types, tests unitaires et build de production.
+#
+# Gestionnaire de paquets : bun, car bun.lock est le fichier de verrouillage que
+# Lovable met à jour à chaque ajout de dépendance (pnpm-lock.yaml peut dériver).
+# Le build n'a besoin d'aucune variable : l'URL Supabase et la clé publique sont
+# déjà dans src/integrations/supabase/client.ts.
+name: Vérification (tests, types, build)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verification:
+    name: Tests, types et build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Installer bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Installer les dépendances (bun.lock figé)
+        run: bun install --frozen-lockfile
+
+      # « tsc --noEmit » seul ne vérifie rien ici (tsconfig.json : files: [] + références) :
+      # on vérifie explicitement les deux projets.
+      - name: Vérifier les types
+        run: |
+          npx tsc -p tsconfig.app.json --noEmit
+          npx tsc -p tsconfig.node.json --noEmit
+
+      - name: Tests unitaires
+        run: npx vitest run
+
+      - name: Build de production
+        run: npx vite build

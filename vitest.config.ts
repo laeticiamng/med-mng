@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
@@ -9,6 +9,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'test/**/*.{test,spec}.{ts,tsx}'],
+    // test/e2e/ contient des scénarios Playwright (test.describe de @playwright/test) :
+    // ce ne sont pas des tests unitaires, vitest ne doit pas les collecter.
+    exclude: [...configDefaults.exclude, 'test/e2e/**'],
     // Coverage configuration
     coverage: {
       provider: 'v8',

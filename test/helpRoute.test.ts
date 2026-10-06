@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest';
 import { handleHelp } from '../supabase/functions/med-mng-api/routes/help.ts';
 
 const createRequest = (path: string) => new Request(`https://example.com${path}`);
@@ -5,10 +6,10 @@ const createRequest = (path: string) => new Request(`https://example.com${path}`
 describe('help route', () => {
   test('GET /help/onboarding returns steps in requested language', async () => {
     const supabase = {
-      from: jest.fn(() => ({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            order: jest.fn(() => Promise.resolve({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => Promise.resolve({
               data: [
                 {
                   id: 1,
