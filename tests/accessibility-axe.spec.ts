@@ -5,8 +5,13 @@ import AxeBuilder from '@axe-core/playwright';
  * Tests d'accessibilité automatisés avec axe-core
  * Norme: WCAG 2.1 AA - RGAA 4.1
  * 
- * Ces tests s'exécutent automatiquement dans le CI/CD pour garantir
- * une conformité à 100% sur toutes les pages de l'application.
+ * Lancés à la demande par .github/workflows/accessibility-ci.yml
+ * (npx playwright test -c playwright.a11y.config.ts) sur le build de production.
+ *
+ * Seules des pages publiques sont visitées : les pages protégées (création,
+ * bibliothèque personnelle, profil) redirigent un visiteur vers /med-mng/login,
+ * et /contact, /edn-generator, /quiz n'existent pas (page 404). Elles ont été
+ * remplacées par les pages publiques réelles correspondantes.
  */
 
 test.describe('Accessibilité automatisée avec axe-core', () => {
@@ -30,8 +35,8 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Page de création de musique - 0 violation', async ({ page }) => {
-    await page.goto('/med-mng/create');
+  test('Catalogue des items EDN - 0 violation', async ({ page }) => {
+    await page.goto('/edn-complete');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -40,8 +45,8 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Page bibliothèque - 0 violation', async ({ page }) => {
-    await page.goto('/med-mng/music-library');
+  test('Bibliothèque musicale EDN - 0 violation', async ({ page }) => {
+    await page.goto('/edn/music-library');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -60,8 +65,8 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Page profil - 0 violation', async ({ page }) => {
-    await page.goto('/med-mng/profile');
+  test('Page d\'inscription - 0 violation', async ({ page }) => {
+    await page.goto('/med-mng/signup');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -110,8 +115,8 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Page contact - 0 violation', async ({ page }) => {
-    await page.goto('/contact');
+  test('FAQ - 0 violation', async ({ page }) => {
+    await page.goto('/faq');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -120,8 +125,8 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Générateur EDN - 0 violation', async ({ page }) => {
-    await page.goto('/edn-generator');
+  test('Index des ECOS - 0 violation', async ({ page }) => {
+    await page.goto('/ecos');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -130,8 +135,8 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Page quiz - 0 violation', async ({ page }) => {
-    await page.goto('/quiz');
+  test('Méthode MNG - 0 violation', async ({ page }) => {
+    await page.goto('/mng-method');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -218,21 +223,11 @@ test.describe('Tests d\'accessibilité avec règles personnalisées RGAA', () =>
 });
 
 test.describe('Tests d\'accessibilité avancés - Lecteur audio', () => {
-  test('Lecteur audio - Contrôles accessibles', async ({ page }) => {
-    await page.goto('/med-mng/music-library');
-    
-    // Attendre que le lecteur soit chargé
-    await page.waitForSelector('[aria-label*="Lecteur audio"]', { timeout: 10000 });
-    
-    const accessibilityScanResults = await new AxeBuilder({ page })
-      .include('[aria-label*="Lecteur audio"]')
-      .analyze();
-    
-    expect(accessibilityScanResults.violations).toEqual([]);
-  });
-
+  // Le lecteur (MusicPlayer, aria-label « Lecteur audio pour … ») n'est rendu que dans la
+  // bibliothèque personnelle protégée : sans compte de test il ne peut pas être atteint.
+  // On vérifie les contrôles de la bibliothèque musicale publique.
   test('Boutons de contrôle - Labels ARIA', async ({ page }) => {
-    await page.goto('/med-mng/music-library');
+    await page.goto('/edn/music-library');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withRules(['button-name', 'aria-command-name'])

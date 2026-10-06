@@ -36,3 +36,8 @@ yarn.lock
 !.env.staging.example
 !.env.production.example
 supabase/.temp/
+
+# Rapports d'accessibilité (Playwright, Lighthouse CI)
+/test-results/
+/playwright-report/
+/.lighthouseci/
