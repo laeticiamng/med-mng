@@ -21,7 +21,7 @@ describe('offre Med MNG', () => {
   });
 
   it('la migration SQL liste exactement les mêmes items que le front', () => {
-    const sql = readFileSync(resolve(process.cwd(), 'supabase/migrations/20261006020000_mm_items_essai_cliniques.sql'), 'utf8');
+    const sql = readFileSync(resolve(process.cwd(), 'supabase/migrations/20261006071535_mm_items_essai_cliniques.sql'), 'utf8');
     const instruction = sql.split('\n').filter((l) => !l.trim().startsWith('--')).join('\n');
     const codes = [...(/SELECT ARRAY\[([^\]]+)\]/.exec(instruction)?.[1] ?? '').matchAll(/'(IC-\d+)'/g)].map((m) => m[1]);
     expect(codes).toEqual([...ITEMS_GRATUITS]);

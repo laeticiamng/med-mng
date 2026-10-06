@@ -50,7 +50,7 @@ test.describe('Verrou Premium — API', () => {
   });
 
   test('DC5 : anonyme, IC-161 ouvert et IC-2 verrouillé par la RPC @attend-deploiement', async ({ request }) => {
-    // Migration 20261006020000_mm_items_essai_cliniques.sql : 10 items d'essai cliniques.
+    // Migration 20261006071535_mm_items_essai_cliniques.sql : 10 items d'essai cliniques.
     const ouvert = await rest(request, 'rpc/mm_contenu_immersif_item', { methode: 'POST', corps: { p_item_code: 'IC-161' } });
     expect(ouvert.status).toBe(200);
     expect((ouvert.json as { verrouille?: boolean }).verrouille ?? false).toBe(false);

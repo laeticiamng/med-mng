@@ -10,7 +10,7 @@
  *    d'appariement (décision DC5, 06.10.2026 ; critère : nombre de groupes de
  *    DES pondérant le rang B, arrêté du 19.04.2022, annexe 1). Liste à tenir
  *    alignée avec la fonction SQL `public.mm_items_gratuits()`
- *    (supabase/migrations/20261006020000_mm_items_essai_cliniques.sql).
+ *    (supabase/migrations/20261006071535_mm_items_essai_cliniques.sql).
  *  - Med MNG Premium : contenu immersif des 367 items + génération audio
  *    (quota mensuel `QUOTA_GENERATIONS_AUDIO_PREMIUM`).
  *
