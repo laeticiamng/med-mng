@@ -1,13 +1,8 @@
 name: 🎯 Tests d'Accessibilité CI/CD
 
+# Lancement manuel uniquement : ce workflow n'a jamais réussi (aucun package-lock.json
+# pour « npm ci »). La vérification automatique est dans ci.yml.
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  schedule:
-    # Audit automatique tous les lundis à 9h00
-    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 jobs:

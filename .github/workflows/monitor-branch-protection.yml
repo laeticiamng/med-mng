@@ -1,11 +1,9 @@
 name: 🛡️ Monitoring Branch Protection
 
+# Lancement manuel uniquement (la planification hebdomadaire échouait et envoyait des
+# alertes « Run failed »). La vérification automatique est dans ci.yml.
 on:
-  schedule:
-    # Vérification tous les dimanches à minuit (UTC)
-    - cron: '0 0 * * 0'
   workflow_dispatch:
-    # Permet de lancer manuellement
 
 jobs:
   verify-protection:
