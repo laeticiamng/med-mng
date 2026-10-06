@@ -6,7 +6,7 @@ import {
 
 /**
  * Envoi d'un signalement d'erreur sur un contenu (table
- * public.mm_signalements_contenu, migration 20261006030000).
+ * public.mm_signalements_contenu, migration 20261006013302).
  *
  * Le serveur renseigne lui-même user_id (auth.uid()), statut et created_at :
  * le client n'a le droit d'écrire que les quatre colonnes ci-dessous. Aucune
