@@ -6,6 +6,7 @@ import { Book, Grid, Layers, List } from 'lucide-react';
 import React, { useState } from 'react';
 import { CompetenceCardOptimized } from './CompetenceCardOptimized';
 import { CompetenceFlashcard } from './CompetenceFlashcard';
+import { AnnotationsCompetence } from '../AnnotationsCompetence';
 
 interface CompetenceOIC {
   intitule: string;
@@ -84,6 +85,7 @@ const CompetenceCompactCard: React.FC<{
               {competence.description}
             </p>
           )}
+          <AnnotationsCompetence objectifId={competence.objectif_id} />
         </div>
       </CardContent>
     </Card>

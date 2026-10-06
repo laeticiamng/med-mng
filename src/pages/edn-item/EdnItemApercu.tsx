@@ -1,5 +1,6 @@
 import { CompetenceValidation } from '@/components/edn/CompetenceValidation';
 import { CompetencesBadges } from '@/components/edn/CompetencesBadges';
+import { AnnotationsCompetence } from '@/components/edn/AnnotationsCompetence';
 import { EdnItemExport } from '@/components/edn/export/EdnItemExport';
 import { PersonalNotes } from '@/components/edn/PersonalNotes';
 import { QuizHistorySummary } from '@/components/edn/QuizHistorySummary';
@@ -131,6 +132,7 @@ export default function EdnItemApercu() {
                         {comp.description && comp.description !== comp.intitule && (
                           <p className="text-xs text-muted-foreground leading-relaxed">{comp.description}</p>
                         )}
+                        <AnnotationsCompetence objectifId={comp.objectif_id} className="mt-2" />
                       </div>
                     ))}
                   </div>
@@ -163,6 +165,7 @@ export default function EdnItemApercu() {
                         {comp.description && comp.description !== comp.intitule && (
                           <p className="text-xs text-muted-foreground leading-relaxed">{comp.description}</p>
                         )}
+                        <AnnotationsCompetence objectifId={comp.objectif_id} className="mt-2" />
                       </div>
                     ))}
                   </div>

@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { ContenuOfficielOIC } from './ContenuOfficielOIC';
+import { AnnotationsCompetence } from '../AnnotationsCompetence';
 
 interface CompetenceOIC {
   intitule: string;
@@ -110,6 +111,10 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
           </Button>
         </div>
       </CardHeader>
+
+      {/* Note d'actualisation (DC2) : visible carte fermée comme ouverte, sous
+          la compétence, dont le texte LiSA reste inchangé. */}
+      <AnnotationsCompetence objectifId={competence.objectif_id} className="px-6 pt-3 pb-4 sm:px-8" />
 
       {isExpanded && (
         <CardContent className="pt-0 pb-8 px-6 sm:px-8">

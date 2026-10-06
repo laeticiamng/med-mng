@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { NoteActualisation } from './NoteActualisation';
+import { noteActualisation, objectifsCitesDuChapitre } from '@/config/notesActualisation';
 
 interface TableauRangData {
   title?: string;
@@ -38,6 +40,8 @@ interface RomanChapter {
     description?: string;
     rubrique?: string;
   }>;
+  /** Identifiants OIC cités par le chapitre rédigé (`competences: ['OIC-…']`). */
+  objectifsCites?: string[];
 }
 
 interface RomanNarratifProps {
@@ -323,6 +327,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
       content: String(c?.content ?? c?.texte ?? '').trim(),
       type: (i === 0 ? 'intro' : i === tous.length - 1 ? 'conclusion' : 'rang-a') as RomanChapter['type'],
       competences: [],
+      objectifsCites: objectifsCitesDuChapitre(c?.competences),
     }))
     .filter((c) => c.title && c.content);
 
@@ -562,6 +567,20 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
               </div>
             ))}
           </div>
+
+          {/* DC2 (décision CEO du 06.10.2026) : sous un chapitre qui cite une
+              compétence ayant une note d'actualisation (OIC-150-06-A), la note
+              est affichée telle quelle ; le récit n'est pas modifié. */}
+          {[...new Set(currentChap.objectifsCites ?? [])]
+            .filter((id) => noteActualisation(id))
+            .map((id) => (
+              <NoteActualisation
+                key={id}
+                objectifId={id}
+                className="mt-4"
+                introduction={`Ce chapitre s'appuie sur la compétence ${id}.`}
+              />
+            ))}
           
           <div className="flex gap-2 mt-6 pt-4 border-t flex-wrap">
             {savedProgress !== null && savedProgress !== currentChapter && (
