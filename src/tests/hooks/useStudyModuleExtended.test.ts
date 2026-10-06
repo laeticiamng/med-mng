@@ -11,6 +11,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { addDays, differenceInCalendarDays } from 'date-fns';
 
 // ============================================
 // SRS ALGORITHM CONSTANTS
@@ -414,12 +415,14 @@ describe('Study Module - Extended Tests', () => {
 
   describe('Study Plan Generation', () => {
     it('should calculate days until exam correctly', () => {
-      const examDate = new Date();
-      examDate.setDate(examDate.getDate() + 30);
-      
-      const today = new Date();
-      const daysUntilExam = Math.ceil((examDate.getTime() - today.getTime()) / 86400000);
-      
+      // Date fixe dont l'intervalle traverse le passage à l'heure d'hiver (25.10.2026 en Europe).
+      // L'ancienne version divisait des millisecondes par 86 400 000 à partir de « maintenant » :
+      // un jour de 25 h donnait 31 au lieu de 30 selon la date et le fuseau d'exécution.
+      const today = new Date(2026, 9, 6, 10, 0, 0);
+      const examDate = addDays(today, 30);
+
+      const daysUntilExam = differenceInCalendarDays(examDate, today);
+
       expect(daysUntilExam).toBe(30);
     });
 

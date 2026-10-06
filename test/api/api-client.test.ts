@@ -1,8 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { APIClient, APIErrorException, withAPIErrorHandling } from '../../src/lib/api-client';
+import {
+  APIClient,
+  APIErrorException,
+  withAPIErrorHandling,
+  apiClient as defaultApiClient,
+} from '../../src/lib/api-client';
 
-// Mock fetch
-global.fetch = vi.fn();
+// Le fetch global est remplacé dans beforeEach : MSW (src/tests/setup.ts) intercepte fetch
+// dans son beforeAll, ce qui écrasait le vi.fn() posé ici au chargement du module.
 
 // Mock Supabase
 vi.mock('@/integrations/supabase/client', () => ({
@@ -20,7 +25,8 @@ describe('APIClient', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockFetch = global.fetch as ReturnType<typeof vi.fn>;
+    mockFetch = vi.fn();
+    vi.stubGlobal('fetch', mockFetch);
     apiClient = new APIClient({
       timeout: 5000,
       retries: 2
@@ -29,6 +35,7 @@ describe('APIClient', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe('Basic HTTP Operations', () => {
@@ -250,9 +257,17 @@ describe('APIClient', () => {
 
   describe('Timeout and Retries', () => {
     it('should handle request timeout', async () => {
-      // Mock a slow response
-      mockFetch.mockImplementation(() => 
-        new Promise(resolve => setTimeout(resolve, 10000))
+      // Réponse qui n'arrive jamais : comme le vrai fetch, la promesse n'est rejetée que
+      // si le client annule la requête via son AbortController (sinon le test expire).
+      mockFetch.mockImplementation(
+        (_url: string, init?: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () =>
+              reject(
+                new DOMException('The operation was aborted.', 'AbortError')
+              )
+            );
+          })
       );
 
       const fastClient = new APIClient({ timeout: 100, retries: 1 });
@@ -387,13 +402,15 @@ describe('APIClient', () => {
 
       const apiCall = vi.fn().mockRejectedValue(apiError);
       
-      // Mock the error logging to avoid actual network call
-      const logErrorSpy = vi.spyOn(apiClient, 'logError').mockResolvedValue({
-        data: { success: true, errorId: '123' },
-        status: 200,
-        headers: {},
-        success: true
-      });
+      // withAPIErrorHandling journalise via l'instance exportée par le module (pas celle du test)
+      const logErrorSpy = vi
+        .spyOn(defaultApiClient, 'logError')
+        .mockResolvedValue({
+          data: { success: true, errorId: '123' },
+          status: 200,
+          headers: {},
+          success: true,
+        });
 
       await expect(
         withAPIErrorHandling(apiCall, 'test-component')

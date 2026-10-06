@@ -11,6 +11,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { format, isSameDay } from 'date-fns';
 
 // ============================================
 // CONSTANTS FOR TESTING
@@ -120,17 +121,21 @@ describe('Gamification Module - Extended Tests', () => {
     });
 
     it('should handle timezone edge cases', () => {
-      const midnight = new Date();
-      midnight.setHours(0, 0, 0, 0);
-      
+      // Minuit LOCAL d'une date fixe. L'ancienne version passait par toISOString() (jour UTC) :
+      // hors du fuseau UTC (ex. Europe/Paris), 23:59:59.999 et 00:00:00.001 locaux tombent
+      // le même jour UTC, et le test échouait selon le fuseau de la machine.
+      const midnight = new Date(2026, 9, 5, 0, 0, 0, 0);
+
       const beforeMidnight = new Date(midnight.getTime() - 1);
       const afterMidnight = new Date(midnight.getTime() + 1);
-      
-      const beforeDate = beforeMidnight.toISOString().split('T')[0];
-      const afterDate = afterMidnight.toISOString().split('T')[0];
-      
-      // Dates différentes autour de minuit
-      expect(beforeDate).not.toBe(afterDate);
+
+      const beforeDate = format(beforeMidnight, 'yyyy-MM-dd');
+      const afterDate = format(afterMidnight, 'yyyy-MM-dd');
+
+      // Dates (calendrier local) différentes autour de minuit
+      expect(beforeDate).toBe('2026-10-04');
+      expect(afterDate).toBe('2026-10-05');
+      expect(isSameDay(beforeMidnight, afterMidnight)).toBe(false);
     });
 
     it('should handle empty activity log', () => {

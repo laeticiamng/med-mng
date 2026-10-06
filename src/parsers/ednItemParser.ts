@@ -172,7 +172,8 @@ export class EDNItemParser {
    * Détecte si un item est en format v1 (legacy) ou v2
    */
   static isItemV2(item: any): item is ItemEDNV2 {
-    return item?.item_metadata?.version?.startsWith('v2.');
+    // `=== true` : sans cela, un item v1 (sans item_metadata) renvoyait undefined au lieu de false.
+    return item?.item_metadata?.version?.startsWith('v2.') === true;
   }
   
   /**

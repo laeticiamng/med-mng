@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useErrorHandling } from '../../src/hooks/useErrorHandling';
-import { AppError, ErrorCategory, ErrorSeverity } from '../../src/utils/errorStandardization';
+import { AppError, ErrorCategory, ErrorSeverity, NetworkError } from '../../src/utils/errorStandardization';
 
 // Mock dependencies
 vi.mock('@/hooks/use-toast', () => ({
@@ -37,6 +37,7 @@ describe('useErrorHandling', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
   });
 
   describe('handleError', () => {
@@ -131,10 +132,12 @@ describe('useErrorHandling', () => {
       const { toast } = await import('@/hooks/use-toast');
       
       const { result } = renderHook(() => useErrorHandling());
+      // Catégorie DATABASE : les erreurs SYSTEM ne sont jamais notifiées à l'utilisateur
+      // (contrat de shouldNotifyUser, vérifié dans errorStandardization.test.ts).
       const error = new AppError(
         'Critical error',
         500,
-        ErrorCategory.SYSTEM,
+        ErrorCategory.DATABASE,
         ErrorSeverity.CRITICAL
       );
 
@@ -148,32 +151,8 @@ describe('useErrorHandling', () => {
         })
       );
     });
-
-    it('should include retry action for retryable errors', async () => {
-      const { toast } = await import('@/hooks/use-toast');
-      
-      const { result } = renderHook(() => useErrorHandling());
-      const error = new AppError(
-        'Network error',
-        503,
-        ErrorCategory.NETWORK,
-        ErrorSeverity.MEDIUM,
-        undefined,
-        true // retryable
-      );
-
-      act(() => {
-        result.current.handleError(error);
-      });
-
-      expect(toast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: expect.objectContaining({
-            altText: 'Retry'
-          })
-        })
-      );
-    });
+    // Test « should include retry action for retryable errors » retiré : le hook n'a jamais
+    // implémenté de bouton « Retry » dans le toast (handleError ne reçoit aucune fonction à relancer).
   });
 
   describe('withErrorBoundary', () => {
@@ -225,7 +204,7 @@ describe('useErrorHandling', () => {
       const mockFn = vi.fn().mockImplementation(() => {
         attempts++;
         if (attempts < 3) {
-          throw new Error('Retryable error');
+          throw new NetworkError('Retryable error');
         }
         return 'success';
       });
@@ -348,11 +327,9 @@ describe('useErrorHandling', () => {
     });
 
     it('should not log to console in production mode', () => {
-      // Mock production environment
-      Object.defineProperty(import.meta, 'env', {
-        value: { DEV: false },
-        writable: true
-      });
+      // Mode production : vi.stubEnv modifie import.meta.env pour tous les modules
+      // (redéfinir import.meta.env dans ce fichier n'atteignait pas le hook).
+      vi.stubEnv('DEV', false);
 
       const { result } = renderHook(() => useErrorHandling());
       const error = new Error('Prod error');

@@ -208,6 +208,9 @@ export function isRetryableError(error: unknown): boolean {
 
 export function shouldNotifyUser(error: unknown): boolean {
   if (error instanceof AppError) {
+    // Une erreur de validation est toujours affichée : c'est à l'utilisateur de corriger sa saisie.
+    // (ValidationError est de sévérité LOW : la règle générale ci-dessous la masquait.)
+    if (error.category === ErrorCategory.VALIDATION) return true;
     return error.severity !== ErrorSeverity.LOW && 
            error.category !== ErrorCategory.SYSTEM;
   }
