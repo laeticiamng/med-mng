@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -325,7 +326,7 @@ export function useCommunityPosts() {
         await supabase.from('user_activity_log').insert({
           user_id: user.id,
           activity_type: 'event_registration',
-          activity_date: new Date().toISOString().split('T')[0],
+          activity_date: jourLocal(),
           count: 1,
           metadata: { event_id: eventId }
         });

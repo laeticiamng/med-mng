@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -220,7 +221,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       await supabase.from('user_activity_log').insert({
         user_id: currentUser.id,
         activity_type: 'exam',
-        activity_date: new Date().toISOString().split('T')[0],
+        activity_date: jourLocal(),
         count: 1,
         metadata: {
           session_id: session.sessionId,

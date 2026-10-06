@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -60,7 +61,7 @@ export function useUserGoals() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Non authentifié');
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = jourLocal();
       
       const { data, error } = await supabase
         .from('user_goals')

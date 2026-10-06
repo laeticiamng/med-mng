@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { UserStatsCard } from '@/components/med-mng/profile/UserStatsCard';
@@ -328,7 +329,7 @@ const MedMngProgressComponent = () => {
                         animate={{ opacity: 1, x: 0 }}
                       >
                         <span className="text-muted-foreground">
-                          {new Date(activity.date).toLocaleDateString('fr-FR', { 
+                          {versDateLocale(activity.date).toLocaleDateString('fr-FR', {
                             weekday: 'short', 
                             day: 'numeric', 
                             month: 'short' 

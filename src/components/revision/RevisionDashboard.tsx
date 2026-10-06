@@ -1,3 +1,4 @@
+import { jourLocal, versDateLocale } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,7 +63,7 @@ export const RevisionDashboard: React.FC = () => {
             itemCode: h.item_code,
             score: h.score,
             timestamp: h.created_at,
-            date: new Date(h.session_date).toLocaleDateString('fr-FR')
+            date: versDateLocale(h.session_date).toLocaleDateString('fr-FR')
           }));
           setRevisionHistory(formatted);
         } else {
@@ -313,7 +314,7 @@ export const RevisionDashboard: React.FC = () => {
           {/* Heatmap de progression */}
           <ProgressHeatmap 
             data={revisionHistory.map(entry => ({
-              date: entry.timestamp?.split('T')[0] || new Date().toISOString().split('T')[0],
+              date: jourLocal(entry.timestamp || new Date()),
               count: 1,
               score: entry.score
             })).reduce((acc, curr) => {

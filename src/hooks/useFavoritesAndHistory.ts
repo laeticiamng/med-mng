@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useToast } from '@/hooks/use-toast';
 import { checkAndUseCredits } from '@/hooks/useIAQuota';
 import { supabase } from '@/integrations/supabase/client';
@@ -290,7 +291,7 @@ export const useFavoritesAndHistory = () => {
     history.forEach(h => {
       const date = new Date(h.listen_date);
       if (date >= startDate) {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = jourLocal(date);
         if (!result[dateStr]) {
           result[dateStr] = { count: 0, time: 0 };
         }
@@ -355,8 +356,8 @@ export const useFavoritesAndHistory = () => {
 
   // Get favorites added today
   const getFavoritesAddedToday = (): FavoriteSong[] => {
-    const today = new Date().toISOString().split('T')[0];
-    return favorites.filter(f => f.created_at.startsWith(today));
+    const today = jourLocal();
+    return favorites.filter(f => jourLocal(f.created_at) === today);
   };
 
   return {

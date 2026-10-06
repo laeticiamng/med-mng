@@ -1,3 +1,4 @@
+import { jourLocal, versDateLocale } from '@/lib/jourLocal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Calendar } from 'lucide-react';
@@ -33,7 +34,7 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({ data }) => {
       for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
         const date = new Date(today);
         date.setDate(date.getDate() - (weekIdx * 7 + (6 - dayIdx)));
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = jourLocal(date);
         const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
         
         const entry = dataMap.get(dateStr) || { count: 0, score: 0 };
@@ -103,7 +104,7 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({ data }) => {
                         />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="text-xs">
-                        <div className="font-medium">{new Date(day.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })}</div>
+                        <div className="font-medium">{versDateLocale(day.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })}</div>
                         <div>{day.count} révision{day.count > 1 ? 's' : ''}</div>
                         {day.score > 0 && <div>Score moyen: {day.score}%</div>}
                       </TooltipContent>

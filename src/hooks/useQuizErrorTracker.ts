@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -121,7 +122,7 @@ export const useQuizErrorTracker = () => {
             user_id: user.id,
             item_code: completedSession.itemCode,
             score: scorePercentage,
-            session_date: new Date().toISOString().split('T')[0]
+            session_date: jourLocal()
           });
       }
     } catch (error) {

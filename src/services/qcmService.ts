@@ -1,3 +1,4 @@
+import { jourLocal, serieActuelle } from '@/lib/jourLocal';
 import { supabase } from "@/integrations/supabase/client";
 
 export interface QcmQuestion {
@@ -362,7 +363,7 @@ class QcmService {
 
     sessions.forEach(s => {
       if (!s.completed_at) return;
-      const date = s.completed_at.split('T')[0];
+      const date = jourLocal(s.completed_at);
       const entry = byDate.get(date) || { scores: [], count: 0 };
       entry.scores.push(s.score);
       entry.count++;
@@ -447,26 +448,8 @@ class QcmService {
     const completedSessions = sessions.filter(s => s.completed_at);
     if (completedSessions.length === 0) return 0;
 
-    const dates = [...new Set(
-      completedSessions.map(s => s.completed_at!.split('T')[0])
-    )].sort().reverse();
-
-    let streak = 0;
-    const today = new Date().toISOString().split('T')[0];
-
-    for (let i = 0; i < dates.length; i++) {
-      const checkDate = new Date();
-      checkDate.setDate(checkDate.getDate() - i);
-      const checkStr = checkDate.toISOString().split('T')[0];
-
-      if (dates.includes(checkStr) || (i === 0 && dates[0] === today)) {
-        streak++;
-      } else if (i > 0) {
-        break;
-      }
-    }
-
-    return streak;
+    // completed_at est un horodatage : on le ramène au jour local de l'utilisateur.
+    return serieActuelle(completedSessions.map(s => jourLocal(s.completed_at!)));
   }
 }
 

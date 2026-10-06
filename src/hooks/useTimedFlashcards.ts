@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Flashcard } from './useFlashcards';
 import { supabase } from '@/integrations/supabase/client';
@@ -173,6 +174,7 @@ export const useTimedFlashcards = () => {
         await supabase.from('user_activity_log').insert({
           user_id: user.id,
           activity_type: 'timed_flashcard_session',
+          activity_date: jourLocal(),
           score: stats.score,
           metadata: {
             difficulty: config.difficulty,

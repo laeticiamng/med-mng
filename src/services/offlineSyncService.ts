@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SyncQueueItem {
@@ -556,13 +557,22 @@ class OfflineSyncService {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) break;
 
-        await (supabase as any).from('user_activity_log').insert({
+        const { error } = await (supabase as any).from('user_activity_log').insert({
           user_id: user.id,
           activity_type: item.type,
-          action: `offline_${item.type}`,
-          metadata: { ...item.data, item_code: item.itemCode, offline: true },
-          session_id: `offline_${item.timestamp}`,
+          // Jour local où l'activité a eu lieu (hors ligne), pas le jour UTC de la synchronisation.
+          activity_date: jourLocal(item.timestamp),
+          // Ni `action` ni `session_id` ne sont des colonnes de la table (400 PGRST204) : metadata.
+          metadata: {
+            ...item.data,
+            item_code: item.itemCode,
+            offline: true,
+            action: `offline_${item.type}`,
+            session_id: `offline_${item.timestamp}`,
+          },
         });
+        // Une insertion refusée n'est pas synchronisée : on la garde pour la prochaine tentative.
+        if (error) throw error;
 
         await this.markProgressSynced(item.id);
         success++;

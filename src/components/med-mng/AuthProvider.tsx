@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await supabase.from('user_activity_log').insert({
               user_id: session.user.id,
               activity_type: 'study',
+              activity_date: jourLocal(),
               count: 1,
               duration_seconds: 0,
               metadata: { event: 'signed_in', action: 'user_signed_in' }

@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -425,10 +426,10 @@ export const AdminAnalytics = () => {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = jourLocal(date);
       const displayDate = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
 
-      const dayLogs = logs.filter(log => log.created_at.startsWith(dateStr));
+      const dayLogs = logs.filter(log => jourLocal(log.created_at) === dateStr);
       const sessions = dayLogs.reduce((sum, log) => sum + (log.count || 1), 0);
       const uniqueUsers = new Set(dayLogs.map(log => log.user_id)).size;
 

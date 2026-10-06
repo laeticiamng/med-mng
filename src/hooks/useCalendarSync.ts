@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,7 +60,7 @@ export const useCalendarSync = () => {
     events.forEach(event => {
       const formatDate = (date: Date, allDay?: boolean): string => {
         if (allDay) {
-          return date.toISOString().split('T')[0].replace(/-/g, '');
+          return jourLocal(date).replace(/-/g, '');
         }
         return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
       };
@@ -194,8 +195,8 @@ export const useCalendarSync = () => {
         .from('study_plans')
         .select('*, plan_sessions(*)')
         .eq('user_id', userId)
-        .gte('start_date', startDate.toISOString().split('T')[0])
-        .lte('end_date', endDate.toISOString().split('T')[0]);
+        .gte('start_date', jourLocal(startDate))
+        .lte('end_date', jourLocal(endDate));
 
       if (!plans) return [];
 

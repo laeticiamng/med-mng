@@ -1,3 +1,4 @@
+import { jourLocal, serieActuelle } from '@/lib/jourLocal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useCallback, useState } from 'react';
@@ -157,23 +158,8 @@ export function useGamification() {
         .order('activity_date', { ascending: false })
         .limit(60);
 
-      let currentStreak = 0;
-      if (activityLog && activityLog.length > 0) {
-        const uniqueDates = [...new Set(activityLog.map(a => a.activity_date))];
-        const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        
-        if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
-          currentStreak = 1;
-          for (let i = 1; i < uniqueDates.length; i++) {
-            const prev = new Date(uniqueDates[i - 1]);
-            const curr = new Date(uniqueDates[i]);
-            const diff = (prev.getTime() - curr.getTime()) / 86400000;
-            if (diff === 1) currentStreak++;
-            else break;
-          }
-        }
-      }
+      // Jours locaux (activity_date est écrit en jour local) : série calendaire.
+      const currentStreak = serieActuelle((activityLog ?? []).map(a => a.activity_date));
 
       // Weekly progress from activity log
       const weekStart = new Date();
@@ -182,7 +168,7 @@ export function useGamification() {
         .from('user_activity_log')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .gte('activity_date', weekStart.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(weekStart));
 
       // Récupérer le longest streak depuis Supabase
       const { data: gamificationData } = await supabase
@@ -575,7 +561,7 @@ export function useGamification() {
       // Group by date
       const byDate = new Map<string, number>();
       data.forEach(d => {
-        const date = d.created_at.split('T')[0];
+        const date = jourLocal(d.created_at);
         byDate.set(date, (byDate.get(date) || 0) + (d.points_earned || 0));
       });
 

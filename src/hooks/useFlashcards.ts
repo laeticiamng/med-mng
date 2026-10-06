@@ -1,3 +1,4 @@
+import { debutJourLocal, jourLocal, serieActuelle } from '@/lib/jourLocal';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -476,12 +477,12 @@ export const useFlashcards = () => {
         });
       }
 
-      // Today's reviews
-      const today = new Date().toISOString().split('T')[0];
+      // Révisions du jour : depuis minuit LOCAL (comme les barres de la semaine ci-dessous).
+      // « .gte('reviewed_at', 'AAAA-MM-JJ') » comptait depuis minuit UTC.
       const { count: todayCount } = await supabase
         .from('flashcard_reviews')
         .select('*', { count: 'exact', head: true })
-        .gte('reviewed_at', today);
+        .gte('reviewed_at', debutJourLocal().toISOString());
 
       // Calculate streak days from flashcard_reviews
       let streakDays = 0;
@@ -492,21 +493,8 @@ export const useFlashcards = () => {
         .limit(30);
 
       if (recentReviews && recentReviews.length > 0) {
-        const uniqueDays = new Set(
-          recentReviews.map((r: any) => new Date(r.reviewed_at).toDateString())
-        );
-        const sortedDays = Array.from(uniqueDays).sort((a, b) => 
-          new Date(b).getTime() - new Date(a).getTime()
-        );
-        
-        let currentDate = new Date();
-        for (const day of sortedDays) {
-          if (new Date(day).toDateString() === currentDate.toDateString() ||
-              new Date(day).toDateString() === new Date(currentDate.getTime() - 86400000).toDateString()) {
-            streakDays++;
-            currentDate = new Date(currentDate.getTime() - 86400000);
-          } else break;
-        }
+        // Jours locaux distincts, série calendaire (pas de pas de 86 400 000 ms).
+        streakDays = serieActuelle(recentReviews.map((r: any) => jourLocal(r.reviewed_at)));
       }
 
       // Calculate weekly progress

@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useState } from 'react';
@@ -118,7 +119,7 @@ export const useAnalytics = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('activity_type', 'music_generation')
-        .gte('activity_date', startDate.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(startDate));
 
       if (error) throw error;
 
@@ -149,6 +150,7 @@ export const useAnalytics = () => {
       await supabase.from('user_activity_log').insert({
         user_id: user.id,
         activity_type: 'study',
+        activity_date: jourLocal(),
         count: 1,
         metadata: { page, ...metadata }
       });
@@ -165,6 +167,7 @@ export const useAnalytics = () => {
       await supabase.from('user_activity_log').insert({
         user_id: user.id,
         activity_type: 'study',
+        activity_date: jourLocal(),
         count: 1,
         metadata: { feature, action, timestamp: new Date().toISOString() }
       });
@@ -185,7 +188,7 @@ export const useAnalytics = () => {
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
-        .gte('activity_date', thirtyDaysAgo.toISOString().split('T')[0]);
+        .gte('activity_date', jourLocal(thirtyDaysAgo));
 
       if (!data) return 0;
 
@@ -243,6 +246,7 @@ export const useAnalytics = () => {
       await supabase.from('user_activity_log').insert({
         user_id: user.id,
         activity_type: 'study',
+        activity_date: jourLocal(),
         count: 1,
         metadata: { type: 'search', query, resultsCount }
       });

@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -224,7 +225,7 @@ export const useLearningAnalytics = () => {
       const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
       const weekStart = new Date(now.setDate(diff));
       weekStart.setHours(0, 0, 0, 0);
-      const weekStartStr = weekStart.toISOString().split('T')[0];
+      const weekStartStr = jourLocal(weekStart);
 
       const { error } = await supabase
         .from('learning_analytics')
@@ -267,7 +268,7 @@ export const useLearningAnalytics = () => {
         .from('user_activity_log')
         .select('activity_date, score, count, duration_seconds')
         .eq('user_id', user.id)
-        .gte('activity_date', startDate.toISOString().split('T')[0])
+        .gte('activity_date', jourLocal(startDate))
         .order('activity_date', { ascending: true });
 
       if (error || !data) return [];

@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -79,7 +80,7 @@ export const useStudyStore = create<StudyState>()(
           score,
         };
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = jourLocal();
         const durationMinutes = Math.floor(duration / 60);
 
         set({

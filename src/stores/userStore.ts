@@ -1,3 +1,4 @@
+import { jourLocal, hierLocal } from '@/lib/jourLocal';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -86,16 +87,14 @@ export const useUserStore = create<UserState>()(
       },
 
       updateStreak: () => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = jourLocal();
         const { lastStudyDate, streak } = get().progress;
         
         if (lastStudyDate === today) {
           return; // Already studied today
         }
         
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        const yesterdayStr = hierLocal();
         
         const newStreak = lastStudyDate === yesterdayStr ? streak + 1 : 1;
         

@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -99,7 +100,7 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
   let currentWeek: HeatmapData[] = [];
   
   data.forEach((day, index) => {
-    const date = new Date(day.date);
+    const date = versDateLocale(day.date);
     const dayOfWeek = date.getDay();
     
     if (index === 0) {

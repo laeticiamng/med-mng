@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarDays } from 'lucide-react';
@@ -62,17 +63,17 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
       const dayMap: Record<string, number> = {};
       
       quizData?.forEach(result => {
-        const day = new Date(result.created_at).toISOString().split('T')[0];
+        const day = jourLocal(result.created_at);
         dayMap[day] = (dayMap[day] || 0) + 2; // Quiz = 2 points
       });
 
       activityDataResult?.forEach(activity => {
-        const day = new Date(activity.created_at).toISOString().split('T')[0];
+        const day = jourLocal(activity.created_at);
         dayMap[day] = (dayMap[day] || 0) + 1; // Activity = 1 point
       });
 
       masteryData?.forEach(mastery => {
-        const day = new Date(mastery.updated_at).toISOString().split('T')[0];
+        const day = jourLocal(mastery.updated_at);
         dayMap[day] = (dayMap[day] || 0) + 1; // Mastery update = 1 point
       });
 
@@ -80,7 +81,7 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
       for (let i = 0; i < days; i++) {
         const date = new Date();
         date.setDate(date.getDate() - (days - 1 - i));
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = jourLocal(date);
         activity.push({
           date: dateStr,
           count: dayMap[dateStr] || 0

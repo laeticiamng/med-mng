@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -81,7 +82,7 @@ export const StudyCalendar: React.FC = () => {
       // Days of current month
       for (let d = 1; d <= lastDay.getDate(); d++) {
         const date = new Date(year, month, d);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = jourLocal(date);
         const heatmapEntry = heatmapData.find(h => h.date === dateStr);
         
         // Calculate predicted workload for future days
@@ -146,7 +147,7 @@ export const StudyCalendar: React.FC = () => {
       if (count > 0) {
         const eventDate = new Date(today);
         eventDate.setDate(eventDate.getDate() + dayOffset);
-        const dateStr = eventDate.toISOString().split('T')[0].replace(/-/g, '');
+        const dateStr = jourLocal(eventDate).replace(/-/g, '');
         
         events.push(
           `BEGIN:VEVENT`,

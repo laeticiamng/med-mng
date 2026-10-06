@@ -1,3 +1,4 @@
+import { versDateLocale } from '@/lib/jourLocal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,7 +93,7 @@ export const CVSSList = () => {
         <CardContent>
           <div className="space-y-4">
             {assessments.map((assessment) => {
-              const isOverdue = assessment.patch_deadline && new Date(assessment.patch_deadline) < new Date() && !assessment.patched;
+              const isOverdue = assessment.patch_deadline && versDateLocale(assessment.patch_deadline) < new Date() && !assessment.patched;
               
               return (
                 <Card key={assessment.id} className={`border-l-4 ${
@@ -138,7 +139,7 @@ export const CVSSList = () => {
                           <div className="text-muted-foreground text-xs">Deadline</div>
                           <div className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
                             <Calendar className="h-3 w-3 inline mr-1" />
-                            {new Date(assessment.patch_deadline).toLocaleDateString('fr-FR')}
+                            {versDateLocale(assessment.patch_deadline).toLocaleDateString('fr-FR')}
                           </div>
                         </div>
                       )}

@@ -1,3 +1,4 @@
+import { jourLocal } from '@/lib/jourLocal';
 import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -325,7 +326,7 @@ export const StudyPlanManager = () => {
                   type="date"
                   value={newPlan.target_date}
                   onChange={(e) => setNewPlan(prev => ({ ...prev, target_date: e.target.value }))}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={jourLocal()}
                 />
               </div>
               <div>
