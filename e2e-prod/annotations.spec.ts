@@ -34,3 +34,26 @@ test.describe('DC2 — note d’actualisation HAS', () => {
     expect(erreurs).toEqual([]);
   });
 });
+
+test.describe('CF-10 — contenu rédigé par IA : mention renforcée et signalement', () => {
+  const MENTION =
+    'Contenu rédigé par IA à partir des compétences officielles LiSA 2026, non relu individuellement par un médecin. La compétence officielle fait foi.';
+
+  test('paroles d’IC-161 (item d’essai) : mention renforcée et lien « se connecter pour signaler » @attend-deploiement', async ({
+    page,
+  }) => {
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/edn-complete/ic-161/musique');
+    const t = await texte(page, MENTION);
+    expect(t).toContain('[Couplet 1]');
+    const lien = page.getByRole('link', {
+      name: 'Se connecter pour signaler une erreur',
+    });
+    await expect(lien).toBeVisible();
+    await expect(lien).toHaveAttribute(
+      'href',
+      /\/med-mng\/login\?next=%2Fedn-complete%2Fic-161%2Fmusique/
+    );
+    expect(erreurs).toEqual([]);
+  });
+});

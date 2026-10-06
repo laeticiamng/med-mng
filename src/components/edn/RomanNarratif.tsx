@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { MentionContenuIA } from './MentionContenuIA';
 import { NoteActualisation } from './NoteActualisation';
 import { noteActualisation, objectifsCitesDuChapitre } from '@/config/notesActualisation';
 
@@ -547,12 +548,15 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
               2641 chapitres, 2512 titres distincts, 2566 premières phrases
               distinctes). L'ancienne mention « formules types, communes à tous
               les items » était devenue fausse : elle dévalorisait le contenu. */}
-          <p className="text-xs text-muted-foreground mb-4">
-            Récit rédigé par IA pour cet item, à partir de ses compétences officielles (référentiel
-            LiSA 2026). Les personnages, les lieux et les données des patients sont fictifs. Comme
-            tout contenu généré par IA, il peut contenir des imprécisions : la compétence officielle
-            fait foi.
-          </p>
+          {/* CF-10 (décision CEO du 06.10.2026) : mention renforcée commune et
+              bouton « Signaler une erreur ». */}
+          <MentionContenuIA
+            itemCode={itemCode}
+            typeContenu="recit"
+            reference={`Chapitre ${currentChapter + 1} — ${currentChap.title}`}
+            complement="Les personnages, les lieux et les données des patients sont fictifs."
+            className="mb-4"
+          />
           <div className="prose prose-lg max-w-none space-y-4">
             {currentChap.content.split('\n\n').map((paragraph, index) => (
               <div key={index} className="p-4 bg-background/60 rounded-xl border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors">

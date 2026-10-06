@@ -8,6 +8,7 @@ import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 import { IllustrationCase } from '@/components/edn/IllustrationCase';
+import { MentionContenuIA } from '@/components/edn/MentionContenuIA';
 import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import {
     BookOpen,
@@ -500,11 +501,15 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
               description (illustrer-case ; vérifié en base le 05.10.2026 : 4521
               cases, 4522 images dans bd-illustrations, 367 items). L'ancienne
               mention « photos génériques, non spécifiques à l'item » était fausse. */}
-          <p className="text-xs text-muted-foreground mb-3">
-            Planches rédigées et illustrées par IA pour cet item, à partir de ses compétences
-            officielles (référentiel LiSA 2026). Les personnages et les scènes sont fictifs ; la
-            compétence officielle fait foi.
-          </p>
+          {/* CF-10 (décision CEO du 06.10.2026) : mention renforcée commune et
+              bouton « Signaler une erreur ». */}
+          <MentionContenuIA
+            itemCode={itemCode}
+            typeContenu="planche"
+            reference={`Planche ${currentVignette + 1} — ${currentVig.title}`}
+            complement="Planches illustrées par IA ; les personnages et les scènes sont fictifs."
+            className="mb-3"
+          />
           <div className="flex items-center justify-between">
             <Button 
               variant="outline" 

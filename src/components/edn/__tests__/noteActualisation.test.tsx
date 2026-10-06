@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import {
   NOTES_ACTUALISATION,
@@ -120,24 +121,26 @@ describe('DC2 — note d’actualisation HAS sous OIC-150-06-A', () => {
   it('sous le chapitre du récit qui cite OIC-150-06-A, et pas sous les autres', async () => {
     const { RomanNarratif } = await import('../RomanNarratif');
     render(
-      <RomanNarratif
-        itemCode="IC-150"
-        title="Otites infectieuses"
-        romanStory={
-          [
-            {
-              titre: "L'ordonnance",
-              texte: 'Amoxicilline, dix jours.',
-              competences: ['OIC-150-06-A', 'OIC-150-02-B'],
-            },
-            {
-              titre: 'Le nageur',
-              texte: 'Otite externe.',
-              competences: ['OIC-150-08-A'],
-            },
-          ] as never
-        }
-      />
+      <MemoryRouter>
+        <RomanNarratif
+          itemCode="IC-150"
+          title="Otites infectieuses"
+          romanStory={
+            [
+              {
+                titre: "L'ordonnance",
+                texte: 'Amoxicilline, dix jours.',
+                competences: ['OIC-150-06-A', 'OIC-150-02-B'],
+              },
+              {
+                titre: 'Le nageur',
+                texte: 'Otite externe.',
+                competences: ['OIC-150-08-A'],
+              },
+            ] as never
+          }
+        />
+      </MemoryRouter>
     );
     const note = screen.getByTestId('note-actualisation');
     expect(note).toHaveTextContent(

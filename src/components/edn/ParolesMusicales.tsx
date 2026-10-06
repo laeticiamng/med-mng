@@ -10,6 +10,7 @@ import { useGamification } from '@/hooks/useGamification';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
 import { QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { EncartGenerationAudio } from '@/components/offre/EncartGenerationAudio';
+import { MentionContenuIA } from '@/components/edn/MentionContenuIA';
 import { supabase } from '@/integrations/supabase/client';
 import { Download, Flame, Music, Pause, Star, ThumbsDown, ThumbsUp, Volume2 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -264,14 +265,11 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                 <Music className="h-6 w-6 text-warning" />
                 Chanson de l'item {itemCode}
               </CardTitle>
-              <CardDescription>
-                Chanson générée par IA à partir des compétences de l'item
-                {aAccesGeneration && musicQuota && (
-                  <span className="block mt-1">
-                    Générations audio ce mois-ci : {musicQuota.current_usage} / {musicQuota.quota_limit || QUOTA_GENERATIONS_AUDIO_PREMIUM}
-                  </span>
-                )}
-              </CardDescription>
+              {aAccesGeneration && musicQuota && (
+                <CardDescription>
+                  Générations audio ce mois-ci : {musicQuota.current_usage} / {musicQuota.quota_limit || QUOTA_GENERATIONS_AUDIO_PREMIUM}
+                </CardDescription>
+              )}
             </div>
             <Button
               variant={isTTSPlaying ? "default" : "outline"}
@@ -286,6 +284,13 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
+            {/* CF-10 (décision CEO du 06.10.2026) : la mention des paroles
+                n'indiquait pas « la compétence officielle fait foi ». */}
+            <MentionContenuIA
+              itemCode={itemCode}
+              typeContenu="paroles"
+              complement="Chanson (paroles et musique) générée par IA à partir des compétences de l'item."
+            />
             {ENABLE_DEBUG && (
               <ParolesMusicalesDebugInfo
                 itemCode={itemCode}

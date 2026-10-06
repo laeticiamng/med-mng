@@ -19,10 +19,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { chargerEtatContenuImmersif } from '@/hooks/useEtatContenuImmersif';
 import {
-    AlertTriangle,
     BookOpen,
     Brain,
-    CheckCircle,
     Edit,
     Eye,
     MoreHorizontal,
@@ -39,7 +37,6 @@ interface EdnItem {
   title: string;
   subtitle?: string | null;
   completeness_score: number;
-  is_validated: boolean;
   has_music: boolean;
   has_quiz: boolean;
   has_scene: boolean;
@@ -74,7 +71,7 @@ export const AdminContentManager = () => {
           .order('item_code'),
         supabase
           .from('edn_items_complete')
-          .select('item_code, completeness_score, is_validated'),
+          .select('item_code, completeness_score'),
         chargerEtatContenuImmersif(),
       ]);
 
@@ -108,7 +105,6 @@ export const AdminContentManager = () => {
           title: item.title || '',
           subtitle: item.subtitle,
           completeness_score: completeData?.completeness_score || completenessScore,
-          is_validated: completeData?.is_validated || false,
           has_music: hasMusic,
           has_quiz: hasQuiz,
           has_scene: hasScene,
@@ -134,8 +130,6 @@ export const AdminContentManager = () => {
     
     const matchesStatus = (() => {
       switch (statusFilter) {
-        case 'validated': return item.is_validated;
-        case 'pending': return !item.is_validated;
         case 'complete': return item.completeness_score >= 100;
         case 'incomplete': return item.completeness_score < 100;
         default: return true;
@@ -153,32 +147,6 @@ export const AdminContentManager = () => {
     
     return matchesSearch && matchesStatus && matchesCompleteness;
   });
-
-  const handleValidateItem = async (itemId: string, itemCode: string) => {
-    try {
-      // Persister la validation dans la base de données
-      const { error } = await (supabase as any)
-        .from('edn_items_complete')
-        .update({
-          is_validated: true,
-          validated_at: new Date().toISOString()
-        })
-        .eq('item_code', itemCode);
-
-      if (error) throw error;
-
-      // Mettre à jour l'état local après succès
-      const updatedItems = items.map(item =>
-        item.id === itemId ? { ...item, is_validated: true } : item
-      );
-      setItems(updatedItems);
-
-      toast.success(`Item ${itemCode} validé avec succès`);
-    } catch (error) {
-      console.error('Erreur validation:', error);
-      toast.error('Erreur lors de la validation de l\'item');
-    }
-  };
 
   const handlePreviewItem = (item: EdnItem) => {
     const slug = item.item_code.toLowerCase();
@@ -218,37 +186,17 @@ export const AdminContentManager = () => {
     }
   };
 
-  const handleInvalidateItem = async (itemId: string, itemCode: string) => {
-    try {
-      const { error } = await supabase
-        .from('edn_items_complete')
-        .update({ is_validated: false })
-        .eq('item_code', itemCode);
-
-      if (error) throw error;
-
-      const updatedItems = items.map(item =>
-        item.id === itemId ? { ...item, is_validated: false } : item
-      );
-      setItems(updatedItems);
-
-      toast.success(`Validation retirée pour ${itemCode}`);
-    } catch (error) {
-      console.error('Erreur invalidation:', error);
-      toast.error('Erreur lors de l\'invalidation');
-    }
-  };
-
   const getCompletenessColor = (score: number) => {
     if (score >= 80) return 'text-success';
     if (score >= 50) return 'text-warning';
     return 'text-destructive';
   };
 
+  // CF-10 (décision CEO du 06.10.2026) : le drapeau is_validated (vrai pour
+  // les 367 items) ne correspond à aucune relecture médicale
+  // (validation_status = draft partout). Il n'est plus affiché ni modifiable
+  // ici : ni badge « Validé », ni filtre, ni compteur, ni action « Valider ».
   const getStatusBadge = (item: EdnItem) => {
-    if (item.is_validated) {
-      return <Badge variant="success">Validé</Badge>;
-    }
     if (item.completeness_score >= 100) {
       return <Badge variant="default">Complet</Badge>;
     }
@@ -272,7 +220,7 @@ export const AdminContentManager = () => {
             Gestion du contenu EDN
           </CardTitle>
           <CardDescription>
-            Gérez, validez et modérez le contenu éducatif de la plateforme
+            Gérez et modérez le contenu éducatif de la plateforme (aucun item n'a de relecture médicale individuelle)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -294,8 +242,6 @@ export const AdminContentManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="validated">Validés</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
                 <SelectItem value="complete">Complets</SelectItem>
                 <SelectItem value="incomplete">Incomplets</SelectItem>
               </SelectContent>
@@ -394,23 +340,6 @@ export const AdminContentManager = () => {
                             Modifier
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {!item.is_validated ? (
-                            <DropdownMenuItem
-                              onClick={() => handleValidateItem(item.id, item.item_code)}
-                              className="text-success"
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Valider
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() => handleInvalidateItem(item.id, item.item_code)}
-                              className="text-warning"
-                            >
-                              <AlertTriangle className="mr-2 h-4 w-4" />
-                              Retirer validation
-                            </DropdownMenuItem>
-                          )}
                           <DropdownMenuItem
                             onClick={() => handleDeleteItem(item.id, item.item_code)}
                             className="text-destructive"
@@ -436,19 +365,11 @@ export const AdminContentManager = () => {
       </Card>
 
       {/* Statistiques de contenu */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-sm font-medium text-muted-foreground">Total items</div>
             <div className="text-2xl font-bold">{items.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-sm font-medium text-muted-foreground">Items validés</div>
-            <div className="text-2xl font-bold text-success">
-              {items.filter(i => i.is_validated).length}
-            </div>
           </CardContent>
         </Card>
         <Card>
