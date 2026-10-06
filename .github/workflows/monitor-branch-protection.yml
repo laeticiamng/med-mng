@@ -32,7 +32,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEPOT: ${{ github.repository }}
-          # Nom du job de .github/workflows/ci.yml (nom du check affiché sur les PR).
+          # Nom du job de .github/workflows/verification.yml (nom du check affiché sur les PR).
           CHECK_CI: Tests, types et build
         run: |
           set -u
@@ -78,8 +78,8 @@ jobs:
 
           resume ""
           if grep -qxF "$CHECK_CI" <<< "$CHECKS"; then
-            resume "Le check « $CHECK_CI » (ci.yml) est requis sur main."
+            resume "Le check « $CHECK_CI » (verification.yml) est requis sur main."
           else
-            echo "::notice::Le check « $CHECK_CI » (ci.yml) n'est pas requis sur main : information seulement."
-            resume "Le check « $CHECK_CI » (ci.yml) n'est pas requis sur main. Le rendre obligatoire bloquerait aussi les pushs directs de Lovable tant que le check n'a pas réussi : à décider en connaissance de cause."
+            echo "::notice::Le check « $CHECK_CI » (verification.yml) n'est pas requis sur main : information seulement."
+            resume "Le check « $CHECK_CI » (verification.yml) n'est pas requis sur main. Le rendre obligatoire bloquerait aussi les pushs directs de Lovable tant que le check n'a pas réussi : à décider en connaissance de cause."
           fi
