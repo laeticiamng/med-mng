@@ -132,7 +132,7 @@ export default function EdnItemApercu() {
                         {comp.description && comp.description !== comp.intitule && (
                           <p className="text-xs text-muted-foreground leading-relaxed">{comp.description}</p>
                         )}
-                        <AnnotationsCompetence objectifId={comp.objectif_id} className="mt-2" />
+                        <AnnotationsCompetence objectifId={comp.objectif_id} corrections={comp.corrections} className="mt-2" />
                       </div>
                     ))}
                   </div>
@@ -165,7 +165,7 @@ export default function EdnItemApercu() {
                         {comp.description && comp.description !== comp.intitule && (
                           <p className="text-xs text-muted-foreground leading-relaxed">{comp.description}</p>
                         )}
-                        <AnnotationsCompetence objectifId={comp.objectif_id} className="mt-2" />
+                        <AnnotationsCompetence objectifId={comp.objectif_id} corrections={comp.corrections} className="mt-2" />
                       </div>
                     ))}
                   </div>

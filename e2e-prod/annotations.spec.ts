@@ -57,3 +57,28 @@ test.describe('CF-10 — contenu rédigé par IA : mention renforcée et signale
     expect(erreurs).toEqual([]);
   });
 });
+
+test.describe('CF-10 bis — errata de fond affichés en clair', () => {
+  test('IC-332 : erratum sous OIC-332-11-B (Rang B), coquille d’OIC-332-09-A non affichée (Rang A) @attend-deploiement', async ({
+    page,
+  }) => {
+    const erreurs = surveillerErreurs(page);
+    await page.goto('/edn-complete/ic-332/rang-b');
+    const t = await texte(page, 'erratum Med MNG');
+    expect(t).toContain(
+      'Texte LiSA : « médicament β2 mimétique » — erratum Med MNG : « médicament β1 mimétique » (la dobutamine est un agoniste β1 (cf. OIC-234-23-B))'
+    );
+    await expect(page.getByTestId('erratum-med-mng')).toHaveCount(1);
+    await expect(page.getByTestId('erratum-med-mng')).toHaveAttribute(
+      'aria-label',
+      /OIC-332-11-B/
+    );
+
+    // Coquille (« urgence virale » → « urgence vitale ») : corrigée, sans affichage.
+    await page.goto('/edn-complete/ic-332/rang-a');
+    await texte(page, /OIC-332-\d{2}-A/);
+    await expect(page.getByTestId('erratum-med-mng')).toHaveCount(0);
+    await expect(page.locator('main')).not.toContainText('urgence virale');
+    expect(erreurs).toEqual([]);
+  });
+});

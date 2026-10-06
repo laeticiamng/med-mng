@@ -85,7 +85,7 @@ const CompetenceCompactCard: React.FC<{
               {competence.description}
             </p>
           )}
-          <AnnotationsCompetence objectifId={competence.objectif_id} />
+          <AnnotationsCompetence objectifId={competence.objectif_id} corrections={competence.corrections} />
         </div>
       </CardContent>
     </Card>

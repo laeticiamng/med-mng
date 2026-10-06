@@ -112,9 +112,13 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
         </div>
       </CardHeader>
 
-      {/* Note d'actualisation (DC2) : visible carte fermée comme ouverte, sous
-          la compétence, dont le texte LiSA reste inchangé. */}
-      <AnnotationsCompetence objectifId={competence.objectif_id} className="px-6 pt-3 pb-4 sm:px-8" />
+      {/* Erratum de fond (CF-10 bis) et note d'actualisation (DC2) : visibles
+          carte fermée comme ouverte, sous la compétence. */}
+      <AnnotationsCompetence
+        objectifId={competence.objectif_id}
+        corrections={competence.corrections}
+        className="px-6 pt-3 pb-4 sm:px-8"
+      />
 
       {isExpanded && (
         <CardContent className="pt-0 pb-8 px-6 sm:px-8">
@@ -125,7 +129,6 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
               texte={texte}
               urlSource={competence.url_source}
               majLisa={competence.maj_lisa}
-              corrections={competence.corrections}
             />
           </div>
         </CardContent>

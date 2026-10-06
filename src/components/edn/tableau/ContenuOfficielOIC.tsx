@@ -6,6 +6,12 @@ import React, { useMemo } from 'react';
  * Contenu officiel d'une compétence OIC, tel que publié dans LiSA 2026 (UNESS) :
  * texte complet, listes, tableaux et figures. Le HTML est nettoyé à la
  * préparation puis repassé ici dans DOMPurify (liste blanche stricte).
+ *
+ * Les corrections Med MNG ne sont plus listées ici (toutes, coquilles comprises,
+ * carte ouverte seulement) : depuis CF-10 bis (décision CEO du 06.10.2026), les
+ * seules corrections de fond sont montrées sous la compétence par
+ * AnnotationsCompetence, carte fermée comme ouverte ; les coquilles restent
+ * corrigées sans affichage.
  */
 
 const BALISES = ['p', 'br', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
@@ -22,10 +28,7 @@ export function nettoyerHtmlOIC(html: string): string {
   }) as unknown as string;
 }
 
-export interface CorrectionOIC { avant: string; apres: string; motif: string }
-
 interface ContenuOfficielOICProps {
-  corrections?: CorrectionOIC[] | null;
   html?: string | null;
   texte?: string | null;
   urlSource?: string | null;
@@ -33,7 +36,7 @@ interface ContenuOfficielOICProps {
   compact?: boolean;
 }
 
-export const ContenuOfficielOIC: React.FC<ContenuOfficielOICProps> = ({ html, texte, urlSource, majLisa, corrections, compact = false }) => {
+export const ContenuOfficielOIC: React.FC<ContenuOfficielOICProps> = ({ html, texte, urlSource, majLisa, compact = false }) => {
   const propre = useMemo(() => nettoyerHtmlOIC(html ?? ''), [html]);
   const date = majLisa ? new Date(majLisa) : null;
 
@@ -44,18 +47,6 @@ export const ContenuOfficielOIC: React.FC<ContenuOfficielOICProps> = ({ html, te
       ) : texte ? (
         <p className="whitespace-pre-line text-base leading-relaxed text-foreground/90">{texte}</p>
       ) : null}
-      {!compact && corrections && corrections.length > 0 && (
-        <div className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50/60 dark:bg-amber-950/20 p-3 text-xs text-foreground/80">
-          <p className="font-semibold">Corrigé par Med MNG (erreur évidente dans la fiche LiSA) :</p>
-          <ul className="mt-1 list-disc pl-5 space-y-0.5">
-            {corrections.map((c, i) => (
-              <li key={i}>
-                LiSA indique « {c.avant} » → « {c.apres} » <span className="text-muted-foreground">({c.motif})</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
       {!compact && (urlSource || date) && (
         <p className="mt-4 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
           <span>Source : référentiel national LiSA 2026 (UNESS)</span>

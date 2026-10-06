@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { estCompetenceOICReelle } from '@/utils/tableauTransformations';
+import type { CorrectionLisa } from '@/config/errataLisa';
 
 /**
  * LECTURE EN REST DIRECT — corrigé le 18/09/2026.
@@ -38,6 +39,8 @@ export interface OicCompetence {
   causes_echec?: string;
   contributeurs?: string;
   ordre_affichage?: number;
+  /** contenu_detaille.corrections (errata Med MNG ; seules celles de fond sont affichées, CF-10 bis). */
+  corrections?: CorrectionLisa[];
 }
 
 // Cache global pour éviter les re-fetches
@@ -113,7 +116,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       // Use direct padded item_parent for more reliable matching
       const url =
         `${SUPABASE_URL}/rest/v1/oic_competences` +
-        `?select=objectif_id,intitule,description,rang,item_parent,rubrique,sommaire` +
+        `?select=objectif_id,intitule,description,rang,item_parent,rubrique,sommaire,corrections:contenu_detaille->corrections` +
         `&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
 
       const response = await fetch(url, { headers: getSupabaseHeaders() });
@@ -130,7 +133,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         return;
       }
 
-      const data = (await response.json()) as Array<Record<string, string | null>>;
+      const data = (await response.json()) as Array<Record<string, string | null> & { corrections?: unknown }>;
       if (currentFetch !== fetchCountRef.current) return;
 
       if (!Array.isArray(data)) {
@@ -151,7 +154,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
           rubrique: comp.rubrique || '',
           rang: comp.rang || rang,
           item_parent: comp.item_parent || paddedItemParent,
-          sommaire: comp.sommaire || undefined
+          sommaire: comp.sommaire || undefined,
+          corrections: Array.isArray(comp.corrections) ? (comp.corrections as CorrectionLisa[]) : undefined
         })) as OicCompetence[];
 
       // Cache results
