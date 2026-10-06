@@ -18,13 +18,14 @@ test.describe('Critique finale — contenu immersif décrit tel qu’il est', ()
     await fermerCookies(page);
     const recit = await texte(page, 'Parcours narré des compétences');
     expect(recit).not.toMatch(/formules types/i);
-    expect(recit).toContain('Récit rédigé par IA pour cet item');
+    // Mention décidée par la CEO (CF-10, option A, 06.10.2026), src/config/mentionsContenu.ts.
+    expect(recit).toContain('Contenu rédigé par IA à partir des compétences officielles LiSA 2026, non relu individuellement par un médecin. La compétence officielle fait foi.');
     expect(recit).toMatch(/personnages, les lieux et les données des patients sont fictifs/);
 
     await page.goto('/edn-complete/ic-1/planches');
     const planches = await texte(page, 'Planches de compétences');
     expect(planches).not.toMatch(/photos d'illustration génériques|non spécifiques à l'item/i);
-    expect(planches).toContain('Planches rédigées et illustrées par IA pour cet item');
+    expect(planches).toContain('Contenu rédigé par IA à partir des compétences officielles LiSA 2026, non relu individuellement par un médecin. La compétence officielle fait foi.');
     // Réalité : l'image affichée est celle dessinée pour une case de CET item.
     await expect(page.locator('main img[src*="/bd-illustrations/IC-1/"]').first()).toBeVisible({ timeout: 30_000 });
     expect(erreurs).toEqual([]);
