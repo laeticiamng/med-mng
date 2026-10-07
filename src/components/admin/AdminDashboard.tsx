@@ -430,12 +430,8 @@ export const AdminDashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
-              <TabsTrigger value="overview" className="flex items-center gap-1">
-                <Activity className="h-4 w-4" />
-                <span className="hidden sm:inline">Vue d'ensemble</span>
-              </TabsTrigger>
+          <Tabs defaultValue="system" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
               <TabsTrigger value="system" className="flex items-center gap-1">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">Système</span>
@@ -470,11 +466,8 @@ export const AdminDashboard: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6">
-              {/* « Résumé des 10 points techniques » (10 × « ✅ Actif ») et « Santé du système »
-                  (« Opérationnelle », « Déployées », « Stable ») retirés (MM-A20, 07.10.2026) :
-                  badges écrits en dur, aucune mesure derrière. */}
-            </TabsContent>
+            {/* Onglet « Vue d'ensemble » retiré (MM-A20, 07.10.2026) : il ne montrait que des badges
+                écrits en dur (« ✅ Actif », « Stable ») ; l'onglet par défaut est « Système » (revue Codex #225). */}
 
             <TabsContent value="system" className="space-y-6">
               <AdminSystemSettings />
