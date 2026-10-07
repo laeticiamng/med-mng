@@ -103,6 +103,13 @@ const FEATURES_PAR_DEFAUT: SubscriptionPlan['features'] = {
 
 const estStatutActif = (s: StatutAbonnement | undefined) => s === 'active' || s === 'trialing';
 
+/**
+ * Statuts Stripe pour lesquels un prélèvement est en cours ou encore possible —
+ * même liste que `delete-user-account` (STATUTS_PRELEVABLES), qui refuse la
+ * suppression du compte (409) tant qu'un tel abonnement existe.
+ */
+export const STATUTS_PRELEVABLES: readonly StatutAbonnement[] = ['active', 'trialing', 'past_due', 'unpaid'];
+
 const periodeEnCours = (fin: string | null | undefined) =>
   !fin || new Date(fin).getTime() > Date.now();
 
@@ -111,6 +118,8 @@ export const useSubscription = () => {
   const [subscription, setSubscription] = useState<SubscriptionPlan | null>(null);
   const [musicQuota, setMusicQuota] = useState<MusicQuota | null>(null);
   const [estAdmin, setEstAdmin] = useState(false);
+  /** Une ligne user_subscriptions est encore prélevable (active, trialing, past_due, unpaid). */
+  const [abonnementPrelevable, setAbonnementPrelevable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<UseSubscriptionError | null>(null);
 
@@ -149,6 +158,11 @@ export const useSubscription = () => {
       ]);
       const admin = (roles ?? []).length > 0;
       setEstAdmin(admin);
+      // Indépendant de la RPC (qui ne renvoie que active/trialing) : un impayé
+      // (past_due, unpaid) reste prélevable par Stripe et bloque la suppression.
+      setAbonnementPrelevable(
+        (lignes ?? []).some((l) => STATUTS_PRELEVABLES.includes(normalizeStatus(l.status)))
+      );
 
       if (subError) {
         setError({ code: 'SUBSCRIPTION_FETCH_ERROR', message: "Erreur lors de la récupération de l'abonnement", details: subError });
@@ -253,6 +267,7 @@ export const useSubscription = () => {
       setSubscription(null);
       setMusicQuota(null);
       setEstAdmin(false);
+      setAbonnementPrelevable(false);
       setError(null);
       userIdRef.current = null;
     }
@@ -409,6 +424,7 @@ export const useSubscription = () => {
     canSaveMusic,
     getUsageDisplay,
     estAdmin,
+    abonnementPrelevable,
     rafraichirQuota,
     getQuotaPercentage,
     isQuotaCritical,

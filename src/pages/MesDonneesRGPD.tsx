@@ -18,14 +18,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { useSubscription } from '@/hooks/useSubscription';
+import { lireRefusSuppression } from '@/lib/suppressionCompte';
 
 const MesDonneesRGPD = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [dataStatus, setDataStatus] = useState<any>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  /** Refus « abonnement encore prélevable » (409) : message du service à afficher. */
+  const [refusAbonnement, setRefusAbonnement] = useState<string | null>(null);
 
-  const { isSubscriptionActive } = useSubscription();
+  const { abonnementPrelevable, openCustomerPortal } = useSubscription();
 
   const getCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -149,6 +152,7 @@ const MesDonneesRGPD = () => {
     }
 
     setLoading(true);
+    setRefusAbonnement(null);
     try {
       const user = await getCurrentUser();
       if (!user) {
@@ -161,7 +165,19 @@ const MesDonneesRGPD = () => {
       const { data, error } = await supabase.functions.invoke('delete-user-account', {
         body: { confirmation: 'SUPPRIMER' },
       });
-      if (error) throw error;
+      if (error) {
+        // Refus motivé par le service (rien n'a été supprimé) : on affiche son message.
+        const refus = await lireRefusSuppression(error);
+        if (refus) {
+          if (refus.status === 409 && refus.code === 'active_subscription') {
+            setRefusAbonnement(refus.message);
+            setConfirmDelete(false);
+          }
+          toast({ title: "Suppression impossible pour l'instant", description: refus.message, variant: "destructive" });
+          return;
+        }
+        throw error;
+      }
 
       if (data?.status === 'deleted') {
         toast({ title: "Compte supprimé", description: "Votre compte et vos données personnelles ont été effacés." });
@@ -340,14 +356,31 @@ const MesDonneesRGPD = () => {
               </AlertDescription>
             </Alert>
 
-            {isSubscriptionActive() && (
+            {refusAbonnement && (
+              <Alert role="alert" aria-labelledby="refus-suppression-titre" className="mb-4 bg-warning/10 border-warning/30">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertDescription className="text-foreground space-y-3">
+                  <p id="refus-suppression-titre" className="font-semibold">Suppression impossible pour l'instant</p>
+                  <p>{refusAbonnement}</p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => openCustomerPortal()}>
+                    Gérer mon abonnement
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {abonnementPrelevable && !refusAbonnement && (
               <Alert className="mb-4 bg-warning/10 border-warning/30">
                 <AlertTriangle className="h-4 w-4 text-warning" />
-                <AlertDescription className="text-foreground">
-                  Vous avez un abonnement Med MNG en cours. Supprimer le compte n'arrête pas le prélèvement :
-                  résiliez d'abord l'abonnement depuis votre{' '}
-                  <Link to={ROUTE_PATHS.medMngProfile} className="text-primary underline">profil</Link>{' '}
-                  (« Gérer / résilier mon abonnement »), puis revenez ici.
+                <AlertDescription className="text-foreground space-y-3">
+                  <p>
+                    Vous avez un abonnement Med MNG en cours ou un paiement en attente. Supprimer le compte n'arrête pas le prélèvement :
+                    résiliez d'abord l'abonnement (si ce n'est pas déjà fait), puis revenez ici. La suppression est refusée tant
+                    qu'un prélèvement reste possible.
+                  </p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => openCustomerPortal()}>
+                    Gérer mon abonnement
+                  </Button>
                 </AlertDescription>
               </Alert>
             )}
