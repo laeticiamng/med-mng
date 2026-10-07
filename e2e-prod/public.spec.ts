@@ -247,7 +247,7 @@ test.describe('Mesure d’audience — description exacte', () => {
     });
     await page.goto('/', { waitUntil: 'networkidle' });
     // Bandeau affiché : aucun choix n'a été fait.
-    await expect(page.locator('div.fixed').filter({ hasText: /cookies essentiels/i }).first()).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Bandeau cookies' })).toBeVisible();
     await page.goto('/med-mng/pricing', { waitUntil: 'networkidle' });
     await page.waitForTimeout(3000);
     expect(envois, 'script ou envoi de statistiques de l’hébergeur').toEqual([]);
@@ -257,7 +257,7 @@ test.describe('Mesure d’audience — description exacte', () => {
 
   test('bandeau, politique cookies et confidentialité : plus de statistiques de l’hébergeur ni de « Plausible » @attend-deploiement', async ({ page }) => {
     await page.goto('/');
-    const bandeau = page.locator('div.fixed').filter({ hasText: 'Cookies essentiels' });
+    const bandeau = page.getByRole('region', { name: 'Bandeau cookies' });
     await expect(bandeau).toContainText("Aucune publicité, aucune statistique de l'hébergeur.");
     await expect(bandeau).not.toContainText('compte aussi les pages vues');
     await expect(bandeau.getByRole('button', { name: 'Refuser la mesure' })).toBeVisible();
