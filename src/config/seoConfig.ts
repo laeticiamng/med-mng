@@ -340,7 +340,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/declaration-accessibilite': {
     title: 'Déclaration d\'Accessibilité',
-    description: 'Déclaration d\'accessibilité de Med MNG : conformité RGAA, aménagements et contact accessibilité.',
+    description: 'Déclaration d\'accessibilité de Med MNG : état de conformité (partiellement conforme au RGAA 4.1), méthode, limites et contact accessibilité.',
     keywords: `${BASE_KEYWORDS}, accessibilité, RGAA, handicap`,
     canonical: '/declaration-accessibilite',
   },
