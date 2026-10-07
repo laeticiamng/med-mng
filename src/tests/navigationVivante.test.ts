@@ -75,4 +75,27 @@ describe('Navigation vivante', () => {
     expect(redirige('ednMusicLibrary', 'medMngMusicLibrary')).toBe(true);
     expect(liensVers('ednMusicLibrary', '/edn/music-library')).toEqual([]);
   });
+
+  it('MM-A19 : routes orphelines redirigées vers la page vivante la plus proche, sans lien restant', () => {
+    const attendu: Record<string, [string, string]> = {
+      leaderboard: ['/leaderboard', 'achievements'],
+      dailyChallenges: ['/daily-challenges', 'achievements'],
+      myGoals: ['/my-goals', 'progressDashboard'],
+      dailySRSPlaylist: ['/srs-playlist', 'srsReview'],
+      favorites: ['/favorites', 'medMngFavorites'],
+      statistics: ['/statistics', 'progressDashboard'],
+      medMngItemsLibrary: ['/med-mng/items-library', 'ednComplete'],
+      medMngAnalytics: ['/med-mng/analytics', 'medMngMusicLibrary'],
+      socialShare: ['/partage', 'progressDashboard'],
+    };
+    for (const [cle, [chemin, cible]] of Object.entries(attendu)) {
+      expect({ cle, redirige: redirige(cle, cible) }).toEqual({ cle, redirige: true });
+      expect({ cle, liens: liensVers(cle, chemin) }).toEqual({ cle, liens: [] });
+    }
+  });
+
+  it('MM-A19 : le pied de page ne renvoie plus vers /flashcards (0 paquet) ni /generator (Premium)', () => {
+    const pied = sansCommentaires(lire('src/components/layout/AppFooter.tsx'));
+    expect(pied).not.toMatch(/ROUTE_PATHS\.(flashcards|generator)\b/);
+  });
 });

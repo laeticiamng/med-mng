@@ -603,7 +603,7 @@ const NationalExamSimulation: React.FC = () => {
             <Button variant="outline" onClick={() => navigate('/progress-dashboard')}>
               Voir mes progrès
             </Button>
-            <Button variant="outline" onClick={() => navigate('/srs-playlist')}>
+            <Button variant="outline" onClick={() => navigate('/srs-review')}>
               <Zap className="w-4 h-4 mr-2" />
               Réviser les points faibles
             </Button>

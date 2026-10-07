@@ -59,8 +59,9 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
               <h2 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h2>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Items EDN</Link>
-                <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Flashcards</Link>
-                <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Musique médicale</Link>
+                {/* Liens « Flashcards » (0 paquet en production) et « Musique médicale »
+                    (/generator, réservé à Premium) retirés du pied de page (MM-A19). */}
+                <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Situations ECOS</Link>
               </div>
             </div>
 

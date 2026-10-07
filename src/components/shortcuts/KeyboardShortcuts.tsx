@@ -19,7 +19,7 @@ export const KeyboardShortcuts = () => {
     // Navigation principale
     { key: '⌘+D', action: 'Dashboard', path: ROUTE_PATHS.dashboard, icon: BarChart3 },
     { key: '⌘+M', action: 'Créer Musique', path: ROUTE_PATHS.medMngCreate, icon: Music },
-    { key: '⌘+A', action: 'Analytics', path: ROUTE_PATHS.medMngAnalytics, icon: BarChart3 },
+    { key: '⌘+A', action: 'Ma progression', path: ROUTE_PATHS.progressDashboard, icon: BarChart3 },
     { key: '⌘+S', action: 'Système Monitoring', path: ROUTE_PATHS.systemManagement, icon: Shield },
     
     // Recherche et navigation rapide
@@ -73,8 +73,8 @@ export const KeyboardShortcuts = () => {
             break;
           case 'a':
             event.preventDefault();
-            navigate(ROUTE_PATHS.medMngAnalytics);
-            toast.success('Navigation vers Analytics');
+            navigate(ROUTE_PATHS.progressDashboard);
+            toast.success('Navigation vers Ma progression');
             break;
           case 's':
             event.preventDefault();

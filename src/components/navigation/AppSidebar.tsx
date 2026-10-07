@@ -49,8 +49,8 @@ const navigationItems = [
     badge: "Nouveau"
   },
   {
-    title: "Analytics Temps Réel",
-    url: ROUTE_PATHS.statistics,
+    title: "Ma progression",
+    url: ROUTE_PATHS.progressDashboard,
     icon: Database,
     category: "Analytics"
   },
