@@ -181,7 +181,7 @@ class EcosService {
     const colors = [
       'bg-primary/10 text-primary',
       'bg-success/10 text-success', 
-      'bg-accent/10 text-accent-foreground',
+      'bg-accent/10 text-accent',
       'bg-warning/10 text-warning',
       'bg-destructive/10 text-destructive',
       'bg-secondary text-secondary-foreground'

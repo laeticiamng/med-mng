@@ -136,7 +136,7 @@ export function NotificationHistory() {
       case 'failed':
         return <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">Échec</Badge>;
       case 'pending':
-        return <Badge variant="outline" className="bg-warning/10 text-warning-foreground border-warning/20">En attente</Badge>;
+        return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">En attente</Badge>;
       default:
         return null;
     }

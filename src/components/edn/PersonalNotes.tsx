@@ -232,7 +232,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
         <p className="text-sm text-muted-foreground">
           <Link
             to={`${ROUTE_PATHS.medMngLogin}?next=${encodeURIComponent(location.pathname)}`}
-            className="text-primary hover:underline"
+            className="text-primary underline underline-offset-2 hover:decoration-2"
           >
             Connectez-vous
           </Link>{' '}

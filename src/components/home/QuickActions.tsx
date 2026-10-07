@@ -46,7 +46,7 @@ export const QuickActions: React.FC = () => {
       subtitle: 'QCM & entraînement intensif',
       duration: '30 min',
       icon: Brain,
-      textColor: 'text-accent-foreground',
+      textColor: 'text-accent',
       bgLight: 'bg-accent/10',
       path: ROUTE_PATHS.examMode,
       cta: "S'entraîner"

@@ -23,7 +23,7 @@ export const ConsentCheckboxes = ({ cguAccepted, onCguChange, showErrors = false
       <div className="flex-1">
         <Label htmlFor="cgu-consent" className="cursor-pointer text-sm leading-relaxed">
           J'accepte les{' '}
-          <Link to={ROUTE_PATHS.cgu} target="_blank" className="font-semibold text-primary hover:underline">
+          <Link to={ROUTE_PATHS.cgu} target="_blank" className="font-semibold text-primary underline underline-offset-2 hover:decoration-2">
             conditions générales d'utilisation
           </Link>
           <span className="ml-1 text-destructive">*</span>

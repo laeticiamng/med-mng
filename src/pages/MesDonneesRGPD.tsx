@@ -360,7 +360,7 @@ const MesDonneesRGPD = () => {
             <div className="space-y-2 text-sm">
               <p><strong>E-mail :</strong> contact@emotionscare.com</p>
               <p><strong>Délai de réponse :</strong> un mois au plus (article 12 du RGPD)</p>
-              <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">CNIL</a></p>
+              <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:decoration-2">CNIL</a></p>
             </div>
           </Card>
         </div>

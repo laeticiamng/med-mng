@@ -39,7 +39,7 @@ export const COLONNES_CONFIG = [
     nom: 'Subtilité Importante',
     couleur: 'bg-accent',
     couleurCellule: 'bg-accent/10 border-accent/30',
-    couleurTexte: 'text-accent-foreground font-medium',
+    couleurTexte: 'text-accent font-medium',
     obligatoire: false
   },
   {

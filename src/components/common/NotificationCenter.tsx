@@ -162,8 +162,11 @@ export function NotificationCenter({
               variant="outline"
               size="sm"
               onClick={() => setSoundEnabled(!soundEnabled)}
+              aria-label="Son des notifications"
+              aria-pressed={soundEnabled}
+              title={soundEnabled ? 'Couper le son des notifications' : 'Activer le son des notifications'}
             >
-              {soundEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+              {soundEnabled ? <Bell className="h-4 w-4" aria-hidden="true" /> : <BellOff className="h-4 w-4" aria-hidden="true" />}
             </Button>
             <Button variant="outline" size="sm">
               <Settings className="h-4 w-4" />

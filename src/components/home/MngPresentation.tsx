@@ -32,12 +32,12 @@ export const MngPresentation = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Music className="h-8 w-8" />
-            <CardTitle className="text-3xl">Méthode MNG</CardTitle>
+            <CardTitle as="h1" className="text-3xl">Méthode MNG</CardTitle>
           </div>
-          <CardDescription className="text-primary-foreground/80 text-lg">
+          <CardDescription className="text-primary-foreground/90 text-lg">
             Music Neuro Learning Generator : réviser avec des chansons
           </CardDescription>
-          <p className="text-sm text-primary-foreground/70 mt-2">
+          <p className="text-sm text-primary-foreground/90 mt-2">
             Méthode pédagogique conçue par Laëticia Moto-Ngane
           </p>
           {gamificationStats && (
@@ -61,7 +61,7 @@ export const MngPresentation = () => {
           <CardHeader>
             <div className="flex items-center space-x-2">
               <Target className="h-6 w-6 text-accent" />
-              <CardTitle className="text-xl">Objectif de la méthode</CardTitle>
+              <CardTitle as="h2" className="text-xl">Objectif de la méthode</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -77,7 +77,7 @@ export const MngPresentation = () => {
           <CardHeader>
             <div className="flex items-center space-x-2">
               <Brain className="h-6 w-6 text-primary" />
-              <CardTitle className="text-xl">Pistes issues de la recherche</CardTitle>
+              <CardTitle as="h2" className="text-xl">Pistes issues de la recherche</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -104,7 +104,7 @@ export const MngPresentation = () => {
         <CardHeader>
           <div className="flex items-center space-x-2">
             <Zap className="h-6 w-6 text-warning" />
-            <CardTitle className="text-xl">Principe de fonctionnement</CardTitle>
+            <CardTitle as="h2" className="text-xl">Principe de fonctionnement</CardTitle>
           </div>
           <CardDescription>
             Pour chaque item EDN, Med MNG propose :
@@ -115,28 +115,28 @@ export const MngPresentation = () => {
             <div className="bg-warning/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Headphones className="h-5 w-5 text-warning" />
-                <h4 className="font-semibold text-warning-foreground">1. Paroles générées par IA</h4>
+                <h3 className="font-semibold text-warning">1. Paroles générées par IA</h3>
               </div>
               <p className="text-sm text-foreground">Paroles écrites à partir des compétences du référentiel LiSA 2026 (UNESS), par rang A, rang B ou A+B</p>
             </div>
             <div className="bg-primary/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Music className="h-5 w-5 text-primary" />
-                <h4 className="font-semibold text-primary-foreground">2. Sélection musicale</h4>
+                <h3 className="font-semibold text-primary">2. Sélection musicale</h3>
               </div>
               <p className="text-sm text-foreground">Vous choisissez le style musical au moment de générer l'audio (crédits)</p>
             </div>
             <div className="bg-success/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Lightbulb className="h-5 w-5 text-success" />
-                <h4 className="font-semibold text-success-foreground">3. Récit et planches</h4>
+                <h3 className="font-semibold text-success">3. Récit et planches</h3>
               </div>
               <p className="text-sm text-foreground">Un récit et des planches illustrées, rédigés par IA pour chaque item à partir de ses compétences officielles</p>
             </div>
             <div className="bg-accent/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Target className="h-5 w-5 text-accent" />
-                <h4 className="font-semibold text-accent-foreground">4. Entraînement ciblé</h4>
+                <h3 className="font-semibold text-accent">4. Entraînement ciblé</h3>
               </div>
               <p className="text-sm text-foreground">Quiz par item pour vérifier vos connaissances</p>
             </div>
@@ -149,7 +149,7 @@ export const MngPresentation = () => {
         <CardHeader>
           <div className="flex items-center space-x-2">
             <Shield className="h-6 w-6 text-success" />
-            <CardTitle className="text-xl">Principes de la méthode MNG</CardTitle>
+            <CardTitle as="h2" className="text-xl">Principes de la méthode MNG</CardTitle>
           </div>
           <CardDescription>
             Contrairement à une simple chanson éducative ou un podcast musical :

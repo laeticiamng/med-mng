@@ -134,7 +134,7 @@ const API_SERVICES: APIService[] = [
 const getCostBadge = (level: 'low' | 'medium' | 'high') => {
   const config = {
     low: { label: 'Coût faible', variant: 'secondary' as const, className: 'bg-success/10 text-success border-success/20' },
-    medium: { label: 'Coût modéré', variant: 'secondary' as const, className: 'bg-warning/10 text-warning-foreground border-warning/20' },
+    medium: { label: 'Coût modéré', variant: 'secondary' as const, className: 'bg-warning/10 text-warning border-warning/20' },
     high: { label: 'Coût élevé', variant: 'destructive' as const, className: 'bg-destructive/10 text-destructive border-destructive/20' }
   };
   return config[level];

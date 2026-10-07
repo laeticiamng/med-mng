@@ -37,7 +37,7 @@ const statusLabels = {
 
 const statusColors = {
   applied: 'bg-primary/10 text-primary',
-  measuring: 'bg-warning/10 text-warning-foreground',
+  measuring: 'bg-warning/10 text-warning',
   completed: 'bg-success/10 text-success',
   reverted: 'bg-muted text-muted-foreground',
 };

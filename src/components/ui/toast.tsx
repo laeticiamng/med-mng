@@ -79,9 +79,11 @@ const ToastClose = React.forwardRef<
       className
     )}
     toast-close=""
+    // Bouton icône : nom accessible (règle axe « button-name »), remplaçable via les props
+    aria-label="Fermer la notification"
     {...props}
   >
-    <X className="h-4 w-4" />
+    <X className="h-4 w-4" aria-hidden="true" />
   </ToastPrimitives.Close>
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName

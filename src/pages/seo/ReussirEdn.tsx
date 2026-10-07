@@ -43,14 +43,14 @@ const ReussirEdn = () => {
           <nav className="mb-12 p-6 bg-muted/50 rounded-xl border">
             <h2 className="font-semibold text-foreground mb-4">📋 <TranslatedText text="Sommaire" /></h2>
             <ol className="space-y-2 text-sm">
-              <li><a href="#quest-ce" className="text-primary hover:underline"><TranslatedText text="1. Qu'est-ce que l'EDN ?" /></a></li>
-              <li><a href="#items" className="text-primary hover:underline"><TranslatedText text="2. Les 367 items : comment les aborder" /></a></li>
-              <li><a href="#rang" className="text-primary hover:underline"><TranslatedText text="3. Rang A vs Rang B : stratégie de priorisation" /></a></li>
-              <li><a href="#methodes" className="text-primary hover:underline"><TranslatedText text="4. Méthodes de révision étudiées par la recherche" /></a></li>
-              <li><a href="#planning-edn" className="text-primary hover:underline"><TranslatedText text="5. Planning de révision EDN sur 12 mois" /></a></li>
-              <li><a href="#qcm" className="text-primary hover:underline"><TranslatedText text="6. Entraînement QCM : qualité vs quantité" /></a></li>
-              <li><a href="#musique" className="text-primary hover:underline"><TranslatedText text="7. La méthode musicale : réviser autrement" /></a></li>
-              <li><a href="#faq-edn" className="text-primary hover:underline">8. FAQ</a></li>
+              <li><a href="#quest-ce" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="1. Qu'est-ce que l'EDN ?" /></a></li>
+              <li><a href="#items" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="2. Les 367 items : comment les aborder" /></a></li>
+              <li><a href="#rang" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="3. Rang A vs Rang B : stratégie de priorisation" /></a></li>
+              <li><a href="#methodes" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="4. Méthodes de révision étudiées par la recherche" /></a></li>
+              <li><a href="#planning-edn" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="5. Planning de révision EDN sur 12 mois" /></a></li>
+              <li><a href="#qcm" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="6. Entraînement QCM : qualité vs quantité" /></a></li>
+              <li><a href="#musique" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="7. La méthode musicale : réviser autrement" /></a></li>
+              <li><a href="#faq-edn" className="text-primary underline underline-offset-2 hover:decoration-2">8. FAQ</a></li>
             </ol>
           </nav>
 

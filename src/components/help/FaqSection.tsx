@@ -189,7 +189,7 @@ export const FaqSection: React.FC = () => {
         <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
           <p className="text-sm text-muted-foreground text-center">
             Vous avez une autre question ? 
-            <Link to={ROUTE_PATHS.faq} className="text-primary font-medium ml-1 hover:underline">
+            <Link to={ROUTE_PATHS.faq} className="text-primary font-medium ml-1 underline underline-offset-2 hover:decoration-2">
               Consultez la FAQ
             </Link>
           </p>

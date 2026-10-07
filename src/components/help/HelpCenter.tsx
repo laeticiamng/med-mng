@@ -140,7 +140,7 @@ export const HelpCenter: React.FC = () => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Débutant': return 'bg-success/10 text-success';
-      case 'Intermédiaire': return 'bg-warning/10 text-warning-foreground';
+      case 'Intermédiaire': return 'bg-warning/10 text-warning';
       case 'Avancé': return 'bg-destructive/10 text-destructive';
       default: return 'bg-muted text-muted-foreground';
     }

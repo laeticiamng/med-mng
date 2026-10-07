@@ -124,9 +124,11 @@ export const ItemCompletenessIndicator: React.FC<ItemCompletenessIndicatorProps>
           size="sm"
           onClick={handleRefresh}
           disabled={isChecking}
+          aria-label="Revérifier la complétude de l'item"
+          title="Revérifier la complétude de l'item"
           className="h-6 w-6 p-0"
         >
-          <RefreshCw className={`h-3 w-3 ${isChecking ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3 w-3 ${isChecking ? 'animate-spin' : ''}`} aria-hidden="true" />
         </Button>
       </div>
 

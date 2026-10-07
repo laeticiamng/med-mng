@@ -216,7 +216,7 @@ export const colonnesConfigIC4 = [
     icone: '🧠',
     couleur: 'bg-accent',
     couleurCellule: 'bg-accent/10 border-accent/30',
-    couleurTexte: 'text-accent-foreground font-medium italic',
+    couleurTexte: 'text-accent font-medium italic',
     obligatoire: false
   },
   {

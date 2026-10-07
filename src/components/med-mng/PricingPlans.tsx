@@ -54,7 +54,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, estAbo
           <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-muted text-muted-foreground">
             <BookOpen className="h-6 w-6" />
           </div>
-          <CardTitle className="text-xl">Gratuit</CardTitle>
+          <CardTitle as="h2" className="text-xl">Gratuit</CardTitle>
           <CardDescription>Pour découvrir la méthode</CardDescription>
           <div className="mt-4">
             <span className="text-4xl font-bold text-foreground">0 €</span>
@@ -91,7 +91,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, estAbo
           <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-primary text-primary-foreground">
             <Crown className="h-6 w-6" />
           </div>
-          <CardTitle className="text-xl">{NOM_OFFRE_PREMIUM}</CardTitle>
+          <CardTitle as="h2" className="text-xl">{NOM_OFFRE_PREMIUM}</CardTitle>
           <CardDescription>Tous les items, en immersion</CardDescription>
           <div className="mt-4">
             <span className="text-4xl font-bold text-foreground">69 €</span>

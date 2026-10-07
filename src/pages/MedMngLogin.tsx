@@ -245,7 +245,7 @@ export const MedMngLogin = () => {
               onClick={() => {
                 setShowForgotPassword(true);
               }}
-              className="text-primary hover:underline"
+              className="text-primary underline underline-offset-2 hover:decoration-2"
             >
               Mot de passe oublié ?
             </button>
@@ -253,7 +253,7 @@ export const MedMngLogin = () => {
 
           <div className="text-center text-sm">
             Pas encore de compte ?{' '}
-            <Link to={avecSuivant(ROUTE_PATHS.medMngSignup, suivant)} className="text-primary hover:underline">
+            <Link to={avecSuivant(ROUTE_PATHS.medMngSignup, suivant)} className="text-primary underline underline-offset-2 hover:decoration-2">
               Créer un compte
             </Link>
           </div>

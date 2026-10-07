@@ -134,7 +134,7 @@ const FAQ = () => {
                   items n'ont qu'un des deux rangs dans le référentiel), un quiz, des paroles de chanson, un récit et
                   des planches illustrées. L'audio se génère à la demande avec Med MNG Premium. Vous pouvez consulter
                   la liste complète dans la section{' '}
-                  <Link to={ROUTE_PATHS.ednComplete} className="text-primary hover:underline">Items EDN</Link>.
+                  <Link to={ROUTE_PATHS.ednComplete} className="text-primary underline underline-offset-2 hover:decoration-2">Items EDN</Link>.
                 </AccordionContent>
               </AccordionItem>
 
@@ -170,7 +170,7 @@ const FAQ = () => {
                   récit, planches, quiz) de 10 items d'essai et aux situations ECOS. Med MNG Premium ouvre le
                   contenu immersif des 367 items et 30 générations audio par mois, pour 69 € par an (environ
                   5,75 € par mois) ou 9,90 € par mois. Consultez nos{' '}
-                  <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline">tarifs</Link>.
+                  <Link to={ROUTE_PATHS.medMngPricing} className="text-primary underline underline-offset-2 hover:decoration-2">tarifs</Link>.
                 </AccordionContent>
               </AccordionItem>
 
@@ -194,7 +194,7 @@ const FAQ = () => {
                   par laquelle vous demandez cet accès immédiat et reconnaissez perdre votre droit de
                   rétractation dès cet accès (article L221-28, 13° du Code de la consommation). Pour plus
                   de détails, consultez nos{' '}
-                  <Link to={ROUTE_PATHS.cgv} className="text-primary hover:underline">CGV</Link>.
+                  <Link to={ROUTE_PATHS.cgv} className="text-primary underline underline-offset-2 hover:decoration-2">CGV</Link>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -215,7 +215,7 @@ const FAQ = () => {
                   Vos données sont chiffrées en transit et au repos et hébergées sur des serveurs européens
                   (Supabase / AWS EU). Nous ne vendons jamais vos données. Pour en savoir plus, consultez
                   notre{' '}
-                  <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de confidentialité</Link>.
+                  <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary underline underline-offset-2 hover:decoration-2">Politique de confidentialité</Link>.
                 </AccordionContent>
               </AccordionItem>
 
@@ -227,7 +227,7 @@ const FAQ = () => {
                   Oui, à tout moment depuis la page Mes données RGPD (accessible depuis votre profil). La
                   suppression est immédiate et définitive. Vous pouvez aussi y télécharger vos données au
                   format JSON avant de partir. Consultez la page{' '}
-                  <Link to={ROUTE_PATHS.mesDonneesRgpd} className="text-primary hover:underline">Mes données RGPD</Link>.
+                  <Link to={ROUTE_PATHS.mesDonneesRgpd} className="text-primary underline underline-offset-2 hover:decoration-2">Mes données RGPD</Link>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -248,7 +248,7 @@ const FAQ = () => {
                   Oui, Med MNG est une application web installable (PWA) sur smartphone ou tablette, directement
                   depuis votre navigateur. Les fiches déjà consultées restent lisibles hors connexion. Pour
                   l'installer, rendez-vous sur la page{' '}
-                  <Link to={ROUTE_PATHS.installPwa} className="text-primary hover:underline">Installer l'app</Link>.
+                  <Link to={ROUTE_PATHS.installPwa} className="text-primary underline underline-offset-2 hover:decoration-2">Installer l'app</Link>.
                 </AccordionContent>
               </AccordionItem>
 
@@ -316,7 +316,7 @@ const FAQ = () => {
                       vers le contact, seule voie réellement disponible aujourd’hui. */}
                   Med MNG s'adresse principalement aux étudiants en médecine préparant l'EDN (DFGSM2 à DFASM3).
                   Pour un usage institutionnel (universités, CHU, facultés de médecine), écrivez-nous à{' '}
-                  <a href="mailto:contact@emotionscare.com" className="text-primary hover:underline">contact@emotionscare.com</a>.
+                  <a href="mailto:contact@emotionscare.com" className="text-primary underline underline-offset-2 hover:decoration-2">contact@emotionscare.com</a>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -338,7 +338,7 @@ const FAQ = () => {
                   consultations simulées. Med MNG propose 12 situations ECOS d'entraînement rédigées pour la plateforme, avec un
                   déroulé guidé (je questionne, j'examine, je conclus), un chronomètre et une grille
                   d'auto-évaluation. Il n'y a pas de patient virtuel. Consultez la section{' '}
-                  <Link to={ROUTE_PATHS.ecosIndex} className="text-primary hover:underline">ECOS</Link>.
+                  <Link to={ROUTE_PATHS.ecosIndex} className="text-primary underline underline-offset-2 hover:decoration-2">ECOS</Link>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -369,7 +369,7 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Vous choisissez le style (pop, rap, variété, électro…) au moment de générer l'audio d'une
                   chanson. Vos chansons générées se retrouvent ensuite dans votre{' '}
-                  <Link to={ROUTE_PATHS.ednMusicLibrary} className="text-primary hover:underline">bibliothèque musicale</Link>.
+                  <Link to={ROUTE_PATHS.ednMusicLibrary} className="text-primary underline underline-offset-2 hover:decoration-2">bibliothèque musicale</Link>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

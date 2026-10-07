@@ -30,14 +30,14 @@ const MentionsLegales = () => {
 
         <div className="max-w-4xl mx-auto space-y-6">
           {/* En-tête avec logo */}
-          <Card className="p-6 bg-gradient-to-r from-primary to-accent text-primary-foreground">
+          <Card className="p-6 bg-gradient-medical text-primary-foreground">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <Globe className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Med MNG</h2>
               </div>
-              <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/60">Dernière mise à jour : 5 octobre 2026</p>
+              <p className="text-primary-foreground/90">https://medmng.com</p>
+              <p className="text-sm text-primary-foreground/90">Dernière mise à jour : 5 octobre 2026</p>
             </div>
           </Card>
 
@@ -177,7 +177,7 @@ const MentionsLegales = () => {
               <p className="text-success font-medium">Aucune revente de données. Nos sous-traitants techniques sont listés ci-dessous.</p>
               <p className="text-sm">
                 Consultez notre{' '}
-                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">politique de confidentialité</Link>.
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary underline underline-offset-2 hover:decoration-2">politique de confidentialité</Link>.
               </p>
             </div>
           </Card>
@@ -204,7 +204,7 @@ const MentionsLegales = () => {
                 <ul className="text-sm space-y-1 mt-2">
                   <li>• CNIL – 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07</li>
                   <li>• Téléphone : +33 (0)1 53 73 22 22</li>
-                  <li>• Site web : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.cnil.fr</a></li>
+                  <li>• Site web : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:decoration-2">www.cnil.fr</a></li>
                 </ul>
               </div>
             </div>

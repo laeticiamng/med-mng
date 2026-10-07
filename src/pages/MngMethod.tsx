@@ -32,18 +32,19 @@ const MngMethod = () => {
         {/* Navigation */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link to={ROUTE_PATHS.home}>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
+            {/* Bouton rendu comme lien (asChild) : un seul élément interactif, pas de bouton dans un lien */}
+            <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
+              <Link to={ROUTE_PATHS.home}>
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 Retour
-              </Button>
-            </Link>
-            <Link to={ROUTE_PATHS.home}>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                <Home className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="flex items-center gap-2">
+              <Link to={ROUTE_PATHS.home}>
+                <Home className="h-4 w-4" aria-hidden="true" />
                 Accueil
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
           
           {/* Gamification Stats */}

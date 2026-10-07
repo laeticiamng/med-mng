@@ -52,9 +52,11 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
           variant="outline"
           size="sm"
           onClick={handleNotifications}
+          aria-label={notificationCount > 0 ? `Notifications (${notificationCount} non lues)` : 'Notifications'}
+          title="Notifications"
           className="bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg border-border/50"
         >
-          <Bell className="w-4 h-4" />
+          <Bell className="w-4 h-4" aria-hidden="true" />
         </Button>
         {notificationCount > 0 && (
           <Badge 
@@ -71,9 +73,11 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
         variant="outline"
         size="sm"
         onClick={handleHelp}
+        aria-label="Aide"
+        title="Aide"
         className="bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg border-border/50"
       >
-        <HelpCircle className="w-4 h-4" />
+        <HelpCircle className="w-4 h-4" aria-hidden="true" />
       </Button>
 
       {/* Profil Utilisateur (si connecté) */}
