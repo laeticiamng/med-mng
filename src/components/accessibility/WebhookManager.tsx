@@ -173,7 +173,7 @@ export function WebhookManager() {
                 href="https://api.slack.com/messaging/webhooks"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2 hover:decoration-2"
               >
                 api.slack.com/messaging/webhooks
               </a>

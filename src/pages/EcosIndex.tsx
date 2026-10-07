@@ -216,9 +216,9 @@ const EcosIndex = () => {
         ) : filteredScenarios.length === 0 ? (
           <div className="text-center py-16">
             <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
               {searchTerm ? 'Aucun résultat' : 'Aucune situation disponible'}
-            </h3>
+            </h2>
             <p className="text-muted-foreground">
               {searchTerm 
                 ? 'Essayez un autre terme de recherche'
@@ -240,9 +240,9 @@ const EcosIndex = () => {
                       <Stethoscope className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground line-clamp-2">
+                      <h2 className="font-semibold text-foreground line-clamp-2">
                         {scenario.intitule_sd}
-                      </h3>
+                      </h2>
                       <Badge variant="secondary" className="mt-2">
                         Situation {scenario.sd_id}
                       </Badge>

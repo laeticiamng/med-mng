@@ -2,33 +2,18 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { exigerAdministrateur } from '../_shared/mm-garde.ts';
 
-// Simple email sender without external dependency
+import { envoyerEmail, expediteur, journaliserEchec } from '../_shared/mm-email.ts';
+
+/**
+ * Envoi d'un rapport à un destinataire. Sans clé Resend, l'ancien code
+ * renvoyait un faux identifiant (« mock-… ») et le rapport était historisé
+ * « success » ; un refus de Resend (403 avec l'expéditeur de test) n'était pas
+ * distingué. Désormais l'échec est rendu tel quel.
+ */
 async function sendEmail(to: string, subject: string, html: string) {
-  const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendApiKey) {
-    console.log("No RESEND_API_KEY, skipping email send");
-    return { id: `mock-${Date.now()}` };
-  }
-  
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: "MED-MNG <onboarding@resend.dev>",
-      to: [to],
-      subject,
-      html
-    })
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Email send failed: ${response.statusText}`);
-  }
-  
-  return await response.json();
+  const envoi = await envoyerEmail({ from: expediteur('Med MNG'), to: [to], subject, html });
+  if (!envoi.ok) journaliserEchec('send-accessibility-report', envoi);
+  return envoi;
 }
 
 const corsHeaders = {
@@ -417,16 +402,16 @@ const handler = async (req: Request): Promise<Response> => {
       emailHTML = generateEmailHTML(metrics);
     }
 
-    // Envoyer l'email à chaque destinataire
+    // Envoyer l'email à chaque destinataire ; chaque résultat est lu.
     const emailPromises = config.recipients.map(async (recipient: string) => {
       const emailResult = await sendEmail(recipient, emailSubject, emailHTML);
 
-      if (!emailResult) {
-        throw new Error("Email send failed");
+      if (!emailResult.ok) {
+        return emailResult;
       }
 
       // Si c'est un test A/B, enregistrer le résultat
-      if (activeABTest && variantUsed && emailResult?.id) {
+      if (activeABTest && variantUsed && emailResult.id) {
         // Créer d'abord une entrée dans email_statistics
         const { data: emailStat } = await supabaseClient
           .from("email_statistics")
@@ -455,8 +440,29 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const emailResults = await Promise.all(emailPromises);
+    const envoyes = emailResults.filter((r) => r.ok).length;
+    const total = emailResults.length;
 
-    console.log("✅ Emails sent successfully to all recipients");
+    if (envoyes < total) {
+      const echecs = emailResults.filter((r): r is Extract<typeof r, { ok: false }> => !r.ok);
+      const motif = `${envoyes}/${total} e-mail(s) envoyé(s) ; refus Resend : ${[...new Set(echecs.map((e) => `${e.status || 'injoignable'} ${e.erreur}`))].join(', ')}`;
+      console.error(`[send-accessibility-report] rapport NON envoyé à tous : ${motif}`);
+      await supabaseClient
+        .from("accessibility_report_history")
+        .insert({
+          config_id: config.id,
+          recipients: config.recipients,
+          status: "failed",
+          error_message: motif,
+          report_data: metrics,
+        });
+      return new Response(
+        JSON.stringify({ success: false, error: motif, sent: envoyes, total }),
+        { status: 502, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ Rapport envoyé aux ${total} destinataire(s)`);
 
     // Enregistrer dans l'historique
     await supabaseClient

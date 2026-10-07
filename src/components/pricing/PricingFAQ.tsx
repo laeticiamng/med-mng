@@ -49,7 +49,7 @@ export function PricingFAQ() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2">
+        <CardTitle as="h2" className="flex items-center justify-center gap-2">
           <HelpCircle className="h-5 w-5 text-primary" />
           Questions fréquentes
         </CardTitle>

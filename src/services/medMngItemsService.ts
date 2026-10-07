@@ -1,26 +1,14 @@
-import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
+import { TYPE_CONTENU_ITEM, maitriseDepuisStatut, statutDepuisMaitrise } from '@/lib/maitriseContenu';
 import type {
   ItemDetail,
   ItemNote,
   ItemStatus,
   ItemSummary,
-  ProgressOverview,
-  ProgressItem,
 } from '@/types/medMngItems';
 
-const mapStatus = (status?: string | ItemStatus | null): ItemStatus => {
-  if (status === 'in_progress' || status === 'revised') {
-    return status;
-  }
-  if (status === 'done') {
-    return 'revised';
-  }
-  if (status === 'todo') {
-    return 'not_started';
-  }
-  return 'not_started';
-};
+// Lecture de mastery_level : cf. lib/maitriseContenu (valeurs autorisées par la base).
+const mapStatus = (status?: string | ItemStatus | null): ItemStatus => statutDepuisMaitrise(status);
 
 /**
  * SOURCE DES DONNÉES — corrigé le 18/09/2026.
@@ -114,7 +102,7 @@ const chargerContexteUtilisateur = async (userId?: string) => {
       .from('user_progress')
       .select('content_id, mastery_level, last_accessed, attempts_count, best_score')
       .eq('user_id', userId)
-      .eq('content_type', 'item'),
+      .eq('content_type', TYPE_CONTENU_ITEM),
   ]);
 
   return {
@@ -215,13 +203,13 @@ export const upsertItemProgress = async ({
   const { error } = await (supabase as any).from('user_progress').upsert(
     {
       user_id: userId,
-      content_type: 'item',
+      content_type: TYPE_CONTENU_ITEM,
       content_id: itemId,
       progress_percentage: progressPercentage,
       best_score: score,
       attempts_count: revisionCount,
       last_accessed: lastSeenAt,
-      mastery_level: status,
+      mastery_level: maitriseDepuisStatut(status),
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'user_id,content_type,content_id' }
@@ -264,162 +252,4 @@ export const toggleFavoriteItem = async ({
 
   if (error) throw error;
   return true;
-};
-
-export const fetchProgressOverview = async (
-  userId: string
-): Promise<ProgressOverview> => {
-  const [itemsCountResponse, progressResponse, serieResponse] =
-    await Promise.all([
-      (supabase as any)
-        .from('edn_items_complete')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'active'),
-      (supabase as any)
-        .from('user_progress')
-        .select('content_id, mastery_level, last_accessed, attempts_count')
-        .eq('user_id', userId)
-        .eq('content_type', 'item'),
-      // CONSTAT (revue critique 04.10.2026, vérifié en production) : la page
-      // « Progression » lisait profiles.streak_current / weekly_goal et
-      // study_sessions.date / items_revised, colonnes qui n'existent pas (400,
-      // 42703) : la page finissait sur « Quelque chose n'a pas fonctionné »
-      // pour tout le monde. La série vient de user_gamification_stats (comme
-      // l'en-tête du site) ; les items vus cette semaine, de user_progress.
-      (supabase as any)
-        .from('user_gamification_stats')
-        .select('current_streak, longest_streak')
-        .eq('user_id', userId)
-        .maybeSingle(),
-    ]);
-
-  if (itemsCountResponse.error) {
-    throw itemsCountResponse.error;
-  }
-
-  if (progressResponse.error) {
-    throw progressResponse.error;
-  }
-
-  // Série indisponible : la page reste utilisable (série à 0).
-  if (serieResponse.error && import.meta.env.DEV) {
-    console.warn('[medMngItemsService] série indisponible', serieResponse.error);
-  }
-
-  // Get item details for progress items
-  const contentIds = (progressResponse.data ?? []).map((row: any) => row.content_id);
-  let itemsMap = new Map<string, any>();
-  
-  if (contentIds.length > 0) {
-    const { data: itemsData } = await (supabase as any)
-      .from('edn_items_complete')
-      .select('id, item_code, title, specialite, domaine_medical')
-      .in('id', contentIds);
-    
-    if (itemsData) {
-      itemsMap = new Map(itemsData.map((item: any) => [item.id, item]));
-    }
-  }
-
-  const progressItems = (progressResponse.data ?? []).map((row: any) => {
-    const item = itemsMap.get(row.content_id);
-
-    if (!item) {
-      return null;
-    }
-
-    return {
-      id: item.id,
-      code: item.item_code,
-      title: item.title,
-      specialty: item.specialite ?? item.domaine_medical ?? null,
-      specialtyCode: item.domaine_medical ?? null,
-      itemType: 'EDN',
-      status: mapStatus(row.mastery_level),
-      lastSeenAt: row.last_accessed ?? null,
-      revisionCount: row.attempts_count ?? 0,
-    } satisfies ProgressItem;
-  });
-
-  const deletedItemsCount = progressItems.filter((item: any) => item === null).length;
-  const totalProgressItems = progressItems.length;
-  const deletedItemsRatio =
-    totalProgressItems > 0 ? deletedItemsCount / totalProgressItems : 0;
-
-  if (deletedItemsCount > 0 && deletedItemsRatio >= 0.5) {
-    if (import.meta.env.DEV) {
-      console.warn(
-        `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
-          'reference deleted content. Progress overview stats are based only on existing items.'
-      );
-    }
-  }
-  const validProgressItems = progressItems.filter(
-    (item: any): item is ProgressItem => Boolean(item)
-  );
-
-  const revisedCount = validProgressItems.filter((item: any) => item.status === 'revised')
-    .length;
-  const inProgressCount = validProgressItems.filter(
-    (item: any) => item.status === 'in_progress'
-  ).length;
-  const notStartedCount = validProgressItems.filter((item: any) => item.status === 'not_started')
-    .length;
-  const serie = (serieResponse.error ? null : serieResponse.data) as
-    | { current_streak?: number | null; longest_streak?: number | null }
-    | null;
-  const streakCurrent = serie?.current_streak ?? 0;
-  const streakBest = Math.max(serie?.longest_streak ?? 0, streakCurrent);
-  // Aucun objectif hebdomadaire n'est enregistré par utilisateur : 10 items par défaut.
-  const weeklyGoal = 10;
-  const ilYaSeptJours = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const weeklyRevisedCount = validProgressItems.filter(
-    (item: ProgressItem) => item.lastSeenAt && new Date(item.lastSeenAt).getTime() >= ilYaSeptJours
-  ).length;
-
-  const specialtyStats: Record<string, { total: number; revised: number }> = {};
-  validProgressItems.forEach((item: any) => {
-    const specialtyLabel = item.specialty ?? 'Sans spécialité';
-    if (!specialtyStats[specialtyLabel]) {
-      specialtyStats[specialtyLabel] = { total: 0, revised: 0 };
-    }
-    specialtyStats[specialtyLabel].total += 1;
-    if (item.status === 'revised') {
-      specialtyStats[specialtyLabel].revised += 1;
-    }
-  });
-
-  return {
-    totalItems: itemsCountResponse.count ?? 0,
-    revisedCount,
-    inProgressCount,
-    notStartedCount,
-    streakCurrent,
-    streakBest,
-    weeklyGoal,
-    weeklyRevisedCount,
-    specialtyStats: Object.entries(specialtyStats).map(([specialty, values]) => ({
-      specialty,
-      total: values.total,
-      revised: values.revised,
-    })),
-    // Items vus par jour sur les 7 derniers jours (user_progress.last_accessed).
-    recentActivity: Object.entries(
-      validProgressItems.reduce((parJour: Record<string, number>, item: ProgressItem) => {
-        if (!item.lastSeenAt || new Date(item.lastSeenAt).getTime() < ilYaSeptJours) return parJour;
-        const jour = jourLocal(item.lastSeenAt);
-        parJour[jour] = (parJour[jour] ?? 0) + 1;
-        return parJour;
-      }, {}),
-    )
-      .sort(([a], [b]) => (a < b ? 1 : -1))
-      .map(([date, revisedCount]) => ({ date, revisedCount: Number(revisedCount) })),
-    itemsToReview: validProgressItems
-      .filter((item: any) => item.status !== 'revised')
-      .sort((a: any, b: any) => {
-        const aTime = a.lastSeenAt ? new Date(a.lastSeenAt).getTime() : 0;
-        const bTime = b.lastSeenAt ? new Date(b.lastSeenAt).getTime() : 0;
-        return aTime - bTime;
-      }),
-  };
 };

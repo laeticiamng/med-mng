@@ -16,9 +16,10 @@ import {
   LayoutDashboard,
   Target,
   Headphones,
+  Stethoscope,
 } from 'lucide-react';
 
-import { ROUTE_PATHS } from './routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from './routes';
 
 export interface NavItem {
   path: string;
@@ -38,11 +39,12 @@ export interface NavGroup {
 }
 
 // Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre).
-// ECOS retiré de la navigation le 25/09/2026 (décision produit) : la route /ecos
-// reste en place pour les liens existants, mais n'est plus proposée.
+// ECOS : retiré le 25/09/2026, rétabli le 07.10.2026 (MM-A11) — l'offre gratuite
+// annonce 12 situations ECOS d'entraînement, elles doivent être trouvables.
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
+  { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Stethoscope },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 
@@ -68,9 +70,8 @@ export const USER_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Ma bibliothèque', icon: Music },
   { path: ROUTE_PATHS.medMngPlaylists, label: 'Mes playlists', icon: Music },
   { path: ROUTE_PATHS.medMngFavorites, label: 'Mes favoris', icon: Sparkles },
-  { path: ROUTE_PATHS.medMngProgress, label: 'Ma progression', icon: BarChart3 },
-  { path: ROUTE_PATHS.medMngAnalytics, label: 'Mes analytics', icon: BarChart3 },
-  { path: ROUTE_PATHS.settings, label: 'Paramètres', icon: Settings },
+  { path: ROUTE_PATHS.progressDashboard, label: 'Ma progression', icon: BarChart3 },
+  { path: LIEN_PARAMETRES_COMPTE, label: 'Paramètres', icon: Settings },
 ];
 
 // Navigation admin (toutes les pages admin)
@@ -108,7 +109,6 @@ export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
   { path: ROUTE_PATHS.generator, label: 'Générateur Musique', icon: Music },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
   { path: ROUTE_PATHS.medMngSignup, label: 'Créer un compte', icon: Users },
 ];
@@ -129,7 +129,7 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.home, label: 'Accueil', category: 'Principal' },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', category: 'Apprentissage' },
   { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Musique' },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', category: 'Musique' },
+  { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Ma bibliothèque musicale', category: 'Musique' },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
   { path: ROUTE_PATHS.faq, label: 'FAQ', category: 'Ressources' },
   { path: ROUTE_PATHS.about, label: 'A propos', category: 'Ressources' },

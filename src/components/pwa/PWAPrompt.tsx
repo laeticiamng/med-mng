@@ -45,6 +45,9 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
     }
   }, [offlineReady, dismissOfflineReady]);
 
+  // Les titres des encarts sont des paragraphes : ces notifications flottantes ne font pas
+  // partie du plan de la page (un <h4> sans h2/h3 au-dessus cassait la hiérarchie des titres).
+
   // Install prompt
   if (isInstallable && !isInstalled && !isDismissed) {
     return (
@@ -55,7 +58,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
               <Smartphone className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Installer Med MNG</h4>
+              <p className="font-semibold text-sm">Installer Med MNG</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Installez l'app pour un accès rapide et une utilisation hors-ligne
               </p>
@@ -85,7 +88,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
               <RefreshCw className="h-5 w-5 text-accent" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Mise à jour disponible</h4>
+              <p className="font-semibold text-sm">Mise à jour disponible</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Une nouvelle version de l'app est disponible
               </p>
@@ -94,8 +97,14 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
                   <RefreshCw className="h-3 w-3" />
                   Mettre à jour
                 </Button>
-                <Button size="sm" variant="ghost" onClick={dismissUpdate}>
-                  <X className="h-3 w-3" />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={dismissUpdate}
+                  aria-label="Ignorer la mise à jour"
+                  title="Ignorer la mise à jour"
+                >
+                  <X className="h-3 w-3" aria-hidden="true" />
                 </Button>
               </div>
             </div>
@@ -108,20 +117,27 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
   // Offline ready notification - with auto-dismiss
   if (offlineReady) {
     return (
-      <Card className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-success/30 bg-card/95 backdrop-blur-sm shadow-lg animate-in slide-in-from-bottom-4 duration-300">
+      <Card role="status" className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-success/30 bg-card/95 backdrop-blur-sm shadow-lg animate-in slide-in-from-bottom-4 duration-300">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-success/10">
               <Wifi className="h-5 w-5 text-success" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Prêt pour le hors-ligne !</h4>
+              <p className="font-semibold text-sm">Prêt pour le hors-ligne !</p>
               <p className="text-xs text-muted-foreground mt-1">
                 L'app peut maintenant fonctionner sans connexion internet
               </p>
             </div>
-            <Button size="sm" variant="ghost" onClick={dismissOfflineReady}>
-              <X className="h-3 w-3" />
+            {/* Bouton icône : nom accessible obligatoire (règle axe « button-name ») */}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={dismissOfflineReady}
+              aria-label="Fermer la notification"
+              title="Fermer la notification"
+            >
+              <X className="h-3 w-3" aria-hidden="true" />
             </Button>
           </div>
         </CardContent>

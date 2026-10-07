@@ -51,14 +51,18 @@ export const CookieBanner = () => {
     <>
       {/* Bannière principale (masquée pendant le détail : elle recouvrait le bas de la fenêtre et son bouton) */}
       {!showSettings && (
-      <div className="fixed bottom-0 left-0 right-0 z-[100] bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_30px_rgba(0,0,0,0.1)] px-4 py-3">
+      // Région nommée : le bandeau est rendu hors du <main> et des autres repères (règle axe « region »)
+      <section
+        aria-label="Bandeau cookies"
+        className="fixed bottom-0 left-0 right-0 z-[100] bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_30px_rgba(0,0,0,0.1)] px-4 py-3"
+      >
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-3">
           <div className="flex items-start gap-2 flex-1 min-w-0">
-            <Cookie className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <Cookie className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-xs sm:text-sm text-muted-foreground">
               Cookies essentiels : connexion et préférences. Aucune publicité, aucune statistique de l'hébergeur. La mesure d'audience de Med MNG
               (identifiant aléatoire, sans nom ni e-mail) est optionnelle : à vous de choisir.{' '}
-              <Link to={ROUTE_PATHS.cookies} className="text-primary hover:underline">
+              <Link to={ROUTE_PATHS.cookies} className="text-primary underline underline-offset-2 hover:decoration-2">
                 En savoir plus
               </Link>
             </p>
@@ -81,7 +85,7 @@ export const CookieBanner = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </section>
       )}
 
       {/* Détail des deux niveaux */}

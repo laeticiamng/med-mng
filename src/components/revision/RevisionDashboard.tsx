@@ -291,8 +291,8 @@ export const RevisionDashboard: React.FC = () => {
                     </p>
                   </div>
                   <div className="bg-accent/10 rounded-lg p-3">
-                    <span className="font-medium text-accent-foreground">Objectif quotidien</span>
-                    <p className="text-accent-foreground/80">{currentPlan.daily_target} concepts</p>
+                    <span className="font-medium text-accent">Objectif quotidien</span>
+                    <p className="text-accent">{currentPlan.daily_target} concepts</p>
                   </div>
                 </div>
 

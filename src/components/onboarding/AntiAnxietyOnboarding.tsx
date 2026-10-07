@@ -1,23 +1,23 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, VisuallyHidden } from '@/components/ui/dialog';
+import { ITEMS_GRATUITS, NOMBRE_ITEMS_GRATUITS } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { supabase } from '@/integrations/supabase/client';
-import {
-    ArrowRight,
-    BookOpen,
-    Brain,
-    Headphones,
-    Music,
-    Sparkles,
-    Target
-} from 'lucide-react';
+import { cheminItemEdn } from '@/pages/edn-item/ednItemTabs';
+import { ArrowRight, BookOpen, Headphones, Music } from 'lucide-react';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-type RevisionType = 'edn' | 'ecos' | 'both';
-type MusicStyle = 'rap' | 'lofi' | 'spoken' | 'mix';
+/**
+ * CONSTAT (audit du 07.10.2026, MM-A06) : l'onboarding demandait « Que
+ * révisez-vous ? » puis « Quel style préférez-vous ? », envoyait ces choix vers
+ * user_onboarding.revision_type / music_style (colonnes absentes : l'écriture
+ * échouait) et finissait sur /generator, réservé à Premium : un compte gratuit
+ * tombait sur un mur payant. Ces choix n'étaient lus nulle part.
+ * Désormais : un écran d'accueil, puis le premier item d'essai gratuit.
+ * L'état « onboarding terminé » est enregistré par `onComplete` (Index.tsx).
+ */
+const PREMIER_ITEM_ESSAI = cheminItemEdn(ITEMS_GRATUITS[0].toLowerCase());
 
 interface AntiAnxietyOnboardingProps {
   isOpen: boolean;
@@ -32,52 +32,16 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
 }) => {
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const [step, setStep] = useState<'welcome' | 'revision' | 'style' | 'action'>('welcome');
-  const [revisionType, setRevisionType] = useState<RevisionType | null>(null);
-  const [musicStyle, setMusicStyle] = useState<MusicStyle | null>(null);
+  const [step, setStep] = useState<'welcome' | 'action'>('welcome');
 
-  const handleRevisionSelect = (type: RevisionType) => {
-    setRevisionType(type);
-    setStep('style');
-  };
-
-  const handleStyleSelect = async (style: MusicStyle) => {
-    setMusicStyle(style);
-    
-    // Passer à l'étape action au lieu de fermer immédiatement
-    setStep('action');
-  };
-
-  const handleStartAction = () => {
+  const terminer = (destination: string) => {
     onComplete();
-    
-    // Log the onboarding completion en arrière-plan
     logActivity({
       activity_type: 'study',
       count: 1,
-      metadata: { 
-        action: 'music_onboarding_complete',
-        revisionType,
-        musicStyle
-      }
+      metadata: { action: 'onboarding_complete', destination },
     });
-
-    // Store preferences in Supabase for logged-in users en arrière-plan
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user) {
-        await (supabase as any).from('user_onboarding').upsert({
-          user_id: user.id,
-          onboarding_completed: true,
-          revision_type: revisionType,
-          music_style: musicStyle,
-          completed_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-      } else {
-        sessionStorage.setItem('med-mng-onboarding-seen', 'true');
-      }
-    });
-    
-    navigate(ROUTE_PATHS.generator);
+    navigate(destination);
   };
 
   return (
@@ -85,9 +49,9 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       <DialogContent className="max-w-md p-0 bg-card border-border/50 overflow-hidden">
         {/* Accessible title and description for screen readers */}
         <VisuallyHidden>
-          <DialogTitle>Personnalisation de votre expérience musicale</DialogTitle>
+          <DialogTitle>Bienvenue sur Med MNG</DialogTitle>
           <DialogDescription>
-            Configurez vos préférences de révision et votre style musical en 2 étapes rapides
+            Commencez par l'un des items d'essai gratuits
           </DialogDescription>
         </VisuallyHidden>
         
@@ -106,14 +70,14 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
               <p className="text-muted-foreground">
                 Écoutez. Retenez. Sans vous épuiser.
                 <br />
-                <span className="text-foreground font-medium">30 secondes pour personnaliser votre expérience.</span>
+                <span className="text-foreground font-medium">Commencez par un item d'essai, gratuit.</span>
               </p>
             </div>
 
             <Button 
               size="lg" 
               className="w-full py-6 text-lg bg-gradient-to-r from-primary to-primary/80"
-              onClick={() => setStep('revision')}
+              onClick={() => setStep('action')}
             >
               C'est parti !
               <ArrowRight className="h-5 w-5 ml-2" />
@@ -129,139 +93,47 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
           </div>
         )}
 
-        {/* Step: Révision - Tu révises quoi ? */}
-        {step === 'revision' && (
-          <div className="p-8 text-center space-y-6">
-            <Badge variant="outline" className="mb-2 px-4 py-1">
-              <BookOpen className="h-3 w-3 mr-2" />
-              Étape 1/2
-            </Badge>
-            
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">
-                📚 Que révisez-vous ?
-              </h2>
-              <p className="text-muted-foreground">
-                Les musiques sont adaptées à votre objectif
-              </p>
-            </div>
-            
-            <div className="space-y-3">
-              {[
-                { value: 'edn' as RevisionType, label: 'Items EDN', desc: '367 items - Rang A & B', icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
-                { value: 'ecos' as RevisionType, label: 'Simulations ECOS', desc: 'Situations cliniques', icon: Target, color: 'text-success', bg: 'bg-success/10' },
-                { value: 'both' as RevisionType, label: 'Les deux', desc: 'EDN + ECOS en alternance', icon: Brain, color: 'text-accent-foreground', bg: 'bg-accent/10' },
-              ].map((option) => (
-                <Button
-                  key={option.value}
-                  variant="outline"
-                  className={`w-full h-auto py-4 flex items-center justify-start gap-4 hover:${option.bg} hover:border-current transition-all`}
-                  onClick={() => handleRevisionSelect(option.value)}
-                >
-                  <div className={`p-2 rounded-lg ${option.bg}`}>
-                    <option.icon className={`h-5 w-5 ${option.color}`} />
-                  </div>
-                  <div className="text-left">
-                    <span className="font-semibold text-lg block">{option.label}</span>
-                    <span className="text-sm text-muted-foreground">{option.desc}</span>
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step: Style - Tu préfères quel style ? */}
-        {step === 'style' && (
-          <div className="p-8 text-center space-y-6">
-            <Badge variant="outline" className="mb-2 px-4 py-1">
-              <Headphones className="h-3 w-3 mr-2" />
-              Étape 2/2
-            </Badge>
-            
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">
-                🎵 Quel style préférez-vous ?
-              </h2>
-              <p className="text-muted-foreground">
-                La musique qui vous parle le plus
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { value: 'rap' as MusicStyle, label: '🎤 Rap', desc: 'Flow & rimes' },
-                { value: 'lofi' as MusicStyle, label: '🎹 Lo-Fi', desc: 'Chill & focus' },
-                { value: 'spoken' as MusicStyle, label: '🎙️ Spoken', desc: 'Narration claire' },
-                { value: 'mix' as MusicStyle, label: '🎧 Mix', desc: 'Un peu de tout' },
-              ].map((option) => (
-                <Button
-                  key={option.value}
-                  variant="outline"
-                  className="h-auto py-4 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 hover:border-primary transition-all"
-                  onClick={() => handleStyleSelect(option.value)}
-                >
-                  <span className="text-2xl">{option.label.split(' ')[0]}</span>
-                  <span className="font-semibold">{option.label.split(' ')[1]}</span>
-                  <span className="text-xs text-muted-foreground">{option.desc}</span>
-                </Button>
-              ))}
-            </div>
-
-            <Button 
-              variant="ghost" 
-              className="text-muted-foreground text-sm"
-              onClick={() => setStep('revision')}
-            >
-              ← Retour
-            </Button>
-          </div>
-        )}
-
-        {/* Step: Action - Prêt à écouter */}
+        {/* Step: Action - premier item d'essai gratuit */}
         {step === 'action' && (
           <div className="p-8 text-center space-y-6">
             <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-success/20 rounded-full flex items-center justify-center mx-auto">
-              <Sparkles className="h-10 w-10 text-primary" />
+              <BookOpen className="h-10 w-10 text-primary" aria-hidden="true" />
             </div>
-            
+
             <div className="space-y-3">
               <h2 className="text-2xl font-bold text-foreground">
-                🎉 C'est prêt !
+                Par où commencer ?
               </h2>
-              <p className="text-lg text-muted-foreground">
-                Vous pouvez maintenant générer votre première musique de révision.
+              <p className="text-muted-foreground">
+                {NOMBRE_ITEMS_GRATUITS} items d&apos;essai sont entièrement ouverts sans abonnement :
+                fiche officielle rang A et rang B, paroles, récit, planches et quiz.
               </p>
             </div>
 
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-4 text-left space-y-2">
-              <p className="text-sm font-medium text-foreground">💡 Comment ça marche ?</p>
+              <p className="text-sm font-medium text-foreground">Comment ça marche ?</p>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Choisissez un item EDN ou une situation ECOS</li>
-                <li>• L'IA génère une chanson avec les points clés</li>
-                <li>• Écoutez en boucle → mémorisation passive</li>
+                <li>• Lisez la fiche de l&apos;item (compétences officielles)</li>
+                <li>• Faites le quiz : votre progression s&apos;enregistre</li>
+                <li>• Revenez quand une révision est due</li>
               </ul>
             </div>
 
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="w-full py-6 text-lg font-bold bg-gradient-to-r from-primary to-primary/80"
-              onClick={handleStartAction}
+              onClick={() => terminer(PREMIER_ITEM_ESSAI)}
             >
-              <Headphones className="h-5 w-5 mr-2" />
-              Générer ma première musique
-              <ArrowRight className="h-5 w-5 ml-2" />
+              Ouvrir le premier item d&apos;essai
+              <ArrowRight className="h-5 w-5 ml-2" aria-hidden="true" />
             </Button>
 
-            <Button 
+            <Button
               variant="ghost"
               className="text-muted-foreground"
-              onClick={() => {
-                onComplete();
-                navigate(ROUTE_PATHS.ednComplete);
-              }}
+              onClick={() => terminer(ROUTE_PATHS.ednComplete)}
             >
-              Ou explorer les items d'abord
+              Ou explorer les items d&apos;abord
             </Button>
           </div>
         )}

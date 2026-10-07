@@ -213,7 +213,7 @@ export const AdminDashboard: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'success': return 'text-success bg-success/10';
-      case 'warning': return 'text-warning-foreground bg-warning/10';
+      case 'warning': return 'text-warning bg-warning/10';
       case 'error': return 'text-destructive bg-destructive/10';
       default: return 'text-muted-foreground bg-muted';
     }

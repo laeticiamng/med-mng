@@ -65,7 +65,7 @@ const categoryColors = {
 
 const impactColors = {
   high: 'bg-destructive/10 text-destructive border-destructive/20',
-  medium: 'bg-warning/10 text-warning-foreground border-warning/20',
+  medium: 'bg-warning/10 text-warning border-warning/20',
   low: 'bg-success/10 text-success border-success/20',
 };
 

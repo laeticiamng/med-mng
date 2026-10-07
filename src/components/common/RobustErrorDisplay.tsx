@@ -74,7 +74,7 @@ export function RobustErrorDisplay({
     switch (severity) {
       case 'critical': return 'border-destructive bg-destructive/5 text-destructive';
       case 'high': return 'border-destructive/70 bg-destructive/5 text-destructive';
-      case 'medium': return 'border-warning bg-warning/5 text-warning-foreground';
+      case 'medium': return 'border-warning bg-warning/5 text-warning';
       case 'low': return 'border-primary bg-primary/5 text-primary';
       default: return 'border-border bg-muted text-muted-foreground';
     }

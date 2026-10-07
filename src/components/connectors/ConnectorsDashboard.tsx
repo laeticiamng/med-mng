@@ -465,7 +465,7 @@ export function ConnectorsDashboard() {
                         href={availableConnectors.find(c => c.type === activeConnector.type)?.documentation_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline"
+                        className="text-sm text-primary underline underline-offset-2 hover:decoration-2"
                       >
                         Voir la documentation de l'API →
                       </a>

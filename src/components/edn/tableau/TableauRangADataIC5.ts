@@ -94,7 +94,7 @@ export const colonnesConfigIC5 = [
   { nom: 'Définition Structurelle', couleur: 'bg-success', couleurCellule: 'bg-success/10 border-success/30', couleurTexte: 'text-success' },
   { nom: 'Exemple Concret', couleur: 'bg-warning', couleurCellule: 'bg-warning/10 border-warning/30', couleurTexte: 'text-warning' },
   { nom: 'Piège Organisationnel', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10 border-destructive/30', couleurTexte: 'text-destructive' },
-  { nom: 'Mémo Système', couleur: 'bg-accent', couleurCellule: 'bg-accent/10 border-accent/30', couleurTexte: 'text-accent-foreground' },
+  { nom: 'Mémo Système', couleur: 'bg-accent', couleurCellule: 'bg-accent/10 border-accent/30', couleurTexte: 'text-accent' },
   { nom: 'Subtilité Évolutive', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/50 border-secondary/30', couleurTexte: 'text-secondary-foreground' },
   { nom: 'Application Pratique', couleur: 'bg-muted', couleurCellule: 'bg-muted/50 border-muted/30', couleurTexte: 'text-muted-foreground' },
   { nom: 'Vigilance Réglementaire', couleur: 'bg-muted-foreground', couleurCellule: 'bg-muted/50 border-muted-foreground/30', couleurTexte: 'text-foreground' }

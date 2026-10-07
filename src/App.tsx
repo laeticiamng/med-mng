@@ -1,7 +1,6 @@
 // App.tsx - Force rebuild v2026.02.06
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
-import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { CookieBanner } from "@/components/common/CookieBanner";
 import { PageLoader } from "@/components/common/PageLoader";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
@@ -19,7 +18,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { Toaster } from "@/components/ui/toaster";
 
-import { ROUTE_PATHS } from '@/config/routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from '@/config/routes';
 import { AutoSEO } from '@/components/seo/AutoSEO';
 import { ChargementPageBoundary } from '@/components/error/ChargementPageBoundary';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
@@ -27,7 +26,7 @@ import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { Suspense, lazy, useState, useEffect, useCallback } from "react";
+import { Suspense, lazy } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AdminRoute } from "./components/auth/AdminRoute";
@@ -56,16 +55,12 @@ const EdnItemStats = lazy(() => import("./pages/edn-item/EdnItemStats"));
 const EdnItemMusique = lazy(() => import("./pages/edn-item/EdnItemMusique"));
 const EdnItemPlanches = lazy(() => import("./pages/edn-item/EdnItemPlanches"));
 const EdnItemRecit = lazy(() => import("./pages/edn-item/EdnItemRecit"));
-const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
 const SRSReview = lazy(() => import("./pages/SRSReview"));
 const Flashcards = lazy(() => import("./pages/Flashcards"));
 const ProgressDashboard = lazy(() => import("./pages/ProgressDashboard"));
 
 // 🆕 PAGES PRIORITAIRES (actives)
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
-const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
-const MyGoals = lazy(() => import("./pages/MyGoals"));
 
 // 🎯 ECOS PAGES
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
@@ -95,14 +90,11 @@ const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(m => ({ de
 const MedMngCreate = lazy(() => import("./pages/MedMngCreate").then(m => ({ default: m.MedMngCreate })));
 const MedMngResetPassword = lazy(() => import("./pages/MedMngResetPassword").then(m => ({ default: m.MedMngResetPassword })));
 const MedMngLibrary = lazy(() => import("./pages/MedMngLibrary").then(m => ({ default: m.MedMngLibrary })));
-const MedMngItemsLibrary = lazy(() => import("./pages/MedMngItemsLibrary").then(m => ({ default: m.MedMngItemsLibrary })));
 const MedMngItemDetail = lazy(() => import("./pages/MedMngItemDetail").then(m => ({ default: m.MedMngItemDetail })));
 const MedMngProfile = lazy(() => import("./pages/MedMngProfile").then(m => ({ default: m.MedMngProfile })));
 const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(m => ({ default: m.MedMngPlayer })));
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(m => ({ default: m.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(m => ({ default: m.PlaylistDetail })));
-const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(m => ({ default: m.MusicAnalytics })));
-const MedMngProgress = lazy(() => import("./pages/MedMngProgress").then(m => ({ default: m.MedMngProgress })));
 const MedMngFavorites = lazy(() => import("./pages/MedMngFavorites").then(m => ({ default: m.MedMngFavorites })));
 const BillingPage = lazy(() => import("./pages/BillingPage"));
 
@@ -127,10 +119,7 @@ const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 const Generator = lazy(() => import("./pages/Generator"));
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const MngMethod = lazy(() => import("./pages/MngMethod"));
-const Statistics = lazy(() => import("./pages/Statistics"));
 const Achievements = lazy(() => import("./pages/Achievements"));
-const Favorites = lazy(() => import("./pages/Favorites"));
-const UserSettings = lazy(() => import("./pages/UserSettings"));
 const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
@@ -141,10 +130,8 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 // ⚔️ KARAOKE DUELS
 
 // 🎵 DAILY SRS PLAYLIST
-const DailySRSPlaylist = lazy(() => import("./pages/DailySRSPlaylist"));
 
 // 🤝 SOCIAL SHARE HUB
-const SocialShareHub = lazy(() => import("./pages/SocialShareHub"));
 
 // 🎯 SPECIALTY PATHS
 
@@ -220,15 +207,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-
-  // Écouter l'événement toggle-notifications depuis la MainNavigation
-  useEffect(() => {
-    const handler = () => setIsNotificationCenterOpen(prev => !prev);
-    window.addEventListener('toggle-notifications', handler);
-    return () => window.removeEventListener('toggle-notifications', handler);
-  }, []);
-
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
 
@@ -285,7 +263,8 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<EdnSlugRedirect />} />
                                     <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednImmersive} element={<EdnImmersiveRedirect />} />
-                                    <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
+                                    {/* /edn/music-library lisait user_generated_music (0 ligne, rien ne l'alimente) : redirigée vers la bibliothèque réelle (MM-A13). */}
+                                    <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />} />
 
                                     {/* Learning */}
                                     <Route path={ROUTE_PATHS.srsReview} element={<ProtectedRoute><S><SRSReview /></S></ProtectedRoute>} />
@@ -299,9 +278,10 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.smartStudyPlanner} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Gamification */}
-                                    <Route path={ROUTE_PATHS.leaderboard} element={<ProtectedRoute><S><Leaderboard /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<ProtectedRoute><S><DailyChallenges /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.myGoals} element={<ProtectedRoute><S><MyGoals /></S></ProtectedRoute>} />
+                                    {/* Routes orphelines (MM-A19, 07.10.2026) : pages vides, factices ou sans lien ; redirigées vers la page vivante la plus proche. */}
+                                    <Route path={ROUTE_PATHS.leaderboard} element={<Navigate to={ROUTE_PATHS.achievements} replace />} />
+                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<Navigate to={ROUTE_PATHS.achievements} replace />} />
+                                    <Route path={ROUTE_PATHS.myGoals} element={<Navigate to={ROUTE_PATHS.progressDashboard} replace />} />
 
                                     {/* ECOS */}
                                     <Route path={ROUTE_PATHS.ecosIndex} element={<S><EcosIndex /></S>} />
@@ -368,14 +348,15 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngCreate} element={<ProtectedRoute><S><MedMngCreate /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngLibrary} element={<Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />} />
                                     <Route path={ROUTE_PATHS.medMngMusicLibrary} element={<ProtectedRoute><S><MedMngLibrary /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.medMngItemsLibrary} element={<ProtectedRoute><S><MedMngItemsLibrary /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngItemsLibrary} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.medMngItemDetail} element={<ProtectedRoute><S><MedMngItemDetail /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngProfile} element={<ProtectedRoute><S><MedMngProfile /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngPlayer} element={<ProtectedRoute><S><MedMngPlayer /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngPlaylists} element={<ProtectedRoute><S><PlaylistManager /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngPlaylistDetail} element={<ProtectedRoute><S><PlaylistDetail /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><S><MusicAnalytics /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><S><MedMngProgress /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngAnalytics} element={<Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />} />
+                                    {/* Une seule page de progression (MM-A09, 07.10.2026) : /progress-dashboard, alimentée par les quiz d'item (répétition espacée). */}
+                                    <Route path={ROUTE_PATHS.medMngProgress} element={<Navigate to={ROUTE_PATHS.progressDashboard} replace />} />
                                     <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><S><MedMngFavorites /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngBilling} element={<ProtectedRoute><S><BillingPage /></S></ProtectedRoute>} />
 
@@ -409,13 +390,13 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.karaokeDuel} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Daily SRS Playlist */}
-                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<ProtectedRoute><S><DailySRSPlaylist /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.dailySRSPlaylist} element={<Navigate to={ROUTE_PATHS.srsReview} replace />} />
 
                                     {/* Examen blanc généré par IA : retiré (DC7) */}
                                     <Route path={ROUTE_PATHS.nationalExam} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
 
                                     {/* Social Share Hub */}
-                                    <Route path={ROUTE_PATHS.socialShare} element={<ProtectedRoute><S><SocialShareHub /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.socialShare} element={<Navigate to={ROUTE_PATHS.progressDashboard} replace />} />
 
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
@@ -442,7 +423,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.effectivenessDashboard} element={<AdminRoute><S><EffectivenessDashboard /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.rlsDocumentation} element={<AdminRoute><S><RLSDocumentation /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.securityMonitoring} element={<AdminRoute><S><SecurityMonitoring /></S></AdminRoute>} />
-                                    <Route path={ROUTE_PATHS.statistics} element={<ProtectedRoute><S><Statistics /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.statistics} element={<Navigate to={ROUTE_PATHS.progressDashboard} replace />} />
                                     {/* CONSTAT (25/09/2026) : /study-planner listait des sessions et objectifs
                                         que rien dans l'application ne permettait de créer (tables jamais
                                         alimentées côté utilisateur) ; ses boutons « Nouvelle session »,
@@ -451,8 +432,9 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.studyPlanner} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.settings} element={<ProtectedRoute><S><UserSettings /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.favorites} element={<Navigate to={ROUTE_PATHS.medMngFavorites} replace />} />
+                                    {/* /settings (UserSettings) était factice : redirigé vers l'onglet Paramètres du profil (MM-A04). */}
+                                    <Route path={ROUTE_PATHS.settings} element={<Navigate to={LIEN_PARAMETRES_COMPTE} replace />} />
                                     {/* Misc pages (admin) */}
                                     <Route path={ROUTE_PATHS.designSystem} element={<AdminRoute><S><DesignSystemPage /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<S><MesDonneesRGPD /></S>} />
@@ -472,10 +454,6 @@ const App = () => {
 
                                 {/* Global UI */}
                                 <HelpButton />
-                                <NotificationSystem
-                                  isOpen={isNotificationCenterOpen}
-                                  onClose={() => setIsNotificationCenterOpen(false)}
-                                />
                                 <KeyboardShortcuts />
                                 <AccessibilityCenter />
                                 <CookieBanner />

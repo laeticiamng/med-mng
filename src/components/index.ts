@@ -175,7 +175,6 @@ export {
 export { 
   AnalyticsTracker,
   DragDropManager,
-  NotificationSystem,
   OfflineMode,
   SearchSystem,
   UserPersonalization

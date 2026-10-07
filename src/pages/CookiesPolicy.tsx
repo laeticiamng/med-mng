@@ -211,7 +211,7 @@ const CookiesPolicy = () => {
             <div className="space-y-3 text-muted-foreground">
               <p className="text-sm">
                 Les données collectées via les cookies sont traitées conformément à notre{' '}
-                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de Confidentialité</Link>.
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary underline underline-offset-2 hover:decoration-2">Politique de Confidentialité</Link>.
                 La mesure d'audience de Med MNG est enregistrée chez <strong>Supabase</strong> (Union
                 européenne, Francfort).
               </p>

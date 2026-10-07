@@ -52,7 +52,7 @@ export interface ParsedEDNItem {
 const STANDARD_COLUMNS_CONFIG = [
   { nom: 'Concept', couleur: 'bg-primary', couleurCellule: 'bg-primary/10', couleurTexte: 'text-primary' },
   { nom: 'Définition', couleur: 'bg-success', couleurCellule: 'bg-success/10', couleurTexte: 'text-success' },
-  { nom: 'Exemple', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent-foreground' },
+  { nom: 'Exemple', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent' },
   { nom: 'Piège', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10', couleurTexte: 'text-destructive' },
   { nom: 'Mnémo', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' },
   { nom: 'Subtilité', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/10', couleurTexte: 'text-secondary-foreground' },

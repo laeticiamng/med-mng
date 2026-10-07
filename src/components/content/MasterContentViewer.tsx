@@ -139,7 +139,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-3 text-accent-foreground">
+              <CardTitle className="flex items-center gap-3 text-accent">
                 <Star className="h-6 w-6" />
                 Contenu Éducatif Premium - {itemData.title}
               </CardTitle>

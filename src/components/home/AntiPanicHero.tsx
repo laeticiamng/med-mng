@@ -46,7 +46,7 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
         <div className="max-w-2xl mx-auto mb-8 md:mb-10 px-2">
           <div 
             className="relative group cursor-pointer"
-            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
           >
             <div className="flex items-center bg-card/80 backdrop-blur-sm border-2 border-border/50 hover:border-primary/40 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all shadow-sm hover:shadow-lg">
               <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mr-2 sm:mr-3 flex-shrink-0" />
@@ -63,7 +63,7 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
           <div className="max-w-md mx-auto mb-8 md:mb-10 px-2">
             <div 
               className="bg-card/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-border/50 cursor-pointer hover:border-primary/30 hover:shadow-md transition-all"
-              onClick={() => navigate(ROUTE_PATHS.medMngProgress)}
+              onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
             >
               <p className="text-xs text-muted-foreground mb-2 sm:mb-3 font-medium uppercase tracking-wider">
                 Reprendre ma révision
@@ -91,7 +91,7 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
           <Badge 
             variant="secondary" 
             className="py-1.5 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm cursor-pointer hover:bg-secondary/80 transition-colors"
-            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
           >
             <BookOpen className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5 sm:mr-2" />
             367 items EDN
@@ -119,7 +119,7 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
           <Button 
             size="lg" 
             className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all w-full sm:w-auto"
-            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
           >
             <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             Commencer à réviser

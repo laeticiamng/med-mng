@@ -17,12 +17,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, SECONDARY_NAV_GROUPS } from '@/config/navigation';
-import { ROUTE_PATHS } from '@/config/routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import {
     BarChart3,
-    Bell,
     ChevronDown,
     Flame,
     LogOut, Menu,
@@ -207,22 +206,8 @@ export const MainNavigation: React.FC = () => {
             
             <ThemeToggle />
             
-            {/* Notifications : propres au compte (table user_notifications), donc
-                proposées seulement une fois connecté. */}
-            {user && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative h-8 w-8 sm:h-9 sm:w-9 p-0"
-                aria-label="Notifications"
-                onClick={() => {
-                  const event = new CustomEvent('toggle-notifications');
-                  window.dispatchEvent(event);
-                }}
-              >
-                <Bell className="w-4 h-4" />
-              </Button>
-            )}
+            {/* Cloche de notifications retirée (MM-A12, 07.10.2026) : rien n'alimente
+                user_notifications (0 ligne en production), elle s'ouvrait toujours vide. */}
 
             {user ? (
               <DropdownMenu>
@@ -257,7 +242,7 @@ export const MainNavigation: React.FC = () => {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.settings)}>
+                  <DropdownMenuItem onClick={() => navigate(LIEN_PARAMETRES_COMPTE)}>
                     <Settings className="w-4 h-4 mr-2" />
                     <TranslatedText text="Paramètres" />
                   </DropdownMenuItem>

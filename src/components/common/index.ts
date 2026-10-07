@@ -6,7 +6,6 @@ export { EnhancedLibraryGrid } from './EnhancedLibraryGrid';
 export { ErrorBoundary } from './ErrorBoundary';
 export { LoadingSpinner } from './LoadingSpinner';
 export { NetworkErrorBoundary } from './NetworkErrorBoundary';
-export { NotificationCenter } from './NotificationCenter';
 export { RobustErrorDisplay } from './RobustErrorDisplay';
 export { SecureCredentialsForm } from './SecureCredentialsForm';
 export { SkeletonLibraryGrid } from './SkeletonLibraryGrid';

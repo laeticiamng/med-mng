@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 const getModeColor = (color: string) => {
   const colorMap: Record<string, string> = {
     blue: 'bg-primary/10 text-primary border-primary/20',
-    orange: 'bg-warning/10 text-warning-foreground border-warning/20',
+    orange: 'bg-warning/10 text-warning border-warning/20',
     purple: 'bg-accent/10 text-emerald-700 dark:text-emerald-400 border-accent/20',
     green: 'bg-success/10 text-success border-success/20',
     red: 'bg-destructive/10 text-destructive border-destructive/20',

@@ -95,7 +95,6 @@ const categories: QuickLinkCategory[] = [
       { path: ROUTE_PATHS.accessibilityDashboard, label: 'Accessibilité' },
       { path: ROUTE_PATHS.effectivenessDashboard, label: 'Efficacité' },
       { path: ROUTE_PATHS.pwaAnalytics, label: 'PWA Analytics' },
-      { path: ROUTE_PATHS.statistics, label: 'Statistiques' },
     ]
   },
   {

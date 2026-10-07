@@ -18,14 +18,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { useSubscription } from '@/hooks/useSubscription';
+import { lireRefusSuppression } from '@/lib/suppressionCompte';
 
 const MesDonneesRGPD = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [dataStatus, setDataStatus] = useState<any>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  /** Refus « abonnement encore prélevable » (409) : message du service à afficher. */
+  const [refusAbonnement, setRefusAbonnement] = useState<string | null>(null);
 
-  const { isSubscriptionActive } = useSubscription();
+  const { abonnementPrelevable, openCustomerPortal } = useSubscription();
 
   const getCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -39,17 +42,44 @@ const MesDonneesRGPD = () => {
    * Une table absente ou refusée est simplement ignorée.
    */
   const collectUserData = async (userId: string) => {
+    // Tables personnelles écrites par Med MNG, noms et colonne propriétaire
+    // vérifiés en production le 07.10.2026 (MM-A14). L'abonnement est dans
+    // user_subscriptions (source de useSubscription et du webhook Stripe), pas
+    // dans med_mng_subscriptions.
     const tables: Array<[string, string]> = [
       ['profiles', 'id'],
-      ['med_mng_subscriptions', 'user_id'],
+      ['user_subscriptions', 'user_id'],
+      ['user_onboarding', 'user_id'],
+      ['user_preferences_extended', 'user_id'],
+      ['user_notification_settings', 'user_id'],
+      // Progression
       ['user_item_progress', 'user_id'],
       ['item_reviews', 'user_id'],
+      ['review_sessions', 'user_id'],
+      ['revision_history', 'user_id'],
       ['quiz_results', 'user_id'],
+      ['quiz_sessions', 'user_id'],
+      ['user_progress', 'user_id'],
+      ['study_sessions', 'user_id'],
+      // Contenus et favoris
+      ['user_edn_notes', 'user_id'],
+      ['user_edn_favorites', 'user_id'],
+      ['med_mng_user_favorites', 'user_id'],
+      ['mm_signalements_contenu', 'user_id'],
       ['flashcard_decks', 'user_id'],
-      ['med_mng_playlists', 'user_id'],
+      ['flashcard_reviews', 'user_id'],
+      // Musique
+      ['mm_generations_audio', 'user_id'],
+      ['generated_music_tracks', 'user_id'],
+      ['med_mng_songs', 'user_id'],
       ['med_mng_user_songs', 'user_id'],
+      ['med_mng_playlists', 'user_id'],
       ['user_generated_music', 'user_id'],
-      ['user_preferences_extended', 'user_id'],
+      // Points, badges et journal d'activité
+      ['gamification_activities', 'user_id'],
+      ['user_gamification_stats', 'user_id'],
+      ['user_badges', 'user_id'],
+      ['user_activity_log', 'user_id'],
     ];
     const data: Record<string, unknown[]> = {};
     const summary: Record<string, number> = {};
@@ -59,6 +89,21 @@ const MesDonneesRGPD = () => {
         if (error || !rows) continue;
         data[table] = rows;
         summary[table] = rows.length;
+      } catch {
+        // table inexistante : ignorée
+      }
+    }
+    // Les cartes n'ont pas de colonne user_id : ce sont celles des paquets du compte.
+    const idsPaquets = ((data.flashcard_decks ?? []) as Array<{ id?: string }>)
+      .map((d) => d.id)
+      .filter((id): id is string => Boolean(id));
+    if (idsPaquets.length > 0) {
+      try {
+        const { data: cartes, error } = await (supabase as any).from('flashcards').select('*').in('deck_id', idsPaquets);
+        if (!error && cartes) {
+          data.flashcards = cartes;
+          summary.flashcards = cartes.length;
+        }
       } catch {
         // table inexistante : ignorée
       }
@@ -107,6 +152,7 @@ const MesDonneesRGPD = () => {
     }
 
     setLoading(true);
+    setRefusAbonnement(null);
     try {
       const user = await getCurrentUser();
       if (!user) {
@@ -119,7 +165,19 @@ const MesDonneesRGPD = () => {
       const { data, error } = await supabase.functions.invoke('delete-user-account', {
         body: { confirmation: 'SUPPRIMER' },
       });
-      if (error) throw error;
+      if (error) {
+        // Refus motivé par le service (rien n'a été supprimé) : on affiche son message.
+        const refus = await lireRefusSuppression(error);
+        if (refus) {
+          if (refus.status === 409 && refus.code === 'active_subscription') {
+            setRefusAbonnement(refus.message);
+            setConfirmDelete(false);
+          }
+          toast({ title: "Suppression impossible pour l'instant", description: refus.message, variant: "destructive" });
+          return;
+        }
+        throw error;
+      }
 
       if (data?.status === 'deleted') {
         toast({ title: "Compte supprimé", description: "Votre compte et vos données personnelles ont été effacés." });
@@ -298,14 +356,31 @@ const MesDonneesRGPD = () => {
               </AlertDescription>
             </Alert>
 
-            {isSubscriptionActive() && (
+            {refusAbonnement && (
+              <Alert role="alert" aria-labelledby="refus-suppression-titre" className="mb-4 bg-warning/10 border-warning/30">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertDescription className="text-foreground space-y-3">
+                  <p id="refus-suppression-titre" className="font-semibold">Suppression impossible pour l'instant</p>
+                  <p>{refusAbonnement}</p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => openCustomerPortal()}>
+                    Gérer mon abonnement
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {abonnementPrelevable && !refusAbonnement && (
               <Alert className="mb-4 bg-warning/10 border-warning/30">
                 <AlertTriangle className="h-4 w-4 text-warning" />
-                <AlertDescription className="text-foreground">
-                  Vous avez un abonnement Med MNG en cours. Supprimer le compte n'arrête pas le prélèvement :
-                  résiliez d'abord l'abonnement depuis votre{' '}
-                  <Link to={ROUTE_PATHS.medMngProfile} className="text-primary underline">profil</Link>{' '}
-                  (« Gérer / résilier mon abonnement »), puis revenez ici.
+                <AlertDescription className="text-foreground space-y-3">
+                  <p>
+                    Vous avez un abonnement Med MNG en cours ou un paiement en attente. Supprimer le compte n'arrête pas le prélèvement :
+                    résiliez d'abord l'abonnement (si ce n'est pas déjà fait), puis revenez ici. La suppression est refusée tant
+                    qu'un prélèvement reste possible.
+                  </p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => openCustomerPortal()}>
+                    Gérer mon abonnement
+                  </Button>
                 </AlertDescription>
               </Alert>
             )}
@@ -360,7 +435,7 @@ const MesDonneesRGPD = () => {
             <div className="space-y-2 text-sm">
               <p><strong>E-mail :</strong> contact@emotionscare.com</p>
               <p><strong>Délai de réponse :</strong> un mois au plus (article 12 du RGPD)</p>
-              <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">CNIL</a></p>
+              <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:decoration-2">CNIL</a></p>
             </div>
           </Card>
         </div>

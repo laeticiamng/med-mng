@@ -77,8 +77,8 @@ const CGV = () => {
               </p>
               <p className="text-sm font-semibold text-foreground">
                 Toute souscription à un abonnement implique l'acceptation sans réserve des présentes CGV,
-                des <Link to={ROUTE_PATHS.cgu} className="text-primary hover:underline">CGU</Link> et de
-                la <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de confidentialité</Link>.
+                des <Link to={ROUTE_PATHS.cgu} className="text-primary underline underline-offset-2 hover:decoration-2">CGU</Link> et de
+                la <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary underline underline-offset-2 hover:decoration-2">Politique de confidentialité</Link>.
               </p>
             </div>
           </Card>
@@ -127,7 +127,7 @@ const CGV = () => {
                 et seront notifiées <strong>30 jours</strong> à l'avance par email.
               </p>
               <p className="text-sm">
-                Consultez la page <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline font-semibold">Tarifs</Link> pour
+                Consultez la page <Link to={ROUTE_PATHS.medMngPricing} className="text-primary font-semibold underline underline-offset-2 hover:decoration-2">Tarifs</Link> pour
                 les tarifs en vigueur.
               </p>
             </div>

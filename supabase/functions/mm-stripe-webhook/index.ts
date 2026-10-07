@@ -17,6 +17,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { MM_APP, MM_PLAN_ID } from "../_shared/mm-stripe-catalog.ts";
+import { archiverFacture } from "../_shared/mm-archive-facture.ts";
 
 const ANCIENS_PLANS = ["standard", "pro", "premium"];
 
@@ -104,19 +105,7 @@ async function majStatut(supabase: SupabaseClient, subscriptionId: string, statu
   log("Statut mis à jour", { subscriptionId, status });
 }
 
-/** Archivage des factures : utile mais non critique (la table peut ne pas exister). */
-async function archiverFacture(supabase: SupabaseClient, invoice: Stripe.Invoice, subscriptionId: string, statut: string) {
-  const { error } = await supabase.from("subscription_invoices").upsert({
-    stripe_invoice_id: invoice.id,
-    stripe_subscription_id: subscriptionId,
-    amount: statut === "paid" ? invoice.amount_paid : invoice.amount_due,
-    currency: invoice.currency,
-    status: statut,
-    invoice_url: invoice.hosted_invoice_url,
-    created_at: versIso(invoice.created) ?? new Date().toISOString(),
-  }, { onConflict: "stripe_invoice_id" });
-  if (error) console.warn("[MM-STRIPE-WEBHOOK] Facture non archivée (non bloquant) :", error.message);
-}
+// Archivage des factures (non bloquant, jamais silencieux) : voir _shared/mm-archive-facture.ts.
 
 serve(async (req) => {
   const signature = req.headers.get("stripe-signature");

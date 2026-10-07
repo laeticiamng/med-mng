@@ -56,16 +56,17 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h3>
+              <h2 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h2>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Items EDN</Link>
-                <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Flashcards</Link>
-                <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Musique médicale</Link>
+                {/* Liens « Flashcards » (0 paquet en production) et « Musique médicale »
+                    (/generator, réservé à Premium) retirés du pied de page (MM-A19). */}
+                <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Situations ECOS</Link>
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
+              <h2 className="font-semibold mb-3 text-foreground text-sm">Ressources</h2>
               {/* CONSTAT : le lien « Universités & CHU » pointait vers /b2b, dont la page
                   a été supprimée (commit ca5d38cb) sans qu’aucune route ne subsiste : 404
                   depuis le footer, donc sur toutes les pages du site. Lien retiré ici et
@@ -83,7 +84,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3 text-foreground text-sm">Légal</h3>
+              <h2 className="font-semibold mb-3 text-foreground text-sm">Légal</h2>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mentions Légales</Link>
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Confidentialité</Link>
@@ -110,7 +111,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h3>
+              <h2 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h2>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Les 367 Items EDN</Link>
                 <Link to={ROUTE_PATHS.mngMethod} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Méthode MNG</Link>
@@ -119,7 +120,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
+              <h2 className="font-semibold mb-3 text-foreground text-sm">Ressources</h2>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
                 <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">À propos</Link>
@@ -129,7 +130,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3 text-foreground text-sm">Légal</h3>
+              <h2 className="font-semibold mb-3 text-foreground text-sm">Légal</h2>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mentions Légales</Link>
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Confidentialité</Link>

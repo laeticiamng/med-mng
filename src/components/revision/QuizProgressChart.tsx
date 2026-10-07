@@ -156,7 +156,7 @@ export const QuizProgressChart: React.FC = () => {
           </Card>
           <Card className="bg-accent/5 border-accent/20">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-accent-foreground">{stats.uniqueItems}</div>
+              <div className="text-2xl font-bold text-accent">{stats.uniqueItems}</div>
               <div className="text-sm text-muted-foreground">Items révisés</div>
             </CardContent>
           </Card>

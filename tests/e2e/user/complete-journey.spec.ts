@@ -63,10 +63,6 @@ test.describe('Complete User Journey', () => {
     // Go to library
     await page.goto('/med-mng/music-library');
     await expect(page.locator('body')).toBeVisible();
-    
-    // Go to music library
-    await page.goto('/edn/music-library');
-    await expect(page.locator('body')).toBeVisible();
   });
 
   test('should navigate all main menu items', async ({ page }) => {

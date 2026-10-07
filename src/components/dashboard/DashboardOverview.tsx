@@ -290,7 +290,7 @@ export const DashboardOverview: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => navigate(ROUTE_PATHS.medMngAnalytics)}
+              onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Voir mes statistiques

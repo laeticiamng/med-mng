@@ -31,7 +31,7 @@ const CGU = () => {
 
         <div className="max-w-4xl mx-auto space-y-6">
           {/* En-tête */}
-          <Card className="p-6 bg-gradient-to-r from-primary to-accent text-primary-foreground">
+          <Card className="p-6 bg-gradient-medical text-primary-foreground">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <FileText className="h-8 w-8" />
@@ -348,7 +348,7 @@ const CGU = () => {
             <div className="text-muted-foreground">
               <p className="mb-3">
                 Le traitement de vos données personnelles est décrit dans notre{' '}
-                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary font-semibold hover:underline">
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary font-semibold underline underline-offset-2 hover:decoration-2">
                   Politique de Confidentialité
                 </Link>.
               </p>

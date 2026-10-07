@@ -23,10 +23,11 @@ import { MainNavigation } from './MainNavigation';
 const rendre = () => render(<MemoryRouter><MainNavigation /></MemoryRouter>);
 
 describe('MainNavigation (session simulée)', () => {
-  it("ne propose plus ECOS", () => {
+  // MM-A11 (07.10.2026) : les 12 situations ECOS gratuites de l'offre sont de
+  // nouveau proposées dans le menu principal.
+  it('propose ECOS dans le menu principal', () => {
     rendre();
-    expect(screen.queryByText('ECOS')).not.toBeInTheDocument();
-    expect(document.querySelector('a[href="/ecos"]')).toBeNull();
+    expect(document.querySelector('a[href="/ecos"]')).not.toBeNull();
     expect(screen.getAllByRole('link', { name: /EDN/ }).length).toBeGreaterThan(0);
   });
 
@@ -36,8 +37,10 @@ describe('MainNavigation (session simulée)', () => {
     expect(screen.queryByText('Niv.1')).not.toBeInTheDocument();
   });
 
-  it('la cloche est proposée une fois connecté', () => {
+  // MM-A12 (07.10.2026) : rien n'alimente user_notifications (0 ligne en
+  // production) ; la cloche s'ouvrait toujours vide.
+  it('ne propose pas de cloche de notifications toujours vide', () => {
     rendre();
-    expect(screen.getByRole('button', { name: 'Notifications' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Notifications' })).not.toBeInTheDocument();
   });
 });

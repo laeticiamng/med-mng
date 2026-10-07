@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
-import { Resend } from "https://esm.sh/resend@2.0.0";
 import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { envoyerEmail, expediteur, journaliserEchec } from '../_shared/mm-email.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://med-mng.lovable.app",
@@ -39,8 +39,6 @@ serve(async (req) => {
 
     const alert: SecurityAlertRequest = await req.json();
     console.log(`🚨 Processing security alert: ${alert.title}`);
-
-    const resend = new Resend(resendApiKey);
 
     // Determine if alert is critical (high or critical severity)
     const isCritical = alert.severity === "critical" || alert.severity === "high";
@@ -131,14 +129,18 @@ serve(async (req) => {
       </html>
     `;
 
-    const emailResult = await resend.emails.send({
-      from: "MED-MNG Security <security@resend.dev>",
+    const envoi = await envoyerEmail({
+      from: expediteur('Med MNG Sécurité'),
       to: [alertEmail],
       subject: `[${alert.severity.toUpperCase()}] ${alert.title}`,
       html: emailHtml,
-    });
+    }, { cle: resendApiKey });
 
-    console.log("✅ Email sent:", emailResult);
+    if (envoi.ok) {
+      console.log("✅ Alerte envoyée par e-mail :", envoi.id ?? 'sans identifiant');
+    } else {
+      journaliserEchec('send-security-alert', envoi);
+    }
 
     // Send Slack notification if webhook is configured and alert is critical
     let slackResult = null;
@@ -207,15 +209,17 @@ serve(async (req) => {
       }
     }
 
+    // Succès seulement si l'alerte est réellement partie par au moins un canal.
+    const remise = envoi.ok || slackResult?.success === true;
     return new Response(
       JSON.stringify({
-        success: true,
-        email: emailResult,
+        success: remise,
+        email: envoi.ok ? { envoye: true, id: envoi.id } : { envoye: false, status: envoi.status, erreur: envoi.erreur },
         slack: slackResult,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+        status: remise ? 200 : 502,
       }
     );
   } catch (error: unknown) {

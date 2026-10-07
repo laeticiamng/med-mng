@@ -1,8 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { jetonAppelant } from '../_shared/mm-garde.ts';
+import { envoyerEmail, expediteur, journaliserEchec } from '../_shared/mm-email.ts';
 import {
   reponseQuotaJournalier,
   reponseVerificationImpossible,
@@ -76,9 +76,8 @@ const handler = async (req: Request): Promise<Response> => {
     const prenomBrut = String((corps as { name?: unknown })?.name ?? '').trim().slice(0, 80);
     const prenom = prenomBrut ? echapper(prenomBrut) : '';
 
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-    const emailResponse = await resend.emails.send({
-      from: "MED-MNG <onboarding@resend.dev>",
+    const envoi = await envoyerEmail({
+      from: expediteur('Med MNG'),
       to: [utilisateur.email],
       subject: "Bienvenue sur Med MNG",
       html: `
@@ -103,13 +102,14 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    if (emailResponse.error) {
-      // Nom de l'erreur seulement : le message de Resend peut contenir une adresse e-mail.
-      console.error("❌ E-mail de bienvenue refusé par Resend :", emailResponse.error.name ?? 'erreur inconnue');
-      return repondre({ success: false, error: "L'e-mail de bienvenue n'a pas pu être envoyé." }, 502);
+    if (!envoi.ok) {
+      // Statut et nom d'erreur seulement : le message de Resend peut contenir une adresse e-mail.
+      journaliserEchec('send-welcome-email', envoi);
+      return repondre({ success: false, envoye: false, error: "L'e-mail de bienvenue n'a pas pu être envoyé." }, 502);
     }
 
-    return repondre({ success: true, envoye: true, messageId: emailResponse.data?.id });
+    console.log('[send-welcome-email] e-mail envoyé', envoi.id ?? 'sans identifiant');
+    return repondre({ success: true, envoye: true, messageId: envoi.id });
   } catch (error: unknown) {
     console.error("❌ Erreur envoi e-mail de bienvenue :", error instanceof Error ? error.message : 'inconnue');
     return repondre({ success: false, error: "L'e-mail de bienvenue n'a pas pu être envoyé." }, 500);

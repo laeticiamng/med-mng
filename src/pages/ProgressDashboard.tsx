@@ -19,9 +19,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useClinicalCases } from '@/hooks/useClinicalCases';
-import { useExamMode } from '@/hooks/useExamMode';
-import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGamification } from '@/hooks/useGamification';
 import { useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,16 +48,10 @@ export default function ProgressDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { stats: srsStats, getStats: getSrsStats } = useSRS();
-  const { getStats: getExamStats } = useExamMode();
-  const { getStats: getClinicalStats } = useClinicalCases();
-  const { getStats: getFlashcardStats } = useFlashcards();
   const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
   const { getHeatmapData } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
-  const [examStats, setExamStats] = useState<any>(null);
-  const [clinicalStats, setClinicalStats] = useState<any>(null);
-  const [flashcardStats, setFlashcardStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [weeklyData, setWeeklyData] = useState<{ total: number; byType: Record<string, number>; trend: number }>({ total: 0, byType: {}, trend: 0 });
 
@@ -75,9 +66,6 @@ export default function ProgressDashboard() {
       setUser(user);
       
       getSrsStats(user.id);
-      getExamStats(user.id).then(setExamStats).catch(() => {});
-      getClinicalStats(user.id).then(setClinicalStats).catch(() => {});
-      getFlashcardStats(user.id).then(setFlashcardStats).catch(() => {});
       loadGamificationStats(user.id);
       checkAndUnlockBadges(user.id).catch(() => {});
       
@@ -97,16 +85,10 @@ export default function ProgressDashboard() {
       setWeeklyData({ total: thisWeekTotal, byType, trend });
     };
     loadData().catch(() => {});
-  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats, checkAndUnlockBadges, getHeatmapData]);
+  }, [navigate, toast, getSrsStats, loadGamificationStats, checkAndUnlockBadges, getHeatmapData]);
 
   const totalProgress = srsStats ? 
     Math.round((srsStats.masteredItems / srsStats.totalItems) * 100) : 0;
-
-  const overallScore = Math.round(
-    ((examStats?.averageScore || 0) + 
-     (clinicalStats?.averageScore || 0) + 
-     (flashcardStats?.accuracy || 0)) / 3
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -171,7 +153,7 @@ export default function ProgressDashboard() {
                 <CardDescription>Votre activité des 7 derniers jours</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                   <div className="text-center p-3 sm:p-4 bg-background/50 rounded-lg">
                     <Activity className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 text-primary" />
                     <p className="text-xl sm:text-3xl font-bold text-primary">{weeklyData.total}</p>
@@ -181,11 +163,6 @@ export default function ProgressDashboard() {
                     <Brain className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 text-accent" />
                     <p className="text-xl sm:text-3xl font-bold text-accent">{weeklyData.byType['review'] || weeklyData.byType['srs_review'] || 0}</p>
                     <p className="text-xs sm:text-sm text-muted-foreground">révisions</p>
-                  </div>
-                  <div className="text-center p-3 sm:p-4 bg-background/50 rounded-lg">
-                    <Trophy className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 text-warning" />
-                    <p className="text-xl sm:text-3xl font-bold text-warning">{examStats?.totalExams || weeklyData.byType['exam'] || 0}</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">examens</p>
                   </div>
                   <div className={`text-center p-3 sm:p-4 rounded-lg ${weeklyData.trend >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
                     <TrendingUp className={`h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1.5 sm:mb-2 ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`} />
@@ -213,114 +190,17 @@ export default function ProgressDashboard() {
               </CardContent>
             </Card>
 
-            {/* Time Spent Analytics Card */}
-            <Card className="border-accent/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Clock className="h-5 w-5 text-accent" />
-                  Temps d'étude par item
-                </CardTitle>
-                <CardDescription>Analyse du temps passé sur chaque élément</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-accent/5 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-accent">{Math.round((weeklyData.total * 5) / 60)}h</p>
-                    <p className="text-xs text-muted-foreground">Temps total estimé</p>
-                  </div>
-                  <div className="p-4 bg-primary/5 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-primary">{Math.round((weeklyData.total * 5) / 7)} min/jour</p>
-                    <p className="text-xs text-muted-foreground">Moyenne quotidienne</p>
-                  </div>
-                  <div className="p-4 bg-success/5 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-success">{srsStats?.masteredItems || 0}</p>
-                    <p className="text-xs text-muted-foreground">Items maîtrisés</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Success Probability Card - Weighted Model */}
-            <Card className="border-warning/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Target className="h-5 w-5 text-warning" />
-                  Probabilité de succès estimée
-                </CardTitle>
-                <CardDescription>Modèle pondéré : SRS (40%), Examens (30%), Régularité (30%)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  // Weighted success probability calculation
-                  const srsWeight = 0.40;
-                  const examWeight = 0.30;
-                  const regularityWeight = 0.30;
-                  
-                  // SRS component: mastery ratio (0-100)
-                  const srsScore = srsStats 
-                    ? Math.round((srsStats.masteredItems / Math.max(1, srsStats.totalItems)) * 100)
-                    : 0;
-                  
-                  // Exam component: average exam score (0-100)
-                  const examScore = examStats?.averageScore || 0;
-                  
-                  // Regularity component: streak bonus + weekly activity
-                  const streakBonus = Math.min(20, (gamificationStats?.currentStreak || 0) * 2);
-                  const activityBonus = Math.min(80, weeklyData.total * 10);
-                  const regularityScore = streakBonus + activityBonus;
-                  
-                  // Weighted total with floor of 50% if any activity exists
-                  const rawProbability = (srsScore * srsWeight) + (examScore * examWeight) + (regularityScore * regularityWeight);
-                  const hasActivity = srsStats?.totalItems > 0 || examStats?.totalExams > 0 || weeklyData.total > 0;
-                  const probability = hasActivity ? Math.max(50, Math.min(95, Math.round(rawProbability))) : 0;
-                  
-                  return (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Rétention globale estimée</span>
-                        <span className="text-lg font-bold text-warning">{probability}%</span>
-                      </div>
-                      <Progress value={probability} className="h-3" />
-                      
-                      {/* Factor breakdown */}
-                      <div className="grid grid-cols-3 gap-2 pt-2 border-t">
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground">SRS</p>
-                          <p className="text-sm font-medium">{srsScore}%</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Examens</p>
-                          <p className="text-sm font-medium">{examScore}%</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Régularité</p>
-                          <p className="text-sm font-medium">{regularityScore}%</p>
-                        </div>
-                      </div>
-                      
-                      <p className="text-xs text-muted-foreground">
-                        Continuez à réviser régulièrement pour améliorer votre score.
-                      </p>
-                    </div>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-
+            {/* « Temps d'étude par item » (5 min par activité, estimé) et « Probabilité de
+                succès estimée » (pondération SRS 40 % / Examens 30 % / Régularité 30 %) retirés
+                le 07.10.2026 (MM-A09) : le mode Examen n'existe plus et ces chiffres
+                n'étaient pas mesurés. */}
             {/* Main Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
                 <CardContent className="p-4 text-center">
                   <Target className="h-8 w-8 mx-auto mb-2 text-primary" />
                   <p className="text-3xl font-bold text-primary">{totalProgress}%</p>
                   <p className="text-sm text-muted-foreground">Items maîtrisés</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-to-br from-success/10 to-success/5">
-                <CardContent className="p-4 text-center">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
-                  <p className="text-3xl font-bold text-success">{overallScore}%</p>
-                  <p className="text-sm text-muted-foreground">Score global</p>
                 </CardContent>
               </Card>
               <Card className="bg-gradient-to-br from-warning/10 to-warning/5">
@@ -388,8 +268,9 @@ export default function ProgressDashboard() {
           </TabsContent>
         </Tabs>
 
-        {/* Module Stats Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        {/* Cartes « Mode Examen », « Cas cliniques » et « Flashcards » retirées le
+            07.10.2026 (MM-A09) : fonctions retirées ou sans contenu (0 paquet). */}
+        <div className="grid gap-6 mb-8">
           {/* SRS Stats */}
           <Card>
             <CardHeader>
@@ -420,123 +301,6 @@ export default function ProgressDashboard() {
             </CardContent>
           </Card>
 
-          {/* Exam Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-accent" />
-                Mode Examen
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold">{examStats?.totalExams || 0}</p>
-                  <p className="text-xs text-muted-foreground">Examens passés</p>
-                </div>
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold">{examStats?.averageScore || 0}%</p>
-                  <p className="text-xs text-muted-foreground">Score moyen</p>
-                </div>
-              </div>
-              {examStats?.weakTopics?.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium flex items-center gap-1">
-                    <AlertTriangle className="h-4 w-4 text-warning" />
-                    Points faibles
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {examStats.weakTopics.slice(0, 3).map((t: any, i: number) => (
-                      <Badge key={i} variant="outline" className="text-xs">
-                        {t.item_code}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate(ROUTE_PATHS.ednComplete)}
-              >
-                Faire un quiz par item
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Clinical Cases Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-success" />
-                Cas Cliniques
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold">{clinicalStats?.totalCasesCompleted || 0}</p>
-                  <p className="text-xs text-muted-foreground">Cas terminés</p>
-                </div>
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold">{clinicalStats?.averageScore || 0}%</p>
-                  <p className="text-xs text-muted-foreground">Score moyen</p>
-                </div>
-              </div>
-              {Object.keys(clinicalStats?.bySpecialty || {}).length > 0 && (
-                <div className="space-y-1">
-                  {Object.entries(clinicalStats.bySpecialty).slice(0, 2).map(([spec, data]: [string, any]) => (
-                    <div key={spec} className="flex justify-between text-sm">
-                      <span>{spec}</span>
-                      <Badge variant={data.score >= 70 ? 'default' : 'secondary'}>
-                        {data.score}%
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate(ROUTE_PATHS.ecosIndex)}
-              >
-                Situations ECOS
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Flashcards Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-warning" />
-                Flashcards
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold">{flashcardStats?.totalCards || 0}</p>
-                  <p className="text-xs text-muted-foreground">Cartes créées</p>
-                </div>
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold">{flashcardStats?.accuracy || 0}%</p>
-                  <p className="text-xs text-muted-foreground">Précision</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Flame className="h-4 w-4 text-warning" />
-                <span className="text-sm">{flashcardStats?.streakDays || 0} jours consécutifs</span>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate(ROUTE_PATHS.flashcards)}
-              >
-                Réviser mes cartes
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Quick Actions */}
