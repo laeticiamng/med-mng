@@ -102,7 +102,6 @@ const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(m => ({ defa
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(m => ({ default: m.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(m => ({ default: m.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(m => ({ default: m.MusicAnalytics })));
-const MedMngProgress = lazy(() => import("./pages/MedMngProgress").then(m => ({ default: m.MedMngProgress })));
 const MedMngFavorites = lazy(() => import("./pages/MedMngFavorites").then(m => ({ default: m.MedMngFavorites })));
 const BillingPage = lazy(() => import("./pages/BillingPage"));
 
@@ -375,7 +374,8 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngPlaylists} element={<ProtectedRoute><S><PlaylistManager /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngPlaylistDetail} element={<ProtectedRoute><S><PlaylistDetail /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><S><MusicAnalytics /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><S><MedMngProgress /></S></ProtectedRoute>} />
+                                    {/* Une seule page de progression (MM-A09, 07.10.2026) : /progress-dashboard, alimentée par les quiz d'item (répétition espacée). */}
+                                    <Route path={ROUTE_PATHS.medMngProgress} element={<Navigate to={ROUTE_PATHS.progressDashboard} replace />} />
                                     <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><S><MedMngFavorites /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngBilling} element={<ProtectedRoute><S><BillingPage /></S></ProtectedRoute>} />
 

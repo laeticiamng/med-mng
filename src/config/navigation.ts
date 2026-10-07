@@ -68,7 +68,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Ma bibliothèque', icon: Music },
   { path: ROUTE_PATHS.medMngPlaylists, label: 'Mes playlists', icon: Music },
   { path: ROUTE_PATHS.medMngFavorites, label: 'Mes favoris', icon: Sparkles },
-  { path: ROUTE_PATHS.medMngProgress, label: 'Ma progression', icon: BarChart3 },
+  { path: ROUTE_PATHS.progressDashboard, label: 'Ma progression', icon: BarChart3 },
   { path: ROUTE_PATHS.medMngAnalytics, label: 'Mes analytics', icon: BarChart3 },
   { path: ROUTE_PATHS.settings, label: 'Paramètres', icon: Settings },
 ];

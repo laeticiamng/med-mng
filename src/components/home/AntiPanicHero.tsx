@@ -63,7 +63,7 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
           <div className="max-w-md mx-auto mb-8 md:mb-10 px-2">
             <div 
               className="bg-card/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-border/50 cursor-pointer hover:border-primary/30 hover:shadow-md transition-all"
-              onClick={() => navigate(ROUTE_PATHS.medMngProgress)}
+              onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
             >
               <p className="text-xs text-muted-foreground mb-2 sm:mb-3 font-medium uppercase tracking-wider">
                 Reprendre ma révision

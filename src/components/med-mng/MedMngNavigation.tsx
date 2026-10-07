@@ -22,7 +22,7 @@ import { useAuth } from './AuthProvider';
  */
 const LIENS = [
   { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Ma bibliothèque', icon: ListMusic },
-  { path: ROUTE_PATHS.medMngProgress, label: 'Progression', icon: Brain },
+  { path: ROUTE_PATHS.progressDashboard, label: 'Progression', icon: Brain },
   { path: ROUTE_PATHS.medMngFavorites, label: 'Favoris', icon: Heart },
   { path: ROUTE_PATHS.medMngProfile, label: 'Profil', icon: User },
 ] as const;
