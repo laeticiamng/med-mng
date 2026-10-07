@@ -1,7 +1,6 @@
 // App.tsx - Force rebuild v2026.02.06
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
-import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { CookieBanner } from "@/components/common/CookieBanner";
 import { PageLoader } from "@/components/common/PageLoader";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
@@ -27,7 +26,7 @@ import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { Suspense, lazy, useState, useEffect, useCallback } from "react";
+import { Suspense, lazy } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AdminRoute } from "./components/auth/AdminRoute";
@@ -218,15 +217,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-
-  // Écouter l'événement toggle-notifications depuis la MainNavigation
-  useEffect(() => {
-    const handler = () => setIsNotificationCenterOpen(prev => !prev);
-    window.addEventListener('toggle-notifications', handler);
-    return () => window.removeEventListener('toggle-notifications', handler);
-  }, []);
-
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
 
@@ -472,10 +462,6 @@ const App = () => {
 
                                 {/* Global UI */}
                                 <HelpButton />
-                                <NotificationSystem
-                                  isOpen={isNotificationCenterOpen}
-                                  onClose={() => setIsNotificationCenterOpen(false)}
-                                />
                                 <KeyboardShortcuts />
                                 <AccessibilityCenter />
                                 <CookieBanner />
