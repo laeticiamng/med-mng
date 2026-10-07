@@ -14,7 +14,8 @@ import AxeBuilder from '@axe-core/playwright';
  */
 async function ouvrir(page: Page, chemin: string) {
   await page.goto(chemin);
-  await page.waitForLoadState('networkidle').catch(() => {});
+  // Délai borné : sans timeout, une connexion qui reste ouverte bloquait jusqu'à la limite du test.
+  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await page.waitForFunction(
     () =>
       document.getAnimations().every((animation) => {
