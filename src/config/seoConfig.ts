@@ -59,12 +59,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/edn-complete',
     ogType: 'article',
   },
-  '/edn/music-library': {
-    title: 'Bibliothèque Musicale EDN',
-    description: 'Écoutez les chansons EDN par spécialité : cardiologie, pneumologie, neurologie et plus. Mémorisation musicale des items médicaux.',
-    keywords: `${BASE_KEYWORDS}, musique médicale, chansons EDN, bibliothèque musicale`,
-    canonical: '/edn/music-library',
-  },
   '/edn-audit': {
     title: 'Audit EDN',
     description: 'Audit de qualité des 367 items EDN : complétude, cohérence et couverture du programme national.',
@@ -80,18 +74,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     keywords: `${BASE_KEYWORDS}, SRS, répétition espacée, mémorisation, Anki`,
     canonical: '/srs-review',
   },
-  '/exam-mode': {
-    title: 'Mode Examen - Simulation EDN',
-    description: 'Examens blancs EDN chronométrés : questions générées à partir des items, score par spécialité et par rang.',
-    keywords: `${BASE_KEYWORDS}, examen, simulation, QCM, QRU, QROC, entraînement`,
-    canonical: '/exam-mode',
-  },
-  '/clinical-cases': {
-    title: 'Cas Cliniques Interactifs',
-    description: 'Entraînez-vous sur des cas cliniques interactifs avec arbres décisionnels. Diagnostic, traitement et scoring de performance.',
-    keywords: `${BASE_KEYWORDS}, cas cliniques, diagnostic, arbres décisionnels, simulation`,
-    canonical: '/clinical-cases',
-  },
   '/flashcards': {
     title: 'Flashcards Médicales',
     description: 'Flashcards intelligentes pour réviser les items EDN. Système de répétition espacée intégré avec scoring.',
@@ -104,50 +86,8 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     keywords: `${BASE_KEYWORDS}, progression, statistiques, performance, objectifs`,
     canonical: '/progress-dashboard',
   },
-  '/smart-study-planner': {
-    title: 'Planificateur d\'Études Intelligent',
-    description: 'Planifiez vos révisions avec l\'IA : planning personnalisé, priorisation automatique et rappels intelligents.',
-    keywords: `${BASE_KEYWORDS}, planificateur, planning, organisation, IA`,
-    canonical: '/smart-study-planner',
-  },
 
   // === GAMIFICATION ===
-  '/leaderboard': {
-    title: 'Classement - Leaderboard',
-    description: 'Comparez votre progression avec la communauté Med MNG. Classement par points, badges et séries.',
-    keywords: `${BASE_KEYWORDS}, classement, leaderboard, compétition, badges`,
-    canonical: '/leaderboard',
-  },
-  '/daily-challenges': {
-    title: 'Défis Quotidiens',
-    description: 'Relevez un nouveau défi médical chaque jour. Gagnez des points et badges en répondant aux questions du jour.',
-    keywords: `${BASE_KEYWORDS}, défis quotidiens, challenge, questions du jour`,
-    canonical: '/daily-challenges',
-  },
-  '/my-goals': {
-    title: 'Mes Objectifs',
-    description: 'Définissez et suivez vos objectifs de révision médicale. Tracking automatique et recommandations personnalisées.',
-    keywords: `${BASE_KEYWORDS}, objectifs, goals, tracking, motivation`,
-    canonical: '/my-goals',
-  },
-  '/mood-tracker': {
-    title: 'Suivi d\'Humeur',
-    description: 'Suivez votre état émotionnel pendant les révisions. Corrélation humeur-performance pour optimiser votre apprentissage.',
-    keywords: `${BASE_KEYWORDS}, humeur, bien-être, santé mentale, étudiant`,
-    canonical: '/mood-tracker',
-  },
-  '/pomodoro': {
-    title: 'Pomodoro Timer',
-    description: 'Timer Pomodoro adapté aux révisions médicales. Sessions chronométrées avec pauses et statistiques de productivité.',
-    keywords: `${BASE_KEYWORDS}, pomodoro, timer, productivité, concentration`,
-    canonical: '/pomodoro',
-  },
-  '/karaoke': {
-    title: 'Karaoké Médical',
-    description: 'Apprenez la médecine en chantant ! Mode karaoké sur les chansons EDN pour une mémorisation active et ludique.',
-    keywords: `${BASE_KEYWORDS}, karaoké, chant, apprentissage ludique, mémorisation active`,
-    canonical: '/karaoke',
-  },
   '/achievements': {
     title: 'Mes Succès & Badges',
     description: 'Consultez vos badges, trophées et accomplissements sur Med MNG. Célébrez votre progression médicale.',
@@ -163,13 +103,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/ecos',
   },
 
-  // === STORE ===
-  '/store': {
-    title: 'Boutique Med MNG',
-    description: 'Med MNG Premium : contenu immersif des 367 items EDN et génération audio, 69 €/an ou 9,90 €/mois.',
-    keywords: `${BASE_KEYWORDS}, boutique, premium, abonnement, achats`,
-    canonical: '/store',
-  },
 
   // === AUTH ===
   '/med-mng/login': {
@@ -213,13 +146,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/med-mng/music-library',
     noindex: true,
   },
-  '/med-mng/items-library': {
-    title: 'Bibliothèque Items EDN',
-    description: 'Explorez tous les items EDN avec contenus enrichis, musique et exercices.',
-    keywords: `${BASE_KEYWORDS}, items, bibliothèque, contenus`,
-    canonical: '/med-mng/items-library',
-    noindex: true,
-  },
   '/med-mng/profile': {
     title: 'Mon Profil',
     description: 'Gérez votre profil Med MNG : informations personnelles, préférences et statistiques.',
@@ -232,20 +158,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     description: 'Organisez vos chansons médicales en playlists thématiques par spécialité.',
     keywords: `${BASE_KEYWORDS}, playlists, organisation, spécialités`,
     canonical: '/med-mng/playlists',
-    noindex: true,
-  },
-  '/med-mng/analytics': {
-    title: 'Mes Analytics',
-    description: 'Statistiques détaillées de votre écoute musicale et apprentissage sur Med MNG.',
-    keywords: `${BASE_KEYWORDS}, analytics, statistiques, écoute`,
-    canonical: '/med-mng/analytics',
-    noindex: true,
-  },
-  '/med-mng/progress': {
-    title: 'Ma Progression',
-    description: 'Suivez votre progression détaillée sur Med MNG : items maîtrisés, scores et recommandations.',
-    keywords: `${BASE_KEYWORDS}, progression, suivi, performance`,
-    canonical: '/med-mng/progress',
     noindex: true,
   },
   '/med-mng/favorites': {
@@ -263,12 +175,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     keywords: `${BASE_KEYWORDS}, générateur, musique IA, composition automatique`,
     canonical: '/generator',
   },
-  '/shared-music': {
-    title: 'Musique Partagée',
-    description: 'Découvrez les chansons médicales partagées par la communauté Med MNG.',
-    keywords: `${BASE_KEYWORDS}, partage, communauté, musique partagée`,
-    canonical: '/shared-music',
-  },
   '/library': {
     title: 'Bibliothèque Générale',
     description: 'Accédez à l\'ensemble des ressources Med MNG : items EDN, chansons, flashcards et cas cliniques.',
@@ -280,43 +186,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     description: 'Découvrez la méthode MNG : l\'apprentissage médical par la musique. Science cognitive, répétition espacée et engagement actif.',
     keywords: `${BASE_KEYWORDS}, méthode MNG, science cognitive, pédagogie musicale`,
     canonical: '/mng-method',
-  },
-  '/statistics': {
-    title: 'Statistiques de la Plateforme',
-    description: 'Statistiques globales de Med MNG : utilisateurs actifs, items les plus étudiés et tendances.',
-    keywords: `${BASE_KEYWORDS}, statistiques, données, tendances`,
-    canonical: '/statistics',
-  },
-  '/study-planner': {
-    title: 'Planificateur d\'Études',
-    description: 'Organisez vos sessions de révision médicale. Planning hebdomadaire avec rappels et objectifs.',
-    keywords: `${BASE_KEYWORDS}, planificateur, planning, organisation`,
-    canonical: '/study-planner',
-  },
-  '/community': {
-    title: 'Communauté Med MNG',
-    description: 'Rejoignez la communauté d\'étudiants en médecine. Échangez, partagez et progressez ensemble.',
-    keywords: `${BASE_KEYWORDS}, communauté, forum, échanges, entraide`,
-    canonical: '/community',
-  },
-  '/favorites': {
-    title: 'Mes Favoris',
-    description: 'Retrouvez vos items EDN et chansons favoris en un clic.',
-    keywords: `${BASE_KEYWORDS}, favoris, sauvegardés`,
-    canonical: '/favorites',
-  },
-  '/settings': {
-    title: 'Paramètres',
-    description: 'Gérez vos paramètres Med MNG : thème, notifications, langue, abonnement et confidentialité.',
-    keywords: `${BASE_KEYWORDS}, paramètres, configuration, préférences`,
-    canonical: '/settings',
-    noindex: true,
-  },
-  '/chat': {
-    title: 'Chat IA Médical',
-    description: 'Posez vos questions médicales à notre IA. Assistant intelligent pour comprendre les items EDN.',
-    keywords: `${BASE_KEYWORDS}, chat, IA, assistant médical, questions`,
-    canonical: '/chat',
   },
 
   // === LEGAL ===
@@ -461,20 +330,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/fiches-ecos-interactives',
     ogType: 'article',
   },
-  '/simulation-examen-edn': {
-    title: 'Simulation Examen EDN - Entraînement Réaliste',
-    description: 'Examens blancs EDN chronométrés : questions générées à partir des items, score par spécialité et par rang.',
-    keywords: `${BASE_KEYWORDS}, simulation examen, EDN, entraînement, conditions réelles, QCM`,
-    canonical: '/simulation-examen-edn',
-    ogType: 'article',
-  },
-  '/cas-cliniques-edn': {
-    title: 'Cas Cliniques EDN - Entraînement Progressif',
-    description: 'Entraînez-vous sur des cas cliniques EDN progressifs. Arbres décisionnels, diagnostics différentiels et plans thérapeutiques.',
-    keywords: `${BASE_KEYWORDS}, cas cliniques, EDN, diagnostic, arbre décisionnel, thérapeutique`,
-    canonical: '/cas-cliniques-edn',
-    ogType: 'article',
-  },
   '/erreurs-frequentes-ecos': {
     title: 'Erreurs Fréquentes aux ECOS - Les Éviter',
     description: 'Les erreurs les plus fréquentes aux ECOS et comment les éviter. Analyse par station, pièges classiques et conseils pratiques.',
@@ -596,22 +451,6 @@ export function getRouteSEO(pathname: string): RouteSEO {
       noindex: true,
     };
   }
-  if (pathname.startsWith('/product/')) {
-    return {
-      title: 'Produit',
-      description: 'Découvrez ce produit sur la boutique Med MNG.',
-      keywords: `${BASE_KEYWORDS}, produit, boutique`,
-      canonical: pathname,
-    };
-  }
-  if (pathname.startsWith('/shared-music/')) {
-    return {
-      title: 'Musique Partagée',
-      description: 'Écoutez cette chanson médicale partagée sur Med MNG.',
-      keywords: `${BASE_KEYWORDS}, musique partagée, partage`,
-      canonical: pathname,
-    };
-  }
 
   // Admin routes - always noindex
   if (pathname.startsWith('/admin')) {
@@ -631,13 +470,4 @@ export function getRouteSEO(pathname: string): RouteSEO {
     keywords: BASE_KEYWORDS,
     canonical: pathname,
   };
-}
-
-/**
- * Routes publiques pour le sitemap (exclut noindex, admin, et routes dynamiques avec paramètres)
- */
-export function getPublicRoutes(): string[] {
-  return Object.entries(SEO_CONFIG)
-    .filter(([path, config]) => !config.noindex && !path.startsWith('/admin'))
-    .map(([path]) => path);
 }
