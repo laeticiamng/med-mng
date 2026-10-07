@@ -83,16 +83,6 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('Bibliothèque musicale EDN - 0 violation', async ({ page }) => {
-    await ouvrir(page, '/edn/music-library');
-    
-    const accessibilityScanResults = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    
-    expect(accessibilityScanResults.violations).toEqual([]);
-  });
-
   test('Page tarification - 0 violation', async ({ page }) => {
     await ouvrir(page, '/med-mng/pricing');
     
@@ -263,9 +253,9 @@ test.describe('Tests d\'accessibilité avec règles personnalisées RGAA', () =>
 test.describe('Tests d\'accessibilité avancés - Lecteur audio', () => {
   // Le lecteur (MusicPlayer, aria-label « Lecteur audio pour … ») n'est rendu que dans la
   // bibliothèque personnelle protégée : sans compte de test il ne peut pas être atteint.
-  // On vérifie les contrôles de la bibliothèque musicale publique.
+  // /edn/music-library a été retirée (MM-A13) : on vérifie les boutons du catalogue public.
   test('Boutons de contrôle - Labels ARIA', async ({ page }) => {
-    await ouvrir(page, '/edn/music-library');
+    await ouvrir(page, '/edn-complete');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withRules(['button-name', 'aria-command-name'])

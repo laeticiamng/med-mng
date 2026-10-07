@@ -55,7 +55,6 @@ const EdnItemStats = lazy(() => import("./pages/edn-item/EdnItemStats"));
 const EdnItemMusique = lazy(() => import("./pages/edn-item/EdnItemMusique"));
 const EdnItemPlanches = lazy(() => import("./pages/edn-item/EdnItemPlanches"));
 const EdnItemRecit = lazy(() => import("./pages/edn-item/EdnItemRecit"));
-const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
 const SRSReview = lazy(() => import("./pages/SRSReview"));
 const Flashcards = lazy(() => import("./pages/Flashcards"));
@@ -273,7 +272,8 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<EdnSlugRedirect />} />
                                     <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednImmersive} element={<EdnImmersiveRedirect />} />
-                                    <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
+                                    {/* /edn/music-library lisait user_generated_music (0 ligne, rien ne l'alimente) : redirigée vers la bibliothèque réelle (MM-A13). */}
+                                    <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />} />
 
                                     {/* Learning */}
                                     <Route path={ROUTE_PATHS.srsReview} element={<ProtectedRoute><S><SRSReview /></S></ProtectedRoute>} />

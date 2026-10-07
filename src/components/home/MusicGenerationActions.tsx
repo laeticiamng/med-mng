@@ -22,7 +22,7 @@ export const MusicGenerationActions = ({ remainingFree }: MusicGenerationActions
         <TranslatedText text={remainingFree > 0 ? "Générer gratuitement" : "Générer ma Musique"} />
       </Button>
       <Button 
-        onClick={() => navigate(ROUTE_PATHS.ednMusicLibrary)}
+        onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}
         variant="outline"
         size="lg"
         className="border-warning text-warning hover:bg-warning/10 px-8 py-3 text-lg"

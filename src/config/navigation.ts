@@ -110,7 +110,6 @@ export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
   { path: ROUTE_PATHS.generator, label: 'Générateur Musique', icon: Music },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
   { path: ROUTE_PATHS.medMngSignup, label: 'Créer un compte', icon: Users },
 ];
@@ -131,7 +130,7 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.home, label: 'Accueil', category: 'Principal' },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', category: 'Apprentissage' },
   { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Musique' },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', category: 'Musique' },
+  { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Ma bibliothèque musicale', category: 'Musique' },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
   { path: ROUTE_PATHS.faq, label: 'FAQ', category: 'Ressources' },
   { path: ROUTE_PATHS.about, label: 'A propos', category: 'Ressources' },

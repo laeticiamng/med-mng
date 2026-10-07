@@ -369,7 +369,7 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Vous choisissez le style (pop, rap, variété, électro…) au moment de générer l'audio d'une
                   chanson. Vos chansons générées se retrouvent ensuite dans votre{' '}
-                  <Link to={ROUTE_PATHS.ednMusicLibrary} className="text-primary underline underline-offset-2 hover:decoration-2">bibliothèque musicale</Link>.
+                  <Link to={ROUTE_PATHS.medMngMusicLibrary} className="text-primary underline underline-offset-2 hover:decoration-2">bibliothèque musicale</Link>.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

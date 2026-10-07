@@ -93,7 +93,7 @@ const DeclarationAccessibilite = () => {
                   <li>• Inscription</li>
                   <li>• Tarifs</li>
                   <li>• Catalogue des items EDN</li>
-                  <li>• Bibliothèque musicale EDN</li>
+                  <li>• Bibliothèque musicale EDN (retirée depuis)</li>
                   <li>• Situations ECOS</li>
                   <li>• Méthode MNG</li>
                   <li>• FAQ</li>

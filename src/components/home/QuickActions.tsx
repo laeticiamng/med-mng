@@ -92,7 +92,7 @@ export const QuickActions: React.FC = () => {
   // Ressources et outils
   const resourceActions = [
     { id: 'library', title: 'Bibliothèque', icon: Library, path: ROUTE_PATHS.library },
-    { id: 'musicLib', title: 'Musiques EDN', icon: Headphones, path: ROUTE_PATHS.ednMusicLibrary },
+    { id: 'musicLib', title: 'Musiques EDN', icon: Headphones, path: ROUTE_PATHS.medMngMusicLibrary },
     { id: 'stats', title: 'Statistiques', icon: BarChart3, path: ROUTE_PATHS.statistics },
   ];
 

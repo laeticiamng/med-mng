@@ -50,12 +50,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://medmng.com/edn/music-library</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
   <!-- Pages d'apprentissage (protected mais indexables pour SEO) -->
 
   <!-- Pages légales additionnelles -->

@@ -70,4 +70,9 @@ describe('Navigation vivante', () => {
     const seo = lire('src/pages/seo/PreparationEcos2027.tsx');
     expect(seo).not.toMatch(/Situations ECOS issues du référentiel|Historique de vos tentatives/);
   });
+
+  it('MM-A13 : /edn/music-library (vide) redirige vers la bibliothèque personnelle', () => {
+    expect(redirige('ednMusicLibrary', 'medMngMusicLibrary')).toBe(true);
+    expect(liensVers('ednMusicLibrary', '/edn/music-library')).toEqual([]);
+  });
 });
