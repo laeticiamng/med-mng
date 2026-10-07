@@ -228,7 +228,7 @@ const MedMngProfileComponent = () => {
                   <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
                     {profile?.name || 'Utilisateur'}
                   </h1>
-                  {getSubscriptionBadge(isSubscriptionActive() ? 'premium' : profile?.subscription_plan)}
+                  {getSubscriptionBadge(isSubscriptionActive() ? 'premium' : 'free')}
                 </div>
                 
                 <div className="flex flex-col md:flex-row gap-4 text-primary-foreground/80">
