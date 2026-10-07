@@ -46,7 +46,8 @@ describe('chronomètre ECOS : 8 minutes', () => {
     expect(source('src/pages/EcosIndex.tsx')).toMatch(/\{DUREE_STATION_ECOS_MINUTES\} min par station/);
     for (const f of [
       'src/pages/EcosScenario.tsx', 'src/pages/EcosIndex.tsx', 'src/components/ecos/EcosRealTimeTimer.tsx',
-      'src/components/ecos/EcosHeader.tsx', 'src/components/ecos/EcosUNESSGrid.tsx',
+      'src/components/ecos/EcosHeader.tsx',
+      // EcosUNESSGrid.tsx supprimé le 07.10.2026 (nettoyage lot 1) : seul le barrel ecos/index.ts l'exportait.
     ]) {
       expect(source(f), f).not.toMatch(/\b7 min|durationMinutes[ =]*\{?7\b|duration: 7\b|dureeMinutes: 7\b/);
     }
