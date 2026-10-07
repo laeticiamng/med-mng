@@ -29,6 +29,8 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // Thème sombre : l'application suit le thème du système (ThemeProvider defaultTheme="system").
+    { name: 'chromium-sombre', use: { ...devices['Desktop Chrome'], colorScheme: 'dark' } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],

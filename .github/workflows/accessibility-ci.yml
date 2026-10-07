@@ -1,16 +1,18 @@
 # Audit d'accessibilité (axe-core + Lighthouse) sur le build de production.
 #
-# Lancement manuel uniquement (onglet Actions > « Accessibilité » > Run workflow) :
-# la couleur primaire est corrigée (217 91 % 47 %, #0b5ee5 : texte blanc 5,60:1), mais il
-# reste des violations hors primaire (texte success/accent/warning sur fond clair, texte
-# « -foreground » sur teinte claire dans la page Méthode MNG, liens dans le texte non
-# soulignés, zones sans landmark) : ce contrôle reste rouge à juste titre et ne doit pas
-# bloquer les pull requests. La vérification automatique (tests, types, build) est ci.yml.
+# Lancement manuel (onglet Actions > « Accessibilité » > Run workflow). Depuis la branche
+# a11y-suite (07.10.2026), la spec axe (13 pages publiques et règles RGAA) passe en local
+# sur Chromium thème clair et thème sombre, WebKit et Firefox (variantes « texte » des
+# couleurs, liens soulignés, bandeau cookies en région nommée, titres hiérarchisés, boutons
+# icônes nommés). Reste hors de notre code : quand un toast Radix est affiché, ses éléments
+# de focus internes (aria-hidden + tabindex=0) et ses <li role="status"> sont signalés.
+# L'audit Lighthouse n'a pas été rejoué : à confirmer ici avant d'ajouter ce contrôle aux
+# pull requests. La vérification automatique (tests, types, build) est ci.yml.
 #
 # Aucun secret. Commandes reproductibles en local :
 #   bun install --frozen-lockfile && npx vite build
 #   npx playwright install chromium
-#   npx playwright test -c playwright.a11y.config.ts --project=chromium
+#   npx playwright test -c playwright.a11y.config.ts --project=chromium --project=chromium-sombre
 #   npx --yes @lhci/cli@0.15.1 autorun --config=.github/lighthouse/lighthouserc.json
 name: Accessibilité (axe-core et Lighthouse)
 
@@ -22,14 +24,19 @@ permissions:
 
 jobs:
   accessibility-tests:
-    name: Tests Accessibilité (axe-core)
+    name: Tests Accessibilité (axe-core, ${{ matrix.project }})
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
+        # project : projet de playwright.a11y.config.ts ; browser : navigateur à installer.
+        include:
+          - { project: chromium, browser: chromium }
+          - { project: chromium-sombre, browser: chromium }
+          - { project: firefox, browser: firefox }
+          - { project: webkit, browser: webkit }
 
     steps:
       - name: Récupérer le code
@@ -56,13 +63,13 @@ jobs:
 
       # Le serveur de prévisualisation (dist/ sur 127.0.0.1:4173) est lancé par la config.
       - name: Tests axe-core (WCAG 2.1 AA)
-        run: npx playwright test -c playwright.a11y.config.ts --project=${{ matrix.browser }}
+        run: npx playwright test -c playwright.a11y.config.ts --project=${{ matrix.project }}
 
       - name: Résumé
         if: always()
         run: |
           {
-            echo "## Accessibilité axe-core : ${{ matrix.browser }}"
+            echo "## Accessibilité axe-core : ${{ matrix.project }}"
             if [ -f test-results/a11y-results.json ]; then
               node -e '
                 const r = require("./test-results/a11y-results.json");
@@ -70,7 +77,7 @@ jobs:
                 console.log(`- Réussis : ${s.expected ?? 0}`);
                 console.log(`- Échoués : ${s.unexpected ?? 0}`);
                 console.log("");
-                console.log("Détail des violations : artefact accessibility-results-${{ matrix.browser }} (playwright-report/index.html).");
+                console.log("Détail des violations : artefact accessibility-results-${{ matrix.project }} (playwright-report/index.html).");
               '
             else
               echo "Aucun résultat produit (voir le journal de l'étape précédente)."
@@ -81,7 +88,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: accessibility-results-${{ matrix.browser }}
+          name: accessibility-results-${{ matrix.project }}
           path: |
             test-results/
             playwright-report/
