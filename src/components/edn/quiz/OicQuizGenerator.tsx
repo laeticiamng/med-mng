@@ -7,6 +7,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { useSRS } from '@/hooks/useSRS';
+import { enregistrerProgressionQuiz, type ClientProgression } from '@/lib/progressionQuiz';
 import { genererQuestionsOic } from '@/utils/quizOic';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -47,6 +49,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
   const { competences: voisinB } = useOicCompetences(codeVoisin, 'B');
   const { addPoints, unlockBadge } = useGamification();
   const { logActivity } = useActivityTracking();
+  const { recordReview } = useSRS();
 
   const questions = useMemo(() => {
     if (!selectedRang) return [];
@@ -100,6 +103,14 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
         );
         return;
       }
+
+      // Progression lue par /edn-complete (useProgressionEdn) : historique des
+      // quiz et carte de répétition espacée (MM-A03, 07.10.2026).
+      await enregistrerProgressionQuiz(supabase as unknown as ClientProgression, recordReview, {
+        userId: user.id,
+        itemCode,
+        pourcentage: percentage,
+      });
 
       await addPoints(user.id, percentage === 100 ? 200 : 100, percentage === 100 ? 'perfectExam' : 'examCompleted');
       await logActivity({
