@@ -55,6 +55,19 @@ test.describe('Public — pages et allégations', () => {
     expect(erreurs).toEqual([]);
   });
 
+  test('médiation de la consommation : CM2C et lien de saisine dans les CGV, les CGU et les mentions @attend-deploiement', async ({ page }) => {
+    for (const chemin of ['/legal/cgv', '/cgu', '/mentions-legales']) {
+      await page.goto(chemin);
+      const t = await texte(page, 'CM2C');
+      expect(t, chemin).toContain('Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C)');
+      expect(t, chemin).toContain('49 rue de Ponthieu, 75008 Paris');
+      expect(t, chemin).toContain('tél. : 01 89 47 00 14 ; e-mail : litiges@cm2c.net');
+      expect(t, chemin).not.toMatch(/en cours de désignation|dès son adhésion finalisée/i);
+      expect(t, chemin).not.toMatch(/ec\.europa\.eu|règlement en ligne des litiges/i);
+      await expect(page.locator('main a[href="https://www.cm2c.net/declarer-un-litige.php"]').first()).toBeVisible();
+    }
+  });
+
   test('SEO : robots.txt, sitemap.xml, llms.txt', async ({ request }) => {
     const robots = await request.get('/robots.txt');
     expect(robots.status()).toBe(200);
@@ -215,64 +228,55 @@ test.describe('Vague 3 — français uniquement, pages retirées', () => {
 });
 
 /**
- * Mesure d'audience (vague 3, 04.10.2026) : l'hébergeur (Lovable) charge /~flock.js sur toutes les
- * pages, sans attendre le bandeau. Le premier test vérifie que la description publiée correspond
- * toujours à la réalité (il échouera si Lovable change ce comportement : mettre alors les textes à jour).
+ * Mesure d'audience : jusqu'au 07.10.2026, l'hébergeur (Lovable) chargeait /~flock.js sur toutes les pages
+ * (cookie « session-id » de 30 min), sans attendre le bandeau. « Visitor analytics » est coupé dans Lovable
+ * depuis le 07.10.2026. Le premier test vérifie qu'il n'y a plus rien ; s'il échoue, l'option a été
+ * réactivée : la recouper, ou remettre la description dans les textes.
  */
 test.describe('Mesure d’audience — description exacte', () => {
-  test('réalité : statistiques de l’hébergeur sans consentement (pages vues, cookie « session-id » de 30 min)', async ({ browser }) => {
+  test('réalité : aucune statistique de l’hébergeur (ni /~flock.js, ni envoi, ni cookie « session-id »)', async ({ browser }) => {
     const ctx = await browser.newContext({ locale: 'fr-FR', timezoneId: 'Europe/Paris' });
-    // flock.js ne mesure pas les navigateurs pilotés (navigator.webdriver) : on se présente comme un navigateur ordinaire.
+    // flock.js ne mesure pas les navigateurs pilotés (navigator.webdriver) : on se présente comme un navigateur
+    // ordinaire, sinon le test passerait même avec le script actif.
     await ctx.addInitScript(() => Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }));
     const page = await ctx.newPage();
-    const envois: Array<Record<string, unknown>> = [];
+    const envois: string[] = [];
     page.on('request', (r) => {
-      if (new URL(r.url()).pathname === '/~api/analytics' && r.method() === 'POST') {
-        try {
-          envois.push(JSON.parse(r.postData() ?? '{}') as Record<string, unknown>);
-        } catch {
-          envois.push({});
-        }
-      }
+      const chemin = new URL(r.url()).pathname;
+      if (chemin === '/~flock.js' || chemin === '/~api/analytics') envois.push(chemin);
     });
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
     // Bandeau affiché : aucun choix n'a été fait.
     await expect(page.locator('div.fixed').filter({ hasText: /cookies essentiels/i }).first()).toBeVisible();
-    await expect.poll(() => envois.length, { timeout: 15_000 }).toBeGreaterThan(0);
-    const envoi = envois[0];
-    expect(envoi.action).toBe('page_hit');
-    const contenu = JSON.parse(String(envoi.payload ?? '{}')) as Record<string, unknown>;
-    // Exactement ce que décrivent le bandeau, la politique cookies et la politique de confidentialité.
-    expect(Object.keys(contenu).sort()).toEqual(['href', 'locale', 'location', 'pathname', 'referrer', 'user-agent']);
-    expect(envois.some((e) => e.action === 'web_vital')).toBe(false);
-    const cookie = (await ctx.cookies()).find((c) => c.name === 'session-id');
-    expect(cookie, 'cookie session-id').toBeTruthy();
-    const minutes = ((cookie?.expires ?? 0) * 1000 - Date.now()) / 60_000;
-    expect(minutes).toBeGreaterThan(25);
-    expect(minutes).toBeLessThanOrEqual(30.5);
+    await page.goto('/med-mng/pricing', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(3000);
+    expect(envois, 'script ou envoi de statistiques de l’hébergeur').toEqual([]);
+    expect((await ctx.cookies()).find((c) => c.name === 'session-id'), 'cookie session-id').toBeUndefined();
     await ctx.close();
   });
 
-  test('bandeau, politique cookies et confidentialité décrivent ces statistiques ; plus de « Plausible » @attend-deploiement', async ({ page }) => {
+  test('bandeau, politique cookies et confidentialité : plus de statistiques de l’hébergeur ni de « Plausible » @attend-deploiement', async ({ page }) => {
     await page.goto('/');
     const bandeau = page.locator('div.fixed').filter({ hasText: 'Cookies essentiels' });
-    await expect(bandeau).toContainText("L'hébergeur du site (Lovable) compte aussi les pages vues, avec un cookie de session de 30 minutes, sans publicité.");
+    await expect(bandeau).toContainText("Aucune publicité, aucune statistique de l'hébergeur.");
+    await expect(bandeau).not.toContainText('compte aussi les pages vues');
     await expect(bandeau.getByRole('button', { name: 'Refuser la mesure' })).toBeVisible();
     await expect(bandeau.getByRole('button', { name: 'Accepter la mesure' })).toBeVisible();
     await page.getByRole('button', { name: 'Paramètres des cookies' }).click();
-    await expect(page.getByRole('dialog')).toContainText("Statistiques de l'hébergeur");
+    await expect(page.getByRole('dialog')).not.toContainText("Statistiques de l'hébergeur");
     await expect(page.getByRole('dialog')).not.toContainText('Plausible');
     await page.keyboard.press('Escape');
 
     await page.goto('/legal/cookies');
-    const cookies = await texte(page, "Statistiques de l'hébergeur (toujours actives)");
-    for (const nom of ['session-id', '__cf_bm', '__dpl', 'sb-…-auth-token', 'medmng_cookie_consent']) expect(cookies, nom).toContain(nom);
-    for (const faux of ['Plausible', 'pwa-metrics', 'med-mng-lang', 'audio-preferences', 'pendant 13 mois']) expect(cookies, faux).not.toContain(faux);
+    const cookies = await texte(page, "L'hébergeur (Lovable) ne collecte aucune statistique de fréquentation");
+    for (const nom of ['__cf_bm', '__dpl', 'sb-…-auth-token', 'medmng_cookie_consent']) expect(cookies, nom).toContain(nom);
+    for (const faux of ['session-id', 'Plausible', 'pwa-metrics', 'med-mng-lang', 'audio-preferences', 'pendant 13 mois']) expect(cookies, faux).not.toContain(faux);
 
     await page.goto('/politique-confidentialite');
     const confidentialite = await texte(page, /SOUS-TRAITANTS/i);
-    expect(confidentialite).toContain("Statistiques de l'hébergeur");
-    expect(confidentialite).toContain('cookie de session de 30 minutes');
+    expect(confidentialite).toContain('aucune statistique de fréquentation');
+    expect(confidentialite).not.toContain("Statistiques de l'hébergeur");
+    expect(confidentialite).not.toContain('cookie de session de 30 minutes');
     expect(confidentialite).not.toContain('Seuls des cookies strictement nécessaires');
     expect(confidentialite).not.toContain('Données de navigation anonymisées');
   });

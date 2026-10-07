@@ -5,9 +5,8 @@ import { CookieBanner } from './CookieBanner';
 import { CLE_PREFERENCES } from '@/lib/consentementCookies';
 
 /**
- * Vague 3 (04.10.2026) : le bandeau taisait les statistiques de l'hébergeur (Lovable, /~flock.js,
- * cookie « session-id » de 30 minutes, actives sans consentement, vérifié en production) et annonçait
- * des « cookies analytiques » Plausible jamais chargés.
+ * Vague 3 (04.10.2026) : le bandeau annonçait des « cookies analytiques » Plausible jamais chargés.
+ * 07.10.2026 : statistiques de l'hébergeur (Lovable, /~flock.js) désactivées ; le bandeau le dit.
  */
 const stockage = new Map<string, string>();
 
@@ -27,9 +26,10 @@ const afficher = () =>
   );
 
 describe('CookieBanner', () => {
-  it('décrit les statistiques de l’hébergeur et la mesure optionnelle, sans Plausible', () => {
+  it('n’annonce plus de statistiques de l’hébergeur et décrit la mesure optionnelle, sans Plausible', () => {
     afficher();
-    expect(screen.getByText(/L'hébergeur du site \(Lovable\) compte aussi les pages\s+vues, avec un cookie de session de 30 minutes, sans publicité/)).toBeTruthy();
+    expect(screen.getByText(/Aucune publicité, aucune statistique de l'hébergeur/)).toBeTruthy();
+    expect(screen.queryByText(/compte aussi les pages/)).toBeNull();
     expect(screen.getByText(/est optionnelle : à vous de choisir/)).toBeTruthy();
     expect(screen.queryByText(/Plausible/)).toBeNull();
     expect(screen.getByRole('link', { name: 'En savoir plus' }).getAttribute('href')).toBe('/legal/cookies');

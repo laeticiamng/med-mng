@@ -5,8 +5,8 @@
  * - l'hébergeur (Lovable) charge /~flock.js sur toutes les pages, sans attendre
  *   le bandeau : un cookie « session-id » de 30 minutes et, à chaque page vue,
  *   un envoi à /~api/analytics (page visitée, site d'origine, navigateur,
- *   langue, pays déduit du fuseau horaire). Ces statistiques ne dépendent pas
- *   de Med MNG et restent actives ;
+ *   langue, pays déduit du fuseau horaire). Désactivé le 07.10.2026 (« Visitor
+ *   analytics » coupé dans Lovable, vérifié en production : plus de script ni de cookie) ;
  * - Med MNG enregistrait aussi, pour les visiteurs NON connectés, la visite de
  *   la page Tarifs dans sa propre base (analytics_events, identifiant aléatoire
  *   d'onglet), quel que soit le choix fait dans le bandeau ;

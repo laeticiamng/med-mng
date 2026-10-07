@@ -37,7 +37,7 @@ const MentionsLegales = () => {
                 <h2 className="text-2xl font-bold">Med MNG</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/60">Dernière mise à jour : 27 septembre 2026</p>
+              <p className="text-sm text-primary-foreground/60">Dernière mise à jour : 5 octobre 2026</p>
             </div>
           </Card>
 
@@ -292,7 +292,15 @@ const MentionsLegales = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <div className="bg-primary/10 p-4 rounded-lg">
-                <p>Médiateur de la consommation : en cours de désignation ; contactez-nous à contact@emotionscare.com en cas de litige.</p>
+                <p>
+                  Médiateur de la consommation : Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C),
+                  49 rue de Ponthieu, 75008 Paris ; tél. : 01 89 47 00 14 ; e-mail : <a href="mailto:litiges@cm2c.net" className="text-primary underline">litiges@cm2c.net</a> ; site : <a href="https://www.cm2c.net" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net</a> ; saisine en ligne : <a href="https://www.cm2c.net/declarer-un-litige.php" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net/declarer-un-litige.php</a>.
+                </p>
+                <p>
+                  Conformément aux articles L.611-1 et suivants (notamment L.612-1) du Code de la consommation, le consommateur peut
+                  recourir gratuitement au médiateur, après une réclamation écrite préalable adressée à notre service client
+                  (contact@emotionscare.com) restée sans réponse satisfaisante, dans le délai d'un an à compter de cette réclamation.
+                </p>
               </div>
             </div>
           </Card>

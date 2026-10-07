@@ -14,13 +14,14 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { enregistrerPreferencesCookies, lirePreferencesCookies } from '@/lib/consentementCookies';
 
 /**
- * Bandeau cookies : décrit les trois niveaux réellement en place (vérifié en production le
- * 04.10.2026, voir src/lib/consentementCookies.ts) :
+ * Bandeau cookies : décrit les deux niveaux réellement en place (vérifié en production le
+ * 07.10.2026, voir src/lib/consentementCookies.ts) :
  *  1. essentiels (toujours actifs) ;
- *  2. statistiques de l'hébergeur Lovable (toujours actives, hors de notre contrôle dans le code) ;
- *  3. mesure d'audience Med MNG avant connexion (optionnelle, seul choix réel du bandeau).
+ *  2. mesure d'audience Med MNG avant connexion (optionnelle, seul choix réel du bandeau).
+ * Les statistiques de l'hébergeur Lovable (/~flock.js, cookie « session-id ») sont désactivées
+ * depuis le 07.10.2026 (« Visitor analytics » coupé dans Lovable).
  * L'ancien texte annonçait « Plausible Analytics » (jamais chargé) et des « cookies fonctionnels »
- * que rien ne lisait, et passait sous silence les statistiques de l'hébergeur.
+ * que rien ne lisait.
  */
 export const CookieBanner = () => {
   const [showBanner, setShowBanner] = useState(false);
@@ -55,8 +56,7 @@ export const CookieBanner = () => {
           <div className="flex items-start gap-2 flex-1 min-w-0">
             <Cookie className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Cookies essentiels : connexion et préférences. L'hébergeur du site (Lovable) compte aussi les pages
-              vues, avec un cookie de session de 30 minutes, sans publicité. La mesure d'audience de Med MNG
+              Cookies essentiels : connexion et préférences. Aucune publicité, aucune statistique de l'hébergeur. La mesure d'audience de Med MNG
               (identifiant aléatoire, sans nom ni e-mail) est optionnelle : à vous de choisir.{' '}
               <Link to={ROUTE_PATHS.cookies} className="text-primary hover:underline">
                 En savoir plus
@@ -84,7 +84,7 @@ export const CookieBanner = () => {
       </div>
       )}
 
-      {/* Détail des trois niveaux */}
+      {/* Détail des deux niveaux */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -93,8 +93,7 @@ export const CookieBanner = () => {
               Paramètres des cookies
             </DialogTitle>
             <DialogDescription>
-              Seule la mesure d'audience de Med MNG dépend de votre choix. Les cookies essentiels et les
-              statistiques de l'hébergeur restent actifs.
+              Seule la mesure d'audience de Med MNG dépend de votre choix. Les cookies essentiels restent actifs.
             </DialogDescription>
           </DialogHeader>
 
@@ -114,22 +113,6 @@ export const CookieBanner = () => {
                   </p>
                 </div>
                 <Switch checked disabled className="ml-4" aria-label="Cookies essentiels (toujours actifs)" />
-              </div>
-            </div>
-
-            <div className="border border-border rounded-lg p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold text-foreground">Statistiques de l'hébergeur</h4>
-                    <span className="text-xs bg-muted text-foreground px-2 py-1 rounded">Toujours actives</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Lovable, qui sert le site, compte les pages vues (page visitée, site d'origine, navigateur, langue,
-                    pays déduit du fuseau horaire), avec un cookie « session-id » de 30 minutes. Ni publicité, ni profil.
-                  </p>
-                </div>
-                <Switch checked disabled className="ml-4" aria-label="Statistiques de l'hébergeur (toujours actives)" />
               </div>
             </div>
 
