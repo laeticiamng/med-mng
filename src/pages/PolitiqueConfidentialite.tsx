@@ -38,7 +38,7 @@ const PolitiqueConfidentialite = () => {
                 <h2 className="text-2xl font-bold">Med MNG - Politique de Confidentialité</h2>
               </div>
               <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/70">Dernière mise à jour : 4 octobre 2026</p>
+              <p className="text-sm text-primary-foreground/70">Dernière mise à jour : 7 octobre 2026</p>
             </div>
           </Card>
 
@@ -85,7 +85,6 @@ const PolitiqueConfidentialite = () => {
                   <h4 className="font-semibold text-accent mb-3">📌 Données collectées automatiquement :</h4>
                   <ul className="space-y-1 text-sm">
                     <li>• Adresse IP (à des fins de sécurité ; également reçue par l'hébergeur et son réseau Cloudflare)</li>
-                    <li>• Statistiques de l'hébergeur (toujours actives) : Lovable, qui sert le site, compte les pages vues (page visitée, site d'origine, navigateur, langue, pays déduit du fuseau horaire), avec un cookie de session de 30 minutes, sans publicité</li>
                     <li>• Avant la connexion, avec votre accord donné dans le bandeau cookies : la visite de la page Tarifs, sous un identifiant aléatoire (sans accord, rien n'est enregistré avant la connexion)</li>
                     <li>• Une fois connecté·e : l'utilisation du service (révisions, inscription, paiement) et des mesures techniques de la session (type d'appareil, navigateur, taille d'écran, nombre de pages, temps de chargement), avec votre compte</li>
                   </ul>
@@ -126,7 +125,7 @@ const PolitiqueConfidentialite = () => {
                 <div className="bg-warning/10 p-3 rounded text-sm">• Fournir une expérience utilisateur personnalisée</div>
                 <div className="bg-warning/10 p-3 rounded text-sm">• Suivre la progression pédagogique</div>
                 <div className="bg-warning/10 p-3 rounded text-sm">• Générer du contenu adapté (chansons MNG)</div>
-                <div className="bg-warning/10 p-3 rounded text-sm">• Mesurer l'audience et améliorer le service (statistiques de l'hébergeur ; mesure Med MNG avec votre accord avant connexion)</div>
+                <div className="bg-warning/10 p-3 rounded text-sm">• Mesurer l'audience et améliorer le service (mesure Med MNG avec votre accord avant connexion)</div>
                 <div className="bg-warning/10 p-3 rounded text-sm">• Communiquer les mises à jour</div>
                 <div className="bg-warning/10 p-3 rounded text-sm">• Lettre d'information (si vous y êtes inscrit·e)</div>
               </div>
@@ -213,7 +212,7 @@ const PolitiqueConfidentialite = () => {
                   <p className="font-semibold text-primary mb-2">Sous-traitants techniques (RGPD Article 28)</p>
                   <ul className="text-sm space-y-1">
                     <li>• <strong>Supabase</strong> - Base de données, authentification, stockage des fichiers (chansons générées, illustrations) et fonctions serveur, hébergés dans l'Union européenne (Francfort, Allemagne)</li>
-                    <li>• <strong>Lovable</strong> - Hébergement de l'application web (réseau Cloudflare) et statistiques de fréquentation : pages vues, site d'origine, navigateur, langue, pays déduit du fuseau horaire, cookie de session de 30 minutes</li>
+                    <li>• <strong>Lovable</strong> - Hébergement de l'application web (réseau Cloudflare) ; aucune statistique de fréquentation (module désactivé depuis le 7 octobre 2026)</li>
                     <li>• <strong>Stripe</strong> - Paiement et gestion de l'abonnement Premium (page de paiement et portail de résiliation)</li>
                     <li>• <strong>sunoapi.org</strong> - Génération de l'audio des chansons (Premium) avec le modèle musical Suno, à partir des paroles de l'item et du style choisi</li>
                     <li>• <strong>Passerelle IA de Lovable (modèles Google Gemini)</strong> - Uniquement lorsque les paroles enregistrées d'un item ne sont pas rédigées : réécriture des paroles à partir des compétences officielles de l'item, avant une génération audio Premium</li>
@@ -363,7 +362,6 @@ const PolitiqueConfidentialite = () => {
                 <p>Trois niveaux, détaillés dans la <Link to={ROUTE_PATHS.cookies} className="text-primary hover:underline">politique cookies</Link> :</p>
                 <ul className="mt-2 space-y-1 text-sm">
                   <li>• <strong>Essentiels</strong> (toujours actifs) : connexion, préférences, sécurité, fonctionnement hors connexion.</li>
-                  <li>• <strong>Statistiques de l'hébergeur</strong> (toujours actives) : Lovable, qui sert le site, compte les pages vues (page visitée, site d'origine, navigateur, langue, pays déduit du fuseau horaire), avec un cookie de session de 30 minutes, sans publicité.</li>
                   <li>• <strong>Mesure d'audience Med MNG</strong> (optionnelle, avec votre accord) : avant la connexion, un identifiant aléatoire, sans nom ni e-mail, relie les étapes de la visite de la page Tarifs. Sans accord, rien n'est enregistré avant la connexion.</li>
                 </ul>
                 <p className="mt-3 text-accent font-medium">Aucun cookie publicitaire ni traceur de réseau social.</p>

@@ -20,7 +20,7 @@ const CookiesPolicy = () => {
     <>
     <SEOHead
       title="Politique cookies"
-      description="Politique de cookies de Med MNG : cookies essentiels, statistiques de l'hébergeur et mesure d'audience optionnelle."
+      description="Politique de cookies de Med MNG : cookies essentiels et mesure d'audience optionnelle ; aucune statistique de l'hébergeur."
       keywords="cookies, RGPD, confidentialité, Med MNG"
       canonical="/legal/cookies"
     />
@@ -45,7 +45,7 @@ const CookiesPolicy = () => {
                 <Cookie className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Politique de Cookies</h2>
               </div>
-              <p className="text-sm opacity-90">Dernière mise à jour : 4 octobre 2026</p>
+              <p className="text-sm opacity-90">Dernière mise à jour : 7 octobre 2026</p>
             </div>
           </Card>
 
@@ -153,93 +153,10 @@ const CookiesPolicy = () => {
                 </div>
               </div>
 
-              {/* Statistiques de l'hébergeur */}
-              <div className="bg-accent/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-2">Statistiques de l'hébergeur (toujours actives)</h4>
-                <p className="text-sm mb-2">
-                  Lovable, qui sert le site, compte les pages vues : à chaque page, il reçoit la page visitée, le site
-                  d'origine, le navigateur, la langue et le pays déduit du fuseau horaire, avec un identifiant de
-                  visite aléatoire. Ni publicité, ni profil. Ces statistiques ne dépendent pas du bandeau.
-                </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left p-2 text-foreground">Nom</th>
-                        <th className="text-left p-2 text-foreground">Où</th>
-                        <th className="text-left p-2 text-foreground">Finalité</th>
-                        <th className="text-left p-2 text-foreground">Durée</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="p-2 font-mono text-xs">session-id</td>
-                        <td className="p-2">Cookie (Lovable, hébergeur)</td>
-                        <td className="p-2">Identifiant de visite des statistiques de l'hébergeur</td>
-                        <td className="p-2">30 minutes</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Mesure d'audience Med MNG */}
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <h4 className="font-semibold text-foreground mb-2">Mesure d'audience Med MNG (optionnelle, avec votre accord)</h4>
-                <p className="text-sm mb-2">
-                  Avant la connexion, et seulement si vous l'acceptez dans le bandeau, la visite de la page Tarifs est
-                  enregistrée dans la base de Med MNG (Supabase, Francfort) avec un identifiant aléatoire propre à
-                  l'onglet, sans nom ni e-mail. Sans accord, rien n'est enregistré avant la connexion. Une fois
-                  connecté·e, l'utilisation du service (révisions, inscription, paiement, mesures techniques de la
-                  session) est enregistrée avec votre compte pour le faire fonctionner et l'améliorer.
-                </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left p-2 text-foreground">Nom</th>
-                        <th className="text-left p-2 text-foreground">Où</th>
-                        <th className="text-left p-2 text-foreground">Finalité</th>
-                        <th className="text-left p-2 text-foreground">Durée</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-border/50">
-                        <td className="p-2 font-mono text-xs">conversion_session</td>
-                        <td className="p-2">Navigateur (stockage de session)</td>
-                        <td className="p-2">Identifiant aléatoire de la visite (page Tarifs, inscription, paiement)</td>
-                        <td className="p-2">Jusqu'à la fermeture de l'onglet ou au retrait de votre accord</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2 font-mono text-xs">analytics_session</td>
-                        <td className="p-2">Navigateur (stockage de session)</td>
-                        <td className="p-2">Identifiant de session des statistiques d'utilisation (compte connecté)</td>
-                        <td className="p-2">Jusqu'à la fermeture de l'onglet</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <p className="text-sm italic">
-                Med MNG n'utilise <strong>aucun cookie publicitaire</strong> ni traceur de réseau social.
-              </p>
-            </div>
-          </Card>
-
-          {/* 3. Gestion des cookies */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Eye className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">3. GESTION DE VOS COOKIES</h3>
-            </div>
-            <div className="space-y-3 text-muted-foreground">
-              <h4 className="font-semibold text-foreground">3.1 Bannière de consentement</h4>
               <p className="text-sm">
                 Lors de votre première visite, une bannière vous permet d'accepter ou de refuser la mesure
                 d'audience de Med MNG. Votre choix est conservé dans votre navigateur jusqu'à ce que vous le
-                modifiiez ; la bannière est reproposée si son contenu change. Les cookies essentiels et les
-                statistiques de l'hébergeur ne dépendent pas de ce choix.
+                modifiiez ; la bannière est reproposée si son contenu change. Les cookies essentiels ne dépendent pas de ce choix. L'hébergeur (Lovable) ne collecte aucune statistique de fréquentation (module désactivé depuis le 7 octobre 2026).
               </p>
               <Button variant="outline" size="sm" onClick={() => { effacerChoixCookies(); window.location.reload(); }}>
                 Modifier mon choix
@@ -295,8 +212,7 @@ const CookiesPolicy = () => {
               <p className="text-sm">
                 Les données collectées via les cookies sont traitées conformément à notre{' '}
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">Politique de Confidentialité</Link>.
-                Les statistiques de l'hébergeur sont traitées par <strong>Lovable</strong> (États-Unis), qui sert le
-                site ; la mesure d'audience de Med MNG est enregistrée chez <strong>Supabase</strong> (Union
+                La mesure d'audience de Med MNG est enregistrée chez <strong>Supabase</strong> (Union
                 européenne, Francfort).
               </p>
               <p className="text-sm">
