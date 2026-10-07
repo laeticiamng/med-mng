@@ -73,7 +73,6 @@ const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
 // 👨‍💼 ADMIN PAGES
 const AdminPanel = lazy(() => import("./pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
 const AdminImport = lazy(() => import("./pages/AdminImport"));
-const AdminAudit = lazy(() => import("./pages/AdminAudit"));
 const AdminExtractEdn = lazy(() => import("./pages/AdminExtractEdn"));
 const AdminExtractEcos = lazy(() => import("./pages/AdminExtractEcos"));
 const AdminCompleteProcess = lazy(() => import("./pages/AdminCompleteProcess"));
@@ -101,7 +100,6 @@ const BillingPage = lazy(() => import("./pages/BillingPage"));
 // 📊 AUDIT PAGES
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
 const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
-const MigrationDashboardPage = lazy(() => import("./pages/MigrationDashboard"));
 
 // ⚙️ PLATFORM PAGES
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -292,7 +290,8 @@ const App = () => {
                                     {/* Audit */}
                                     <Route path={ROUTE_PATHS.audit} element={<AdminRoute><S><AuditComplete /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.auditCompleteness} element={<AdminRoute><S><AuditCompleteness /></S></AdminRoute>} />
-                                    <Route path={ROUTE_PATHS.migrationDashboard} element={<AdminRoute><S><MigrationDashboardPage /></S></AdminRoute>} />
+                                    {/* MM-A20 (07.10.2026) : tableau des migrations retiré, ses migrations affichées étaient codées en dur dans la page (aucune table lisible). */}
+                                    <Route path={ROUTE_PATHS.migrationDashboard} element={<Navigate to={ROUTE_PATHS.adminPanel} replace />} />
                                     <Route path={ROUTE_PATHS.auditGeneral} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
                                     <Route path={ROUTE_PATHS.auditEdn} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
                                     <Route path={ROUTE_PATHS.auditUnified} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
@@ -407,7 +406,9 @@ const App = () => {
 
                                     {/* Admin */}
                                     <Route path={ROUTE_PATHS.adminImport} element={<AdminRoute><S><AdminImport /></S></AdminRoute>} />
-                                    <Route path={ROUTE_PATHS.adminAudit} element={<AdminRoute><S><AdminAudit /></S></AdminRoute>} />
+                                    {/* MM-A20 (07.10.2026) : « Audit & Nettoyage » retiré : audits code/UI/performance simulés par audit-system,
+                                        RPC generate_audit_report absente, cleanup_duplicates non exécutable, score de performance codé à 75. */}
+                                    <Route path={ROUTE_PATHS.adminAudit} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
                                     <Route path={ROUTE_PATHS.adminExtractEdn} element={<AdminRoute><S><AdminExtractEdn /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.adminExtractEcos} element={<AdminRoute><S><AdminExtractEcos /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.adminExtractObjectifs} element={<AdminRoute><S><EdnObjectifsExtractionPage /></S></AdminRoute>} />

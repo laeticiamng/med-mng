@@ -1,10 +1,8 @@
-import { ABTestManager } from '@/components/accessibility/ABTestManager';
 import { AccessibilityDashboardMetrics } from '@/components/accessibility/AccessibilityDashboardMetrics';
 import { AppliedRecommendationsTracker } from '@/components/accessibility/AppliedRecommendationsTracker';
 import { BlockedPRsList } from '@/components/accessibility/BlockedPRsList';
 import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetricsTable';
 import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig';
-import { EmailStatistics } from '@/components/accessibility/EmailStatistics';
 import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard';
 import { NotificationAnalytics } from '@/components/accessibility/NotificationAnalytics';
 import { NotificationHistory } from '@/components/accessibility/NotificationHistory';
@@ -357,11 +355,8 @@ const AccessibilityDashboard = () => {
           {/* Éditeur de templates */}
           <TemplateEditor />
 
-          {/* Statistiques d'emails */}
-          <EmailStatistics />
-
-          {/* Tests A/B */}
-          <ABTestManager />
+          {/* « Statistiques d'emails » et « Tests A/B » retirés (MM-A20, 07.10.2026) : les tables
+              email_statistics et email_ab_tests n'existent pas en base (to_regclass → null). */}
 
           {/* Gestion des Webhooks */}
           <WebhookManager />

@@ -116,11 +116,7 @@ else
     log "❌ Dashboard admin manquant"
 fi
 
-if [ -f "src/components/security/SecurityDashboard.tsx" ]; then
-    log "✅ Dashboard sécurité présent"
-else
-    log "❌ Dashboard sécurité manquant"
-fi
+# SecurityDashboard.tsx supprimé le 07.10.2026 (nettoyage lot 1) : aucun écran ne l'importait.
 
 # 7. AUDIT DOCUMENTATION
 log "📚 7. Audit documentation..."

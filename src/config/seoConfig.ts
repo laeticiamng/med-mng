@@ -374,13 +374,6 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     canonical: '/audit-completeness',
     noindex: true,
   },
-  '/migration-dashboard': {
-    title: 'Dashboard Migration',
-    description: 'Suivi des migrations de données.',
-    keywords: `${BASE_KEYWORDS}, migration, données`,
-    canonical: '/migration-dashboard',
-    noindex: true,
-  },
 };
 
 /**

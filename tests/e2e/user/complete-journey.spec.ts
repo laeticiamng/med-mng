@@ -32,9 +32,9 @@ test.describe('Complete User Journey', () => {
     await page.goto('/srs-review');
     await expect(page.locator('h1')).toBeVisible();
     
-    // Go to Exam Mode
+    // Exam Mode retiré : /exam-mode redirige vers les items EDN
     await page.goto('/exam-mode');
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page).toHaveURL(/\/edn-complete$/);
     
     // Go to Progress Dashboard
     await page.goto('/progress-dashboard');
@@ -46,9 +46,9 @@ test.describe('Complete User Journey', () => {
     await page.goto('/ecos');
     await expect(page.locator('body')).toBeVisible();
     
-    // Go to Clinical Cases
+    // Cas cliniques retirés : /clinical-cases redirige vers ECOS
     await page.goto('/clinical-cases');
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page).toHaveURL(/\/ecos$/);
     
     // Check stats
     await page.goto('/progress-dashboard');
@@ -72,8 +72,6 @@ test.describe('Complete User Journey', () => {
       '/ecos',
       '/flashcards',
       '/srs-review',
-      '/exam-mode',
-      '/clinical-cases',
       '/progress-dashboard',
       '/med-mng/music-library',
       '/med-mng/pricing',

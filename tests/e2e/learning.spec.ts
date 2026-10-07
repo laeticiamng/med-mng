@@ -28,22 +28,15 @@ test.describe('Learning Module', () => {
     await expect(pageContent).toBeVisible({ timeout: 10000 });
   });
 
-  test('should access exam mode page', async ({ page }) => {
+  // ExamMode et ClinicalCases supprimées : leurs URL redirigent (App.tsx).
+  test('redirects retired exam mode to EDN items', async ({ page }) => {
     await page.goto('/exam-mode');
-    
-    await expect(page).toHaveURL(/exam-mode/);
-    
-    const pageContent = page.locator('main, [role="main"]').first();
-    await expect(pageContent).toBeVisible({ timeout: 10000 });
+    await expect(page).toHaveURL(/\/edn-complete$/);
   });
 
-  test('should access clinical cases page', async ({ page }) => {
+  test('redirects retired clinical cases to ECOS', async ({ page }) => {
     await page.goto('/clinical-cases');
-    
-    await expect(page).toHaveURL(/clinical-cases/);
-    
-    const pageContent = page.locator('main, [role="main"]').first();
-    await expect(pageContent).toBeVisible({ timeout: 10000 });
+    await expect(page).toHaveURL(/\/ecos$/);
   });
 
   test('should access EDN complete library', async ({ page }) => {

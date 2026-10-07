@@ -15,10 +15,10 @@ test.describe('Navigation E2E Tests', () => {
       await expect(page.locator('body')).toContainText(/EDN|Items|Objectifs/i);
     });
 
-    test('should navigate to exam mode page', async ({ page }) => {
+    // Pages ExamMode, MedChat et ClinicalCases supprimées : leurs URL redirigent (App.tsx).
+    test('redirects retired exam mode to EDN items', async ({ page }) => {
       await page.goto('/exam-mode');
-      await expect(page).toHaveURL('/exam-mode');
-      await expect(page.locator('body')).toContainText(/Examen|QCM|Entraînement/i);
+      await expect(page).toHaveURL('/edn-complete');
     });
 
     test('should navigate to ECOS page', async ({ page }) => {
@@ -33,10 +33,9 @@ test.describe('Navigation E2E Tests', () => {
       await expect(page.locator('body')).toContainText(/Progress|Progression|Tableau/i);
     });
 
-    test('should navigate to chat page', async ({ page }) => {
+    test('redirects retired chat to EDN items', async ({ page }) => {
       await page.goto('/chat');
-      await expect(page).toHaveURL('/chat');
-      await expect(page.locator('body')).toContainText(/Chat|IA|Assistant/i);
+      await expect(page).toHaveURL('/edn-complete');
     });
   });
 
@@ -53,10 +52,9 @@ test.describe('Navigation E2E Tests', () => {
       await expect(page.locator('body')).toContainText(/Révision|espacée|SRS/i);
     });
 
-    test('should navigate to clinical cases', async ({ page }) => {
+    test('redirects retired clinical cases to ECOS', async ({ page }) => {
       await page.goto('/clinical-cases');
-      await expect(page).toHaveURL('/clinical-cases');
-      await expect(page.locator('body')).toContainText(/Cas clinique|Clinical/i);
+      await expect(page).toHaveURL('/ecos');
     });
 
     test('should navigate to achievements', async ({ page }) => {
@@ -189,7 +187,7 @@ test.describe('Navigation E2E Tests', () => {
 
   test.describe('Page Load Performance', () => {
     test('pages should load within acceptable time', async ({ page }) => {
-      const pages = ['/', '/med-mng/edn', '/exam-mode', '/progress', '/flashcards'];
+      const pages = ['/', '/med-mng/edn', '/edn-complete', '/progress', '/flashcards'];
       
       for (const url of pages) {
         const start = Date.now();
