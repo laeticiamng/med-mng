@@ -55,16 +55,18 @@ describe('useGamification', () => {
       expect(POINTS_CONFIG.aiQuestion).toBe(5);
     });
 
-    it('should have comprehensive badge definitions', () => {
-      expect(BADGE_DEFINITIONS.length).toBeGreaterThanOrEqual(20);
-      
+    // MM-A10 (07.10.2026) : seuls les badges atteignables avec les activités
+    // réellement disponibles sont proposés.
+    it('ne propose que des badges atteignables', () => {
       const badgeIds = BADGE_DEFINITIONS.map(b => b.id);
       expect(badgeIds).toContain('first_item');
       expect(badgeIds).toContain('streak_7');
       expect(badgeIds).toContain('perfect_exam');
       expect(badgeIds).toContain('clinical_master');
       expect(badgeIds).toContain('music_first');
-      expect(badgeIds).toContain('ai_chat');
+      for (const impossible of ['ai_chat', 'ai_expert', 'first_share', 'community_active', 'weekend_warrior', 'clinical_expert']) {
+        expect(badgeIds).not.toContain(impossible);
+      }
     });
 
     it('should have valid rarity for all badges', () => {

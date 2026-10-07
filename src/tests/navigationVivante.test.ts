@@ -52,4 +52,15 @@ describe('Navigation vivante', () => {
     expect(profil).toContain('<Tabs defaultValue={ongletInitial}');
     expect(profil).toMatch(/<TabsTrigger value="settings"/);
   });
+
+  it('MM-A10 : /achievements sans classement ni récompenses fictives', () => {
+    const page = sansCommentaires(lire('src/pages/Achievements.tsx'));
+    const panneau = sansCommentaires(lire('src/components/gamification/GamificationPanel.tsx'));
+    expect(page).not.toMatch(/Classement|Leaderboard|ROUTE_PATHS\.generator/);
+    expect(panneau).not.toMatch(/Classement|Marie D\.|Défis Quotidiens|Titre Spécial/);
+    // Les badges items_* comptent les activités réellement écrites (« srs_review »).
+    const hook = sansCommentaires(lire('src/hooks/useGamification.ts'));
+    expect(hook).toContain(".eq('activity_type', 'srs_review')");
+    expect(hook).not.toContain(".eq('activity_type', 'review')");
+  });
 });

@@ -1,14 +1,12 @@
 import { GamificationPanel } from '@/components/gamification/GamificationPanel';
-import { Leaderboard } from '@/components/gamification/Leaderboard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Award, Flame, Star, Sparkles, Target, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, Flame, Star, Sparkles, Target, Trophy } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -95,7 +93,7 @@ const Achievements: React.FC = () => {
                 Succès & Progression
               </h1>
               <p className="text-muted-foreground mt-1">
-                Suivez votre progression et débloquez des récompenses exclusives
+                Suivez votre progression et débloquez des badges
               </p>
             </div>
           </div>
@@ -141,59 +139,27 @@ const Achievements: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Tabs pour les différentes sections */}
-        <Tabs defaultValue="gamification" className="mb-8">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="gamification" className="flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              <span className="hidden sm:inline">Progression</span>
-            </TabsTrigger>
-            <TabsTrigger value="leaderboard" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Classement</span>
-            </TabsTrigger>
-            <TabsTrigger value="challenges" className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">Défis</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="gamification">
-            <GamificationPanel />
-          </TabsContent>
-
-          <TabsContent value="leaderboard">
-            <Leaderboard />
-          </TabsContent>
-
-          {/* Onglet « Certificats » retiré (contre-vérification vague 2, 04.10.2026) : sa requête
-              (user_badges avec une jointure badge:badge_id inexistante) échouait en 400, l'onglet
-              restait vide pour tous ; corrigé, il aurait délivré un « CERTIFICAT … Vérifié » à partir
-              de badges que chaque compte peut s'attribuer lui-même (politique RLS d'insertion). */}
-
-          <TabsContent value="challenges">
-            {/* Section motivation et défis */}
-            <Card className="bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30">
-              <CardHeader>
-                <CardTitle className="text-center">🎯 Continuez sur votre lancée !</CardTitle>
-                <CardDescription className="text-center">
-                  Vous êtes sur la bonne voie pour devenir un expert médical. 
-                  Continuez à étudier et à relever des défis pour débloquer encore plus de récompenses !
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="flex justify-center gap-4">
-                  <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-                    Continuer l'étude
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate(ROUTE_PATHS.generator)}>
-                    Générer une musique
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Onglet « Classement » retiré (MM-A10, 07.10.2026) : la politique RLS de
+            user_activity_log ne laisse lire que ses propres lignes, le classement ne
+            pouvait montrer que soi-même (ou, à défaut, des noms fictifs). Onglet « Défis »
+            retiré : simple bouton vers /generator, réservé à Premium. Onglet
+            « Certificats » retiré le 04.10.2026 (badges auto-attribuables). */}
+        <div className="mb-8 space-y-6">
+          <GamificationPanel />
+          <Card className="bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30">
+            <CardHeader>
+              <CardTitle className="text-center">Continuez sur votre lancée</CardTitle>
+              <CardDescription className="text-center">
+                Les badges se débloquent avec les quiz d&apos;item, la répétition espacée, les situations ECOS et votre régularité.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
+                Continuer l&apos;étude
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
