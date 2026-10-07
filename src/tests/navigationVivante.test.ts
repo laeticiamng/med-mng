@@ -63,4 +63,11 @@ describe('Navigation vivante', () => {
     expect(hook).toContain(".eq('activity_type', 'srs_review')");
     expect(hook).not.toContain(".eq('activity_type', 'review')");
   });
+
+  it('MM-A11 : ECOS est dans le menu principal et la page SEO ne promet que l’existant', async () => {
+    const { MAIN_NAV_ITEMS } = await import('@/config/navigation');
+    expect(MAIN_NAV_ITEMS.map((i) => i.path)).toContain('/ecos');
+    const seo = lire('src/pages/seo/PreparationEcos2027.tsx');
+    expect(seo).not.toMatch(/Situations ECOS issues du référentiel|Historique de vos tentatives/);
+  });
 });

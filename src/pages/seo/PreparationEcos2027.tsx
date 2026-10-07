@@ -208,10 +208,10 @@ const PreparationEcos2027 = () => {
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-3"><TranslatedText text="Simuler sur Med MNG :" /></h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>✓ <TranslatedText text="Situations ECOS issues du référentiel" /></li>
+                  <li>✓ <TranslatedText text="12 situations ECOS d'entraînement rédigées pour Med MNG" /></li>
                   <li>✓ <TranslatedText text="Déroulé guidé et chronomètre" /></li>
                   <li>✓ <TranslatedText text="Grille d'auto-évaluation à la fin de chaque situation" /></li>
-                  <li>✓ <TranslatedText text="Historique de vos tentatives (avec un compte)" /></li>
+                  <li>✓ <TranslatedText text="Meilleur score et nombre de passages enregistrés (avec un compte)" /></li>
                 </ul>
                 <Link to={ROUTE_PATHS.ecosIndex}>
                   <Button className="mt-4 gap-2">

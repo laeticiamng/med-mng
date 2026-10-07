@@ -32,6 +32,8 @@ describe('Sitemap', () => {
       '/med-mng/signup',
       '/edn-complete',
       '/edn/music-library',
+      // MM-A11 : les 12 situations ECOS gratuites de l'offre.
+      'https://medmng.com/ecos<',
     ];
     for (const route of requiredRoutes) {
       expect(sitemapContent).toContain(route);

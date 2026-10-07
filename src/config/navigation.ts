@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   Target,
   Headphones,
+  Stethoscope,
 } from 'lucide-react';
 
 import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from './routes';
@@ -38,11 +39,12 @@ export interface NavGroup {
 }
 
 // Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre).
-// ECOS retiré de la navigation le 25/09/2026 (décision produit) : la route /ecos
-// reste en place pour les liens existants, mais n'est plus proposée.
+// ECOS : retiré le 25/09/2026, rétabli le 07.10.2026 (MM-A11) — l'offre gratuite
+// annonce 12 situations ECOS d'entraînement, elles doivent être trouvables.
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
+  { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Stethoscope },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 
