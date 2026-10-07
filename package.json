@@ -19,7 +19,8 @@
     "test:supabase": "node scripts/validate-supabase-functions-docs.js && node scripts/validate-supabase-env.js",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
-    "generate:sitemap": "npx tsx scripts/generate-sitemap.ts"
+    "generate:sitemap": "npx tsx scripts/generate-sitemap.ts",
+    "generate:sitemap:items": "npx tsx scripts/generate-sitemap-items.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

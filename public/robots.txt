@@ -85,6 +85,8 @@ Allow: /
 
 # Sitemap
 Sitemap: https://medmng.com/sitemap.xml
+# Fiches item EDN publiques (367 aperçus), générées par scripts/generate-sitemap-items.ts
+Sitemap: https://medmng.com/sitemap-items.xml
 
 # LLMs.txt - Guide pour les crawlers IA
 # https://medmng.com/llms.txt
