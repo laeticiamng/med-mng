@@ -59,7 +59,6 @@ const categories: QuickLinkCategory[] = [
     links: [
       { path: ROUTE_PATHS.adminOicQuality, label: 'Qualité OIC' },
       { path: ROUTE_PATHS.adminExtractionQuality, label: 'Qualité Extraction' },
-      { path: ROUTE_PATHS.adminAudit, label: 'Audit Admin' },
       { path: ROUTE_PATHS.audit, label: 'Audit Global' },
       { path: ROUTE_PATHS.auditCompleteness, label: 'Audit Complétude' },
       { path: ROUTE_PATHS.ednAudit, label: 'Audit EDN' },
@@ -84,7 +83,6 @@ const categories: QuickLinkCategory[] = [
       { path: ROUTE_PATHS.platformStatus, label: 'Status Plateforme' },
       { path: ROUTE_PATHS.platformSettings, label: 'Configuration' },
       { path: ROUTE_PATHS.systemManagement, label: 'Gestion Système' },
-      { path: ROUTE_PATHS.migrationDashboard, label: 'Migrations' },
     ]
   },
   {

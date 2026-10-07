@@ -28,7 +28,6 @@ export * from './content';
 export * from './modern';
 export * from './home';
 export * from './subscription';
-export * from './migration';
 export * from './extraction';
 export * from './shared';
 export * from './quota';
@@ -166,7 +165,6 @@ export {
 
 // Study (correct exports)
 export { 
-  CollaborativeStudy, 
   StudyPlanManager, 
   StudySessionTimer 
 } from './study';

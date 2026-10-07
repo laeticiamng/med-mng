@@ -32,7 +32,6 @@ import { AdminSystemSettings } from './AdminSystemSettings';
 import { AdminAnalytics } from './AdminAnalytics';
 import { AdminUsersManager } from './AdminUsersManager';
 import { AdminContentManager } from './AdminContentManager';
-import { AdminSubscriptionsManager } from './AdminSubscriptionsManager';
 
 // Import des nouveaux composants développés
 import { AdminSecurityAudit } from './AdminSecurityAudit';
@@ -449,10 +448,6 @@ export const AdminDashboard: React.FC = () => {
                 <Database className="h-4 w-4" />
                 <span className="hidden sm:inline">Contenu</span>
               </TabsTrigger>
-              <TabsTrigger value="subscriptions" className="flex items-center gap-1">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Abonnements</span>
-              </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-1">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Analytics</span>
@@ -476,88 +471,9 @@ export const AdminDashboard: React.FC = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Résumé des 10 points techniques</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">I. Extraction UNESS automatisée</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">II. Génération contenu IA contextuelle</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">III. Système audit & monitoring</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">IV. Gestion quotas IA analytics</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">V. Moteur recherche intelligent</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">VI. API gestion rapide admin</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">VII. Agrégation & tracking analytics</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">VIII. Streaming-only & Sécurité</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">IX. Chat IA contextuel</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">X. Interface admin complète</span>
-                      <Badge variant="default">✅ Actif</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Santé du système</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Base de données</span>
-                      <Badge variant="default">Opérationnelle</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Services IA</span>
-                      <Badge variant="default">Actifs</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Edge Functions</span>
-                      <Badge variant="default">Déployées</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>API Gateway</span>
-                      <Badge variant="default">Stable</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Dernière mise à jour</span>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(systemStats.lastUpdate).toLocaleTimeString('fr-FR', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* « Résumé des 10 points techniques » (10 × « ✅ Actif ») et « Santé du système »
+                  (« Opérationnelle », « Déployées », « Stable ») retirés (MM-A20, 07.10.2026) :
+                  badges écrits en dur, aucune mesure derrière. */}
             </TabsContent>
 
             <TabsContent value="system" className="space-y-6">
@@ -572,9 +488,10 @@ export const AdminDashboard: React.FC = () => {
               <AdminContentManager />
             </TabsContent>
 
-            <TabsContent value="subscriptions" className="space-y-6">
-              <AdminSubscriptionsManager />
-            </TabsContent>
+            {/* Onglet « Abonnements » retiré (MM-A20, 07.10.2026) : il lisait user_quotas et non
+                user_subscriptions/Stripe, inventait les e-mails (user-xxxx@example.com), affichait un
+                taux de désabonnement codé à 5 % et des actions (suspendre, rembourser) simulées par
+                un simple message. Le nombre réel d'abonnements actifs reste dans la vue d'ensemble. */}
 
             <TabsContent value="analytics" className="space-y-6">
               <AdminAnalytics />

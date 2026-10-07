@@ -6,7 +6,6 @@ import { AdvancedMusicPlayer } from '@/components/music/AdvancedMusicPlayer';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { SystemSettings } from '@/components/settings/SystemSettings';
-import { CollaborativeStudy } from '@/components/study/CollaborativeStudy';
 import { StudyPlanManager } from '@/components/study/StudyPlanManager';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -49,15 +48,7 @@ export default function ModularDashboard() {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Progression</p>
-                <div className="flex items-center gap-2">
-                  <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className="w-3/4 h-full bg-gradient-to-r from-primary to-accent" />
-                  </div>
-                  <span className="text-xs font-medium">75%</span>
-                </div>
-              </div>
+              {/* Jauge « Progression 75 % » retirée (MM-A20) : valeur codée en dur. */}
               
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                 M
@@ -82,10 +73,6 @@ export default function ModularDashboard() {
               
               <TabsContent value="notifications" className="mt-0">
                 <NotificationCenter />
-              </TabsContent>
-              
-              <TabsContent value="study" className="mt-0">
-                <CollaborativeStudy />
               </TabsContent>
               
               <TabsContent value="player" className="mt-0">

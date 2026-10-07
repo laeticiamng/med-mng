@@ -5,7 +5,6 @@ export { AdminContentManager } from './AdminContentManager';
 export { AdminDashboard } from './AdminDashboard';
 export { AdminQuickLinks } from './AdminQuickLinks';
 export { AdminSecurityAudit } from './AdminSecurityAudit';
-export { AdminSubscriptionsManager } from './AdminSubscriptionsManager';
 export { AdminSystemSettings } from './AdminSystemSettings';
 export { AdminUsersManager } from './AdminUsersManager';
 export { default as AdvancedAnalyticsDashboard } from './AdvancedAnalyticsDashboard';

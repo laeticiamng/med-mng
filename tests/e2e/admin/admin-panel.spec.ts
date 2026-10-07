@@ -51,26 +51,13 @@ test.describe('Admin Import', () => {
   });
 });
 
-test.describe('Admin Audit', () => {
-  test.beforeEach(async ({ page }) => {
+// /admin/audit (« Audit & Nettoyage ») a été retiré le 07.10.2026 (MM-A20) :
+// audits simulés, aucune source réelle. L'URL redirige vers /audit.
+test.describe('Admin Audit (retiré)', () => {
+  test('redirige hors de /admin/audit', async ({ page }) => {
     await page.goto('/admin/audit');
-  });
-
-  test('should display audit page', async ({ page }) => {
-    await expect(page.locator('body')).toBeVisible();
-  });
-
-  test('should show audit results or controls', async ({ page }) => {
-    const auditElements = page.locator('text=/audit|vérification|rapport/i');
-    if (await auditElements.first().isVisible().catch(() => false)) {
-      await expect(auditElements.first()).toBeVisible();
-    }
-  });
-
-  test('should be responsive on mobile', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 });
-    
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page).not.toHaveURL(/\/admin\/audit$/);
+    await expect(page.locator('text=Audit & Nettoyage')).toHaveCount(0);
   });
 });
 

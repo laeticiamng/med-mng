@@ -21,7 +21,6 @@ import { chargerEtatContenuImmersif } from '@/hooks/useEtatContenuImmersif';
 import {
     BookOpen,
     Brain,
-    Edit,
     Eye,
     MoreHorizontal,
     Music,
@@ -151,10 +150,6 @@ export const AdminContentManager = () => {
   const handlePreviewItem = (item: EdnItem) => {
     const slug = item.item_code.toLowerCase();
     window.open(`/edn-complete/${slug}`, '_blank');
-  };
-
-  const handleEditItem = async (item: EdnItem) => {
-    toast.info(`Éditeur bientôt disponible pour ${item.item_code}`);
   };
 
   const handleDeleteItem = async (itemId: string, itemCode: string) => {
@@ -335,10 +330,7 @@ export const AdminContentManager = () => {
                             <Eye className="mr-2 h-4 w-4" />
                             Prévisualiser
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditItem(item)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Modifier
-                          </DropdownMenuItem>
+                          {/* « Modifier » retiré (MM-A20) : il n'ouvrait aucun éditeur, seulement un message d'attente. */}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleDeleteItem(item.id, item.item_code)}

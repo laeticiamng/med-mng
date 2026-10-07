@@ -1,5 +1,4 @@
 // Accessibility components
-export { ABTestManager } from './ABTestManager';
 export { AccessibilityCenter } from './AccessibilityCenter';
 export { AccessibilityDashboardMetrics } from './AccessibilityDashboardMetrics';
 export { AccessibilityPanel } from './AccessibilityPanel';
@@ -9,7 +8,6 @@ export { BlockedPRsList } from './BlockedPRsList';
 export { DeveloperMetricsTable } from './DeveloperMetricsTable';
 export { EmailPreview } from './EmailPreview';
 export { EmailReportConfig } from './EmailReportConfig';
-export { EmailStatistics } from './EmailStatistics';
 export { EnhancedAccessibilityPanel } from './EnhancedAccessibilityPanel';
 export { ExportMetricsCard } from './ExportMetricsCard';
 export { NotificationAnalytics } from './NotificationAnalytics';
