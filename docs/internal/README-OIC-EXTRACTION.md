@@ -10,8 +10,8 @@ Créer un fichier `.env` :
 
 ```bash
 # Authentification CAS UNESS
-CAS_USER=laeticia.moto-ngane@etud.u-picardie.fr
-CAS_PASS=Aiciteal1!
+CAS_USER=<retiré : secret CAS_USERNAME>
+CAS_PASS=<retiré : secret CAS_PASSWORD>
 
 # Supabase
 SUPABASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co

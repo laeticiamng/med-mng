@@ -41,3 +41,6 @@ supabase/.temp/
 /test-results/
 /playwright-report/
 /.lighthouseci/
+
+# Service worker généré en développement (vite-plugin-pwa)
+dev-dist/

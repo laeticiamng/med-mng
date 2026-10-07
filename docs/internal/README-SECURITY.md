@@ -92,8 +92,8 @@ console.log(`🔐 Credential: ${API_KEY.substring(0, 3)}***`)
 ```typescript
 // ❌ DANGEREUX (à corriger)
 credentials: {
-  username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-  password: 'Aiciteal1!'
+  username: '<retiré : secret CAS_USERNAME>',
+  password: '<retiré : secret CAS_PASSWORD>'
 }
 
 // ✅ SÉCURISÉ (à implémenter)  
