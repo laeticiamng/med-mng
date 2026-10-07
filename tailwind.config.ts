@@ -27,6 +27,17 @@ export default {
 			'2xl': '1400px'
 		},
 		extend: {
+			// Couleurs de texte : text-primary, text-success, text-warning, text-accent et
+			// text-destructive pointent vers des variantes « texte » (--*-text, src/index.css)
+			// dont la luminosité garantit ≥ 4,5:1 sur les fonds clairs et les teintes /10 et /20,
+			// en thèmes clair et sombre. bg-*, border-*, ring-* gardent la couleur de fond d'origine.
+			textColor: {
+				primary: { DEFAULT: 'hsl(var(--primary-text))' },
+				success: { DEFAULT: 'hsl(var(--success-text))' },
+				warning: { DEFAULT: 'hsl(var(--warning-text))' },
+				accent: { DEFAULT: 'hsl(var(--accent-text))' },
+				destructive: { DEFAULT: 'hsl(var(--destructive-text))' },
+			},
 			fontFamily: {
 				sans: ['SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
 				mono: ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', 'monospace'],

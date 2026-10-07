@@ -41,15 +41,18 @@
     --muted-foreground: 220 9% 38%;
 
     /* Accent Colors - Vibrant Emerald */
+    /* Accent : la teinte de fond reste 39 % ; le texte posé dessus passe du blanc (2,59:1)
+       au bleu nuit (6,91:1). Le texte accent sur fond clair utilise --accent-text. */
     --accent: 160 84% 39%;
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 222 47% 11%;
     --accent-hover: 160 84% 34%;
     --accent-muted: 160 84% 90%;
 
     /* Success - Fresh Green */
+    /* Succès : fond inchangé ; texte posé dessus : blanc (1,92:1) remplacé par le bleu nuit (9,32:1). */
     --success: 158 64% 52%;
-    --success-foreground: 0 0% 100%;
-    
+    --success-foreground: 222 47% 11%;
+
     /* Warning - Warm Amber with better contrast */
     --warning: 38 92% 50%;
     --warning-foreground: 222 47% 11%;
@@ -58,13 +61,31 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
+    /* Variantes « texte » (classes text-primary, text-success, text-warning, text-accent,
+       text-destructive : voir textColor dans tailwind.config.ts). Même teinte que la couleur de
+       fond, luminosité abaissée pour ≥ 4,5:1 sur le blanc, le fond de page (#f6f7f9) et les
+       teintes bg-<couleur>/10 et /20 de la même couleur. Les couleurs de fond (bg-*) restent
+       inchangées. Avant → après (pire cas sur ces fonds) :
+         succès      158 64 % 52 % (1,67:1) → 28 % (4,92:1)
+         avertissem.  38 92 % 50 % (1,84:1) → 29 % (4,89:1)
+         accent      160 84 % 39 % (2,14:1) → 24 % (5,00:1)
+         destructif    0 72 % 51 % (3,51:1) → 42 % (4,73:1)
+         primaire    217 91 % 47 % (4,14:1) → 43 % (4,74:1) */
+    --primary-text: 217 91% 43%;
+    --success-text: 158 64% 28%;
+    --warning-text: 38 92% 29%;
+    --accent-text: 160 84% 24%;
+    --destructive-text: 0 72% 42%;
+
     /* Borders & Inputs - Refined */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 217 91% 60%;
 
     /* Premium Gradients */
-    --gradient-medical: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(160 84% 39%) 100%);
+    /* Dégradé porteur de texte blanc : extrémités 217 91 % 60 % (3,68:1) et 160 84 % 39 % (2,59:1)
+       assombries à 47 % (= --primary, 5,59:1) et 26 % (5,35:1) ; blanc à 90 % ≥ 4,65:1 partout. */
+    --gradient-medical: linear-gradient(135deg, hsl(217 91% 47%) 0%, hsl(160 84% 26%) 100%);
     --gradient-header: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(217 91% 97%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(217 91% 97%) 0%, hsl(160 84% 97%) 50%, hsl(43 96% 97%) 100%);
@@ -151,8 +172,18 @@
     --success-foreground: 222 47% 9%;
     --warning: 43 96% 64%;
     --warning-foreground: 222 47% 9%;
-    --destructive: 0 72% 60%;
+    /* Destructif sombre : le fond 60 % donnait 3,82:1 au texte blanc → 50 % (≥ 4,5:1). */
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
+
+    /* Variantes « texte » en thème sombre (pire cas sur le fond, les cartes et les teintes
+       /10 et /20) : primaire 70 % 4,82:1, succès 58 % 6,34:1, avertissement 64 % 7,12:1,
+       accent 50 % 7,03:1, destructif 60 % 3,71:1 → 68 % 4,81:1. */
+    --primary-text: 217 91% 70%;
+    --success-text: 158 64% 58%;
+    --warning-text: 43 96% 64%;
+    --accent-text: 160 84% 50%;
+    --destructive-text: 0 72% 68%;
 
     --border: 222 47% 18%;
     --input: 222 47% 18%;
