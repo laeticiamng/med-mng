@@ -43,7 +43,7 @@ export const PerformanceAnalyticsDashboard = () => {
 
   const getGradeColor = (grade: string) => {
     if (grade === 'A+' || grade === 'A') return 'bg-success/10 text-success';
-    if (grade === 'B') return 'bg-warning/10 text-warning-foreground';
+    if (grade === 'B') return 'bg-warning/10 text-warning';
     return 'bg-destructive/10 text-destructive';
   };
 

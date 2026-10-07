@@ -338,7 +338,7 @@ const DeclarationAccessibilite = () => {
               <div className="bg-card p-4 rounded-lg">
                 <p className="font-semibold text-foreground mb-2">📧 Contact accessibilité :</p>
                 <ul className="text-sm space-y-1">
-                   <li>• Email de contact : <a href="mailto:contact@emotionscare.com" className="text-primary hover:underline"><strong>contact@emotionscare.com</strong></a> (objet : "Accessibilité")</li>
+                   <li>• Email de contact : <a href="mailto:contact@emotionscare.com" className="text-primary underline underline-offset-2 hover:decoration-2"><strong>contact@emotionscare.com</strong></a> (objet : "Accessibilité")</li>
                 </ul>
                 <p className="text-sm mt-3 italic">
                   Nous nous engageons à vous répondre sous <strong>5 jours ouvrés</strong> et à apporter une solution 

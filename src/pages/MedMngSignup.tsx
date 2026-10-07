@@ -227,7 +227,7 @@ export const MedMngSignup = () => {
           
           <div className="text-center text-sm">
             Déjà un compte ?{' '}
-            <Link to={avecSuivant(ROUTE_PATHS.medMngLogin, suivant)} className="text-primary hover:underline">
+            <Link to={avecSuivant(ROUTE_PATHS.medMngLogin, suivant)} className="text-primary underline underline-offset-2 hover:decoration-2">
               Se connecter
             </Link>
           </div>

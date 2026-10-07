@@ -197,7 +197,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
               </div>
 
               <div className="bg-accent/10 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-accent-foreground">
+                <div className="flex items-center gap-2 text-accent">
                   <Zap className="h-4 w-4" />
                   <span className="text-sm font-medium">Objectif quotidien</span>
                 </div>
@@ -206,7 +206,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                     value={stats.todayTarget > 0 ? (stats.todayCompleted / stats.todayTarget) * 100 : 0} 
                     className="flex-1" 
                   />
-                  <span className="text-sm font-medium text-accent-foreground">
+                  <span className="text-sm font-medium text-accent">
                     {stats.todayCompleted}/{stats.todayTarget}
                   </span>
                 </div>

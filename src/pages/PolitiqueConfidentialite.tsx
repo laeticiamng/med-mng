@@ -31,14 +31,14 @@ const PolitiqueConfidentialite = () => {
 
         <div className="max-w-4xl mx-auto space-y-6">
           {/* En-tête avec logo */}
-          <Card className="p-6 bg-gradient-to-r from-success to-primary text-primary-foreground">
+          <Card className="p-6 bg-gradient-medical text-primary-foreground">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <Shield className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Med MNG - Politique de Confidentialité</h2>
               </div>
-              <p className="text-primary-foreground/80">https://medmng.com</p>
-              <p className="text-sm text-primary-foreground/70">Dernière mise à jour : 7 octobre 2026</p>
+              <p className="text-primary-foreground/90">https://medmng.com</p>
+              <p className="text-sm text-primary-foreground/90">Dernière mise à jour : 7 octobre 2026</p>
             </div>
           </Card>
 
@@ -103,7 +103,7 @@ const PolitiqueConfidentialite = () => {
                 <AlertTriangle className="h-4 w-4 text-warning" />
                 <AlertDescription>
                   <p className="font-medium text-warning">Aucune donnée de santé</p>
-                  <p className="text-sm text-warning/80 mt-2">
+                  <p className="text-sm text-warning mt-2">
                     Vos progressions (items EDN révisés, rangs A/B, résultats de quiz) décrivent vos révisions, pas votre santé :
                     ce sont des données pédagogiques, traitées pour exécuter le service que vous avez souscrit. Ne saisissez
                     jamais de données de patients ni d'informations sur votre propre santé.
@@ -227,7 +227,7 @@ const PolitiqueConfidentialite = () => {
                 <AlertTriangle className="h-4 w-4 text-warning" />
                 <AlertDescription>
                   <p className="font-semibold text-warning mb-2">Transferts vers les États-Unis</p>
-                  <p className="text-sm text-warning/80">
+                  <p className="text-sm text-warning">
                     Pour générer l'audio d'une chanson (Premium), les paroles de l'item et le style choisi sont envoyés à sunoapi.org ;
                     si les paroles enregistrées ne sont pas rédigées, les compétences officielles de l'item sont d'abord envoyées à la
                     passerelle IA de Lovable (Google Gemini). Pour dessiner une case des planches, sa description est envoyée à OpenAI.
@@ -248,7 +248,7 @@ const PolitiqueConfidentialite = () => {
 
               <div className="bg-success/10 p-4 rounded-lg border-l-4 border-success">
                 <p className="font-semibold text-success mb-2">✅ Aucune vente de données</p>
-                <p className="text-sm text-success/80">
+                <p className="text-sm text-success">
                   Vos données personnelles ne sont <strong>jamais vendues, louées ou partagées</strong> avec des tiers 
                   à des fins marketing. Seuls les sous-traitants techniques listés ci-dessus y ont accès, 
                   uniquement pour fournir le service Med MNG.
@@ -345,7 +345,7 @@ const PolitiqueConfidentialite = () => {
                 <ul className="text-sm space-y-1 mt-1">
                   <li>• CNIL – 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07</li>
                   <li>• Téléphone : +33 (0)1 53 73 22 22</li>
-                  <li>• Site : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.cnil.fr</a></li>
+                  <li>• Site : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:decoration-2">www.cnil.fr</a></li>
                 </ul>
               </div>
             </div>
@@ -359,7 +359,7 @@ const PolitiqueConfidentialite = () => {
             </div>
             <div className="text-muted-foreground">
               <div className="bg-accent/10 p-4 rounded-lg">
-                <p>Trois niveaux, détaillés dans la <Link to={ROUTE_PATHS.cookies} className="text-primary hover:underline">politique cookies</Link> :</p>
+                <p>Trois niveaux, détaillés dans la <Link to={ROUTE_PATHS.cookies} className="text-primary underline underline-offset-2 hover:decoration-2">politique cookies</Link> :</p>
                 <ul className="mt-2 space-y-1 text-sm">
                   <li>• <strong>Essentiels</strong> (toujours actifs) : connexion, préférences, sécurité, fonctionnement hors connexion.</li>
                   <li>• <strong>Mesure d'audience Med MNG</strong> (optionnelle, avec votre accord) : avant la connexion, un identifiant aléatoire, sans nom ni e-mail, relie les étapes de la visite de la page Tarifs. Sans accord, rien n'est enregistré avant la connexion.</li>

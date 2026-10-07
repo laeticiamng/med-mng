@@ -37,7 +37,7 @@ export const MngPresentationBrief = () => {
             <Music className="h-8 w-8" />
             <CardTitle className="text-3xl">Méthode MNG</CardTitle>
           </div>
-          <CardDescription className="text-primary-foreground/80 text-lg">
+          <CardDescription className="text-primary-foreground/90 text-lg">
             Music Neuro Learning Generator : réviser avec des chansons
           </CardDescription>
           {gamificationStats && (

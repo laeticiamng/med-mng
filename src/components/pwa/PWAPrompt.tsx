@@ -94,8 +94,14 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
                   <RefreshCw className="h-3 w-3" />
                   Mettre à jour
                 </Button>
-                <Button size="sm" variant="ghost" onClick={dismissUpdate}>
-                  <X className="h-3 w-3" />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={dismissUpdate}
+                  aria-label="Ignorer la mise à jour"
+                  title="Ignorer la mise à jour"
+                >
+                  <X className="h-3 w-3" aria-hidden="true" />
                 </Button>
               </div>
             </div>
@@ -108,7 +114,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
   // Offline ready notification - with auto-dismiss
   if (offlineReady) {
     return (
-      <Card className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-success/30 bg-card/95 backdrop-blur-sm shadow-lg animate-in slide-in-from-bottom-4 duration-300">
+      <Card role="status" className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-success/30 bg-card/95 backdrop-blur-sm shadow-lg animate-in slide-in-from-bottom-4 duration-300">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-success/10">
@@ -120,8 +126,15 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
                 L'app peut maintenant fonctionner sans connexion internet
               </p>
             </div>
-            <Button size="sm" variant="ghost" onClick={dismissOfflineReady}>
-              <X className="h-3 w-3" />
+            {/* Bouton icône : nom accessible obligatoire (règle axe « button-name ») */}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={dismissOfflineReady}
+              aria-label="Fermer la notification"
+              title="Fermer la notification"
+            >
+              <X className="h-3 w-3" aria-hidden="true" />
             </Button>
           </div>
         </CardContent>

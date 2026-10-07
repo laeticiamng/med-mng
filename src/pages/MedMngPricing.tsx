@@ -86,7 +86,7 @@ export const MedMngPricing = () => {
             <PremiumCard variant="glass" className="mb-8 p-6 max-w-2xl mx-auto">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Votre abonnement Med MNG Premium est actif</h3>
+                  <h2 className="text-lg font-bold text-foreground">Votre abonnement Med MNG Premium est actif</h2>
                   <p className="text-muted-foreground text-sm">Vous pouvez le gérer ou le résilier depuis votre profil.</p>
                 </div>
                 <Badge variant="default" className="bg-success text-success-foreground">Actif</Badge>
@@ -115,7 +115,7 @@ export const MedMngPricing = () => {
           {/* CTA */}
           <div className="mt-12 text-center">
             <PremiumCard variant="gradient" className="p-8 max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold mb-3">Envie d'essayer ?</h3>
+              <h2 className="text-2xl font-bold mb-3">Envie d'essayer ?</h2>
               <p className="text-base mb-6 opacity-90">
                 Créez votre compte gratuit et testez la méthode sur les 10 items d'essai.
               </p>

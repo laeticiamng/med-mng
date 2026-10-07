@@ -205,7 +205,7 @@ const AccessibilityDashboard = () => {
                   href="https://github.com/settings/tokens/new?scopes=repo,read:org&description=Med MNG%20Accessibility%20Dashboard"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline mt-2 inline-block"
+                  className="text-primary underline underline-offset-2 hover:decoration-2 mt-2 inline-block"
                 >
                   → Créer un token GitHub
                 </a>

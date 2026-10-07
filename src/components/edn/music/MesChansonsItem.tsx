@@ -95,7 +95,7 @@ export const MesChansonsItem: React.FC<{ itemCode: string }> = ({ itemCode }) =>
             );
           })}
         </ul>
-        <Link to={ROUTE_PATHS.medMngMusicLibrary} className="text-sm font-medium text-primary hover:underline">
+        <Link to={ROUTE_PATHS.medMngMusicLibrary} className="text-sm font-medium text-primary underline underline-offset-2 hover:decoration-2">
           Toutes mes chansons dans « Ma bibliothèque »
         </Link>
       </CardContent>

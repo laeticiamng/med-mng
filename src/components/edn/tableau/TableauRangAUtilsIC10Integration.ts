@@ -42,7 +42,7 @@ export const processTableauRangAIC10 = (data: TableauDataIC10): ProcessedTableau
   
   const colonnesUtiles: ColonneConfig[] = [
     { nom: 'Concept', description: 'Approche transversale', couleur: 'bg-muted', couleurCellule: 'bg-muted/50', couleurTexte: 'text-muted-foreground' },
-    { nom: 'Définition', description: 'Compréhension globale', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent-foreground' },
+    { nom: 'Définition', description: 'Compréhension globale', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent' },
     { nom: 'Exemple', description: 'Application clinique', couleur: 'bg-primary', couleurCellule: 'bg-primary/10', couleurTexte: 'text-primary' },
     { nom: 'Piège', description: 'Réductionnisme', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10', couleurTexte: 'text-destructive' },
     { nom: 'Mnémo', description: 'Mémorisation', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' },

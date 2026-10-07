@@ -402,8 +402,8 @@ export function NotificationPredictions() {
                       prediction.confidence === 'high'
                         ? 'bg-success/10 text-success border-success/20'
                         : prediction.confidence === 'medium'
-                        ? 'bg-warning/10 text-warning-foreground border-warning/20'
-                        : 'bg-warning/20 text-warning-foreground border-warning/30'
+                        ? 'bg-warning/10 text-warning border-warning/20'
+                        : 'bg-warning/20 text-warning border-warning/30'
                     }
                   >
                     {prediction.confidence === 'high'

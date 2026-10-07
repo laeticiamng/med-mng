@@ -42,14 +42,14 @@ const PreparationEcos2027 = () => {
           <nav className="mb-12 p-6 bg-muted/50 rounded-xl border">
             <h2 className="font-semibold text-foreground mb-4">📋 <TranslatedText text="Sommaire" /></h2>
             <ol className="space-y-2 text-sm">
-              <li><a href="#comprendre" className="text-primary hover:underline"><TranslatedText text="1. Comprendre les ECOS : format, notation, enjeux" /></a></li>
-              <li><a href="#competences" className="text-primary hover:underline"><TranslatedText text="2. Les compétences évaluées" /></a></li>
-              <li><a href="#planning" className="text-primary hover:underline"><TranslatedText text="3. Planning de révision sur 6 mois" /></a></li>
-              <li><a href="#strategies" className="text-primary hover:underline"><TranslatedText text="4. Stratégies de préparation efficaces" /></a></li>
-              <li><a href="#erreurs" className="text-primary hover:underline"><TranslatedText text="5. Les erreurs à éviter absolument" /></a></li>
-              <li><a href="#simulation" className="text-primary hover:underline"><TranslatedText text="6. L'importance des simulations" /></a></li>
-              <li><a href="#outils" className="text-primary hover:underline"><TranslatedText text="7. Outils et ressources recommandés" /></a></li>
-              <li><a href="#faq" className="text-primary hover:underline">8. FAQ</a></li>
+              <li><a href="#comprendre" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="1. Comprendre les ECOS : format, notation, enjeux" /></a></li>
+              <li><a href="#competences" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="2. Les compétences évaluées" /></a></li>
+              <li><a href="#planning" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="3. Planning de révision sur 6 mois" /></a></li>
+              <li><a href="#strategies" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="4. Stratégies de préparation efficaces" /></a></li>
+              <li><a href="#erreurs" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="5. Les erreurs à éviter absolument" /></a></li>
+              <li><a href="#simulation" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="6. L'importance des simulations" /></a></li>
+              <li><a href="#outils" className="text-primary underline underline-offset-2 hover:decoration-2"><TranslatedText text="7. Outils et ressources recommandés" /></a></li>
+              <li><a href="#faq" className="text-primary underline underline-offset-2 hover:decoration-2">8. FAQ</a></li>
             </ol>
           </nav>
 

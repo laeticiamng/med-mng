@@ -48,7 +48,7 @@ export const processStandardTableauData = (data: Record<string, unknown>, isRang
     { nom: 'Thème', couleur: 'bg-primary', couleurCellule: 'bg-primary/10 border-primary/30', couleurTexte: 'text-primary' },
     { nom: 'Contenu', couleur: 'bg-success', couleurCellule: 'bg-success/10 border-success/30', couleurTexte: 'text-success' },
     { nom: 'Mots-clés', couleur: 'bg-warning', couleurCellule: 'bg-warning/10 border-warning/30', couleurTexte: 'text-warning' },
-    { nom: 'Point clé', couleur: 'bg-accent', couleurCellule: 'bg-accent/10 border-accent/30', couleurTexte: 'text-accent-foreground' },
+    { nom: 'Point clé', couleur: 'bg-accent', couleurCellule: 'bg-accent/10 border-accent/30', couleurTexte: 'text-accent' },
     { nom: 'À retenir', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/50 border-secondary/30', couleurTexte: 'text-secondary-foreground' },
     { nom: 'Attention', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10 border-destructive/30', couleurTexte: 'text-destructive' },
     { nom: 'Application', couleur: 'bg-muted', couleurCellule: 'bg-muted/50 border-muted/30', couleurTexte: 'text-muted-foreground' },

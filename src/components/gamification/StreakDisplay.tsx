@@ -118,7 +118,7 @@ export function StreakDisplay({ stats, compact = false }: StreakDisplayProps) {
           {/* Points */}
           <div className="text-center p-3 rounded-lg bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/20">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Zap className="h-6 w-6 text-accent-foreground" />
+              <Zap className="h-6 w-6 text-accent" />
               <span className="text-2xl font-bold">{stats.totalPoints.toLocaleString()}</span>
             </div>
             <p className="text-xs text-muted-foreground">points totaux</p>

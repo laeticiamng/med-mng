@@ -112,7 +112,7 @@ const About = () => {
               </div>
               <p className="text-sm italic">
                 En savoir plus sur la{' '}
-                <Link to={ROUTE_PATHS.mngMethod} className="text-primary hover:underline">Méthode MNG</Link>.
+                <Link to={ROUTE_PATHS.mngMethod} className="text-primary underline underline-offset-2 hover:decoration-2">Méthode MNG</Link>.
               </p>
             </div>
           </Card>
