@@ -45,6 +45,9 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
     }
   }, [offlineReady, dismissOfflineReady]);
 
+  // Les titres des encarts sont des paragraphes : ces notifications flottantes ne font pas
+  // partie du plan de la page (un <h4> sans h2/h3 au-dessus cassait la hiérarchie des titres).
+
   // Install prompt
   if (isInstallable && !isInstalled && !isDismissed) {
     return (
@@ -55,7 +58,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
               <Smartphone className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Installer Med MNG</h4>
+              <p className="font-semibold text-sm">Installer Med MNG</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Installez l'app pour un accès rapide et une utilisation hors-ligne
               </p>
@@ -85,7 +88,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
               <RefreshCw className="h-5 w-5 text-accent" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Mise à jour disponible</h4>
+              <p className="font-semibold text-sm">Mise à jour disponible</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Une nouvelle version de l'app est disponible
               </p>
@@ -121,7 +124,7 @@ export const PWAPrompt = React.forwardRef<HTMLDivElement>((_, ref) => {
               <Wifi className="h-5 w-5 text-success" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm">Prêt pour le hors-ligne !</h4>
+              <p className="font-semibold text-sm">Prêt pour le hors-ligne !</p>
               <p className="text-xs text-muted-foreground mt-1">
                 L'app peut maintenant fonctionner sans connexion internet
               </p>
