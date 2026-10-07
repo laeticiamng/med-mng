@@ -39,17 +39,44 @@ const MesDonneesRGPD = () => {
    * Une table absente ou refusée est simplement ignorée.
    */
   const collectUserData = async (userId: string) => {
+    // Tables personnelles écrites par Med MNG, noms et colonne propriétaire
+    // vérifiés en production le 07.10.2026 (MM-A14). L'abonnement est dans
+    // user_subscriptions (source de useSubscription et du webhook Stripe), pas
+    // dans med_mng_subscriptions.
     const tables: Array<[string, string]> = [
       ['profiles', 'id'],
-      ['med_mng_subscriptions', 'user_id'],
+      ['user_subscriptions', 'user_id'],
+      ['user_onboarding', 'user_id'],
+      ['user_preferences_extended', 'user_id'],
+      ['user_notification_settings', 'user_id'],
+      // Progression
       ['user_item_progress', 'user_id'],
       ['item_reviews', 'user_id'],
+      ['review_sessions', 'user_id'],
+      ['revision_history', 'user_id'],
       ['quiz_results', 'user_id'],
+      ['quiz_sessions', 'user_id'],
+      ['user_progress', 'user_id'],
+      ['study_sessions', 'user_id'],
+      // Contenus et favoris
+      ['user_edn_notes', 'user_id'],
+      ['user_edn_favorites', 'user_id'],
+      ['med_mng_user_favorites', 'user_id'],
+      ['mm_signalements_contenu', 'user_id'],
       ['flashcard_decks', 'user_id'],
-      ['med_mng_playlists', 'user_id'],
+      ['flashcard_reviews', 'user_id'],
+      // Musique
+      ['mm_generations_audio', 'user_id'],
+      ['generated_music_tracks', 'user_id'],
+      ['med_mng_songs', 'user_id'],
       ['med_mng_user_songs', 'user_id'],
+      ['med_mng_playlists', 'user_id'],
       ['user_generated_music', 'user_id'],
-      ['user_preferences_extended', 'user_id'],
+      // Points, badges et journal d'activité
+      ['gamification_activities', 'user_id'],
+      ['user_gamification_stats', 'user_id'],
+      ['user_badges', 'user_id'],
+      ['user_activity_log', 'user_id'],
     ];
     const data: Record<string, unknown[]> = {};
     const summary: Record<string, number> = {};
@@ -59,6 +86,21 @@ const MesDonneesRGPD = () => {
         if (error || !rows) continue;
         data[table] = rows;
         summary[table] = rows.length;
+      } catch {
+        // table inexistante : ignorée
+      }
+    }
+    // Les cartes n'ont pas de colonne user_id : ce sont celles des paquets du compte.
+    const idsPaquets = ((data.flashcard_decks ?? []) as Array<{ id?: string }>)
+      .map((d) => d.id)
+      .filter((id): id is string => Boolean(id));
+    if (idsPaquets.length > 0) {
+      try {
+        const { data: cartes, error } = await (supabase as any).from('flashcards').select('*').in('deck_id', idsPaquets);
+        if (!error && cartes) {
+          data.flashcards = cartes;
+          summary.flashcards = cartes.length;
+        }
       } catch {
         // table inexistante : ignorée
       }
