@@ -49,7 +49,8 @@ describe('Navigation vivante', () => {
     expect(liensVers('settings', '/settings')).toEqual([]);
     expect(fs.existsSync(path.resolve(process.cwd(), 'src/pages/UserSettings.tsx'))).toBe(false);
     const profil = lire('src/pages/MedMngProfile.tsx');
-    expect(profil).toContain('<Tabs defaultValue={ongletInitial}');
+    // Onglet contrôlé par ?onglet= (un `defaultValue` ne suivrait pas la query string).
+    expect(profil).toMatch(/<Tabs\s+value=\{ongletActif\}\s+onValueChange=\{changerOnglet\}/);
     expect(profil).toMatch(/<TabsTrigger value="settings"/);
   });
 
