@@ -1,4 +1,5 @@
 import { jourLocal } from '@/lib/jourLocal';
+import { TYPE_CONTENU_ITEM, statutDepuisMaitrise } from '@/lib/maitriseContenu';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -76,7 +77,7 @@ export const useUserAnalytics = () => {
           .from('user_progress')
           .select('content_id, mastery_level, progress_percentage, attempts_count')
           .eq('user_id', user.id)
-          .eq('content_type', 'item'),
+          .eq('content_type', TYPE_CONTENU_ITEM),
         
         // Série et points. CONSTAT (revue critique 04.10.2026) : la requête lisait
         // profiles.streak_current / streak_best / total_xp / weekly_goal, colonnes
@@ -121,8 +122,8 @@ export const useUserAnalytics = () => {
       const badgesData = badgesResponse.data ?? [];
 
       // Calcul progression
-      const revisedItems = progressData.filter((p: any) => p.mastery_level === 'revised').length;
-      const inProgressItems = progressData.filter((p: any) => p.mastery_level === 'in_progress').length;
+      const revisedItems = progressData.filter((p: any) => statutDepuisMaitrise(p.mastery_level) === 'revised').length;
+      const inProgressItems = progressData.filter((p: any) => statutDepuisMaitrise(p.mastery_level) === 'in_progress').length;
       const progressPercentage = totalItems > 0 ? Math.round((revisedItems / totalItems) * 100) : 0;
 
       // Calcul temps d'étude
@@ -182,7 +183,7 @@ export const useUserAnalytics = () => {
             specialtyMap[specialtyName].total++;
             
             const progress = progressData.find((p: any) => p.content_id === item.id);
-            if (progress?.mastery_level === 'revised') {
+            if (statutDepuisMaitrise(progress?.mastery_level) === 'revised') {
               specialtyMap[specialtyName].revised++;
             }
           });

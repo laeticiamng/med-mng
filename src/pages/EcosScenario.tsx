@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { DUREE_STATION_ECOS_MINUTES } from '@/config/ecos';
 import { ROUTE_PATHS } from '@/config/routes';
+import { TYPE_CONTENU_ECOS, maitriseDepuisScoreEcos } from '@/lib/maitriseContenu';
 import { ArrowLeft, FileText, Flame, HandIcon, Loader2, MessageCircle, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -211,20 +212,21 @@ const EcosScenario = () => {
         .from('user_progress')
         .select('attempts_count, best_score')
         .eq('user_id', currentUser.id)
-        .eq('content_type', 'ecos')
+        .eq('content_type', TYPE_CONTENU_ECOS)
         .eq('content_id', contentId)
         .maybeSingle();
 
       const attempts = (existing?.attempts_count ?? 0) + 1;
       const bestScore = Math.max(existing?.best_score ?? 0, percentage);
-      const masteryLevel =
-        percentage >= 60 ? 'revised' : percentage > 0 ? 'in_progress' : 'not_started';
+      // Valeurs acceptées par user_progress_mastery_level_check (lib/maitriseContenu) :
+      // 'revised' / 'in_progress' / 'not_started' étaient rejetées (23514).
+      const masteryLevel = maitriseDepuisScoreEcos(percentage);
       const now = new Date().toISOString();
 
       const { error } = await (supabase as any).from('user_progress').upsert(
         {
           user_id: currentUser.id,
-          content_type: 'ecos',
+          content_type: TYPE_CONTENU_ECOS,
           content_id: contentId,
           progress_percentage: percentage,
           best_score: bestScore,

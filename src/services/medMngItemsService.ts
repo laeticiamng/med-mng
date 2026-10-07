@@ -1,5 +1,6 @@
 import { jourLocal } from '@/lib/jourLocal';
 import { supabase } from '@/integrations/supabase/client';
+import { TYPE_CONTENU_ITEM, maitriseDepuisStatut, statutDepuisMaitrise } from '@/lib/maitriseContenu';
 import type {
   ItemDetail,
   ItemNote,
@@ -9,18 +10,8 @@ import type {
   ProgressItem,
 } from '@/types/medMngItems';
 
-const mapStatus = (status?: string | ItemStatus | null): ItemStatus => {
-  if (status === 'in_progress' || status === 'revised') {
-    return status;
-  }
-  if (status === 'done') {
-    return 'revised';
-  }
-  if (status === 'todo') {
-    return 'not_started';
-  }
-  return 'not_started';
-};
+// Lecture de mastery_level : cf. lib/maitriseContenu (valeurs autorisées par la base).
+const mapStatus = (status?: string | ItemStatus | null): ItemStatus => statutDepuisMaitrise(status);
 
 /**
  * SOURCE DES DONNÉES — corrigé le 18/09/2026.
@@ -114,7 +105,7 @@ const chargerContexteUtilisateur = async (userId?: string) => {
       .from('user_progress')
       .select('content_id, mastery_level, last_accessed, attempts_count, best_score')
       .eq('user_id', userId)
-      .eq('content_type', 'item'),
+      .eq('content_type', TYPE_CONTENU_ITEM),
   ]);
 
   return {
@@ -215,13 +206,13 @@ export const upsertItemProgress = async ({
   const { error } = await (supabase as any).from('user_progress').upsert(
     {
       user_id: userId,
-      content_type: 'item',
+      content_type: TYPE_CONTENU_ITEM,
       content_id: itemId,
       progress_percentage: progressPercentage,
       best_score: score,
       attempts_count: revisionCount,
       last_accessed: lastSeenAt,
-      mastery_level: status,
+      mastery_level: maitriseDepuisStatut(status),
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'user_id,content_type,content_id' }
@@ -279,7 +270,7 @@ export const fetchProgressOverview = async (
         .from('user_progress')
         .select('content_id, mastery_level, last_accessed, attempts_count')
         .eq('user_id', userId)
-        .eq('content_type', 'item'),
+        .eq('content_type', TYPE_CONTENU_ITEM),
       // CONSTAT (revue critique 04.10.2026, vérifié en production) : la page
       // « Progression » lisait profiles.streak_current / weekly_goal et
       // study_sessions.date / items_revised, colonnes qui n'existent pas (400,
