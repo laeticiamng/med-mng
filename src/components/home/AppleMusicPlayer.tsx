@@ -1,11 +1,10 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Play, Music } from 'lucide-react';
+import { Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { TranslatedText } from '@/components/global/TranslatedText';
-import { AudioDemoPlayer } from './AudioDemoPlayer';
 
 export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
@@ -92,26 +91,11 @@ export const AppleMusicPlayer = () => {
               </p>
             </div>
 
-            {/* Waveform */}
-            <div className="mt-8 flex items-end justify-center gap-1 h-12">
-              {[...Array(40)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 bg-gradient-to-t from-primary/40 to-primary rounded-full"
-                  animate={{ 
-                    height: [
-                      `${8 + Math.sin(i * 0.5) * 12 + 8}px`,
-                      `${8 + Math.sin(i * 0.5 + 2) * 12 + 12}px`,
-                      `${8 + Math.sin(i * 0.5) * 12 + 8}px`,
-                    ]
-                  }}
-                  transition={{ duration: 2 + (i % 3) * 0.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.05 }}
-                />
-              ))}
-            </div>
-
-            {/* Real audio demo player */}
-            <AudioDemoPlayer />
+            {/* MM-A07 (07.10.2026) : ni onde animée ni lecteur d'extraits. Aucune
+                chanson de démonstration publiable n'existe : edn_suno_tracks
+                (lue par l'ancien lecteur) a 0 ligne et n'est alimentée par
+                aucune fonction ; aucune génération n'existe pour les 10 items
+                d'essai. Une onde qui « joue » sans son simulait une écoute. */}
           </div>
         </motion.div>
 
