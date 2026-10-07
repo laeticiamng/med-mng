@@ -61,6 +61,7 @@ test.describe('Public — pages et allégations', () => {
       const t = await texte(page, 'CM2C');
       expect(t, chemin).toContain('Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C)');
       expect(t, chemin).toContain('49 rue de Ponthieu, 75008 Paris');
+      expect(t, chemin).toContain('tél. : 01 89 47 00 14 ; e-mail : litiges@cm2c.net');
       expect(t, chemin).not.toMatch(/en cours de désignation|dès son adhésion finalisée/i);
       expect(t, chemin).not.toMatch(/ec\.europa\.eu|règlement en ligne des litiges/i);
       await expect(page.locator('main a[href="https://www.cm2c.net/declarer-un-litige.php"]').first()).toBeVisible();

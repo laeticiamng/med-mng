@@ -294,7 +294,7 @@ const MentionsLegales = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p>
                   Médiateur de la consommation : Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C),
-                  49 rue de Ponthieu, 75008 Paris ; site : <a href="https://www.cm2c.net" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net</a> ; saisine en ligne : <a href="https://www.cm2c.net/declarer-un-litige.php" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net/declarer-un-litige.php</a>.
+                  49 rue de Ponthieu, 75008 Paris ; tél. : 01 89 47 00 14 ; e-mail : <a href="mailto:litiges@cm2c.net" className="text-primary underline">litiges@cm2c.net</a> ; site : <a href="https://www.cm2c.net" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net</a> ; saisine en ligne : <a href="https://www.cm2c.net/declarer-un-litige.php" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net/declarer-un-litige.php</a>.
                 </p>
                 <p>
                   Conformément aux articles L.611-1 et suivants (notamment L.612-1) du Code de la consommation, le consommateur peut

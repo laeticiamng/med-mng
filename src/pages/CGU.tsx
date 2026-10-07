@@ -456,7 +456,7 @@ const CGU = () => {
                     consommation, vous pouvez recourir gratuitement au médiateur de la consommation, après une réclamation écrite
                     préalable adressée à notre service client (contact@emotionscare.com) restée sans réponse satisfaisante, dans le
                     délai d'un an à compter de cette réclamation. Médiateur : Centre de la Médiation de la Consommation de
-                    Conciliateurs de Justice (CM2C), 49 rue de Ponthieu, 75008 Paris ; site : <a href="https://www.cm2c.net" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net</a> ;
+                    Conciliateurs de Justice (CM2C), 49 rue de Ponthieu, 75008 Paris ; tél. : 01 89 47 00 14 ; e-mail : <a href="mailto:litiges@cm2c.net" className="text-primary underline">litiges@cm2c.net</a> ; site : <a href="https://www.cm2c.net" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net</a> ;
                     saisine en ligne : <a href="https://www.cm2c.net/declarer-un-litige.php" target="_blank" rel="noopener noreferrer" className="text-primary underline">https://www.cm2c.net/declarer-un-litige.php</a>.
                   </li>
                   <li>
