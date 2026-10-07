@@ -1,8 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "https://esm.sh/resend@2.0.0";
 import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { envoyerEmail, expediteur, journaliserEchec } from '../_shared/mm-email.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://med-mng.lovable.app",
@@ -22,11 +22,9 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendKey = Deno.env.get("RESEND_API_KEY")!;
     const alertEmail = Deno.env.get("ALERT_EMAIL") || "security@example.com";
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-    const resend = new Resend(resendKey);
 
     const { reportType } = await req.json();
     console.log(`📊 Generating ${reportType} security report...`);
@@ -209,14 +207,23 @@ serve(async (req) => {
     `;
 
     // Send email
-    const emailResponse = await resend.emails.send({
-      from: "Security Report <onboarding@resend.dev>",
+    const envoi = await envoyerEmail({
+      from: expediteur('Med MNG Sécurité'),
       to: [alertEmail],
       subject: `Rapport de Sécurité ${periodLabel} - ${now.toLocaleDateString('fr-FR')}`,
       html,
     });
 
-    console.log("✅ Report sent:", emailResponse);
+    if (!envoi.ok) {
+      // Rapport non parti : last_sent_at n'est pas avancé, l'appelant voit l'échec.
+      journaliserEchec('send-scheduled-reports', envoi);
+      return new Response(
+        JSON.stringify({ success: false, error: `Rapport non envoyé (Resend ${envoi.status || 'injoignable'} : ${envoi.erreur})` }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 502 }
+      );
+    }
+
+    console.log("✅ Rapport envoyé :", envoi.id ?? 'sans identifiant');
 
     // Update scheduled report record
     await supabase
@@ -228,7 +235,7 @@ serve(async (req) => {
       .eq("report_type", reportType);
 
     return new Response(
-      JSON.stringify({ success: true, emailResponse }),
+      JSON.stringify({ success: true, emailId: envoi.id }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

@@ -2,10 +2,10 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { envoyerEmail, expediteur, journaliserEchec } from '../_shared/mm-email.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -51,7 +51,7 @@ serve(async (req) => {
     let htmlContent = template.html_content;
     const allVariables = {
       name,
-      app_url: 'https://yaincoxihiqdksxgrsrk.supabase.co',
+      app_url: 'https://medmng.com',
       ...variables
     };
 
@@ -61,28 +61,28 @@ serve(async (req) => {
       htmlContent = htmlContent.replace(regex, String(value || ''));
     }
 
-    // Envoyer l'email avec Resend via fetch API
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'MedMNG <onboarding@resend.dev>',
-        to: [email],
-        subject: template.subject,
-        html: htmlContent,
-      }),
+    // Envoi par Resend : la réponse est lue, un refus n'est jamais présenté comme un succès.
+    const envoi = await envoyerEmail({
+      from: expediteur('Med MNG'),
+      to: [email],
+      subject: template.subject,
+      html: htmlContent,
     });
 
-    const emailResult = await emailResponse.json();
-    console.log('✅ Email envoyé :', emailResult?.id ?? 'sans identifiant');
+    if (!envoi.ok) {
+      journaliserEchec('send-emails', envoi);
+      return new Response(
+        JSON.stringify({ success: false, error: `Email ${type} non envoyé (Resend ${envoi.status || 'injoignable'} : ${envoi.erreur})` }),
+        { status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log('✅ Email envoyé :', envoi.id ?? 'sans identifiant');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        emailId: emailResult.id,
+        emailId: envoi.id,
         message: `Email ${type} envoyé` 
       }), 
       {

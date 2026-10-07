@@ -148,7 +148,7 @@ describe('réponses de la vague « limites d’usage » (05.10.2026)', () => {
     const session = source.indexOf('admin.auth.getUser(jeton)');
     const fenetre = source.indexOf('Date.now() - creeLe > FENETRE_MS');
     const reservation = source.indexOf("reserverUtilisationJournaliere(admin, 'mm-bienvenue', utilisateur.id, ENVOIS_MAX_PAR_JOUR)");
-    const envoi = source.indexOf('resend.emails.send(');
+    const envoi = source.indexOf('await envoyerEmail(');
     expect(session).toBeGreaterThan(0);
     expect(fenetre).toBeGreaterThan(session);
     expect(reservation).toBeGreaterThan(fenetre);
