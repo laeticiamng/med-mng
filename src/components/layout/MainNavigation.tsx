@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, SECONDARY_NAV_GROUPS } from '@/config/navigation';
-import { ROUTE_PATHS } from '@/config/routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import {
@@ -257,7 +257,7 @@ export const MainNavigation: React.FC = () => {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.settings)}>
+                  <DropdownMenuItem onClick={() => navigate(LIEN_PARAMETRES_COMPTE)}>
                     <Settings className="w-4 h-4 mr-2" />
                     <TranslatedText text="Paramètres" />
                   </DropdownMenuItem>

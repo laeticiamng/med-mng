@@ -19,7 +19,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { Toaster } from "@/components/ui/toaster";
 
-import { ROUTE_PATHS } from '@/config/routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from '@/config/routes';
 import { AutoSEO } from '@/components/seo/AutoSEO';
 import { ChargementPageBoundary } from '@/components/error/ChargementPageBoundary';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
@@ -129,7 +129,6 @@ const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
-const UserSettings = lazy(() => import("./pages/UserSettings"));
 const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
@@ -452,7 +451,8 @@ const App = () => {
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />
-                                    <Route path={ROUTE_PATHS.settings} element={<ProtectedRoute><S><UserSettings /></S></ProtectedRoute>} />
+                                    {/* /settings (UserSettings) était factice : redirigé vers l'onglet Paramètres du profil (MM-A04). */}
+                                    <Route path={ROUTE_PATHS.settings} element={<Navigate to={LIEN_PARAMETRES_COMPTE} replace />} />
                                     {/* Misc pages (admin) */}
                                     <Route path={ROUTE_PATHS.designSystem} element={<AdminRoute><S><DesignSystemPage /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<S><MesDonneesRGPD /></S>} />

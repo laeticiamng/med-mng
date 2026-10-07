@@ -18,7 +18,7 @@ import {
   Headphones,
 } from 'lucide-react';
 
-import { ROUTE_PATHS } from './routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from './routes';
 
 export interface NavItem {
   path: string;
@@ -70,7 +70,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.medMngFavorites, label: 'Mes favoris', icon: Sparkles },
   { path: ROUTE_PATHS.progressDashboard, label: 'Ma progression', icon: BarChart3 },
   { path: ROUTE_PATHS.medMngAnalytics, label: 'Mes analytics', icon: BarChart3 },
-  { path: ROUTE_PATHS.settings, label: 'Paramètres', icon: Settings },
+  { path: LIEN_PARAMETRES_COMPTE, label: 'Paramètres', icon: Settings },
 ];
 
 // Navigation admin (toutes les pages admin)

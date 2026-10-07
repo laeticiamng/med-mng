@@ -11,7 +11,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar";
-import { ROUTE_PATHS } from '@/config/routes';
+import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -100,8 +100,8 @@ const navigationItems = [
     category: "Personnel"
   },
   {
-    title: "Notifications",
-    url: ROUTE_PATHS.settings,
+    title: "Paramètres",
+    url: LIEN_PARAMETRES_COMPTE,
     icon: Bell,
     category: "Personnel"
   },

@@ -147,6 +147,16 @@ export const ROUTE_PATHS = {
   notFound: '*',
 } as const;
 
+/**
+ * Paramètres du compte : l'onglet « Paramètres » du profil. L'ancienne page
+ * /settings (UserSettings) était factice (support simulé, modules sans effet,
+ * notifications jamais envoyées, export « Simulation ») : elle redirige ici
+ * (MM-A04, 07.10.2026).
+ */
+export const ONGLETS_PROFIL = ['general', 'subscription', 'settings', 'security'] as const;
+export type OngletProfil = (typeof ONGLETS_PROFIL)[number];
+export const LIEN_PARAMETRES_COMPTE = `${ROUTE_PATHS.medMngProfile}?onglet=settings`;
+
 export const ROUTE_REDIRECTS = [
   ROUTE_PATHS.ednLegacy,
   ROUTE_PATHS.ednImmersive,

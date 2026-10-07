@@ -43,4 +43,13 @@ describe('Navigation vivante', () => {
     expect(page).not.toMatch(/Examens|Mode Examen|Probabilité de succès|Rétention globale/);
     expect(page).not.toMatch(/useExamMode|useFlashcards|useClinicalCases/);
   });
+
+  it('MM-A04 : /settings (page factice) redirige vers l’onglet Paramètres du profil', () => {
+    expect(APP).toMatch(/path=\{ROUTE_PATHS\.settings\} element=\{<Navigate to=\{LIEN_PARAMETRES_COMPTE\} replace \/>\}/);
+    expect(liensVers('settings', '/settings')).toEqual([]);
+    expect(fs.existsSync(path.resolve(process.cwd(), 'src/pages/UserSettings.tsx'))).toBe(false);
+    const profil = lire('src/pages/MedMngProfile.tsx');
+    expect(profil).toContain('<Tabs defaultValue={ongletInitial}');
+    expect(profil).toMatch(/<TabsTrigger value="settings"/);
+  });
 });

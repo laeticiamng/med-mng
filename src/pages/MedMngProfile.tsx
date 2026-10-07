@@ -37,9 +37,17 @@ import {
     User
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { ONGLETS_PROFIL, type OngletProfil } from '@/config/routes';
 import { toast } from 'sonner';
 
 const MedMngProfileComponent = () => {
+  // ?onglet=settings : arrivée depuis « Paramètres » (menu du compte, ancien /settings).
+  const [parametresUrl] = useSearchParams();
+  const ongletDemande = parametresUrl.get('onglet');
+  const ongletInitial: OngletProfil = (ONGLETS_PROFIL as readonly string[]).includes(ongletDemande ?? '')
+    ? (ongletDemande as OngletProfil)
+    : 'general';
   const { user } = useAuth();
   // Générations audio du mois (Med MNG Premium). Avant : « Crédits restants /
   // utilisés », calculés sur un ancien quota IA et un total codé en dur (50).
@@ -344,7 +352,7 @@ const MedMngProfileComponent = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="general" className="w-full">
+        <Tabs defaultValue={ongletInitial} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="general" className="flex items-center gap-2">
               <User className="h-4 w-4" />
