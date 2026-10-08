@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { completionIA } from '../_shared/ia-resiliente.ts'
 import { lignesNonVides, parolesRedigees } from '../_shared/mm-paroles.ts'
+import { REGLE_FIDELITE_SOURCE, motifNombresInventes } from '../_shared/mm-paroles-fideles.ts'
 
 /**
  * Génère les paroles d'un item EDN à partir de SES compétences OIC officielles.
@@ -152,6 +153,14 @@ export function controlerQualite(paroles: string, competences: Competence[]): st
     if (n > 3) { motifs.push('une ligne est répétée plus de trois fois'); break }
   }
 
+  // Aucun chiffre inventé (08.10.2026) : chaque nombre chanté doit figurer dans
+  // le texte officiel des compétences fournies (seuils, délais, doses…).
+  const source = competences
+    .map((c) => `${nettoyer(c.intitule)} ${nettoyer(c.description)} ${nettoyer(c.sommaire)}`)
+    .join('\n')
+  const inventes = motifNombresInventes(paroles, source)
+  if (inventes) motifs.push(inventes)
+
   return motifs
 }
 
@@ -177,6 +186,7 @@ Règles absolues :
 - Chaque ligne chantée porte une information médicale précise tirée de la liste fournie : un signe, un chiffre, un délai, un critère, une conduite à tenir, une contre-indication. Une ligne qui n'apprend rien est une ligne à supprimer.
 - INTERDIT : les phrases de motivation, de méta-commentaire ou de remplissage. Jamais « on va tout retenir », « ces compétences vont nous servir », « du rang A jusqu'au rang B », « formation complète », « excellence médicale », « mission accomplie ». Ne chante jamais le numéro de l'item ni le mot « rang » : ce ne sont pas des connaissances.
 - Utilise les termes médicaux exacts. N'invente aucun fait, aucun chiffre, aucune molécule : tout doit venir de la liste. Si une information n'y est pas, elle n'a pas sa place dans la chanson.
+${REGLE_FIDELITE_SOURCE}
 - Rimes et rythme réguliers, phrases courtes et chantables. Les rimes servent le rappel : place le mot à retenir en fin de vers.
 - Structure avec des balises sur leur propre ligne : [Couplet 1], [Refrain], [Couplet 2], [Pont], [Refrain], [Outro]. Le refrain condense les 3 ou 4 notions les plus importantes et peut revenir deux fois.
 - Écris en français. Aucun emoji, aucun commentaire, aucune explication : uniquement les paroles.`
