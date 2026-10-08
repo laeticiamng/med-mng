@@ -179,3 +179,30 @@ vi.mock('@/hooks/use-toast', () => ({
     toast: vi.fn(),
   }),
 }));
+// jsdom n'implémente pas l'API Web Animations : framer-motion 12.34 (version figée par bun.lock
+// en CI) appelle element.animate() dès le premier rendu (ShineBorder, héros) → erreur de rendu.
+if (typeof Element !== 'undefined' && typeof Element.prototype.animate !== 'function') {
+  Element.prototype.animate = function animateFactice() {
+    const animation = {
+      cancel: () => {},
+      finish: () => {},
+      pause: () => {},
+      play: () => {},
+      reverse: () => {},
+      commitStyles: () => {},
+      persist: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      currentTime: 0,
+      playbackRate: 1,
+      playState: 'finished',
+      onfinish: null,
+      oncancel: null,
+      finished: Promise.resolve(),
+      ready: Promise.resolve(),
+      effect: null,
+      timeline: null,
+    };
+    return animation as unknown as Animation;
+  };
+}
