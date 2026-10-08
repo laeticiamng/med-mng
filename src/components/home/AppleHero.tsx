@@ -5,17 +5,20 @@ import {
   Music, 
   Brain,
   ArrowDown,
-  Zap
+  Zap,
+  Wand2
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
 import { TranslatedText } from '@/components/global/TranslatedText';
 import { ShineBorder } from '@/components/ui/shine-border';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { lienCreerMusique } from '@/lib/cheminSuivant';
 
 export const AppleHero = () => {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({
@@ -97,30 +100,61 @@ export const AppleHero = () => {
           <TranslatedText text="Chaque item peut être mis en" /> <span className="text-foreground font-semibold"><TranslatedText text="chanson à la demande" /></span>.
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* Deux portes d'entrée (décision CEO du 08.10.2026) : réviser les 367 items
+            EDN, ou créer sa propre musique (Med MNG Create). De vrais liens
+            (ouvrables dans un onglet, annoncés comme liens), pas des boutons à onClick. */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+          className="flex flex-col items-center gap-4 mb-12 w-full max-w-xl mx-auto sm:max-w-none"
         >
-          <Button 
-            size="lg"
-            onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
-            className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105 glow-pulse w-full sm:w-auto"
-          >
-            <Sparkles className="h-5 w-5 mr-2" />
-            <TranslatedText text="Créer un compte gratuit" />
-          </Button>
-          <Button 
-            variant="outline"
-            size="lg"
-            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
-            className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105 w-full sm:w-auto"
-          >
-            <Play className="h-5 w-5 mr-2" />
-            <TranslatedText text="Voir les 367 items" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105 glow-pulse w-full sm:w-auto"
+            >
+              <Link to={ROUTE_PATHS.medMngSignup}>
+                <Sparkles className="h-5 w-5 mr-2" aria-hidden="true" />
+                <TranslatedText text="Créer un compte gratuit" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105 w-full sm:w-auto"
+            >
+              <Link to={ROUTE_PATHS.ednComplete}>
+                <Play className="h-5 w-5 mr-2" aria-hidden="true" />
+                <TranslatedText text="Voir les 367 items" />
+              </Link>
+            </Button>
+          </div>
+
+          {/* Med MNG Create : visiteur → inscription gratuite puis retour sur Create. */}
+          <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg font-bold rounded-2xl bg-foreground text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 transition-all hover:scale-105 w-full sm:w-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <Link
+                to={lienCreerMusique(Boolean(user))}
+                aria-describedby="hero-aide-create"
+                data-testid="hero-creer-musique"
+              >
+                <Wand2 className="h-5 w-5 mr-2 text-warning" aria-hidden="true" />
+                <TranslatedText text="Créer une musique" />
+              </Link>
+            </Button>
+            <p id="hero-aide-create" className="text-sm sm:text-base text-muted-foreground max-w-md">
+              <span className="font-semibold text-foreground">Med MNG Create</span>
+              {' : '}
+              <TranslatedText text="transformez un item EDN en chanson, dans le style de votre choix (génération audio avec Premium)." />
+            </p>
+          </div>
         </motion.div>
 
         {/* Feature pills with shine effect */}

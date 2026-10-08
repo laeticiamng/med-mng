@@ -1,3 +1,5 @@
+import { ROUTE_PATHS } from '@/config/routes';
+
 /**
  * Paramètre `?next=` des pages de connexion / inscription.
  *
@@ -22,4 +24,35 @@ export const cheminInterneSur = (valeur: string | null | undefined): string | nu
 export const avecSuivant = (route: string, suivant: string | null | undefined): string => {
   const sur = cheminInterneSur(suivant);
   return sur ? `${route}?next=${encodeURIComponent(sur)}` : route;
+};
+
+const CHEMIN_CREATE = ROUTE_PATHS.medMngCreate;
+const CHEMIN_INSCRIPTION = ROUTE_PATHS.medMngSignup;
+
+/**
+ * Lien de l'entrée « Créer une musique » (accueil, navigation).
+ *  - connecté : Med MNG Create directement ;
+ *  - visiteur : inscription gratuite qui ramène sur Create après
+ *    l'inscription (e-mail ou Google) ou la connexion (lien « Se connecter »
+ *    de la page d'inscription, qui conserve `next`).
+ */
+export const lienCreerMusique = (connecte: boolean): string =>
+  connecte ? CHEMIN_CREATE : avecSuivant(CHEMIN_INSCRIPTION, CHEMIN_CREATE);
+
+/**
+ * Phrase d'explication affichée sur les pages de connexion / inscription quand
+ * le visiteur arrive depuis « Créer une musique » : il sait pourquoi on lui
+ * demande un compte et où il reviendra.
+ */
+export const contexteSuivant = (
+  suivant: string | null | undefined,
+  page: 'connexion' | 'inscription',
+): string | null => {
+  const sur = cheminInterneSur(suivant);
+  if (!sur || !(sur === CHEMIN_CREATE || sur.startsWith(`${CHEMIN_CREATE}?`) || sur.startsWith(`${CHEMIN_CREATE}/`))) {
+    return null;
+  }
+  return page === 'inscription'
+    ? 'Med MNG Create : créez votre compte gratuit, vous arriverez ensuite directement sur la page de création.'
+    : 'Med MNG Create : connectez-vous, vous reviendrez ensuite directement sur la page de création.';
 };

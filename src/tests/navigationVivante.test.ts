@@ -65,9 +65,12 @@ describe('Navigation vivante', () => {
     expect(hook).not.toContain(".eq('activity_type', 'review')");
   });
 
-  it('MM-A11 : ECOS est dans le menu principal et la page SEO ne promet que l’existant', async () => {
-    const { MAIN_NAV_ITEMS } = await import('@/config/navigation');
-    expect(MAIN_NAV_ITEMS.map((i) => i.path)).toContain('/ecos');
+  it('MM-A11 : ECOS reste trouvable par tous (menu « Plus » depuis le 08.10.2026) et la page SEO ne promet que l’existant', async () => {
+    const { MAIN_NAV_ITEMS, PUBLIC_NAV_GROUPS } = await import('@/config/navigation');
+    // Décision CEO du 08.10.2026 : « Créer une musique » prend la place d'ECOS dans
+    // la barre principale ; ECOS passe dans « Plus », visible des visiteurs aussi.
+    expect(MAIN_NAV_ITEMS.map((i) => i.path)).not.toContain('/ecos');
+    expect(PUBLIC_NAV_GROUPS.flatMap((g) => g.items.map((i) => i.path))).toContain('/ecos');
     const seo = lire('src/pages/seo/PreparationEcos2027.tsx');
     expect(seo).not.toMatch(/Situations ECOS issues du référentiel|Historique de vos tentatives/);
   });

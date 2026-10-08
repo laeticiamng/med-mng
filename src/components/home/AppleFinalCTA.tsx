@@ -1,13 +1,16 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Play, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Play, Sparkles, ArrowRight, BookOpen, Wand2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { lienCreerMusique } from '@/lib/cheminSuivant';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/global/TranslatedText';
 
 export const AppleFinalCTA = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -46,11 +49,18 @@ export const AppleFinalCTA = () => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ duration: 0.8, delay: 0.8 }}>
-          <button onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group">
-            <BookOpen className="h-5 w-5" />
-            <span><TranslatedText text="Ou explorez d'abord les items EDN" /></span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8">
+            <Link to={ROUTE_PATHS.ednComplete} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <BookOpen className="h-5 w-5" aria-hidden="true" />
+              <span><TranslatedText text="Ou explorez d'abord les items EDN" /></span>
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+            </Link>
+            <Link to={lienCreerMusique(Boolean(user))} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="cta-final-creer-musique">
+              <Wand2 className="h-5 w-5" aria-hidden="true" />
+              <span><TranslatedText text="Ou créez votre musique avec Med MNG Create" /></span>
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+            </Link>
+          </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 1 }} className="mt-16 flex flex-wrap justify-center gap-8 text-muted-foreground text-sm">
