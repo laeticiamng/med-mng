@@ -39,16 +39,44 @@ export interface NavGroup {
 }
 
 // Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre).
-// ECOS : retiré le 25/09/2026, rétabli le 07.10.2026 (MM-A11) — l'offre gratuite
-// annonce 12 situations ECOS d'entraînement, elles doivent être trouvables.
+// Décision CEO du 08.10.2026 : deux portes d'entrée phares — « Réviser les 367
+// items EDN » (EDN) et « Créer une musique » (Med MNG Create, NAV_CREER_MUSIQUE,
+// affichée à part et mise en avant). ECOS quitte la barre principale pour le
+// menu « Plus » (groupe « Réviser », visible de tous, visiteurs compris) : les
+// 12 situations ECOS d'entraînement de l'offre gratuite restent trouvables
+// (MM-A11), toutes les routes ECOS sont inchangées.
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
-  { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Stethoscope },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 
-// Navigation secondaire pour utilisateurs connectés uniquement
+/**
+ * Entrée « Créer une musique » (Med MNG Create), mise en avant dans l'en-tête.
+ * `path` est la page de création ; pour un visiteur, l'en-tête utilise
+ * `lienCreerMusique(false)` (inscription gratuite puis retour sur Create).
+ */
+export const NAV_CREER_MUSIQUE: NavItem = {
+  path: ROUTE_PATHS.medMngCreate,
+  label: 'Créer une musique',
+  shortLabel: 'Créer',
+  icon: Music,
+  description: 'Med MNG Create',
+};
+
+/** Groupes du menu « Plus » visibles de tous (visiteurs compris). */
+export const PUBLIC_NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'reviser',
+    label: '📚 Réviser',
+    icon: Stethoscope,
+    items: [
+      { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', icon: Stethoscope, description: "Situations d'entraînement" },
+    ],
+  },
+];
+
+// Groupes du menu « Plus » réservés aux utilisateurs connectés
 export const SECONDARY_NAV_GROUPS: NavGroup[] = [
   {
     id: 'creation',

@@ -10,7 +10,7 @@ import { RateLimitPresets, useRateLimiting } from '@/hooks/useRateLimiting';
 import { AlertTriangle, ArrowLeft, Clock, Music } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
+import { avecSuivant, cheminInterneSur, contexteSuivant } from '@/lib/cheminSuivant';
 import { traduireErreurAuth } from '@/lib/erreursAuth';
 import { toast } from 'sonner';
 
@@ -29,6 +29,7 @@ export const MedMngLogin = () => {
   const [searchParams] = useSearchParams();
   // Chemin interne où revenir après connexion (ex. page d'abonnement).
   const suivant = cheminInterneSur(searchParams.get('next'));
+  const contexte = contexteSuivant(suivant, 'connexion');
 
   // Rate limiting pour les tentatives de connexion
   const {
@@ -164,6 +165,11 @@ export const MedMngLogin = () => {
           </div>
           {/* Titre de la page (h1) : même rendu que la description de la carte. */}
           <h1 className="text-sm text-muted-foreground">Connectez-vous à votre compte</h1>
+          {contexte && (
+            <p className="mt-3 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground" data-testid="contexte-suivant">
+              {contexte}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Alerte de blocage rate limiting */}

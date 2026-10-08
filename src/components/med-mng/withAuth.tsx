@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
+import { avecSuivant } from '@/lib/cheminSuivant';
 import { TEST_MODE_ENABLED } from '@/config/testMode';
 import { AlertTriangle, X } from 'lucide-react';
 import React from 'react';
@@ -68,7 +69,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
     }
 
     if (!user) {
-      return <Navigate to={`${ROUTE_PATHS.medMngLogin}?next=${encodeURIComponent(location.pathname + location.search)}`} state={{ from: location }} replace />;
+      return <Navigate to={avecSuivant(ROUTE_PATHS.medMngLogin, location.pathname + location.search)} state={{ from: location }} replace />;
     }
 
     return <Component {...props} />;
@@ -106,7 +107,17 @@ export const ProtectedRoute: React.FC<WithAuthProps> = ({
   }
 
   if (!user) {
-    return <Navigate to={fallback} state={{ from: location }} replace />;
+    // `?next=` : après connexion (e-mail ou Google) ou inscription, retour sur
+    // la page demandée. Avant, seul `state.from` était transmis, que les pages
+    // de connexion ne lisent pas : un visiteur qui cliquait « Créer une
+    // musique » se retrouvait sur /edn-complete après s'être connecté.
+    return (
+      <Navigate
+        to={avecSuivant(fallback, location.pathname + location.search)}
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;

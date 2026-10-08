@@ -2,7 +2,7 @@ import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { FORMULES_PREMIUM, NOMBRE_ITEMS_GRATUITS, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Crown, ExternalLink, RefreshCw } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -63,24 +63,25 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
     return (
       <div className="mb-6 sm:mb-12">
         <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 shadow-lg shadow-primary/10">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-primary/20">
                 <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
               <div className="min-w-0">
-                <h4 className="font-semibold text-foreground text-sm sm:text-base">Génération audio</h4>
+                <h4 className="font-semibold text-foreground text-sm sm:text-base">Votre offre : Gratuit</h4>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois avec {NOM_OFFRE_PREMIUM}.
+                  Paroles des {NOMBRE_ITEMS_GRATUITS} items d'essai consultables. Génération audio : 0 avec l'offre gratuite,{' '}
+                  {QUOTA_GENERATIONS_AUDIO_PREMIUM} chansons par mois avec {NOM_OFFRE_PREMIUM} ({FORMULES_PREMIUM.annuel.prixAffiche} ou {FORMULES_PREMIUM.mensuel.prixAffiche}).
                 </p>
               </div>
             </div>
-            <Link to={ROUTE_PATHS.medMngPricing}>
-              <Button size="sm" className="h-8 text-xs gap-1 shrink-0">
-                <ExternalLink className="h-3 w-3" />
+            <Button asChild size="sm" className="h-9 text-xs gap-1 shrink-0">
+              <Link to={ROUTE_PATHS.medMngPricing}>
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
                 Voir l'offre
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -91,7 +92,7 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   const isExhausted = restantes === 0;
 
   return (
-    <div className="mb-6 sm:mb-12">
+    <div className="mb-6 sm:mb-12" role="status" aria-label={`Générations audio ce mois : ${utilise} sur ${limite}`}>
       <div className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border shadow-lg ${
         isExhausted
           ? 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20 shadow-destructive/10'

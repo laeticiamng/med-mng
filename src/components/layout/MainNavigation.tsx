@@ -16,7 +16,8 @@ import {
     DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, SECONDARY_NAV_GROUPS } from '@/config/navigation';
+import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, NAV_CREER_MUSIQUE, PUBLIC_NAV_GROUPS, SECONDARY_NAV_GROUPS } from '@/config/navigation';
+import { lienCreerMusique } from '@/lib/cheminSuivant';
 import { LIEN_PARAMETRES_COMPTE, ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
@@ -88,6 +89,10 @@ export const MainNavigation: React.FC = () => {
   const serie = gamificationStats?.currentStreak || 0;
   const points = gamificationStats?.currentXP || 0;
 
+  // Menu « Plus » : ECOS pour tous ; création et bibliothèque une fois connecté.
+  const groupesPlus = user ? [...PUBLIC_NAV_GROUPS, ...SECONDARY_NAV_GROUPS] : PUBLIC_NAV_GROUPS;
+  const lienCreer = lienCreerMusique(Boolean(user));
+
   const isActive = (path: string) => {
     if (path === ROUTE_PATHS.home) return location.pathname === ROUTE_PATHS.home;
     return location.pathname.startsWith(path);
@@ -134,8 +139,21 @@ export const MainNavigation: React.FC = () => {
               </Link>
             ))}
             
-            {/* Menu "Plus" avec sous-catégories — visible uniquement si contenu disponible */}
-            {(user || isAdmin) && (
+            {/* Porte d'entrée « Créer une musique » (Med MNG Create), mise en avant. */}
+            <Link
+              to={lienCreer}
+              aria-current={isActive(NAV_CREER_MUSIQUE.path) ? 'page' : undefined}
+              className="ml-1 flex items-center px-3 py-2 rounded-lg text-xs xl:text-sm font-semibold bg-foreground text-background shadow-sm hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-opacity"
+              data-testid="nav-creer-musique"
+            >
+              <NAV_CREER_MUSIQUE.icon className="w-4 h-4 mr-1.5 xl:mr-2" aria-hidden="true" />
+              {/* Libellé court entre 1024 et 1280 px : l'en-tête tient sur une ligne. */}
+              <span className="hidden xl:inline"><TranslatedText text={NAV_CREER_MUSIQUE.label} /></span>
+              <span className="xl:hidden" aria-hidden="true"><TranslatedText text={NAV_CREER_MUSIQUE.shortLabel ?? NAV_CREER_MUSIQUE.label} /></span>
+              <span className="sr-only xl:hidden">{NAV_CREER_MUSIQUE.label}</span>
+            </Link>
+
+            {/* Menu "Plus" : ECOS pour tous, création/bibliothèque une fois connecté */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -145,7 +163,7 @@ export const MainNavigation: React.FC = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                {SECONDARY_NAV_GROUPS.map((group, index) => (
+                {groupesPlus.map((group, index) => (
                   <DropdownMenuGroup key={group.id}>
                     {index > 0 && <DropdownMenuSeparator />}
                     <DropdownMenuSub>
@@ -193,7 +211,6 @@ export const MainNavigation: React.FC = () => {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            )}
           </div>
 
           {/* Actions utilisateur */}
@@ -318,8 +335,19 @@ export const MainNavigation: React.FC = () => {
                 </Link>
               ))}
               
-              {/* Catégories secondaires (auth-only) */}
-              {user && SECONDARY_NAV_GROUPS.map((group) => {
+              <Link
+                to={lienCreer}
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-current={isActive(NAV_CREER_MUSIQUE.path) ? 'page' : undefined}
+                className="mt-1 flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold bg-foreground text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                data-testid="nav-creer-musique-mobile"
+              >
+                <NAV_CREER_MUSIQUE.icon className="w-4 h-4 mr-3" aria-hidden="true" />
+                <TranslatedText text={NAV_CREER_MUSIQUE.label} />
+              </Link>
+
+              {/* Catégories du menu « Plus » (ECOS pour tous ; création une fois connecté) */}
+              {groupesPlus.map((group) => {
                 const IconComponent = group.icon;
                 return (
                   <div key={group.id} className="pt-3">

@@ -19,7 +19,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === HOME ===
   '/': {
     title: TITRE_ACCUEIL,
-    description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium. Situations ECOS guidées.',
+    description: 'Les 367 items EDN : fiches officielles rang A et rang B gratuites, et en immersion (paroles de chanson, récit, planches, quiz) avec Med MNG Premium. Med MNG Create : la chanson d\'un item dans le style de votre choix (Premium). Situations ECOS guidées.',
     keywords: `${BASE_KEYWORDS}, révisions, mémorisation, étudiants médecine`,
     canonical: '/',
   },

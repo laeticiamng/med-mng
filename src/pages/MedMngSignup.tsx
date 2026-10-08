@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { avecSuivant, cheminInterneSur } from '@/lib/cheminSuivant';
+import { avecSuivant, cheminInterneSur, contexteSuivant } from '@/lib/cheminSuivant';
 import { traduireErreurAuth } from '@/lib/erreursAuth';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ export const MedMngSignup = () => {
   const [searchParams] = useSearchParams();
   // Plan choisi avant l'inscription : retour vers la page d'abonnement.
   const suivant = cheminInterneSur(searchParams.get('next'));
+  const contexte = contexteSuivant(suivant, 'inscription');
   const { logActivity } = useActivityTracking();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -113,6 +114,11 @@ export const MedMngSignup = () => {
           <p className="text-2xl font-bold leading-none tracking-tight text-foreground">Med MNG</p>
           {/* Titre de la page (h1) : même rendu que la description de la carte. */}
           <h1 className="text-sm text-muted-foreground">Créez votre compte</h1>
+          {contexte && (
+            <p className="mt-3 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground" data-testid="contexte-suivant">
+              {contexte}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
