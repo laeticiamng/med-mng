@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { completionIA } from '../_shared/ia-resiliente.ts'
 import { lignesNonVides, parolesRedigees } from '../_shared/mm-paroles.ts'
-import { REGLE_FIDELITE_SOURCE, motifNombresInventes } from '../_shared/mm-paroles-fideles.ts'
+import { REGLE_FIDELITE_SOURCE, motifsInfideliteSource } from '../_shared/mm-paroles-fideles.ts'
 
 /**
  * Génère les paroles d'un item EDN à partir de SES compétences OIC officielles.
@@ -153,13 +153,13 @@ export function controlerQualite(paroles: string, competences: Competence[]): st
     if (n > 3) { motifs.push('une ligne est répétée plus de trois fois'); break }
   }
 
-  // Aucun chiffre inventé (08.10.2026) : chaque nombre chanté doit figurer dans
-  // le texte officiel des compétences fournies (seuils, délais, doses…).
+  // Fidélité au texte officiel des compétences fournies (08.10.2026, revue #227) :
+  // chaque nombre chanté doit y figurer, avec la même unité (« 5 mg » ≠ « 5 jours ») ;
+  // chaque ordinal (« 1re intention », « 2e ligne ») et chaque molécule aussi.
   const source = competences
     .map((c) => `${nettoyer(c.intitule)} ${nettoyer(c.description)} ${nettoyer(c.sommaire)}`)
     .join('\n')
-  const inventes = motifNombresInventes(paroles, source)
-  if (inventes) motifs.push(inventes)
+  motifs.push(...motifsInfideliteSource(paroles, source))
 
   return motifs
 }
