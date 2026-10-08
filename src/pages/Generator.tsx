@@ -49,12 +49,16 @@ import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { useSubscription } from '@/hooks/useSubscription';
 import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
 import { MedicalDisclaimer } from '@/components/legal';
-import { ArrowLeft, Lock, Music, Sparkles } from 'lucide-react';
+import { avecSuivant } from '@/lib/cheminSuivant';
+import { ArrowLeft, Library, Lock, Music, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type RangGeneration = 'A' | 'B' | 'AB';
+
+export const MESSAGE_HORS_LIGNE =
+  'Vous êtes hors ligne : reconnectez-vous à Internet pour lancer la génération (rien n’a été décompté).';
 
 interface ChansonGeneree {
   id: number;
@@ -202,7 +206,8 @@ const Generator = () => {
           {
             action: {
               label: 'Se connecter',
-              onClick: () => navigate(ROUTE_PATHS.medMngLogin),
+              onClick: () =>
+                navigate(avecSuivant(ROUTE_PATHS.medMngLogin, ROUTE_PATHS.medMngCreate)),
             },
             duration: 5000,
           }
@@ -212,6 +217,12 @@ const Generator = () => {
 
       if (!canGenerate() || !ednLyrics) {
         toast.error('Choisissez un item, un rang et un style musical.');
+        return;
+      }
+
+      // Hors ligne : rien n'est envoyé (aucune génération décomptée).
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        toast.error(MESSAGE_HORS_LIGNE);
         return;
       }
 
@@ -433,6 +444,13 @@ const Generator = () => {
                 </p>
               </div>
             </div>
+            {/* « Je retrouve ma musique » : la bibliothèque, accessible d'ici. */}
+            <Button asChild variant="outline" size="sm" className="sm:ml-auto min-h-[40px]">
+              <Link to={ROUTE_PATHS.medMngMusicLibrary}>
+                <Library className="h-4 w-4 mr-2" aria-hidden="true" />
+                Mes chansons
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -442,10 +460,11 @@ const Generator = () => {
         role="main"
       >
         <div className="max-w-6xl mx-auto">
-          {/* Sans Premium : l'encart d'offre vit désormais uniquement à côté du
-              bouton « Générer ma chanson », dans GeneratorForm — pas ici en plus.
-              Pour un abonné, ce compteur d'usage reste utile : on le garde. */}
-          {aAccesPremium && (
+          {/* Offre visible dès l'arrivée (08.10.2026) : gratuit (0 génération
+              audio, paroles des items d'essai) ou Premium (X / 30 ce mois). Avant,
+              un compte gratuit ne découvrait la règle qu'après avoir choisi item,
+              rang et style. L'encart détaillé reste à la place du bouton. */}
+          {user && !chargementAcces && !chargementAbonnement && (
             <div className="mb-6">
               <QuotaDisplay
                 user={user}

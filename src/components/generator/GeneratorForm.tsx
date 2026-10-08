@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/tooltip';
 import { NOM_OFFRE_PREMIUM } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
+import { avecSuivant } from '@/lib/cheminSuivant';
 import {
   LIMITES_SUNO,
   dureeEstimeeAffichee,
@@ -47,7 +48,7 @@ const LoginPromptBanner: React.FC = () => {
         <Button
           variant="default"
           size="sm"
-          onClick={() => navigate(ROUTE_PATHS.medMngLogin)}
+          onClick={() => navigate(avecSuivant(ROUTE_PATHS.medMngLogin, ROUTE_PATHS.medMngCreate))}
           className="w-fit"
         >
           <LogIn className="h-4 w-4 mr-2" />
