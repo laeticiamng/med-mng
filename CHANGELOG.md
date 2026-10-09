@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-09, soir] — Génération musicale réactivée
+### Réactivé (décision explicite de l'utilisatrice, 09.10.2026)
+- Génération audio des chansons (Premium, 30 par mois) : drapeau `GENERATION_AUDIO_DISPONIBLE` repassé à `true` ; fournisseur technique inchangé (sunoapi.org), aucune migration prévue. Les textes pilotés par le drapeau (offre, tarifs, FAQ, CGV, CGU, JSON-LD, accueil, Create, profil, bibliothèque, e-mail de bienvenue, description du produit Stripe) retrouvent leur formulation d'avant la suspension ; `public/llms.txt` aussi. Conservé : réservation atomique avant l'appel au fournisseur, refus si les compteurs sont illisibles, paroles chantées fidèles, ambiance libre contrôlée, webhook Stripe qui relit l'abonnement. Le message de suspension (inutilisé tant que le drapeau est ouvert) ne mentionne plus de « licences ».
+### Tests
+- `src/tests/createAudioDisponible.test.tsx` (remplace `createAudioSuspendu`) : drapeau ouvert, promesses d'avant la suspension, JSON-LD et `llms.txt` sans mention de suspension, ordre des contrôles serveur (interrupteur → droits → réservation → appel sunoapi.org), aucune affirmation de licence Suno.
+
 ## [2026-10-09] — Suspension de l'audio, Med MNG Create, cohérence finale
 ### Suspendu (décision CEO du 09.10.2026)
 - Génération audio des chansons : nouvelles générations refusées côté serveur (`mm-generate-music`, `GENERATION_SUSPENDUE`, avant toute réservation ou tout appel au fournisseur) tant que les droits commerciaux du moteur musical ne sont pas établis par écrit. Drapeau unique `_shared/mm-disponibilite.ts` (site et serveur). Paroles, fiches, quiz, récits, planches et chansons déjà créées restent disponibles ; prix et formules inchangés (#232).
