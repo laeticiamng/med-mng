@@ -160,8 +160,8 @@ export const MngPresentation = () => {
           <div className="space-y-3">
             <div className="bg-success/10 p-4 rounded-lg border-l-4 border-success">
               <p className="text-sm text-foreground">
-                <strong>Génération à la demande</strong> à partir des compétences rang A / rang B de chaque item
-                (référentiel LiSA 2026, UNESS). Les contenus générés par IA peuvent contenir des erreurs : vérifiez-les.
+                <strong>Paroles écrites à partir des compétences</strong> rang A / rang B de chaque item
+                (référentiel LiSA 2026, UNESS), avec l'aide de l'IA. Les contenus générés par IA peuvent contenir des erreurs : vérifiez-les.
               </p>
             </div>
             <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">

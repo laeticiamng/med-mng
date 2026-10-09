@@ -134,7 +134,7 @@ export const useQuizErrorTracker = () => {
     if (completedSession.errors.length > 0) {
       toast({
         title: "Erreurs détectées",
-        description: `${completedSession.errors.length} erreur(s) enregistrée(s). Vous pouvez générer une chanson pour les réviser !`,
+        description: `${completedSession.errors.length} erreur(s) enregistrée(s). Relisez les compétences concernées dans la fiche de l'item.`,
         variant: "default"
       });
     }

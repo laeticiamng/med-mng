@@ -133,7 +133,11 @@ const FAQ = () => {
                 <AccordionContent className="text-muted-foreground text-sm">
                   Oui. Les 367 items ont une fiche avec leurs compétences officielles (rang A et rang B ; quelques
                   items n'ont qu'un des deux rangs dans le référentiel), un quiz, des paroles de chanson, un récit et
-                  des planches illustrées. L'audio se génère à la demande avec Med MNG Premium. Vous pouvez consulter
+                  des planches illustrées.{' '}
+                  {GENERATION_AUDIO_DISPONIBLE
+                    ? "L'audio se génère à la demande avec Med MNG Premium."
+                    : "La génération de l'audio est momentanément suspendue ; les paroles restent disponibles."}{' '}
+                  Vous pouvez consulter
                   la liste complète dans la section{' '}
                   <Link to={ROUTE_PATHS.ednComplete} className="text-primary underline underline-offset-2 hover:decoration-2">Items EDN</Link>.
                 </AccordionContent>

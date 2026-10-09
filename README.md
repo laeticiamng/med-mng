@@ -1,6 +1,6 @@
 # Med MNG — réviser les 367 items EDN en musique
 
-**Production : https://medmng.com** (inscription libre, paiement Stripe Checkout) · éditeur : EmotionsCare SASU · état au 7 octobre 2026
+**Production : https://medmng.com** (inscription libre, paiement Stripe Checkout) · éditeur : EmotionsCare SASU · état au 9 octobre 2026
 
 Application web (PWA) de révision pour les étudiants de 2e cycle (DFASM1–DFASM2, EDN 2028 et 2029). Pour chaque item : la fiche des compétences officielles (référentiel LiSA 2026, UNESS) et un contenu « immersif » (paroles de chanson, récit, planches, quiz), mis en musique à la demande.
 
@@ -9,7 +9,7 @@ Application web (PWA) de révision pour les étudiants de 2e cycle (DFASM1–DFA
 | Formule | Contenu |
 |---|---|
 | **Gratuit** | Fiches officielles des 367 items (rang A et rang B, table `oic_competences`) ; contenu immersif complet de 10 items d'essai : IC-1, IC-161, IC-154, IC-27, IC-247, IC-359, IC-224, IC-340, IC-356, IC-66 (décision DC5 du 06.10.2026 ; `ITEMS_GRATUITS` dans `src/config/offre.ts`, identique à la fonction SQL `public.mm_items_gratuits()`, qui fait foi — vérifié en production le 07.10.2026) ; 12 situations ECOS d'entraînement rédigées pour Med MNG |
-| **Premium — 69 €/an ou 9,90 €/mois** | Contenu immersif des 367 items ; 30 générations audio de chansons par mois ; bibliothèque personnelle. Prix Stripe retrouvés par `lookup_key` (`medmng_premium_annual`, `medmng_premium_monthly`, `supabase/functions/_shared/mm-stripe-catalog.ts`) |
+| **Premium — 69 €/an ou 9,90 €/mois** | Contenu immersif des 367 items ; bibliothèque personnelle ; génération audio des chansons (30 par mois) **suspendue depuis le 09.10.2026** (voir ci-dessous), annoncée partout comme « bientôt disponible ». Prix Stripe retrouvés par `lookup_key` (`medmng_premium_annual`, `medmng_premium_monthly`, `supabase/functions/_shared/mm-stripe-catalog.ts`) |
 
 Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copilote IA, tuteur IA, cas cliniques, examens blancs, QCM et planning générés par IA. Leurs anciennes adresses redirigent vers `/edn-complete` (ou `/ecos`) et leurs fonctions serveur sont réservées aux administrateurs. Retirées aussi le même jour : la démo `/demo` (anciens numéros d'items) et les parcours par spécialité `/parcours` (9 sur 10 vides), redirigés vers `/edn-complete`. Le 07.10.2026 : classement (`/leaderboard` → `/achievements`, badges atteignables seulement), cloche de notifications (toujours vide), page `/settings` factice (→ onglet Paramètres du profil) ; une seule page de progression.
 
@@ -18,7 +18,8 @@ Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copi
 - **Items EDN** (`/edn-complete`, `/edn-complete/:item/{apercu,rang-a,rang-b,quiz,musique,planches,recit,stats}`) : fiche rang A / rang B, export PDF, recherche par numéro, titre, discipline ou intitulé de compétence (liste et ⌘K).
 - **Contenu immersif** : lu par la RPC `mm_contenu_immersif_item` (verrou Premium **côté serveur** ; les colonnes Premium sont illisibles en lecture directe, erreur 42501).
 - **Quiz par item** : une question par compétence officielle, quatre énoncés officiels, réponse correcte à une position stable mais non cyclique.
-- **Génération audio** (Premium) : `/med-mng/create` et onglet Musique de la fiche.
+- **Génération audio** (Premium) : `/med-mng/create` et onglet Musique de la fiche — **suspendue depuis le 09.10.2026** (décision CEO : droits commerciaux du moteur musical non établis par écrit). Drapeau unique `GENERATION_AUDIO_DISPONIBLE = false` dans `supabase/functions/_shared/mm-disponibilite.ts`, lu par le site (`src/config/offre.ts`) et par `mm-generate-music` (refus `GENERATION_SUSPENDUE` avant toute réservation ou appel au fournisseur). Le moteur et son intégration sont conservés. Restent disponibles : paroles, programme officiel, fiches, quiz, récits, planches et écoute des chansons déjà créées. **Reprise** : passer le drapeau à `true`, redéployer `mm-generate-music`, `mm-create-checkout`, `mm-stripe-webhook`, `mm-customer-portal` et `send-welcome-email` (description du produit Stripe et e-mail de bienvenue), mettre à jour `public/llms.txt`, republier le site. **Ne jamais réactiver la génération commerciale via sunoapi.org sans licence écrite.**
+- **Répétition espacée** (`/srs-review`, compte connecté) : révisions planifiées (algorithme SM-2, tables `user_item_progress`, `item_reviews`, `review_sessions`).
 - **ECOS** (`/ecos`, `/ecos/:id`) : 12 stations guidées (dossier du patient, « Je dis / Je fais / Je conclus », chronomètre, grille d'auto-évaluation générique).
 - **Espace personnel** : bibliothèque (`/med-mng/music-library`), progression (`/progress-dashboard` ; `/med-mng/progress` y redirige), favoris (`/med-mng/favorites`), succès (`/achievements`), profil (abonnement, portail Stripe). **Mes données** (`/mes-donnees-rgpd`) : export JSON généré dans le navigateur ; suppression du compte par le service commun `delete-user-account` (dépôt EmotionsCare), refusée (409, message affiché avec accès au portail) tant qu'un abonnement Stripe peut être prélevé (`active`, `trialing`, `past_due`, `unpaid`).
 
@@ -28,7 +29,7 @@ Hors offre (retirés de l'interface le 04.10.2026, décision DC7) : chat et copi
 - **Back** : Supabase `yaincoxihiqdksxgrsrk` (région eu-central-1, Francfort) — **partagé avec EmotionsCare** : ne modifier aucune table, politique ou fonction commune sans vérifier l'impact sur EmotionsCare (exemple : `whisper-transcribe` est appelée par EmotionsCare).
 - **Génération audio** : `mm-generate-music` (abonnement, quota mensuel, registre `mm_generations_audio`) → sunoapi.org → `mm-suno-callback` (ou rattrapage `mm-music-status`) ; le fichier est copié dans le compartiment `mm-chansons` (l'URL fournie par Suno expire au bout de 14 jours). Si les paroles enregistrées d'un item ne sont pas rédigées, `generer-paroles-item` les réécrit depuis les compétences officielles (passerelle IA de Lovable, Google Gemini) et les enregistre ; des paroles déjà rédigées sont rendues telles quelles (seul le jeton d'administration de `scripts/regenerer.mjs` peut les remplacer).
 - **Planches** : `illustrer-case` dessine une seule fois chaque case (OpenAI), conservée dans `bd-illustrations`.
-- **Paiement** : `mm-create-checkout` → Stripe Checkout ; `mm-stripe-webhook` → `user_subscriptions` ; `mm-customer-portal` (résiliation, factures). Compte Stripe partagé avec EmotionsCare (`metadata.app = "medmng"`). L'archivage des factures dans `subscription_invoices` est non bloquant : la table n'existe pas en production (migration `20260210130000` non appliquée, volontairement : elle crée aussi une vue de classement qui contournerait la RLS) ; Stripe fait foi.
+- **Paiement** : `mm-create-checkout` → Stripe Checkout ; `mm-stripe-webhook` → `user_subscriptions` (signature vérifiée ; écriture idempotente par `stripe_subscription_id` ; l'état de l'abonnement est relu chez Stripe à chaque `customer.subscription.*` et `invoice.payment_failed`, car l'ordre de livraison n'est pas garanti) ; `mm-customer-portal` (résiliation, factures). Compte Stripe partagé avec EmotionsCare (`metadata.app = "medmng"`). L'archivage des factures dans `subscription_invoices` est non bloquant : la table n'existe pas en production (migration `20260210130000` non appliquée, volontairement : elle crée aussi une vue de classement qui contournerait la RLS) ; Stripe fait foi.
 - **E-mails** : Resend, via `supabase/functions/_shared/mm-email.ts` (bienvenue, envois d'administration, rapports). Expéditeur lu dans `RESEND_FROM` (adresse d'un domaine vérifié dans Resend) ; à défaut, repli sur l'adresse de test `onboarding@resend.dev`, que Resend refuse (403) pour les autres destinataires — l'échec est alors journalisé et renvoyé, jamais présenté comme un envoi.
 - **Prestataires réellement appelés** : liste à jour dans la politique de confidentialité (`src/pages/PolitiqueConfidentialite.tsx`).
 - **Langue** : interface en français uniquement (pas de sélecteur de langue).
@@ -61,7 +62,7 @@ npx vite build                            # build de production
 deno check supabase/functions/<fonction>/index.ts
 ```
 
-Au 07.10.2026 : 107 fichiers, 1 414 tests, **0 échec** (lancés avec `TZ=UTC`, fuseau du serveur, pour des résultats reproductibles). Les fonctions Edge sont aussi couvertes par des tests Vitest qui importent leurs modules `_shared/` (`src/tests/mm*.test.ts`) et par des tests Deno (`supabase/functions/_shared/*.test.ts`, `deno test --no-lock`).
+Au 09.10.2026 : 123 fichiers, 1 538 tests, **0 échec** (lancés avec `TZ=UTC`, fuseau du serveur, pour des résultats reproductibles). Les fonctions Edge sont aussi couvertes par des tests Vitest qui importent leurs modules `_shared/` (`src/tests/mm*.test.ts`) et par des tests Deno (`supabase/functions/_shared/*.test.ts`, `deno test --no-lock`).
 
 ### E2E de production
 

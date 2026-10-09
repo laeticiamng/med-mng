@@ -46,8 +46,17 @@ const LoginPromptBanner: React.FC = () => {
       <Sparkles className="h-4 w-4 text-primary" />
       <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3">
         <span className="text-sm">
-          <strong>Connectez-vous</strong> pour générer une chanson — génération
-          audio incluse dans <strong>{NOM_OFFRE_PREMIUM}</strong>.
+          {GENERATION_AUDIO_DISPONIBLE ? (
+            <>
+              <strong>Connectez-vous</strong> pour générer une chanson — génération
+              audio incluse dans <strong>{NOM_OFFRE_PREMIUM}</strong>.
+            </>
+          ) : (
+            <>
+              <strong>Connectez-vous</strong> pour lire les paroles et le programme officiel de chaque item
+              (génération audio bientôt disponible).
+            </>
+          )}
         </span>
         <Button
           variant="default"

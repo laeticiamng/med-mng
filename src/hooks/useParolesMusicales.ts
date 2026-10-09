@@ -1,6 +1,6 @@
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
-import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, GENERATION_AUDIO_DISPONIBLE, MESSAGE_GENERATION_SUSPENDUE } from '@/config/offre';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -110,7 +110,9 @@ export const useParolesMusicales = (
     if (!user) {
       toast({
         title: 'Connexion requise',
-        description: `Connectez-vous pour générer une chanson (génération audio incluse dans ${NOM_OFFRE_PREMIUM}).`,
+        description: GENERATION_AUDIO_DISPONIBLE
+          ? `Connectez-vous pour générer une chanson (génération audio incluse dans ${NOM_OFFRE_PREMIUM}).`
+          : MESSAGE_GENERATION_SUSPENDUE,
         variant: 'destructive'
       });
       return false;

@@ -4,7 +4,7 @@
  * Optimisés pour être cités par ChatGPT, Perplexity, Claude et autres moteurs génératifs.
  * Stratégie : positionnement laser, expertise unique, contenu citable et structuré.
  */
-import { PROMESSE_AUDIO_COURTE } from '@/config/offre';
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 const SITE_URL = 'https://medmng.com';
 
@@ -42,8 +42,8 @@ export const createSpeakableSchema = () => ({
 export const createHowToSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: 'Comment réviser l\'EDN avec la musique IA en 4 étapes',
-  description: 'La méthode Med MNG combine neurosciences, musique IA et répétition espacée pour préparer les 367 items de l\'EDN. Voici comment l\'utiliser efficacement.',
+  name: 'Comment réviser l\'EDN avec Med MNG en 4 étapes',
+  description: 'La méthode Med MNG associe les compétences officielles de chaque item, des paroles de chanson, le rappel actif (quiz) et la répétition espacée pour préparer les 367 items de l\'EDN.',
   totalTime: 'PT30M',
   estimatedCost: {
     '@type': 'MonetaryAmount',
@@ -55,14 +55,14 @@ export const createHowToSchema = () => ({
       '@type': 'HowToStep',
       position: 1,
       name: 'Choisir un item EDN',
-      text: 'Sélectionnez parmi les 367 items EDN classés par spécialité, rang (A/B) et compétences OIC. Le système identifie vos lacunes automatiquement.',
+      text: 'Choisissez parmi les 367 items EDN (recherche par numéro, titre, discipline ou intitulé de compétence) et ouvrez sa fiche : compétences officielles rang A et rang B.',
       url: `${SITE_URL}/edn-complete`,
     },
     {
       '@type': 'HowToStep',
       position: 2,
-      name: 'Générer une chanson IA personnalisée',
-      text: 'L\'IA rédige des paroles à partir des compétences de l\'item (rang A, rang B ou A+B). Vous pouvez ensuite générer l\'audio dans le style de votre choix, dans la limite de vos crédits.',
+      name: 'Apprendre les paroles de l\'item',
+      text: `Les paroles de chaque item sont écrites à partir de ses compétences officielles (rang A, rang B ou A+B). ${GENERATION_AUDIO_DISPONIBLE ? 'Avec Med MNG Premium, vous pouvez ensuite générer l\'audio dans le style de votre choix.' : 'La génération de l\'audio est momentanément suspendue ; les paroles restent disponibles.'}`,
       url: `${SITE_URL}/med-mng/create`,
     },
     {
@@ -75,7 +75,7 @@ export const createHowToSchema = () => ({
       '@type': 'HowToStep',
       position: 4,
       name: 'Réviser en répétition espacée',
-      text: 'L\'algorithme SRS (Spaced Repetition System) planifie automatiquement vos révisions. Les items mal maîtrisés reviennent plus souvent, les acquis s\'espacent progressivement.',
+      text: 'La page Répétition espacée (compte gratuit) planifie vos révisions selon vos réponses : les items mal maîtrisés reviennent plus souvent, les acquis s\'espacent progressivement.',
     },
   ],
   tool: [
@@ -94,7 +94,7 @@ export const createDefinedTermSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'DefinedTerm',
   name: 'Méthode MNG (Music & Neuroscience for Grades)',
-  description: 'Méthodologie d\'apprentissage médical combinant la génération musicale par intelligence artificielle, l\'encodage mnésique musical et la répétition espacée algorithmique. Développée spécifiquement pour les étudiants en médecine préparant l\'EDN et les ECOS en France.',
+  description: 'Méthode de révision médicale associant des paroles de chanson écrites à partir des compétences officielles de chaque item EDN, le rappel actif (quiz) et la répétition espacée. Conçue pour les étudiants en médecine préparant l\'EDN et les ECOS en France.',
   inDefinedTermSet: {
     '@type': 'DefinedTermSet',
     name: 'Méthodes d\'apprentissage médical innovantes',
@@ -113,7 +113,6 @@ export const createDatasetSchema = () => ({
   name: 'Base de données EDN complète - 367 items R2C',
   description: 'Les 367 items du programme EDN (R2C) avec compétences rang A / rang B issues du référentiel LiSA 2026 (UNESS), fiche, quiz et paroles de chanson par item.',
   url: `${SITE_URL}/edn-complete`,
-  license: 'https://creativecommons.org/licenses/by-nc/4.0/',
   creator: {
     '@type': 'Organization',
     name: 'Med MNG par EmotionsCare',
@@ -126,8 +125,8 @@ export const createDatasetSchema = () => ({
   ],
   variableMeasured: [
     'Nombre d\'items : 367',
-    'Spécialités médicales : 31',
-    'Formats d\'évaluation : QCM, QRU, QROC, cas cliniques, ECOS',
+    'Compétences officielles : rang A et rang B (référentiel LiSA 2026, UNESS)',
+    'Entraînement : quiz par item et situations ECOS',
   ],
   temporalCoverage: '2024/..',
   inLanguage: 'fr',
@@ -136,65 +135,6 @@ export const createDatasetSchema = () => ({
     '@type': 'DataCatalog',
     name: 'Med MNG Educational Resources',
   },
-});
-
-/**
- * FAQ Schema étendu pour GEO - Questions que les utilisateurs posent aux IA
- * Cible les requêtes conversationnelles type "Quelle appli pour réviser l'EDN ?"
- */
-export const createGEOFAQSchema = () => ({
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'Quelle application pour réviser les EDN 2027 ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Med MNG associe la révision des 367 items EDN (fiche, rang A, rang B, quiz) à des paroles de chanson générées par IA, avec des situations ECOS guidées. Le compte gratuit donne accès aux fiches des 367 items et à 10 items d\'essai en immersion complète.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Comment apprendre la médecine par la musique ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Med MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B ; vous pouvez ensuite générer l\'audio (rap, pop, etc.). Réécouter peut aider à retenir, en complément du quiz et de vos cours.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: `Oui, les situations ECOS de Med MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. Med MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la ${PROMESSE_AUDIO_COURTE}.`,
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Qu\'est-ce que la répétition espacée pour les études de médecine ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'La répétition espacée consiste à revoir une notion à intervalles croissants. Med MNG propose un module de répétition espacée pour les flashcards : les cartes mal maîtrisées reviennent plus souvent.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Quelles spécialités médicales sont couvertes par Med MNG ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Med MNG couvre les 367 items EDN, toutes spécialités confondues, avec pour chacun fiche, compétences rang A / rang B, quiz et paroles de chanson.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Med MNG utilise-t-il l\'intelligence artificielle ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Oui : l\'IA rédige les paroles des chansons et génère l\'audio à la demande, génère des QCM et des cas cliniques, et un chat répond aux questions de cours. Les contenus générés par IA peuvent contenir des erreurs : vérifiez avec vos sources officielles.',
-      },
-    },
-  ],
 });
 
 /**
@@ -207,7 +147,7 @@ export const createExpertiseSchema = () => ({
   description: 'Préparation à l\'EDN et aux ECOS : 367 items avec compétences rang A / rang B, quiz, paroles de chanson générées par IA et situations ECOS.',
   educationalUse: 'Préparation EDN et ECOS',
   typicalAgeRange: '18-30',
-  educationalLevel: 'Études de médecine - 2e et 3e cycle',
+  educationalLevel: 'Études de médecine - 2e cycle (DFASM1-DFASM2)',
   inLanguage: 'fr',
   isAccessibleForFree: true,
   genre: 'Éducation médicale',

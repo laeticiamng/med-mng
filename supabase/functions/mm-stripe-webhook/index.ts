@@ -180,9 +180,13 @@ serve(async (req) => {
 
       case "customer.subscription.created":
       case "customer.subscription.updated": {
-        const sub = event.data.object as Stripe.Subscription;
-        const userId = await utilisateurAbonnement(supabase, sub);
+        const instantane = event.data.object as Stripe.Subscription;
+        const userId = await utilisateurAbonnement(supabase, instantane);
         if (!userId) return ignorer("abonnement hors MED MNG");
+        // Stripe ne garantit pas l'ordre de livraison : un « updated » ancien (statut
+        // « active ») reçu après la résiliation rouvrirait Premium. On enregistre donc
+        // l'état COURANT de l'abonnement, relu chez Stripe, pas l'instantané de l'événement.
+        const sub = await stripe.subscriptions.retrieve(instantane.id);
 
         // On conserve le plan déjà enregistré (abonnés des anciennes formules).
         const { data: existant, error } = await supabase
@@ -220,7 +224,10 @@ serve(async (req) => {
         if (!subscriptionId) return ignorer("facture sans abonnement");
         const userId = await utilisateurConnu(supabase, subscriptionId);
         if (!userId) return ignorer("facture hors MED MNG");
-        await majStatut(supabase, subscriptionId, "past_due");
+        // Statut courant relu chez Stripe (« past_due » le plus souvent) : un échec ancien
+        // livré après un paiement réussi ne doit pas couper l'accès d'un abonné à jour.
+        const courant = await stripe.subscriptions.retrieve(subscriptionId);
+        await majStatut(supabase, subscriptionId, courant.status);
         await archiverFacture(supabase, invoice, subscriptionId, "failed");
         break;
       }

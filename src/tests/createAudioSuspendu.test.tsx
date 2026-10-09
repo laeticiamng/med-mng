@@ -26,6 +26,13 @@ import {
   createProductSchema,
   createSoftwareApplicationSchema,
 } from '@/components/seo/jsonLdSchemas';
+import {
+  createDatasetSchema,
+  createDefinedTermSchema,
+  createExpertiseSchema,
+  createHowToSchema,
+  createSpeakableSchema,
+} from '@/components/seo/geoSchemas';
 
 const lire = (p: string) =>
   readFileSync(resolve(__dirname, '../..', p), 'utf8');
@@ -82,6 +89,31 @@ describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)
       /à la demande|30 générations|générations audio de chansons par mois/
     );
     expect(rendu).toMatch(/momentanément suspendue|bientôt disponible/);
+  });
+
+  it('JSON-LD GEO (HowTo, Dataset…) et FAQ : ni audio promis, ni fonction retirée, ni licence inventée', () => {
+    const rendu = JSON.stringify([
+      createFAQPageSchema(),
+      createHowToSchema(),
+      createDatasetSchema(),
+      createDefinedTermSchema(),
+      createSpeakableSchema(),
+      createExpertiseSchema(),
+    ]);
+    // Constat 09.10 : « puis vous pouvez générer l'audio », « que vous pouvez mettre en
+    // musique », « générer l'audio … dans la limite de vos crédits » restaient affichés.
+    expect(rendu).not.toMatch(
+      /vous pouvez générer l'audio|vous pouvez mettre en musique|que vous pouvez mettre en musique|dans la limite de vos crédits|génération musicale par intelligence artificielle/
+    );
+    // Fonctions retirées (DC7) et allégations sans source.
+    expect(rendu).not.toMatch(/cas cliniques, ECOS|QROC|creativecommons|identifie vos lacunes/);
+    expect(rendu).toMatch(/momentanément suspendue/);
+  });
+
+  it('llms.txt (lu par les assistants IA) : audio annoncé comme suspendu', () => {
+    const llms = lire('public/llms.txt');
+    expect(llms).not.toMatch(/à la demande|30 générations audio|avec génération audio des chansons\./);
+    expect(llms).toMatch(/momentanément suspendue/);
   });
 
   it('PricingFAQ rendue : audio annoncé comme suspendu', () => {
