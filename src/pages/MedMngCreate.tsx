@@ -22,7 +22,7 @@ import Generator from '@/pages/Generator';
 const MedMngCreateComponent = () => (
   <>
     <SEOHead
-      title="Créer une chanson"
+      title="Transformer un item EDN en chanson"
       description={`Générez une chanson pédagogique à partir des paroles d'un item EDN (rang A, B ou A+B) dans le style de votre choix. ${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois avec ${NOM_OFFRE_PREMIUM}.`}
       keywords="musique, IA, génération, EDN, apprentissage"
       canonical="/med-mng/create"

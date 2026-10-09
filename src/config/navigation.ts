@@ -40,7 +40,7 @@ export interface NavGroup {
 
 // Navigation principale (le Chat IA n'y figure plus : service non inclus dans l'offre).
 // Décision CEO du 08.10.2026 : deux portes d'entrée phares — « Réviser les 367
-// items EDN » (EDN) et « Créer une musique » (Med MNG Create, NAV_CREER_MUSIQUE,
+// items EDN » (EDN) et « Mettre en chanson » (Med MNG Create, NAV_CREER_MUSIQUE,
 // affichée à part et mise en avant). ECOS quitte la barre principale pour le
 // menu « Plus » (groupe « Réviser », visible de tous, visiteurs compris) : les
 // 12 situations ECOS d'entraînement de l'offre gratuite restent trouvables
@@ -52,14 +52,14 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * Entrée « Créer une musique » (Med MNG Create), mise en avant dans l'en-tête.
+ * Entrée « Mettre en chanson » (Med MNG Create), mise en avant dans l'en-tête.
  * `path` est la page de création ; pour un visiteur, l'en-tête utilise
  * `lienCreerMusique(false)` (inscription gratuite puis retour sur Create).
  */
 export const NAV_CREER_MUSIQUE: NavItem = {
   path: ROUTE_PATHS.medMngCreate,
-  label: 'Créer une musique',
-  shortLabel: 'Créer',
+  label: 'Mettre en chanson',
+  shortLabel: 'En chanson',
   icon: Music,
   description: 'Med MNG Create',
 };

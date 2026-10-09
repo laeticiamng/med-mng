@@ -410,42 +410,19 @@ const Generator = () => {
         className="bg-card/70 backdrop-blur-xl border-b border-border shadow-lg"
         role="banner"
       >
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
-            <PremiumButton
-              variant="glass"
-              size="md"
-              onClick={() => navigate(ROUTE_PATHS.home)}
-              aria-label="Retourner à l'accueil"
-              className="shrink-0"
-            >
-              <ArrowLeft
-                className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2"
-                aria-hidden="true"
-              />
-              <TranslatedText text="Retour" />
-            </PremiumButton>
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div
-                className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-warning to-warning/80 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center shrink-0"
-                aria-hidden="true"
-              >
-                <Music className="h-5 w-5 sm:h-7 sm:w-7 text-warning-foreground" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate">
-                  <TranslatedText text="Créer une chanson" />
-                </h1>
-                <p
-                  className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium truncate"
-                  role="doc-subtitle"
-                >
-                  <TranslatedText text="Les paroles d'un item EDN, chantées dans le style de votre choix" />
-                </p>
-              </div>
+        <div className="container mx-auto px-4 py-5 sm:py-8">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0 max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Med MNG Create</p>
+              <h1 className="mt-1 text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+                <TranslatedText text="Transformez un item EDN en chanson" />
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-base" role="doc-subtitle">
+                <TranslatedText text="Les connaissances officielles d'un item (rang A, B ou les deux) deviennent des paroles fidèles au programme, puis une chanson à écouter pour réviser." />
+              </p>
             </div>
             {/* « Je retrouve ma musique » : la bibliothèque, accessible d'ici. */}
-            <Button asChild variant="outline" size="sm" className="sm:ml-auto min-h-[40px]">
+            <Button asChild variant="outline" size="sm" className="min-h-[40px] w-fit shrink-0">
               <Link to={ROUTE_PATHS.medMngMusicLibrary}>
                 <Library className="h-4 w-4 mr-2" aria-hidden="true" />
                 Mes chansons
@@ -496,6 +473,8 @@ const Generator = () => {
             user={user}
             canGenerateMusic={() => peutGenererSelonQuota}
             generationReservee={afficherEncartPremium}
+            aAccesPremium={aAccesPremium}
+            parolesVerrouillees={parolesVerrouillees}
           />
 
           <GenerationProgress

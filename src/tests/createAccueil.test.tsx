@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * Med MNG Create, porte d'entrée phare (décision CEO du 08.10.2026) :
- *  - lien « Créer une musique » : Create si connecté, sinon inscription gratuite
+ *  - lien « Mettre en chanson » : Create si connecté, sinon inscription gratuite
  *    avec retour sur Create ;
  *  - route protégée : renvoi vers la connexion AVEC `?next=` (avant : perdu) ;
  *  - pages de connexion / inscription : phrase d'explication pour Create ;
@@ -154,8 +154,8 @@ describe('navigation : deux portes d’entrée, ECOS dans « Plus »', () => {
     ).not.toContain(ROUTE_PATHS.ecosIndex);
   });
 
-  it('entrée « Créer une musique » vers Med MNG Create', () => {
-    expect(NAV_CREER_MUSIQUE.label).toBe('Créer une musique');
+  it('entrée « Mettre en chanson » vers Med MNG Create', () => {
+    expect(NAV_CREER_MUSIQUE.label).toBe('Mettre en chanson');
     expect(NAV_CREER_MUSIQUE.path).toBe(ROUTE_PATHS.medMngCreate);
   });
 });

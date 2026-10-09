@@ -30,7 +30,7 @@ const CHEMIN_CREATE = ROUTE_PATHS.medMngCreate;
 const CHEMIN_INSCRIPTION = ROUTE_PATHS.medMngSignup;
 
 /**
- * Lien de l'entrée « Créer une musique » (accueil, navigation).
+ * Lien de l'entrée « Mettre en chanson » (accueil, navigation).
  *  - connecté : Med MNG Create directement ;
  *  - visiteur : inscription gratuite qui ramène sur Create après
  *    l'inscription (e-mail ou Google) ou la connexion (lien « Se connecter »
@@ -41,7 +41,7 @@ export const lienCreerMusique = (connecte: boolean): string =>
 
 /**
  * Phrase d'explication affichée sur les pages de connexion / inscription quand
- * le visiteur arrive depuis « Créer une musique » : il sait pourquoi on lui
+ * le visiteur arrive depuis « Mettre en chanson » : il sait pourquoi on lui
  * demande un compte et où il reviendra.
  */
 export const contexteSuivant = (

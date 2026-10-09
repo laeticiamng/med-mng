@@ -30,13 +30,13 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({
   };
 
   const hoverClasses = hover 
-    ? 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/10 hover:-translate-y-1' 
+    ? 'hover:shadow-2xl hover:border-primary/30' 
     : '';
 
   return (
     <div 
       className={cn(
-        'rounded-2xl transition-all duration-500 ease-out',
+        'rounded-2xl transition-[box-shadow,border-color] duration-300 ease-out',
         getVariantClasses(),
         hoverClasses,
         className

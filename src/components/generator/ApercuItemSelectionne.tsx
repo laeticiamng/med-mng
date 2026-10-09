@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 import { Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { cheminItemEdn } from '@/pages/edn-item/ednItemTabs';
@@ -21,6 +20,7 @@ import { cheminItemEdn } from '@/pages/edn-item/ednItemTabs';
 
 interface Props {
   itemCode: string;
+  /** Titre (affiché par le sélecteur ; conservé pour compatibilité). */
   titre?: string;
   slug?: string;
   /** Paroles stockées pour cet item, telles que chargées par le générateur. */
@@ -29,11 +29,7 @@ interface Props {
   parolesRangAB?: string[] | null;
 }
 
-export const ApercuItemSelectionne: React.FC<Props> = ({
-  itemCode,
-  titre,
-  slug,
-}) => {
+export const ApercuItemSelectionne: React.FC<Props> = ({ itemCode, slug }) => {
   const {
     competences: rangA,
     loading: chargeA,
@@ -48,54 +44,54 @@ export const ApercuItemSelectionne: React.FC<Props> = ({
   const chargement = chargeA || chargeB;
   const erreur = erreurA || erreurB;
 
-  return (
-    <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in space-y-1.5">
-      <div className="flex items-start gap-2">
-        <Badge className="bg-primary text-primary-foreground text-xs shrink-0">
-          {itemCode}
-        </Badge>
-        <span className="text-sm font-medium text-foreground leading-snug line-clamp-1">
-          {titre}
-        </span>
-      </div>
+  const pluriel = (n: number) => (n > 1 ? 's' : '');
+  const resume =
+    rangA.length > 0 && rangB.length > 0
+      ? `${rangA.length} connaissance${pluriel(rangA.length)} de rang A · ${rangB.length} de rang B (programme officiel)`
+      : rangA.length > 0
+        ? `${rangA.length} connaissance${pluriel(rangA.length)} de rang A · pas de rang B au programme officiel`
+        : `${rangB.length} connaissance${pluriel(rangB.length)} de rang B · pas de rang A au programme officiel`;
 
+  // Le titre est déjà affiché dans le sélecteur : ici, seulement ce que l'item contient.
+  return (
+    <div
+      className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-muted-foreground"
+      data-testid="apercu-item"
+    >
       {chargement && (
-        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="flex items-center gap-2">
           <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
-          Lecture des compétences officielles…
-        </p>
+          Lecture des connaissances officielles…
+        </span>
       )}
 
       {erreur && !chargement && (
-        <p className="flex items-start gap-2 text-xs text-destructive">
+        <span className="flex items-start gap-2 text-destructive">
           <AlertTriangle
             className="h-3.5 w-3.5 shrink-0 mt-0.5"
             aria-hidden="true"
           />
           Compétences illisibles pour cet item : {erreur}
-        </p>
+        </span>
       )}
 
       {!chargement && !erreur && rangA.length === 0 && rangB.length === 0 && (
-        <p className="text-xs text-destructive">
+        <span className="text-destructive">
           Le référentiel UNESS ne contient aucune compétence pour cet item :
           aucune chanson ne peut en être tirée.
-        </p>
+        </span>
       )}
 
       {!chargement && !erreur && (rangA.length > 0 || rangB.length > 0) && (
-        <p className="text-xs text-muted-foreground">
-          {rangA.length} compétence{rangA.length > 1 ? 's' : ''} Rang A ·{' '}
-          {rangB.length} Rang B
-        </p>
+        <span>{resume}</span>
       )}
 
       {slug && (
         <Link
           to={cheminItemEdn(slug)}
-          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+          className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline"
         >
-          Voir la fiche EDN complète
+          Fiche de l'item
           <ExternalLink className="h-3 w-3" aria-hidden="true" />
         </Link>
       )}

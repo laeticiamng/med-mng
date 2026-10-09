@@ -88,11 +88,90 @@ interface ReponseGeneration {
 
 /** Générations audio par mois incluses dans MED MNG Premium (= src/config/offre.ts). */
 const QUOTA_MENSUEL_PREMIUM = 30;
+/** Tentatives du mois, réussies ou échouées (2 × le quota : marge pour les échecs du fournisseur). */
+const TENTATIVES_MENSUELLES_MAX = QUOTA_MENSUEL_PREMIUM * 2;
+/** Générations non terminées en même temps, sur la fenêtre où le rappel est attendu (15 min). */
+const GENERATIONS_SIMULTANEES_MAX = 2;
+const FENETRE_EN_COURS_MS = 15 * 60 * 1000;
 
 interface RefusGeneration { status: number; code: string; message: string }
 
 const reponseJson = (corps: unknown, status = 200) =>
   new Response(JSON.stringify(corps), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+const PREFIXE_RESERVATION = 'reservation-';
+
+type Reservation = { ok: true; id: string } | { ok: false; status: number; code: string; message: string };
+
+/**
+ * Garde-fous de coût (audit rentabilité 09.10.2026, revue Codex #231) : une génération
+ * échouée n'est pas décomptée du quota, mais le fournisseur peut la facturer. Avant tout
+ * appel au fournisseur, on INSCRIT d'abord une réservation au registre, PUIS on compte
+ * (réservation comprise) : deux requêtes parallèles ne peuvent pas passer toutes les deux
+ * au-delà de la limite (chacune voit au moins les réservations inscrites avant sa lecture).
+ * Plafonds : tentatives du mois (réussies + échouées) et générations simultanées.
+ * Toute erreur de lecture ou d'écriture refuse la génération (on ne laisse pas passer).
+ */
+async function reserverCreneau(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  userId: string,
+): Promise<Reservation> {
+  const indisponible: Reservation = { ok: false, status: 503, code: 'VERIFICATION_IMPOSSIBLE', message: MESSAGE_INDISPONIBLE };
+  const id = `${PREFIXE_RESERVATION}${crypto.randomUUID()}`;
+  const { error: errInsertion } = await supabase
+    .from('mm_generations_audio')
+    .insert({ task_id: id, user_id: userId, statut: 'en_cours' });
+  if (errInsertion) {
+    console.error('❌ Réservation de génération impossible:', errInsertion.message);
+    return indisponible;
+  }
+
+  const maintenant = new Date();
+  const debutMois = new Date(Date.UTC(maintenant.getUTCFullYear(), maintenant.getUTCMonth(), 1)).toISOString();
+  const depuis = new Date(Date.now() - FENETRE_EN_COURS_MS).toISOString();
+  const [tentatives, enCours] = await Promise.all([
+    supabase.from('mm_generations_audio').select('task_id', { count: 'exact', head: true })
+      .eq('user_id', userId).gte('created_at', debutMois),
+    supabase.from('mm_generations_audio').select('task_id', { count: 'exact', head: true })
+      .eq('user_id', userId).eq('statut', 'en_cours').gte('created_at', depuis),
+  ]);
+
+  let refus: Reservation | null = null;
+  if (tentatives.error || enCours.error || tentatives.count == null || enCours.count == null) {
+    console.error('❌ Lecture des garde-fous impossible:', tentatives.error?.message ?? enCours.error?.message);
+    refus = indisponible;
+  } else if (tentatives.count > TENTATIVES_MENSUELLES_MAX) {
+    refus = {
+      ok: false,
+      status: 429,
+      code: 'TENTATIVES_ATTEINTES',
+      message: `Trop de tentatives de génération ce mois-ci (${TENTATIVES_MENSUELLES_MAX}). Écrivez-nous si un problème technique vous a bloqué.`,
+    };
+  } else if (enCours.count > GENERATIONS_SIMULTANEES_MAX) {
+    refus = {
+      ok: false,
+      status: 429,
+      code: 'GENERATION_EN_COURS',
+      message: 'Une chanson est déjà en cours de création. Attendez qu’elle soit prête (1 à 3 minutes) avant d’en lancer une autre.',
+    };
+  }
+  if (refus) {
+    await libererCreneau(supabase, id);
+    return refus;
+  }
+  return { ok: true, id };
+}
+
+/** Retire la réservation (la génération acceptée a sa propre ligne, au vrai task_id). */
+async function libererCreneau(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  id: string,
+): Promise<void> {
+  const { error } = await supabase.from('mm_generations_audio').delete().eq('task_id', id);
+  if (error) console.warn('⚠️ Réservation non retirée (ignorée après 15 min) :', error.message);
+}
 
 /**
  * Vérifie qu'un utilisateur peut lancer une génération :
@@ -178,7 +257,8 @@ async function verifierDroitGeneration(
     .select('task_id', { count: 'exact', head: true })
     .eq('user_id', userId)
     .gte('created_at', debutMois)
-    .neq('statut', 'echouee');
+    .neq('statut', 'echouee')
+    .not('task_id', 'like', `${PREFIXE_RESERVATION}%`);
   if (errRegistre) {
     console.warn('ℹ️ Registre des générations indisponible (migration non appliquée ?) :', errRegistre.message);
   } else {
@@ -196,6 +276,7 @@ async function verifierDroitGeneration(
       message: `Vous avez utilisé vos ${QUOTA_MENSUEL_PREMIUM} générations audio de ce mois. Le compteur repart le 1er du mois prochain.`,
     };
   }
+
   return null;
 }
 
@@ -295,83 +376,96 @@ serve(async (req) => {
       userId,
     });
 
-    const reponseSuno = await fetch(URL_SUNO_GENERATE, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${SUNO_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(chargeUtile),
-    });
-    let corpsSuno: unknown = null;
-    try {
-      corpsSuno = await reponseSuno.json();
-    } catch {
-      corpsSuno = null;
-    }
-
-    const erreur = interpreterReponseGenerate(reponseSuno.status, corpsSuno);
-    if (erreur) {
-      console.error('❌ Refus Suno:', { http: reponseSuno.status, corps: corpsSuno, code: erreur.code });
-      // music_generation_metrics : content_type ∈ {edn, ecos, oic}, status ∈ {initiated, generating, completed, failed, timeout}.
-      await insertGenerationMetric(supabase, {
-        track_id: `refus_${erreur.code.toLowerCase()}_${Date.now()}`,
-        user_id: userId || undefined,
-        content_type: 'edn',
-        item_code: body.itemCode || 'EDN',
-        rang,
-        style: style.slug,
-        status: 'failed',
-        api_response_time_ms: Date.now() - debut,
-      });
-      return reponseJson({ success: false, error: erreur.message, code: erreur.code }, erreur.statut);
-    }
-
-    const taskId = (corpsSuno as { data: { taskId: string } }).data.taskId;
-    const tempsReponse = Date.now() - debut;
-    console.log(`🆔 Génération acceptée par Suno (modèle ${chargeUtile.model}) — taskId ${taskId} en ${tempsReponse} ms`);
-
-    // Ligne principale (suno_track_id = task_id) : c'est elle qui compte dans le quota
-    // et que mm-suno-callback / mm-music-status font passer à completed / failed.
-    const donneesPiste = {
-      task_id: taskId,
-      title: chargeUtile.title,
-      suno_track_id: taskId,
-      ...(userId ? { user_id: userId } : {}),
-      metadata: {
-        style: style.slug,
-        styleLibelle: style.libelle,
-        stylePrompt: chargeUtile.style,
-        negativeTags: chargeUtile.negativeTags,
-        rang,
-        duration: chargeUtile.duration,
-        language: body.language || 'fr',
-        itemCode: body.itemCode || 'EDN',
-        itemTitle: body.itemTitle || null,
-        model: chargeUtile.model,
-        prompt: chargeUtile.lyrics,
-        provider: 'suno',
-        generatedAt: new Date().toISOString(),
-        vocalGender: chargeUtile.vocalGender ?? null,
-        styleWeight: chargeUtile.styleWeight,
-        weirdnessConstraint: chargeUtile.weirdnessConstraint,
-        variety: chargeUtile.variety,
-        parolesTronquees: requete.paroles.tronque,
-        lignesRetirees: requete.paroles.lignesRetirees,
-      },
-      generation_status: 'generating',
-    } as unknown as MusicTrackInsertData;
-
-    const insertion = await insertMusicTrack(supabase, donneesPiste);
-    if (!insertion.success) {
-      console.error('⚠️ Ligne principale non enregistrée : le suivi côté client ne verra pas cette génération.', insertion.error);
-    }
-
-    // Registre du quota (écrit par le serveur seul) ; une erreur ne bloque pas la génération.
+    // Réservation au registre AVANT l'appel au fournisseur (garde-fous de coût, atomiques).
+    let reservation: string | null = null;
     if (userId) {
-      const { error: errRegistre } = await supabase
-        .from('mm_generations_audio')
-        .insert({ task_id: taskId, user_id: userId, statut: 'en_cours' });
-      if (errRegistre && errRegistre.code !== '23505') {
-        console.warn('⚠️ Génération non inscrite au registre du quota :', errRegistre.message);
+      const r = await reserverCreneau(supabase, userId);
+      if (!r.ok) return reponseJson({ success: false, error: r.message, code: r.code }, r.status);
+      reservation = r.id;
+    }
+    let taskId: string;
+    let tempsReponse = 0;
+    try {
+      const reponseSuno = await fetch(URL_SUNO_GENERATE, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${SUNO_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(chargeUtile),
+      });
+      let corpsSuno: unknown = null;
+      try {
+        corpsSuno = await reponseSuno.json();
+      } catch {
+        corpsSuno = null;
       }
+
+      const erreur = interpreterReponseGenerate(reponseSuno.status, corpsSuno);
+      if (erreur) {
+        console.error('❌ Refus Suno:', { http: reponseSuno.status, corps: corpsSuno, code: erreur.code });
+        // music_generation_metrics : content_type ∈ {edn, ecos, oic}, status ∈ {initiated, generating, completed, failed, timeout}.
+        await insertGenerationMetric(supabase, {
+          track_id: `refus_${erreur.code.toLowerCase()}_${Date.now()}`,
+          user_id: userId || undefined,
+          content_type: 'edn',
+          item_code: body.itemCode || 'EDN',
+          rang,
+          style: style.slug,
+          status: 'failed',
+          api_response_time_ms: Date.now() - debut,
+        });
+        return reponseJson({ success: false, error: erreur.message, code: erreur.code }, erreur.statut);
+      }
+
+      taskId = (corpsSuno as { data: { taskId: string } }).data.taskId;
+      tempsReponse = Date.now() - debut;
+      console.log(`🆔 Génération acceptée par Suno (modèle ${chargeUtile.model}) — taskId ${taskId} en ${tempsReponse} ms`);
+
+      // Ligne principale (suno_track_id = task_id) : c'est elle qui compte dans le quota
+      // et que mm-suno-callback / mm-music-status font passer à completed / failed.
+      const donneesPiste = {
+        task_id: taskId,
+        title: chargeUtile.title,
+        suno_track_id: taskId,
+        ...(userId ? { user_id: userId } : {}),
+        metadata: {
+          style: style.slug,
+          styleLibelle: style.libelle,
+          stylePrompt: chargeUtile.style,
+          negativeTags: chargeUtile.negativeTags,
+          rang,
+          duration: chargeUtile.duration,
+          language: body.language || 'fr',
+          itemCode: body.itemCode || 'EDN',
+          itemTitle: body.itemTitle || null,
+          model: chargeUtile.model,
+          prompt: chargeUtile.lyrics,
+          provider: 'suno',
+          generatedAt: new Date().toISOString(),
+          vocalGender: chargeUtile.vocalGender ?? null,
+          styleWeight: chargeUtile.styleWeight,
+          weirdnessConstraint: chargeUtile.weirdnessConstraint,
+          variety: chargeUtile.variety,
+          parolesTronquees: requete.paroles.tronque,
+          lignesRetirees: requete.paroles.lignesRetirees,
+        },
+        generation_status: 'generating',
+      } as unknown as MusicTrackInsertData;
+
+      const insertion = await insertMusicTrack(supabase, donneesPiste);
+      if (!insertion.success) {
+        console.error('⚠️ Ligne principale non enregistrée : le suivi côté client ne verra pas cette génération.', insertion.error);
+      }
+
+      // Registre du quota (écrit par le serveur seul) ; une erreur ne bloque pas la génération.
+      if (userId) {
+        const { error: errRegistre } = await supabase
+          .from('mm_generations_audio')
+          .insert({ task_id: taskId, user_id: userId, statut: 'en_cours' });
+        if (errRegistre && errRegistre.code !== '23505') {
+          console.warn('⚠️ Génération non inscrite au registre du quota :', errRegistre.message);
+        }
+      }
+    } finally {
+      if (reservation) await libererCreneau(supabase, reservation);
     }
 
     await insertGenerationMetric(supabase, {

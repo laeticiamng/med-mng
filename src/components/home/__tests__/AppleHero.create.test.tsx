@@ -33,9 +33,9 @@ describe('Accueil — héros : deux portes d’entrée (EDN, Med MNG Create)', (
     ).toHaveAttribute('href', '/edn-complete');
   });
 
-  it('visiteur : « Créer une musique » → inscription gratuite avec retour sur Create, aide associée', () => {
+  it('visiteur : « Mettre un item en chanson » → inscription gratuite avec retour sur Create, aide associée', () => {
     rendre(<AppleHero />);
-    const creer = screen.getByRole('link', { name: /Créer une musique/ });
+    const creer = screen.getByRole('link', { name: /Mettre un item en chanson/ });
     expect(creer).toHaveAttribute(
       'href',
       '/med-mng/signup?next=%2Fmed-mng%2Fcreate'
@@ -51,11 +51,11 @@ describe('Accueil — héros : deux portes d’entrée (EDN, Med MNG Create)', (
     expect(creer.className).toMatch(/w-full/);
   });
 
-  it('connecté : « Créer une musique » ouvre directement Med MNG Create', () => {
+  it('connecté : « Mettre un item en chanson » ouvre directement Med MNG Create', () => {
     etat.user = { id: 'u1' };
     rendre(<AppleHero />);
     expect(
-      screen.getByRole('link', { name: /Créer une musique/ })
+      screen.getByRole('link', { name: /Mettre un item en chanson/ })
     ).toHaveAttribute('href', '/med-mng/create');
   });
 
