@@ -17,7 +17,7 @@ import {
 } from '../../supabase/functions/_shared/mm-suno-requete';
 import { createRequestBody } from '@/hooks/musicGenerationUtils';
 import { messageErreurGeneration } from '@/hooks/music/useSunoMusicGeneration';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
 import {
@@ -37,37 +37,24 @@ import {
 const lire = (p: string) =>
   readFileSync(resolve(__dirname, '../..', p), 'utf8');
 
-describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)', () => {
-  it('drapeau unique serveur/site, aujourd’hui fermé, message sans jargon', () => {
-    expect(GENERATION_AUDIO_DISPONIBLE).toBe(false);
+/**
+ * Génération audio : suspendue le matin du 09.10.2026, RÉACTIVÉE le soir même sur décision
+ * explicite de l'utilisatrice (fournisseur inchangé : sunoapi.org). Le drapeau unique reste en
+ * place : ces tests vérifient l'état réactivé ET que la suspension resterait possible d'un coup.
+ */
+describe('génération audio réactivée (décision de l’utilisatrice, 09.10.2026)', () => {
+  it('drapeau unique serveur/site ouvert ; message de suspension sans affirmation de droits', () => {
+    expect(GENERATION_AUDIO_DISPONIBLE).toBe(true);
     expect(
       messageErreurGeneration(new Error(MESSAGE_GENERATION_SUSPENDUE))
     ).toBe(MESSAGE_GENERATION_SUSPENDUE);
-    expect(MESSAGE_GENERATION_SUSPENDUE).toMatch(
-      /paroles, les fiches, les quiz/
-    );
+    expect(MESSAGE_GENERATION_SUSPENDUE).not.toMatch(/licence/i);
   });
 
-  it('aucune promesse d’audio immédiatement disponible pendant la suspension', () => {
-    expect(PROMESSE_AUDIO).toMatch(/bientôt disponible/);
-    expect(PROMESSE_AUDIO).not.toMatch(/30/);
-    expect(PROMESSE_AUDIO_COURTE).toMatch(/bientôt disponible/);
-    for (const f of [
-      'src/components/med-mng/PricingPlans.tsx',
-      'src/components/pricing/PricingFAQ.tsx',
-      'src/components/help/FaqSection.tsx',
-      'src/pages/FAQ.tsx',
-      'src/pages/CGU.tsx',
-      'src/pages/MedMngSubscribe.tsx',
-      'src/pages/MedMngSuccess.tsx',
-      'src/components/seo/jsonLdSchemas.ts',
-      'src/components/seo/geoSchemas.ts',
-    ]) {
-      expect(lire(f), f).not.toMatch(
-        /30 générations audio|30 chansons par mois/
-      );
-    }
-    // Revue #232 : plus aucun quota ou crédit écrit en dur dans les textes contractuels et d'aide.
+  it('offre rétablie telle qu’avant la suspension : 30 générations par mois, rien « bientôt disponible »', () => {
+    expect(PROMESSE_AUDIO).toBe('30 générations audio de chansons par mois');
+    expect(PROMESSE_AUDIO_COURTE).toBe('génération audio');
+    // Revue #232 conservée : aucun quota ou crédit écrit en dur dans les textes contractuels et d'aide.
     for (const f of [
       'src/pages/CGV.tsx',
       'src/pages/FAQ.tsx',
@@ -78,20 +65,19 @@ describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)
     }
   });
 
-  it('données structurées (JSON-LD) rendues : aucune promesse d’audio disponible', () => {
+  it('données structurées (JSON-LD) rendues : audio disponible, plus aucune mention de suspension', () => {
     const rendu = JSON.stringify([
       createFAQPageSchema(),
       createProductSchema(),
       createSoftwareApplicationSchema(),
       createEducationalApplicationSchema(),
     ]);
-    expect(rendu).not.toMatch(
-      /à la demande|30 générations|générations audio de chansons par mois/
-    );
-    expect(rendu).toMatch(/momentanément suspendue|bientôt disponible/);
+    expect(rendu).toMatch(/30 générations audio de chansons par mois/);
+    expect(rendu).toMatch(/l'audio des chansons se génère à la demande/);
+    expect(rendu).not.toMatch(/momentanément suspendue|bientôt disponible/);
   });
 
-  it('JSON-LD GEO (HowTo, Dataset…) et FAQ : ni audio promis, ni fonction retirée, ni licence inventée', () => {
+  it('JSON-LD GEO (HowTo, Dataset…) et FAQ : audio disponible, ni fonction retirée, ni licence inventée', () => {
     const rendu = JSON.stringify([
       createFAQPageSchema(),
       createHowToSchema(),
@@ -100,55 +86,74 @@ describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)
       createSpeakableSchema(),
       createExpertiseSchema(),
     ]);
-    // Constat 09.10 : « puis vous pouvez générer l'audio », « que vous pouvez mettre en
-    // musique », « générer l'audio … dans la limite de vos crédits » restaient affichés.
-    expect(rendu).not.toMatch(
-      /vous pouvez générer l'audio|vous pouvez mettre en musique|que vous pouvez mettre en musique|dans la limite de vos crédits|génération musicale par intelligence artificielle/
-    );
+    expect(rendu).not.toMatch(/momentanément suspendue|bientôt disponible/);
+    // Promesses jamais tenues (avant le 09.10) : crédits, « génération musicale par IA » générique.
+    expect(rendu).not.toMatch(/dans la limite de vos crédits|génération musicale par intelligence artificielle/);
     // Fonctions retirées (DC7) et allégations sans source.
     expect(rendu).not.toMatch(/cas cliniques, ECOS|QROC|creativecommons|identifie vos lacunes/);
-    expect(rendu).toMatch(/momentanément suspendue/);
   });
 
-  it('llms.txt (lu par les assistants IA) : audio annoncé comme suspendu', () => {
+  it('llms.txt (lu par les assistants IA) : audio disponible, comme avant la suspension', () => {
     const llms = lire('public/llms.txt');
-    expect(llms).not.toMatch(/à la demande|30 générations audio|avec génération audio des chansons\./);
-    expect(llms).toMatch(/momentanément suspendue/);
+    expect(llms).toContain('- Génération audio des chansons à la demande');
+    expect(llms).toContain('30 générations audio par mois');
+    expect(llms).not.toMatch(/momentanément suspendue|bientôt disponible|réouverture/);
   });
 
-  it('PricingFAQ rendue : audio annoncé comme suspendu', () => {
-    const { container } = render(
+  it('PricingFAQ rendue (réponse ouverte) : 30 générations par mois annoncées', () => {
+    const { container, getByText } = render(
       <MemoryRouter>
         <PricingFAQ />
       </MemoryRouter>
     );
-    expect(container.textContent ?? '').not.toMatch(/30 générations/);
+    fireEvent.click(getByText('Comment fonctionne la musique IA pour réviser ?'));
+    expect(container.textContent ?? '').toMatch(/30 générations par mois/);
+    expect(container.textContent ?? '').not.toMatch(/momentanément suspendue/);
   });
 
-  it('serveur : refus avant tout appel au fournisseur, moteur conservé', () => {
+  it('serveur : appel au fournisseur sunoapi.org conservé, réservation atomique AVANT l’appel, interrupteur toujours en tête', () => {
     const code = lire('supabase/functions/mm-generate-music/index.ts');
+    expect(code).toContain("const URL_SUNO_GENERATE = 'https://api.sunoapi.org/api/v1/generate'");
     const refus = code.indexOf("code: 'GENERATION_SUSPENDUE'");
+    const droit = code.indexOf('await verifierDroitGeneration(');
+    const reservation = code.indexOf('await reserverCreneau(');
+    const appel = code.indexOf('await fetch(URL_SUNO_GENERATE');
     expect(refus).toBeGreaterThan(0);
-    expect(refus).toBeLessThan(code.indexOf('await reserverCreneau('));
-    expect(refus).toBeLessThan(code.indexOf('await fetch(URL_SUNO_GENERATE'));
+    expect(refus).toBeLessThan(droit);
+    expect(droit).toBeLessThan(reservation);
+    expect(reservation).toBeLessThan(appel);
     expect(code).toContain('if (userId && !GENERATION_AUDIO_DISPONIBLE)');
-    // Le moteur n'est pas supprimé.
-    expect(code).toContain('URL_SUNO_GENERATE');
+    // Quota d'avant la suspension inchangé, compteurs illisibles = refus (revue #231).
+    expect(code).toContain('const QUOTA_MENSUEL_PREMIUM = 30;');
+    expect(code).toMatch(/tentatives\.count == null \|\| enCours\.count == null/);
   });
 
-  it('Stripe et e-mail de bienvenue suivent le drapeau', () => {
+  it('Stripe et e-mail de bienvenue suivent le drapeau (description du produit réalignée)', () => {
     const catalogue = lire('supabase/functions/_shared/mm-stripe-catalog.ts');
     expect(catalogue).toMatch(/GENERATION_AUDIO_DISPONIBLE\s*\n?\s*\?/);
-    // Revue #232 : le produit Stripe EXISTANT est réaligné (pas seulement un produit neuf).
     expect(catalogue).toContain(
       'stripe.products.update(produitId, { description: DESCRIPTION_PRODUIT })'
     );
-    expect(catalogue.match(/await alignerDescriptionProduit\(/g)?.length).toBe(
-      2
-    );
+    expect(catalogue.match(/await alignerDescriptionProduit\(/g)?.length).toBe(2);
     expect(lire('supabase/functions/send-welcome-email/index.ts')).toContain(
       'GENERATION_AUDIO_DISPONIBLE ?'
     );
+  });
+
+  it('aucune affirmation de droits non établie (« licence officielle », « sous licence Suno »…)', () => {
+    const fichiers: string[] = [];
+    const parcourir = (dossier: string) => {
+      for (const e of readdirSync(dossier, { withFileTypes: true })) {
+        const chemin = join(dossier, e.name);
+        if (e.isDirectory()) parcourir(chemin);
+        else if (/\.(tsx?|txt|html)$/.test(e.name) && !/\.test\./.test(e.name)) fichiers.push(chemin);
+      }
+    };
+    for (const d of ['src', 'public', 'supabase/functions']) parcourir(resolve(__dirname, '../..', d));
+    const fautifs = fichiers.filter((f) =>
+      /licence officielle|sous licence (officielle )?(de )?Suno|licen[cs]ed by Suno|partenaire officiel de Suno/i.test(readFileSync(f, 'utf8'))
+    );
+    expect(fautifs).toEqual([]);
   });
 });
 
