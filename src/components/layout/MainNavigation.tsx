@@ -24,6 +24,7 @@ import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import {
     BarChart3,
     ChevronDown,
+    Eye,
     Flame,
     LogOut, Menu,
     MoreHorizontal,
@@ -38,6 +39,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
+import { EVENEMENT_ACCESSIBILITE } from '@/components/onboarding/HelpButton';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
@@ -392,6 +394,23 @@ export const MainNavigation: React.FC = () => {
                 );
               })}
               
+              {/* Accessibilité : sur mobile, le centre s'ouvre d'ici (pas de bouton flottant
+                  au-dessus du contenu). */}
+              <div className="pt-3 px-2 border-t border-border/50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent(EVENEMENT_ACCESSIBILITE));
+                  }}
+                  className="w-full flex items-center px-1 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  data-testid="nav-accessibilite-mobile"
+                >
+                  <Eye className="w-4 h-4 mr-3" aria-hidden="true" />
+                  <TranslatedText text="Accessibilité (taille du texte, contraste…)" />
+                </button>
+              </div>
+
               {/* Connexion pour mobile */}
               {!user && (
                 <div className="flex flex-col space-y-2 pt-4 px-2 border-t border-border/50">

@@ -62,7 +62,7 @@ npx vite build                            # build de production
 deno check supabase/functions/<fonction>/index.ts
 ```
 
-Au 09.10.2026 : 123 fichiers, 1 538 tests, **0 échec** (lancés avec `TZ=UTC`, fuseau du serveur, pour des résultats reproductibles). Les fonctions Edge sont aussi couvertes par des tests Vitest qui importent leurs modules `_shared/` (`src/tests/mm*.test.ts`) et par des tests Deno (`supabase/functions/_shared/*.test.ts`, `deno test --no-lock`).
+Au 09.10.2026 : 124 fichiers, 1 540 tests, **0 échec** (lancés avec `TZ=UTC`, fuseau du serveur, pour des résultats reproductibles). Les fonctions Edge sont aussi couvertes par des tests Vitest qui importent leurs modules `_shared/` (`src/tests/mm*.test.ts`) et par des tests Deno (`supabase/functions/_shared/*.test.ts`, `deno test --no-lock`).
 
 ### E2E de production
 
