@@ -32,34 +32,57 @@ const TAILLES: { valeur: 'small' | 'medium' | 'large'; label: string }[] = [
  * masqué aux lecteurs d'écran (aria-hidden) — ce qui masque aussi le bandeau cookies
  * (règle CSS sur [data-aria-hidden] et [data-bandeau-cookies], src/index.css).
  */
+/**
+ * Élément présent, affiché et donc capable de recevoir le focus (un bouton masqué par
+ * « hidden » / « lg:hidden » ignore focus()). Sans boîte de rendu (jsdom, display: none),
+ * on remonte les styles calculés.
+ */
+function estFocalisable(el: HTMLElement | null): el is HTMLElement {
+  if (!el || !el.isConnected) return false;
+  if (el.getClientRects().length > 0) return true;
+  for (let n: HTMLElement | null = el; n; n = n.parentElement) {
+    const style = window.getComputedStyle(n);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+  }
+  return true;
+}
+
 export const AccessibilityCenter: React.FC = () => {
   const accessibility = useAccessibility();
   const [isOpen, setIsOpen] = useState(false);
   // Élément qui avait le focus à l'ouverture : il le retrouve à la fermeture (sans déclencheur
-  // Radix, la feuille ne rend le focus à personne).
+  // Radix, la feuille ne rend le focus à personne). Ouvert depuis un menu (menu mobile, menu
+  // Aide), cet élément disparaît avec le menu : le focus revient alors au bouton qui ouvre ce
+  // menu (détail « retour » de l'événement), s'il est affiché, sinon au contenu principal.
   const retourFocus = useRef<HTMLElement | null>(null);
+  const retourMenu = useRef<string | null>(null);
 
-  const ouvrirPanneau = () => {
+  const ouvrirPanneau = (menu: string | null = null) => {
     const actif = document.activeElement;
     retourFocus.current = actif instanceof HTMLElement && actif !== document.body ? actif : null;
+    retourMenu.current = menu;
     setIsOpen(true);
   };
 
   const rendreFocus = (evenement: Event) => {
     evenement.preventDefault();
-    const precedent = retourFocus.current;
+    const candidats = [
+      retourFocus.current,
+      retourMenu.current
+        ? document.querySelector<HTMLElement>(`[data-retour-focus-accessibilite="${retourMenu.current}"]`)
+        : null,
+      document.getElementById('main-content'),
+    ];
     retourFocus.current = null;
-    // Ouvert depuis le menu mobile : le bouton du menu a disparu avec le menu ; le focus revient
-    // au bouton « Ouvrir le menu », sinon au contenu principal.
-    const cible =
-      (precedent?.isConnected ? precedent : null) ??
-      document.querySelector<HTMLElement>('[data-retour-focus-accessibilite]') ??
-      document.getElementById('main-content');
-    cible?.focus();
+    retourMenu.current = null;
+    candidats.find(estFocalisable)?.focus();
   };
 
   useEffect(() => {
-    const ouvrir = () => ouvrirPanneau();
+    const ouvrir = (e: Event) => {
+      const retour = (e as CustomEvent<{ retour?: string } | null>).detail?.retour;
+      ouvrirPanneau(typeof retour === 'string' ? retour : null);
+    };
     window.addEventListener(EVENEMENT_ACCESSIBILITE, ouvrir);
     return () => window.removeEventListener(EVENEMENT_ACCESSIBILITE, ouvrir);
   }, []);
@@ -67,7 +90,7 @@ export const AccessibilityCenter: React.FC = () => {
   return (
     <>
       <Button
-        onClick={ouvrirPanneau}
+        onClick={() => ouvrirPanneau()}
         variant="outline"
         size="icon"
         aria-label="Ouvrir le centre d'accessibilité"

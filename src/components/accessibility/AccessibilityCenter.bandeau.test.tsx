@@ -61,23 +61,56 @@ describe('Panneau d’accessibilité et bandeau cookies', () => {
     await waitFor(() => expect(document.activeElement).toBe(declencheur));
   });
 
-  it('ouvert depuis le menu mobile (bouton disparu), le focus revient au bouton du menu', async () => {
+  /** Ouvre le panneau depuis l'entrée d'un menu qui disparaît avec lui, puis le ferme. */
+  const ouvrirDepuisMenuPuisFermer = async (retour: string) => {
+    const entreeMenu = document.createElement('button');
+    document.body.appendChild(entreeMenu);
+    entreeMenu.focus();
+    window.dispatchEvent(new CustomEvent(EVENEMENT_ACCESSIBILITE, { detail: { retour } }));
+    entreeMenu.remove(); // le menu se ferme
+    const panneau = await screen.findByRole('dialog', { name: 'Accessibilité' });
+    fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
+    await waitFor(() => expect(panneau.isConnected).toBe(false));
+  };
+
+  it('ouvert depuis le menu mobile (entrée disparue), le focus revient au bouton du menu', async () => {
     render(
       <MemoryRouter>
-        <button type="button" data-retour-focus-accessibilite="">Ouvrir le menu</button>
+        <button type="button" data-retour-focus-accessibilite="menu">Ouvrir le menu</button>
+        <button type="button" data-retour-focus-accessibilite="aide" style={{ display: 'none' }}>Aide</button>
         <CookieBanner />
         <AccessibilityCenter />
       </MemoryRouter>,
     );
-    const entreeMenu = document.createElement('button');
-    document.body.appendChild(entreeMenu);
-    entreeMenu.focus();
-    window.dispatchEvent(new CustomEvent(EVENEMENT_ACCESSIBILITE));
-    entreeMenu.remove(); // le menu mobile se ferme
-    const panneau = await screen.findByRole('dialog', { name: 'Accessibilité' });
-    fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
-    await waitFor(() => expect(panneau.isConnected).toBe(false));
+    await ouvrirDepuisMenuPuisFermer('menu');
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Ouvrir le menu' })));
+  });
+
+  it('revue Codex #237 : ouvert depuis le menu Aide sur ordinateur (bouton mobile masqué), le focus revient à « Aide »', async () => {
+    render(
+      <MemoryRouter>
+        <button type="button" data-retour-focus-accessibilite="menu" style={{ display: 'none' }}>Ouvrir le menu</button>
+        <button type="button" data-retour-focus-accessibilite="aide">Aide</button>
+        <CookieBanner />
+        <AccessibilityCenter />
+      </MemoryRouter>,
+    );
+    await ouvrirDepuisMenuPuisFermer('aide');
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Aide' })));
+  });
+
+  it('bouton de retour masqué : le focus revient au contenu principal, jamais perdu', async () => {
+    render(
+      <MemoryRouter>
+        <div style={{ display: 'none' }}>
+          <button type="button" data-retour-focus-accessibilite="menu">Ouvrir le menu</button>
+        </div>
+        <main id="main-content" tabIndex={-1}>contenu</main>
+        <AccessibilityCenter />
+      </MemoryRouter>,
+    );
+    await ouvrirDepuisMenuPuisFermer('menu');
+    await waitFor(() => expect(document.activeElement).toBe(document.getElementById('main-content')));
   });
 
   it('la feuille de style masque le bandeau sous une fenêtre modale', () => {
