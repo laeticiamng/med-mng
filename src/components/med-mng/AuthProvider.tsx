@@ -21,6 +21,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** Comptes pour lesquels l'e-mail de bienvenue a déjà été demandé dans cet onglet (SIGNED_IN peut arriver deux fois). */
+const bienvenueDemandee = new Set<string>();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -141,7 +144,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const timeDiff = now.getTime() - userCreatedAt.getTime();
           const isNewUser = timeDiff < 60000;
           
-          if (isNewUser) {
+          if (isNewUser && !bienvenueDemandee.has(userId)) {
+            bienvenueDemandee.add(userId);
             const name = userName || userEmail?.split('@')[0] || '';
             if (import.meta.env.DEV) console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
             
