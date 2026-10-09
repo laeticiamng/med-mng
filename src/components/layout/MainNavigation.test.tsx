@@ -50,6 +50,19 @@ describe('MainNavigation (session simulée)', () => {
     expect(document.querySelector('a[href="/med-mng/music-library"]')).not.toBeNull();
   });
 
+  // 09.10.2026 : à 390 px, le bouton flottant « œil » recouvrait le texte et les actions ; sur
+  // mobile, le centre d'accessibilité s'ouvre depuis le menu.
+  it('menu mobile : « Accessibilité » ouvre le centre d’accessibilité et ferme le menu', () => {
+    rendre();
+    const ouvert = vi.fn();
+    window.addEventListener('open-accessibility-center', ouvert);
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir le menu' }));
+    fireEvent.click(screen.getByTestId('nav-accessibilite-mobile'));
+    expect(ouvert).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('nav-accessibilite-mobile')).not.toBeInTheDocument();
+    window.removeEventListener('open-accessibility-center', ouvert);
+  });
+
   it("n'affiche plus la série ni le niveau dans l'en-tête (réservés à « Mon suivi »)", () => {
     rendre();
     expect(screen.queryByRole('link', { name: /Série de/ })).not.toBeInTheDocument();
