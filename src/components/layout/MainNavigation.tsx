@@ -49,9 +49,14 @@ export const MainNavigation: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Réponse arrivée après démontage (navigation, fin de test) : ignorée, plus de setState orphelin.
+    let actif = true;
+    const definirAdmin = (valeur: boolean) => {
+      if (actif) setIsAdmin(valeur);
+    };
     const checkAdminRole = async () => {
       if (!user?.id) {
-        setIsAdmin(false);
+        definirAdmin(false);
         return;
       }
       
@@ -69,13 +74,13 @@ export const MainNavigation: React.FC = () => {
         
         if (error) {
           console.error('Erreur vérification admin:', error);
-          setIsAdmin(false);
+          definirAdmin(false);
         } else {
-          setIsAdmin(!!data);
+          definirAdmin(!!data);
         }
       } catch (error) {
         console.error('Erreur vérification admin:', error);
-        setIsAdmin(false);
+        definirAdmin(false);
       }
     };
     
@@ -83,6 +88,9 @@ export const MainNavigation: React.FC = () => {
     if (user?.id) {
       loadStats(user.id);
     }
+    return () => {
+      actif = false;
+    };
   }, [user?.id, loadStats]);
   
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
