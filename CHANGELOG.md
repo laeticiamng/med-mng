@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 - Webhook Stripe : l'état de l'abonnement est relu chez Stripe sur `customer.subscription.created/updated` et `invoice.payment_failed` (un événement ancien livré en retard pouvait rouvrir Premium après une résiliation, ou couper l'accès d'un abonné à jour).
 - Mes données : une ligne d'abonnement de démonstration (`sim_…`, 2025) n'est plus présentée comme un abonnement à résilier (même règle que le serveur `delete-user-account`).
 - E-mail de bienvenue envoyé une seule fois par compte (#230) ; paroles fidèles au texte officiel (#227, #229) ; Med MNG Create reconçu (#231).
+### Sécurité
+- `mm_paroles_redigees` : `search_path` figé (alerte `function_search_path_mutable` du conseiller Supabase ; résultat identique sur les 367 items, empreinte vérifiée avant et après) — migration `20261009150000`.
+
 ### Retiré
 - Rapports d'audit de février et mars 2026 à la racine (`AUDIT_TECHNIQUE_*.md`) : leurs constats (fonctions ouvertes, fonctionnalités fictives) ont été traités entre le 04 et le 09.10.2026 (voir ci-dessous) ; leur verdict « non prêt » ne décrivait plus le produit.
 - PR obsolètes fermées avec justification : #11, #30, #86, #115, #188, #191, #192, #197, #218.

@@ -1,0 +1,12 @@
+-- MED MNG — alerte du conseiller Supabase « function_search_path_mutable » (09.10.2026).
+--
+-- public.mm_paroles_redigees(text[]) est une fonction SQL pure (IMMUTABLE, sans
+-- SECURITY DEFINER) qui ne lit aucune table : elle n'utilise que des fonctions et
+-- opérateurs de pg_catalog (unnest, btrim, count, ~, ~*), toujours résolus en premier.
+-- Fixer son search_path à une valeur vide ne change donc pas son résultat et retire
+-- l'alerte. Objet propre à MED MNG (appelé par mm_etat_contenu_immersif) : aucun usage
+-- par EmotionsCare hors types générés.
+--
+-- Instantané, sans verrou de table ; retour arrière :
+--   ALTER FUNCTION public.mm_paroles_redigees(text[]) RESET search_path;
+ALTER FUNCTION public.mm_paroles_redigees(text[]) SET search_path = '';
