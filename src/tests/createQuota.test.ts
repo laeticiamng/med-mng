@@ -67,8 +67,24 @@ describe('quota Med MNG Create — contrôle serveur (mm-generate-music)', () =>
     expect(code).toContain('const GENERATIONS_SIMULTANEES_MAX = 2;');
     expect(code).toMatch(/code: 'TENTATIVES_ATTEINTES'/);
     expect(code).toMatch(/code: 'GENERATION_EN_COURS'/);
-    // Contrôlé avant tout appel au fournisseur.
-    expect(code.indexOf("code: 'GENERATION_EN_COURS'")).toBeLessThan(code.indexOf('await fetch(URL_SUNO_GENERATE'));
+  });
+
+  it('réservation atomique : inscrite AVANT l’appel au fournisseur, comptée, puis retirée (revue Codex #231)', () => {
+    const appelReservation = code.indexOf('await reserverCreneau(supabase, userId)');
+    expect(appelReservation).toBeGreaterThan(0);
+    expect(appelReservation).toBeLessThan(code.indexOf('await fetch(URL_SUNO_GENERATE'));
+    // Inscription puis lecture des compteurs (réservation comprise).
+    const fn = code.slice(code.indexOf('async function reserverCreneau'), code.indexOf('async function libererCreneau'));
+    expect(fn.indexOf('.insert({ task_id: id')).toBeLessThan(fn.indexOf("select('task_id', { count: 'exact', head: true })"));
+    expect(code).toMatch(/finally \{\s*if \(reservation\) await libererCreneau\(supabase, reservation\);/);
+    // Le quota de 30 ne compte pas les réservations en vol.
+    expect(code).toContain(".not('task_id', 'like', `${PREFIXE_RESERVATION}%`)");
+  });
+
+  it('garde-fous : une erreur de lecture refuse la génération (pas de « 0 » par défaut)', () => {
+    const fn = code.slice(code.indexOf('async function reserverCreneau'), code.indexOf('async function libererCreneau'));
+    expect(fn).toMatch(/tentatives\.error \|\| enCours\.error \|\| tentatives\.count == null \|\| enCours\.count == null/);
+    expect(fn).not.toMatch(/\?\? 0/);
   });
 
   it('messages de ces refus relayés tels quels (pas de jargon technique)', () => {
