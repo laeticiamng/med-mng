@@ -109,18 +109,37 @@ const UNITES_MESURE: [string, string, string][] = [
   ['%', 'pour cent', 'pour cent'],
 ];
 
-const ORDINAUX: Record<string, string> = {
-  '1er': 'premier', '1re': 'première', '1ère': 'première', '2e': 'deuxième', '2nd': 'second', '2nde': 'seconde',
-  '3e': 'troisième', '4e': 'quatrième', '5e': 'cinquième', '6e': 'sixième', '7e': 'septième', '8e': 'huitième',
-  '9e': 'neuvième', '10e': 'dixième',
+/**
+ * Ordinal en toutes lettres : 1er → premier, 1re/1ère → première, 2nd(e) → second(e),
+ * sinon n-ième (2e, 3ème, 11e, 21e, 80e…). Pluriel (« 1ers », « 2es ») conservé.
+ */
+export const ordinalEnLettres = (n: number, suffixe: string): string => {
+  const suf = suffixe.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const pluriel = /s$/.test(suf) && suf !== 's' ? 's' : '';
+  const base = suf.replace(/s$/, '');
+  if (n === 1 && (base === 'er')) return `premier${pluriel}`;
+  if (n === 1 && (base === 're' || base === 'ere')) return `première${pluriel}`;
+  if (n === 2 && base === 'nd') return `second${pluriel}`;
+  if (n === 2 && base === 'nde') return `seconde${pluriel}`;
+  let mot = entierEnLettres(n);
+  if (/(vingts|cents)$/.test(mot)) mot = mot.slice(0, -1);
+  if (mot.endsWith('cinq')) mot += 'u';
+  else if (mot.endsWith('neuf')) mot = `${mot.slice(0, -1)}v`;
+  else if (mot.endsWith('e')) mot = mot.slice(0, -1);
+  return `${mot}ième${pluriel}`;
 };
+
+/** « 1er », « 1re », « 1ère », « 2e », « 3ème », « 3eme », « 11e », « 2nd », « 2nde », « 1ers », « 2es »… */
+const MOTIF_ORDINAL =
+  /(?<![\p{L}\d])(\d{1,3})(ers?|res?|ères?|eres?|èmes?|emes?|ndes?|nds?|es?)(?![\p{L}\d])/giu;
+
 
 const NOMBRE = String.raw`\d{1,3}(?:[  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?`;
 const echapper = (t: string) => t.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const ALTERNATIVE_UNITES = UNITES_MESURE.map(([abr]) => echapper(abr)).join('|');
 const PAR_ABREVIATION = new Map(UNITES_MESURE.map(([abr, sing, plur]) => [abr, [sing, plur] as const]));
 const MOTIF_NOMBRE = new RegExp(
-  String.raw`(?<![\p{L}\d-])(${NOMBRE})(?:\s?(${ALTERNATIVE_UNITES})(?![\p{L}\d]))?`,
+  String.raw`(?<![\p{L}\d-])(${NOMBRE})(?:\s?(${ALTERNATIVE_UNITES})(?![\p{L}\d])|(?![\p{L}\d]))`,
   'gu',
 );
 const MOTIF_INTERVALLE = new RegExp(String.raw`(?<![\p{L}\d-])(${NOMBRE})\s*[-–]\s*(${NOMBRE})(?!\d)`, 'gu');
@@ -135,7 +154,12 @@ export const parolesChantees = (texte: string): string =>
     .map((ligne) => {
       if (/^\s*\[[^\]]+\]\s*$/.test(ligne)) return ligne;
       return ligne
-        .replace(/(?<![\p{L}\d])(1er|1re|1ère|2nde|2nd|[2-9]e|10e)(?![\p{L}\d])/gu, (m) => ORDINAUX[m] ?? m)
+        .replace(MOTIF_ORDINAL, (m, n: string, suf: string) => {
+          const v = parseInt(n, 10);
+          // « 1nd », « 3er », « 1e »… (genre ou forme ambigus) : laissés tels quels.
+          if (v === 0 || (/^nd/i.test(suf) && v !== 2) || (/^(?:er|re|ère|ere)/i.test(suf) !== (v === 1))) return m;
+          return ordinalEnLettres(v, suf);
+        })
         .replace(MOTIF_INTERVALLE, '$1 à $2')
         .replace(MOTIF_NOMBRE, (_m, n: string, unite?: string) => {
           const lettres = nombreEnLettres(n);

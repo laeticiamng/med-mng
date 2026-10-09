@@ -7,7 +7,7 @@
  * - Organization : l'organisation Med MNG
  * - FAQPage : questions fréquentes
  */
-import { PROMESSE_AUDIO, PROMESSE_AUDIO_COURTE } from '@/config/offre';
+import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, PROMESSE_AUDIO_COURTE } from '@/config/offre';
 
 const SITE_URL = 'https://medmng.com';
 
@@ -189,7 +189,7 @@ export const createFAQPageSchema = () => ({
       name: 'Med MNG couvre-t-il tous les items EDN ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans Med MNG Premium, et offert pour 10 items d\'essai ; l\'audio des chansons se génère à la demande.',
+        text: `Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans Med MNG Premium, et offert pour 10 items d'essai ; ${GENERATION_AUDIO_DISPONIBLE ? "l'audio des chansons se génère à la demande." : "la génération de l'audio des chansons est momentanément suspendue."}`,
       },
     },
     {

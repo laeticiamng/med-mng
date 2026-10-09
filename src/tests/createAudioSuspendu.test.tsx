@@ -17,6 +17,15 @@ import {
 } from '../../supabase/functions/_shared/mm-suno-requete';
 import { createRequestBody } from '@/hooks/musicGenerationUtils';
 import { messageErreurGeneration } from '@/hooks/music/useSunoMusicGeneration';
+import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { PricingFAQ } from '@/components/pricing/PricingFAQ';
+import {
+  createEducationalApplicationSchema,
+  createFAQPageSchema,
+  createProductSchema,
+  createSoftwareApplicationSchema,
+} from '@/components/seo/jsonLdSchemas';
 
 const lire = (p: string) =>
   readFileSync(resolve(__dirname, '../..', p), 'utf8');
@@ -51,6 +60,37 @@ describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)
         /30 générations audio|30 chansons par mois/
       );
     }
+    // Revue #232 : plus aucun quota ou crédit écrit en dur dans les textes contractuels et d'aide.
+    for (const f of [
+      'src/pages/CGV.tsx',
+      'src/pages/FAQ.tsx',
+      'src/components/pricing/PricingFAQ.tsx',
+      'src/components/home/MngPresentation.tsx',
+    ]) {
+      expect(lire(f), f).not.toMatch(/30 générations|\(crédits\)/);
+    }
+  });
+
+  it('données structurées (JSON-LD) rendues : aucune promesse d’audio disponible', () => {
+    const rendu = JSON.stringify([
+      createFAQPageSchema(),
+      createProductSchema(),
+      createSoftwareApplicationSchema(),
+      createEducationalApplicationSchema(),
+    ]);
+    expect(rendu).not.toMatch(
+      /à la demande|30 générations|générations audio de chansons par mois/
+    );
+    expect(rendu).toMatch(/momentanément suspendue|bientôt disponible/);
+  });
+
+  it('PricingFAQ rendue : audio annoncé comme suspendu', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <PricingFAQ />
+      </MemoryRouter>
+    );
+    expect(container.textContent ?? '').not.toMatch(/30 générations/);
   });
 
   it('serveur : refus avant tout appel au fournisseur, moteur conservé', () => {
@@ -65,8 +105,14 @@ describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)
   });
 
   it('Stripe et e-mail de bienvenue suivent le drapeau', () => {
-    expect(lire('supabase/functions/_shared/mm-stripe-catalog.ts')).toMatch(
-      /GENERATION_AUDIO_DISPONIBLE\s*\n?\s*\?/
+    const catalogue = lire('supabase/functions/_shared/mm-stripe-catalog.ts');
+    expect(catalogue).toMatch(/GENERATION_AUDIO_DISPONIBLE\s*\n?\s*\?/);
+    // Revue #232 : le produit Stripe EXISTANT est réaligné (pas seulement un produit neuf).
+    expect(catalogue).toContain(
+      'stripe.products.update(produitId, { description: DESCRIPTION_PRODUIT })'
+    );
+    expect(catalogue.match(/await alignerDescriptionProduit\(/g)?.length).toBe(
+      2
     );
     expect(lire('supabase/functions/send-welcome-email/index.ts')).toContain(
       'GENERATION_AUDIO_DISPONIBLE ?'

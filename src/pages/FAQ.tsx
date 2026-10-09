@@ -8,7 +8,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PROMESSE_AUDIO } from '@/config/offre';
+import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 
 const FAQ = () => {
   const { logActivity } = useActivityTracking();
@@ -79,7 +79,7 @@ const FAQ = () => {
                   En deux étapes. D'abord, une IA rédige des paroles à partir des compétences
                   rang A, rang B ou A+B de l'item : ces paroles sont disponibles pour les 367 items. Ensuite,
                   si vous le souhaitez, vous générez l'audio depuis votre compte avec un générateur
-                  de musique par IA ; cette étape est incluse dans Med MNG Premium (30 générations par mois). Aucune piste audio n'est pré-enregistrée.
+                  de musique par IA ; {GENERATION_AUDIO_DISPONIBLE ? `cette étape est incluse dans Med MNG Premium (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "cette étape est momentanément suspendue (les paroles restent disponibles)."} Aucune piste audio n'est pré-enregistrée.
                 </AccordionContent>
               </AccordionItem>
 
@@ -369,7 +369,7 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   Vous choisissez le style (pop, rap, variété, électro…) au moment de générer l'audio d'une
-                  chanson. Vos chansons générées se retrouvent ensuite dans votre{' '}
+                  chanson{GENERATION_AUDIO_DISPONIBLE ? '' : ' (génération audio momentanément suspendue)'}. Vos chansons générées se retrouvent ensuite dans votre{' '}
                   <Link to={ROUTE_PATHS.medMngMusicLibrary} className="text-primary underline underline-offset-2 hover:decoration-2">bibliothèque musicale</Link>.
                 </AccordionContent>
               </AccordionItem>

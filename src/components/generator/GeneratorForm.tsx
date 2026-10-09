@@ -202,7 +202,8 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   useKeyboardShortcuts({
     onGenerate: handleGenerateWithParams,
     onReset: resetForm,
-    canGenerate: canGenerate(),
+    // Pendant la suspension de l'audio, le raccourci Ctrl/Cmd+Entrée ne lance rien (revue #232).
+    canGenerate: GENERATION_AUDIO_DISPONIBLE && canGenerate(),
     isGenerating,
     enabled: true,
   });

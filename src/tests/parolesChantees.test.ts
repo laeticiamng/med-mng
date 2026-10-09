@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   entierEnLettres,
   nombreEnLettres,
+  ordinalEnLettres,
   parolesChantees,
 } from '../../supabase/functions/_shared/mm-paroles-chantees';
 
@@ -78,5 +79,36 @@ describe('paroles chantées — nombres en toutes lettres', () => {
       'OMA, HTA, IC-12 et OIC-001-01-A'
     );
     expect(parolesChantees('COVID-19 et H1N1')).toBe('COVID-19 et H1N1');
+  });
+
+  it('ordinaux : toutes les graphies reconnues, jamais de mot tronqué (revue #232)', () => {
+    expect(ordinalEnLettres(1, 'er')).toBe('premier');
+    expect(ordinalEnLettres(1, 'ère')).toBe('première');
+    expect(ordinalEnLettres(2, 'nde')).toBe('seconde');
+    expect(ordinalEnLettres(4, 'e')).toBe('quatrième');
+    expect(ordinalEnLettres(5, 'ème')).toBe('cinquième');
+    expect(ordinalEnLettres(9, 'e')).toBe('neuvième');
+    expect(ordinalEnLettres(11, 'e')).toBe('onzième');
+    expect(ordinalEnLettres(21, 'e')).toBe('vingt et unième');
+    expect(ordinalEnLettres(80, 'e')).toBe('quatre-vingtième');
+    expect(ordinalEnLettres(200, 'e')).toBe('deux centième');
+    expect(ordinalEnLettres(2, 'es')).toBe('deuxièmes');
+    expect(ordinalEnLettres(1, 'ers')).toBe('premiers');
+    expect(
+      parolesChantees(
+        '2ème intention, 3eme ligne, 11e côte, 1ère intention, 1ers signes, 2nd temps'
+      )
+    ).toBe(
+      'deuxième intention, troisième ligne, onzième côte, première intention, premiers signes, second temps'
+    );
+    // Formes ambiguës laissées telles quelles, jamais mutilées.
+    expect(parolesChantees('1e cas, 3er cas')).toBe('1e cas, 3er cas');
+  });
+
+  it("un nombre collé à des lettres hors unité connue n'est jamais converti à moitié", () => {
+    expect(parolesChantees('le 5FU en perfusion')).toBe('le 5FU en perfusion');
+    expect(parolesChantees('48h puis 10mg et 3 heures')).toBe(
+      'quarante-huit heures puis dix milligrammes et trois heures'
+    );
   });
 });

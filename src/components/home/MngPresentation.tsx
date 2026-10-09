@@ -5,6 +5,7 @@ import { Music, Brain, Target, Zap, Lightbulb, Shield, Headphones, Flame, Star }
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { useGamification } from "@/hooks/useGamification";
 import { supabase } from "@/integrations/supabase/client";
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 export const MngPresentation = () => {
   const { logActivity } = useActivityTracking();
@@ -124,7 +125,7 @@ export const MngPresentation = () => {
                 <Music className="h-5 w-5 text-primary" />
                 <h3 className="font-semibold text-primary">2. Sélection musicale</h3>
               </div>
-              <p className="text-sm text-foreground">Vous choisissez le style musical au moment de générer l'audio (crédits)</p>
+              <p className="text-sm text-foreground">Vous choisissez le style musical au moment de générer l'audio{GENERATION_AUDIO_DISPONIBLE ? ' (Premium)' : ' (génération audio momentanément suspendue)'}</p>
             </div>
             <div className="bg-success/10 p-4 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
