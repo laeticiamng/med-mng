@@ -160,7 +160,7 @@ export const AppleHero = () => {
             <p id="hero-aide-create" className="text-sm sm:text-base text-muted-foreground max-w-md">
               <span className="font-semibold text-foreground">Med MNG Create</span>
               {' : '}
-              <TranslatedText text="les connaissances officielles d'un item EDN deviennent des paroles fidèles, puis une chanson dans le style de votre choix ({GENERATION_AUDIO_DISPONIBLE ? 'génération audio avec Premium' : 'génération audio bientôt disponible'})." />
+              <TranslatedText text={`les connaissances officielles d'un item EDN deviennent des paroles fidèles, puis une chanson dans le style de votre choix (${GENERATION_AUDIO_DISPONIBLE ? 'génération audio avec Premium' : 'génération audio bientôt disponible'}).`} />
             </p>
           </div>
         </motion.div>
