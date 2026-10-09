@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   GENERATION_AUDIO_DISPONIBLE,
@@ -117,6 +117,24 @@ describe('suspension ciblée de la génération audio (décision CEO 09.10.2026)
     expect(lire('supabase/functions/send-welcome-email/index.ts')).toContain(
       'GENERATION_AUDIO_DISPONIBLE ?'
     );
+  });
+});
+
+describe('aucune expression JS affichée telle quelle (régression accueil, 09.10)', () => {
+  it('aucun attribut texte entre guillemets ne contient une expression {CONSTANTE ? …}', () => {
+    const fichiers: string[] = [];
+    const parcourir = (dossier: string) => {
+      for (const e of readdirSync(dossier, { withFileTypes: true })) {
+        const chemin = join(dossier, e.name);
+        if (e.isDirectory()) parcourir(chemin);
+        else if (/\.tsx$/.test(e.name)) fichiers.push(chemin);
+      }
+    };
+    parcourir(resolve(__dirname, '..'));
+    const fautifs = fichiers.filter((f) =>
+      /=\s*"[^"\n]*\{[A-Z][A-Z_]{3,}\s*\?/.test(readFileSync(f, 'utf8'))
+    );
+    expect(fautifs).toEqual([]);
   });
 });
 

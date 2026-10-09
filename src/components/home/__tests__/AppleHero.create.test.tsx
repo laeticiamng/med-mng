@@ -15,6 +15,7 @@ vi.mock('@/components/global/TranslatedText', () => ({
 
 import { AppleHero } from '../AppleHero';
 import { AppleFinalCTA } from '../AppleFinalCTA';
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 const rendre = (el: JSX.Element) => render(<MemoryRouter>{el}</MemoryRouter>);
 
@@ -44,9 +45,13 @@ describe('Accueil — héros : deux portes d’entrée (EDN, Med MNG Create)', (
       creer.getAttribute('aria-describedby') ?? ''
     );
     expect(aide?.textContent).toMatch(/Med MNG Create/);
-    // Promesse exacte : un item EDN, génération audio avec Premium (pas « votre cours »).
+    // Promesse exacte : un item EDN (pas « votre cours ») ; audio annoncé selon sa disponibilité réelle.
     expect(aide?.textContent).toMatch(/item EDN/);
-    expect(aide?.textContent).toMatch(/Premium/);
+    expect(aide?.textContent).toMatch(
+      GENERATION_AUDIO_DISPONIBLE ? /génération audio avec Premium/ : /génération audio bientôt disponible/
+    );
+    // Jamais de code affiché tel quel (régression du 09.10).
+    expect(aide?.textContent).not.toMatch(/[{}]|GENERATION_AUDIO/);
     // Pleine largeur sur mobile.
     expect(creer.className).toMatch(/w-full/);
   });
