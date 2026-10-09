@@ -44,7 +44,7 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
   return (
     <button
       className={cn(
-        'font-semibold transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 active:scale-95',
+        'font-semibold transition-[background-color,box-shadow,filter,opacity] duration-200 ease-out hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:brightness-100',
         getVariantClasses(),
         getSizeClasses(),
         className

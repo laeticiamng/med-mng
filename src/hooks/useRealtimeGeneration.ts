@@ -28,6 +28,7 @@ export const useRealtimeGeneration = ({
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const connexionsRef = useRef(0);
 
   const MAX_RECONNECT_ATTEMPTS = 5;
   const RECONNECT_DELAY = 3000;
@@ -53,9 +54,18 @@ export const useRealtimeGeneration = ({
     // Cleanup previous connection
     cleanup();
 
-    const channelName = `generation-realtime-${userId}-${Date.now()}`;
-    
-    const channel = supabase
+    // Nom unique à chaque connexion : supabase.channel() renvoie le canal existant
+    // si le nom est déjà pris, et y ajouter des écouteurs après subscribe() lève
+    // une exception qui faisait tomber toute la page Create (réseau qui bloque les
+    // WebSocket : proxy d'hôpital, reconnexions rapprochées). Le temps réel n'est
+    // qu'un confort (le suivi par interrogation prend le relais) : il ne doit
+    // jamais casser la page.
+    connexionsRef.current += 1;
+    const channelName = `generation-realtime-${userId}-${Date.now()}-${connexionsRef.current}-${Math.random().toString(36).slice(2, 8)}`;
+
+    let channel: ReturnType<typeof supabase.channel>;
+    try {
+    channel = supabase
       .channel(channelName)
       .on(
         'postgres_changes',
@@ -128,6 +138,12 @@ export const useRealtimeGeneration = ({
           setIsConnected(false);
         }
       });
+    } catch (erreur) {
+      console.warn('Temps réel indisponible, suivi par interrogation seulement :', erreur);
+      setIsConnected(false);
+      setConnectionError('Temps réel indisponible');
+      return;
+    }
 
     channelRef.current = channel;
   }, [userId, enabled, cleanup, onNewTrack, onTrackUpdated, onGenerationComplete]);

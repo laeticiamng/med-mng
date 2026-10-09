@@ -189,7 +189,7 @@ describe('Med MNG Create — états de la page', () => {
     );
   });
 
-  it('sélection incomplète : pas de bouton « Générer ma chanson »', () => {
+  it('sélection incomplète : pas de bouton « Générer la chanson »', () => {
     s.aAccesPremium = true;
     s.musicQuota = {
       can_generate: true,
@@ -199,7 +199,7 @@ describe('Med MNG Create — états de la page', () => {
     };
     rendre();
     expect(
-      screen.queryByRole('button', { name: /Générer ma chanson/ })
+      screen.queryByRole('button', { name: /Générer la chanson/ })
     ).toBeNull();
   });
 
@@ -207,7 +207,7 @@ describe('Med MNG Create — états de la page', () => {
     s.preferences = TOUT_CHOISI;
     rendre();
     expect(
-      screen.queryByRole('button', { name: /Générer ma chanson/ })
+      screen.queryByRole('button', { name: /Générer la chanson/ })
     ).toBeNull();
     expect(
       screen.getByText(/La génération audio est incluse dans Med MNG Premium/)
@@ -230,7 +230,7 @@ describe('Med MNG Create — états de la page', () => {
       screen.getByText(/Le compteur repart le 1er du mois prochain/)
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /Générer ma chanson/ })
+      screen.getByRole('button', { name: /Générer la chanson/ })
     ).toBeDisabled();
   });
 
@@ -267,7 +267,7 @@ describe('Med MNG Create — états de la page', () => {
       value: false,
     });
     rendre();
-    fireEvent.click(screen.getByRole('button', { name: /Générer ma chanson/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Générer la chanson/ }));
     expect(s.toastError).toHaveBeenCalledWith(MESSAGE_HORS_LIGNE);
     expect(s.generate).not.toHaveBeenCalled();
   });
@@ -285,7 +285,7 @@ describe('Med MNG Create — états de la page', () => {
       new Error('Service momentanément indisponible, réessayez plus tard.')
     );
     rendre();
-    fireEvent.click(screen.getByRole('button', { name: /Générer ma chanson/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Générer la chanson/ }));
     await vi.waitFor(() => expect(s.generate).toHaveBeenCalledTimes(1));
     const [rang, paroles, style, options] = s.generate.mock.calls[0];
     expect(rang).toBe('A');
@@ -298,7 +298,7 @@ describe('Med MNG Create — états de la page', () => {
     expect(options).toMatchObject({ itemCode: 'IC-1' });
     // Le message d'erreur est affiché par le hook (useSunoMusicGeneration) ; la page reste utilisable.
     expect(
-      await screen.findByRole('button', { name: /Générer ma chanson/ })
+      await screen.findByRole('button', { name: /Générer la chanson/ })
     ).toBeEnabled();
   });
 });

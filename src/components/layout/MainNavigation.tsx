@@ -147,7 +147,7 @@ export const MainNavigation: React.FC = () => {
               </Link>
             ))}
             
-            {/* Porte d'entrée « Créer une musique » (Med MNG Create), mise en avant. */}
+            {/* Porte d'entrée « Mettre en chanson » (Med MNG Create), mise en avant. */}
             <Link
               to={lienCreer}
               aria-current={isActive(NAV_CREER_MUSIQUE.path) ? 'page' : undefined}

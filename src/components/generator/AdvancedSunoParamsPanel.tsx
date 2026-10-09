@@ -71,9 +71,12 @@ export const AdvancedSunoParamsPanel: React.FC<AdvancedSunoParamsPanelProps> = (
           size="sm"
           className="w-full justify-between text-muted-foreground hover:text-foreground"
         >
-          <span className="flex items-center gap-2">
+          <span className="flex min-w-0 items-center gap-2">
             <Sliders className="h-4 w-4" />
-            <TranslatedText text="Réglages avancés (voix, exclusions, intensité)" />
+            <span className="truncate">
+              <span className="sm:hidden">Réglages avancés</span>
+              <span className="hidden sm:inline">Réglages avancés (voix, exclusions, intensité)</span>
+            </span>
             {modifiedCount > 0 && (
               <Badge variant="default" className="text-xs">{modifiedCount} modifié{modifiedCount > 1 ? 's' : ''}</Badge>
             )}

@@ -88,6 +88,11 @@ interface ReponseGeneration {
 
 /** Générations audio par mois incluses dans MED MNG Premium (= src/config/offre.ts). */
 const QUOTA_MENSUEL_PREMIUM = 30;
+/** Tentatives du mois, réussies ou échouées (2 × le quota : marge pour les échecs du fournisseur). */
+const TENTATIVES_MENSUELLES_MAX = QUOTA_MENSUEL_PREMIUM * 2;
+/** Générations non terminées en même temps, sur la fenêtre où le rappel est attendu (15 min). */
+const GENERATIONS_SIMULTANEES_MAX = 2;
+const FENETRE_EN_COURS_MS = 15 * 60 * 1000;
 
 interface RefusGeneration { status: number; code: string; message: string }
 
@@ -195,6 +200,39 @@ async function verifierDroitGeneration(
       code: 'QUOTA_ATTEINT',
       message: `Vous avez utilisé vos ${QUOTA_MENSUEL_PREMIUM} générations audio de ce mois. Le compteur repart le 1er du mois prochain.`,
     };
+  }
+
+  // Garde-fous de coût (audit rentabilité 09.10.2026) : une génération échouée n'est pas
+  // décomptée, mais le fournisseur peut la facturer. On plafonne donc aussi les TENTATIVES
+  // du mois (réussies + échouées) et les générations simultanées (requêtes parallèles qui
+  // passeraient toutes le contrôle du quota avant l'enregistrement).
+  if (!errRegistre) {
+    const { count: tentatives } = await supabase
+      .from('mm_generations_audio')
+      .select('task_id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('created_at', debutMois);
+    if ((tentatives ?? 0) >= TENTATIVES_MENSUELLES_MAX) {
+      return {
+        status: 429,
+        code: 'TENTATIVES_ATTEINTES',
+        message: `Trop de tentatives de génération ce mois-ci (${TENTATIVES_MENSUELLES_MAX}). Écrivez-nous si un problème technique vous a bloqué.`,
+      };
+    }
+    const depuis = new Date(Date.now() - FENETRE_EN_COURS_MS).toISOString();
+    const { count: enCours } = await supabase
+      .from('mm_generations_audio')
+      .select('task_id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('statut', 'en_cours')
+      .gte('created_at', depuis);
+    if ((enCours ?? 0) >= GENERATIONS_SIMULTANEES_MAX) {
+      return {
+        status: 429,
+        code: 'GENERATION_EN_COURS',
+        message: 'Une chanson est déjà en cours de création. Attendez qu’elle soit prête (1 à 3 minutes) avant d’en lancer une autre.',
+      };
+    }
   }
   return null;
 }

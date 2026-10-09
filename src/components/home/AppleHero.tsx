@@ -123,7 +123,7 @@ export const AppleHero = () => {
               asChild
               variant="outline"
               size="lg"
-              className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105 w-full sm:w-auto"
+              className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-colors w-full sm:w-auto"
             >
               <Link to={ROUTE_PATHS.ednComplete}>
                 <Play className="h-5 w-5 mr-2" aria-hidden="true" />
@@ -137,7 +137,7 @@ export const AppleHero = () => {
             <Button
               asChild
               size="lg"
-              className="h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg font-bold rounded-2xl bg-foreground text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 transition-all hover:scale-105 w-full sm:w-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg font-bold rounded-2xl bg-foreground text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 transition-colors w-full sm:w-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Link
                 to={lienCreerMusique(Boolean(user))}
@@ -145,13 +145,13 @@ export const AppleHero = () => {
                 data-testid="hero-creer-musique"
               >
                 <Wand2 className="h-5 w-5 mr-2 text-warning" aria-hidden="true" />
-                <TranslatedText text="Créer une musique" />
+                <TranslatedText text="Mettre un item en chanson" />
               </Link>
             </Button>
             <p id="hero-aide-create" className="text-sm sm:text-base text-muted-foreground max-w-md">
               <span className="font-semibold text-foreground">Med MNG Create</span>
               {' : '}
-              <TranslatedText text="transformez un item EDN en chanson, dans le style de votre choix (génération audio avec Premium)." />
+              <TranslatedText text="les connaissances officielles d'un item EDN deviennent des paroles fidèles, puis une chanson dans le style de votre choix (génération audio avec Premium)." />
             </p>
           </div>
         </motion.div>

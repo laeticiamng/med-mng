@@ -28,19 +28,19 @@ describe('MainNavigation (session simulée)', () => {
     etat.user = { id: 'u1', email: 'etudiante@example.fr' };
   });
 
-  // Décision CEO du 08.10.2026 : « Créer une musique » rejoint la barre principale,
+  // Décision CEO du 08.10.2026 : « Mettre en chanson » rejoint la barre principale,
   // ECOS passe dans « Plus » (MM-A11 : les situations ECOS restent trouvables).
-  it('barre principale : EDN et « Créer une musique » ; ECOS absent de la barre', () => {
+  it('barre principale : EDN et « Mettre en chanson » ; ECOS absent de la barre', () => {
     rendre();
     expect(screen.getAllByRole('link', { name: /EDN/ }).length).toBeGreaterThan(0);
     const creer = screen.getByTestId('nav-creer-musique');
     expect(creer).toHaveAttribute('href', '/med-mng/create');
-    expect(creer).toHaveAccessibleName(/Créer une musique/);
+    expect(creer).toHaveAccessibleName(/Mettre en chanson/);
     expect(document.querySelector('a[href="/ecos"]')).toBeNull();
     expect(screen.getByRole('button', { name: /Plus/ })).toBeInTheDocument();
   });
 
-  it('menu mobile : « Créer une musique » mis en avant et ECOS proposé (groupe « Réviser »)', () => {
+  it('menu mobile : « Mettre en chanson » mis en avant et ECOS proposé (groupe « Réviser »)', () => {
     rendre();
     fireEvent.click(screen.getByRole('button', { name: 'Ouvrir le menu' }));
     expect(screen.getByTestId('nav-creer-musique-mobile')).toHaveAttribute('href', '/med-mng/create');
@@ -69,7 +69,7 @@ describe('MainNavigation (visiteur)', () => {
     etat.user = null;
   });
 
-  it('« Créer une musique » mène à l’inscription gratuite avec retour sur Create', () => {
+  it('« Mettre en chanson » mène à l’inscription gratuite avec retour sur Create', () => {
     rendre();
     expect(screen.getByTestId('nav-creer-musique')).toHaveAttribute('href', '/med-mng/signup?next=%2Fmed-mng%2Fcreate');
   });

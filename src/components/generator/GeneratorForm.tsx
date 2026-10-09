@@ -3,13 +3,18 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumCard } from '@/components/ui/premium-card';
+import { Link } from 'react-router-dom';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { NOM_OFFRE_PREMIUM } from '@/config/offre';
+import {
+  ITEMS_GRATUITS,
+  NOM_OFFRE_PREMIUM,
+  estItemGratuit,
+} from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { avecSuivant } from '@/lib/cheminSuivant';
 import {
@@ -19,9 +24,10 @@ import {
 } from '@/config/stylesMusicaux';
 import { libelleStyle } from '@/config/stylesMusicaux';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
-import { AlertTriangle, Keyboard, LogIn, Sparkles, Wand2 } from 'lucide-react';
+import { AlertTriangle, Keyboard, Lock, LogIn, Sparkles } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { raisonRangIndisponible } from './RangSelector';
 import { AdvancedParamsToggle } from './AdvancedParamsToggle';
 import { EdnItemSelector } from './EdnItemSelector';
 import { EncartGenerationAudio } from '@/components/offre/EncartGenerationAudio';
@@ -48,7 +54,11 @@ const LoginPromptBanner: React.FC = () => {
         <Button
           variant="default"
           size="sm"
-          onClick={() => navigate(avecSuivant(ROUTE_PATHS.medMngLogin, ROUTE_PATHS.medMngCreate))}
+          onClick={() =>
+            navigate(
+              avecSuivant(ROUTE_PATHS.medMngLogin, ROUTE_PATHS.medMngCreate)
+            )
+          }
           className="w-fit"
         >
           <LogIn className="h-4 w-4 mr-2" />
@@ -101,7 +111,12 @@ interface GeneratorFormProps {
   setSelectedRang: (rang: string) => void;
   selectedStyle: string;
   setSelectedStyle: (style: string) => void;
-  allEdnItems: any[];
+  allEdnItems: {
+    item_code: string;
+    title: string;
+    subtitle?: string;
+    slug?: string;
+  }[];
   itemsLoading: boolean;
   itemsError: string | null;
   ednLyrics: ParolesItem | null;
@@ -111,12 +126,45 @@ interface GeneratorFormProps {
   handleGenerate: (advancedParams?: Partial<AdvancedSunoParams>) => void;
   resetForm: () => void;
   isGenerating: boolean;
-  user: any;
+  user: { id: string } | null;
   /** Accès Premium effectif (abonnement ou administrateur) et quota non épuisé. */
   canGenerateMusic: () => boolean;
   /** Connecté sans Med MNG Premium : encart permanent à la place du bouton « Générer ». */
   generationReservee?: boolean;
+  /** Accès Premium (abonnement ou administrateur) : sinon, items d'essai signalés. */
+  aAccesPremium?: boolean;
+  /** Paroles de l'item choisi réservées à Premium (réponse du serveur). */
+  parolesVerrouillees?: boolean;
 }
+
+/** En-tête d'une étape du parcours (numéro, titre, aide courte). */
+const Etape: React.FC<{
+  numero: number;
+  titre: string;
+  aide?: string;
+  children: React.ReactNode;
+}> = ({ numero, titre, aide, children }) => (
+  <section className="space-y-3" aria-labelledby={`etape-${numero}`}>
+    <div className="flex items-baseline gap-3">
+      <span
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary"
+        aria-hidden="true"
+      >
+        {numero}
+      </span>
+      <div className="min-w-0">
+        <h2
+          id={`etape-${numero}`}
+          className="text-base font-semibold text-foreground"
+        >
+          {titre}
+        </h2>
+        {aide && <p className="text-xs text-muted-foreground">{aide}</p>}
+      </div>
+    </div>
+    {children}
+  </section>
+);
 
 export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   selectedItem,
@@ -138,6 +186,8 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   user,
   canGenerateMusic,
   generationReservee = false,
+  aAccesPremium = false,
+  parolesVerrouillees = false,
 }) => {
   const [advancedParams, setAdvancedParams] = useState<
     Partial<AdvancedSunoParams> | undefined
@@ -156,6 +206,29 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     enabled: true,
   });
 
+  // Rang cohérent avec l'item : un rang absent du programme officiel de l'item
+  // (ex. rang B d'IC-1) est retiré ; s'il ne reste qu'un rang possible, il est
+  // présélectionné. Évite de lancer une génération vouée à l'échec.
+  const ajusterRang = useCallback(
+    ({
+      nbA,
+      nbB,
+      chargement,
+    }: {
+      nbA: number;
+      nbB: number;
+      chargement: boolean;
+    }) => {
+      if (!selectedItem || chargement || (nbA === 0 && nbB === 0)) return;
+      const possibles = ['A', 'B', 'AB'].filter(
+        (r) => !raisonRangIndisponible(r, nbA, nbB)
+      );
+      if (selectedRang && possibles.includes(selectedRang)) return;
+      setSelectedRang(possibles.length === 1 ? possibles[0] : '');
+    },
+    [selectedItem, selectedRang, setSelectedRang]
+  );
+
   // Paroles du rang choisi (celles qui seront envoyées), durée estimée et dépassement éventuel.
   const previewLyrics = useMemo(() => {
     const lignes = parolesPourRang(ednLyrics, selectedRang);
@@ -172,32 +245,65 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     };
   }, [previewLyrics]);
 
-  return (
-    <PremiumCard variant="glass" className="mb-6 sm:mb-12 p-4 sm:p-6 md:p-8">
-      <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-warning to-warning/80 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
-          <Wand2 className="h-5 w-5 sm:h-6 sm:w-6 text-warning-foreground" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">
-            <TranslatedText text="Configuration" />
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
-            <TranslatedText text="Item EDN, rang et style musical" />
-          </p>
-        </div>
-      </div>
+  const itemReserve =
+    Boolean(selectedItem) &&
+    !aAccesPremium &&
+    (parolesVerrouillees || !estItemGratuit(selectedItem));
+  const choixComplets = Boolean(selectedItem && selectedRang && selectedStyle);
 
-      <div className="space-y-6 sm:space-y-8">
-        {/* 1 — Item : ce qu'on veut réviser */}
-        <EdnItemSelector
-          selectedItem={selectedItem}
-          setSelectedItem={setSelectedItem}
-          allEdnItems={allEdnItems}
-          itemsLoading={itemsLoading}
-          itemsError={itemsError}
-          ednLyrics={ednLyrics}
-        />
+  return (
+    <PremiumCard
+      variant="glass"
+      hover={false}
+      className="mb-6 sm:mb-10 p-4 sm:p-6 md:p-8"
+    >
+      <div className="space-y-8">
+        <Etape
+          numero={1}
+          titre="Choisir l'item à réviser"
+          aide="Les 367 items du programme officiel des EDN"
+        >
+          <EdnItemSelector
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
+            allEdnItems={allEdnItems}
+            itemsLoading={itemsLoading}
+            itemsError={itemsError}
+            ednLyrics={ednLyrics}
+            signalerItemsEssai={Boolean(user) && !aAccesPremium}
+          />
+          {itemReserve && (
+            <div
+              className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3 text-sm"
+              role="note"
+            >
+              <Lock
+                className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <p className="text-muted-foreground">
+                Les paroles de cet item sont réservées à {NOM_OFFRE_PREMIUM}.
+                Sans abonnement, vous pouvez lire et exporter celles des{' '}
+                {ITEMS_GRATUITS.length} items d'essai (marqués « Essai » dans la
+                liste, par exemple{' '}
+                <button
+                  type="button"
+                  className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+                  onClick={() => setSelectedItem(ITEMS_GRATUITS[0])}
+                >
+                  {ITEMS_GRATUITS[0]}
+                </button>
+                ).{' '}
+                <Link
+                  to={ROUTE_PATHS.medMngPricing}
+                  className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  Voir l'offre
+                </Link>
+              </p>
+            </div>
+          )}
+        </Etape>
 
         {lyricsError && (
           <p className="flex items-center gap-2 text-sm text-destructive">
@@ -206,131 +312,150 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           </p>
         )}
 
-        {/* 2 — Niveau : ce qu'on veut apprendre (paroles du rang choisi visibles plus bas, dans l'aperçu) */}
-        <RangSelector
-          selectedRang={selectedRang}
-          setSelectedRang={setSelectedRang}
-          itemCode={selectedItem}
-          lyricsAvailability={{
-            hasA: parolesPourRang(ednLyrics, 'A').length > 0,
-            hasB: parolesPourRang(ednLyrics, 'B').length > 0,
-            hasAB: parolesPourRang(ednLyrics, 'AB').length > 0,
-          }}
-        />
-
-        {/* 3 — Ambiance musicale */}
-        <StyleSelector
-          selectedStyle={selectedStyle}
-          setSelectedStyle={setSelectedStyle}
-        />
-
-        {selectedStyle && (
-          <AdvancedParamsToggle
-            onParamsChange={setAdvancedParams}
-            disabled={isGenerating}
+        <Etape
+          numero={2}
+          titre="Choisir le niveau"
+          aide="Les connaissances de l'item qui seront mises en paroles"
+        >
+          <RangSelector
+            selectedRang={selectedRang}
+            setSelectedRang={setSelectedRang}
+            itemCode={selectedItem}
+            verrouille={itemReserve}
+            onComptes={ajusterRang}
+            lyricsAvailability={{
+              hasA: parolesPourRang(ednLyrics, 'A').length > 0,
+              hasB: parolesPourRang(ednLyrics, 'B').length > 0,
+              hasAB: parolesPourRang(ednLyrics, 'AB').length > 0,
+            }}
           />
-        )}
+        </Etape>
 
-        {/* 4 — Aperçu, seulement une fois les trois choix faits */}
-        {previewLyrics && selectedStyle && (
-          <LyricsPreview
-            lyrics={previewLyrics}
-            title={ednLyrics?.title}
-            rang={selectedRang}
-            dureeAffichee={apercuEnvoi ? `≈ ${apercuEnvoi.duree}` : undefined}
-            tronque={apercuEnvoi?.tronque}
-            lignesRetirees={apercuEnvoi?.lignesRetirees}
-            exportSlot={
-              <LyricsExportButton
-                lyrics={previewLyrics}
-                title={ednLyrics?.title}
-                rang={selectedRang}
-                style={selectedStyle}
-                variant="ghost"
-                size="sm"
-              />
-            }
-            className="mt-2"
+        <Etape numero={3} titre="Choisir l'ambiance musicale">
+          <StyleSelector
+            selectedStyle={selectedStyle}
+            setSelectedStyle={setSelectedStyle}
           />
+          {selectedStyle && (
+            <AdvancedParamsToggle
+              onParamsChange={setAdvancedParams}
+              disabled={isGenerating}
+            />
+          )}
+        </Etape>
+
+        {previewLyrics && (
+          <Etape
+            numero={4}
+            titre="Relire les paroles"
+            aide="Tirées du programme officiel de l'item ; comparez-les avec la source dans l'onglet « Programme officiel »"
+          >
+            <LyricsPreview
+              lyrics={previewLyrics}
+              title={ednLyrics?.title}
+              rang={selectedRang}
+              itemCode={selectedItem}
+              dureeAffichee={apercuEnvoi ? `≈ ${apercuEnvoi.duree}` : undefined}
+              tronque={apercuEnvoi?.tronque}
+              lignesRetirees={apercuEnvoi?.lignesRetirees}
+              exportSlot={
+                <LyricsExportButton
+                  lyrics={previewLyrics}
+                  title={ednLyrics?.title}
+                  rang={selectedRang}
+                  style={selectedStyle}
+                  variant="ghost"
+                  size="sm"
+                />
+              }
+            />
+          </Etape>
         )}
 
         {!user && <LoginPromptBanner />}
 
-        {/* 5 — Passer à l'action : le CTA doit être l'élément le plus visible de la page. */}
-        {selectedItem && selectedRang && selectedStyle && (
-          <div className="rounded-xl sm:rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-4 sm:p-6 space-y-3 sm:space-y-4">
-            <div>
-              <p className="text-sm sm:text-base font-semibold text-foreground">
-                <TranslatedText text="Ta chanson est prête à être créée" />
-              </p>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {ednLyrics?.title ? `${ednLyrics.title} · ` : ''}
+        {/* Dernière étape : l'action principale, seulement une fois les choix faits. */}
+        {choixComplets && !itemReserve && (
+          <Etape numero={previewLyrics ? 5 : 4} titre="Créer la chanson">
+            <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-5">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {selectedItem}
+                </span>
+                {' · '}
                 {selectedRang === 'AB'
-                  ? 'Rang A+B'
-                  : `Rang ${selectedRang}`} · {libelleStyle(selectedStyle)}
+                  ? 'Rangs A + B'
+                  : `Rang ${selectedRang}`}{' '}
+                · {libelleStyle(selectedStyle)}
                 {apercuEnvoi ? ` · ≈ ${apercuEnvoi.duree}` : ''}
               </p>
-            </div>
 
-            {generationReservee ? (
-              <EncartGenerationAudio />
-            ) : (
-              <PremiumButton
-                variant="primary"
-                size="lg"
-                onClick={handleGenerateWithParams}
-                disabled={
-                  !user ||
-                  !canGenerate() ||
-                  isGenerating ||
-                  (user && !canGenerateMusic()) ||
-                  lyricsLoading
-                }
-                className="w-full min-h-[52px] text-sm sm:text-base font-semibold"
-              >
-                {isGenerating ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-white border-t-transparent rounded-full" />
-                    <span className="truncate">
-                      <TranslatedText text="Génération en cours…" />
-                    </span>
-                  </>
-                ) : lyricsLoading ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-current border-t-transparent rounded-full" />
-                    <span className="truncate">
-                      <TranslatedText text="Chargement des paroles…" />
-                    </span>
-                  </>
-                ) : !user ? (
-                  <>
-                    <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
-                    <span className="truncate">
-                      <TranslatedText text="Connexion requise" />
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
-                    <span className="truncate">
-                      <TranslatedText text="Générer ma chanson" />
-                    </span>
-                  </>
-                )}
-              </PremiumButton>
-            )}
-          </div>
+              {generationReservee ? (
+                <EncartGenerationAudio />
+              ) : (
+                <>
+                  <PremiumButton
+                    variant="primary"
+                    size="lg"
+                    onClick={handleGenerateWithParams}
+                    disabled={
+                      !user ||
+                      !canGenerate() ||
+                      isGenerating ||
+                      (user && !canGenerateMusic()) ||
+                      lyricsLoading
+                    }
+                    className="w-full min-h-[52px] text-sm sm:text-base font-semibold"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-white border-t-transparent rounded-full" />
+                        <span className="truncate">
+                          <TranslatedText text="Génération en cours…" />
+                        </span>
+                      </>
+                    ) : lyricsLoading ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-current border-t-transparent rounded-full" />
+                        <span className="truncate">
+                          <TranslatedText text="Chargement des paroles…" />
+                        </span>
+                      </>
+                    ) : !user ? (
+                      <>
+                        <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
+                        <span className="truncate">
+                          <TranslatedText text="Connexion requise" />
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
+                        <span className="truncate">
+                          <TranslatedText text="Générer la chanson" />
+                        </span>
+                      </>
+                    )}
+                  </PremiumButton>
+                  <p className="text-xs text-muted-foreground">
+                    Prête en 1 à 3 minutes et enregistrée dans votre
+                    bibliothèque. Une génération qui échoue n'est pas décomptée.
+                  </p>
+                </>
+              )}
+            </div>
+          </Etape>
         )}
 
-        <div className="flex items-center gap-3 sm:gap-4">
-          <PremiumButton
-            variant="secondary"
-            size="lg"
+        <div className="flex items-center gap-2 border-t border-border/60 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={resetForm}
-            className="min-h-[44px] text-sm sm:text-base"
+            className="text-muted-foreground"
           >
-            <TranslatedText text="Réinitialiser" />
-          </PremiumButton>
+            <TranslatedText text="Tout effacer" />
+          </Button>
 
           <TooltipProvider>
             <Tooltip
@@ -341,11 +466,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-11 w-11"
+                  className="hidden h-9 w-9 md:inline-flex"
                   aria-label="Raccourcis clavier"
                   onClick={() => setShowShortcutsHelp(!showShortcutsHelp)}
                 >
-                  <Keyboard className="h-5 w-5" />
+                  <Keyboard className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top" className="p-3">

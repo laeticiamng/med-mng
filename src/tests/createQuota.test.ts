@@ -61,4 +61,22 @@ describe('quota Med MNG Create — contrôle serveur (mm-generate-music)', () =>
     expect(code).toContain("from('mm_generations_audio')");
     expect(code).toContain('Math.max(utilisees, selonRegistre)');
   });
+
+  it('garde-fous de coût : tentatives du mois (échecs compris) et générations simultanées plafonnées', () => {
+    expect(code).toContain('const TENTATIVES_MENSUELLES_MAX = QUOTA_MENSUEL_PREMIUM * 2;');
+    expect(code).toContain('const GENERATIONS_SIMULTANEES_MAX = 2;');
+    expect(code).toMatch(/code: 'TENTATIVES_ATTEINTES'/);
+    expect(code).toMatch(/code: 'GENERATION_EN_COURS'/);
+    // Contrôlé avant tout appel au fournisseur.
+    expect(code.indexOf("code: 'GENERATION_EN_COURS'")).toBeLessThan(code.indexOf('await fetch(URL_SUNO_GENERATE'));
+  });
+
+  it('messages de ces refus relayés tels quels (pas de jargon technique)', () => {
+    for (const m of [
+      'Trop de tentatives de génération ce mois-ci (60). Écrivez-nous si un problème technique vous a bloqué.',
+      'Une chanson est déjà en cours de création. Attendez qu’elle soit prête (1 à 3 minutes) avant d’en lancer une autre.',
+    ]) {
+      expect(messageErreurGeneration(new Error(m))).toBe(m);
+    }
+  });
 });
