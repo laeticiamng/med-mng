@@ -7,6 +7,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { GENERATION_AUDIO_DISPONIBLE, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 
 const CGV = () => {
   const { logActivity } = useActivityTracking();
@@ -93,7 +94,7 @@ const CGV = () => {
               <p>Med MNG propose des abonnements donnant accès à :</p>
               <ul className="space-y-1 text-sm">
                 <li>- Contenu immersif des 367 items EDN : paroles de chanson (rang A, rang B, A+B), récit, planches et quiz</li>
-                <li>- Génération de l'audio de chansons pédagogiques par IA (prestataires listés dans la politique de confidentialité), dans la limite de 30 générations par mois</li>
+                <li>- {GENERATION_AUDIO_DISPONIBLE ? `Génération de l'audio de chansons pédagogiques par IA (prestataires listés dans la politique de confidentialité), dans la limite de ${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois` : "Génération de l'audio de chansons pédagogiques par IA : momentanément suspendue ; les autres contenus de l'abonnement restent accessibles"}</li>
                 <li>- Bibliothèque personnelle des chansons générées</li>
                 <li>- Restent accessibles sans abonnement : les fiches officielles des 367 items (compétences rang A et rang B), le contenu immersif complet de 10 items d'essai et les situations ECOS</li>
               </ul>

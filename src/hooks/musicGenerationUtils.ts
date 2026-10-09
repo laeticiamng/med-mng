@@ -1,10 +1,12 @@
-import { LIMITES_SUNO, calculerDureeSecondes, tronquerParoles } from '@/config/stylesMusicaux';
+import { LIMITES_SUNO, calculerDureeSecondes, parolesEnvoyees, tronquerParoles } from '@/config/stylesMusicaux';
 
 export type RangGeneration = 'A' | 'B' | 'AB';
 
 export interface ParametresAvances {
   vocalGender?: 'm' | 'f';
   negativeTags?: string;
+  /** Ambiance libre (≤ 200 caractères), contrôlée par le serveur. */
+  ambiance?: string;
   /** 0–100 (%) côté interface. */
   styleWeight?: number;
   /** 0–100 (%) côté interface. */
@@ -46,7 +48,8 @@ export const validateGenerationInput = (
     texte: preparees.texte,
     tronque: preparees.tronque,
     lignesRetirees: preparees.lignesRetirees,
-    dureeEstimee: calculerDureeSecondes(preparees.texte),
+    // Durée calculée comme le serveur : sur la version chantée (nombres en toutes lettres).
+    dureeEstimee: calculerDureeSecondes(parolesEnvoyees(preparees.texte).texte),
   };
 };
 
@@ -64,6 +67,7 @@ export interface CorpsRequeteGeneration {
   language: string;
   vocalGender?: 'm' | 'f';
   negativeTags?: string;
+  ambiance?: string;
   /** 0–1 */
   styleWeight?: number;
   /** 0–1 */
@@ -99,6 +103,9 @@ export const createRequestBody = (
     }
     if (advancedParams.negativeTags?.trim()) {
       corps.negativeTags = advancedParams.negativeTags.trim();
+    }
+    if (advancedParams.ambiance?.trim()) {
+      corps.ambiance = advancedParams.ambiance.replace(/\s+/g, ' ').trim();
     }
     if (typeof advancedParams.styleWeight === 'number') {
       corps.styleWeight = Math.round(Math.min(100, Math.max(0, advancedParams.styleWeight))) / 100;

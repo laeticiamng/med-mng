@@ -4,13 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/config/routes';
-import {
-  FORMULES_PREMIUM,
-  NOM_OFFRE_PREMIUM,
-  NOMBRE_ITEMS_TOTAL,
-  QUOTA_GENERATIONS_AUDIO_PREMIUM,
-  formuleDepuisParametre,
-} from '@/config/offre';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, NOMBRE_ITEMS_TOTAL, QUOTA_GENERATIONS_AUDIO_PREMIUM, formuleDepuisParametre, PROMESSE_AUDIO } from '@/config/offre';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useSubscription } from '@/hooks/useSubscription';
 import { CheckCircle, CreditCard } from 'lucide-react';
@@ -87,7 +81,7 @@ export const MedMngSubscribe = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-success" />
-                  <span>{QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio de chansons par mois</span>
+                  <span>{PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1)}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-success" />

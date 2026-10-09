@@ -15,6 +15,7 @@ import { TranslatedText } from '@/components/global/TranslatedText';
 import { ShineBorder } from '@/components/ui/shine-border';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { lienCreerMusique } from '@/lib/cheminSuivant';
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 export const AppleHero = () => {
   const { user } = useAuth();
@@ -96,7 +97,15 @@ export const AppleHero = () => {
         >
           <TranslatedText text="Les 367 items EDN, avec leurs compétences officielles rang A et rang B." />{' '}
           <br className="hidden sm:block" />
-          <TranslatedText text="Chaque item peut être mis en" /> <span className="text-foreground font-semibold"><TranslatedText text="chanson à la demande" /></span>.
+          {GENERATION_AUDIO_DISPONIBLE ? (
+            <>
+              <TranslatedText text="Chaque item peut être mis en" /> <span className="text-foreground font-semibold"><TranslatedText text="chanson à la demande" /></span>.
+            </>
+          ) : (
+            <>
+              <TranslatedText text="Chaque item a ses" /> <span className="text-foreground font-semibold"><TranslatedText text="paroles chantables" /></span>, <TranslatedText text="tirées du référentiel officiel." />
+            </>
+          )}
         </motion.p>
 
         {/* Deux portes d'entrée (décision CEO du 08.10.2026) : réviser les 367 items
@@ -151,7 +160,7 @@ export const AppleHero = () => {
             <p id="hero-aide-create" className="text-sm sm:text-base text-muted-foreground max-w-md">
               <span className="font-semibold text-foreground">Med MNG Create</span>
               {' : '}
-              <TranslatedText text="les connaissances officielles d'un item EDN deviennent des paroles fidèles, puis une chanson dans le style de votre choix (génération audio avec Premium)." />
+              <TranslatedText text="les connaissances officielles d'un item EDN deviennent des paroles fidèles, puis une chanson dans le style de votre choix ({GENERATION_AUDIO_DISPONIBLE ? 'génération audio avec Premium' : 'génération audio bientôt disponible'})." />
             </p>
           </div>
         </motion.div>

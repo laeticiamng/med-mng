@@ -1,7 +1,7 @@
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, PROMESSE_AUDIO } from '@/config/offre';
 import Generator from '@/pages/Generator';
 
 /**
@@ -23,7 +23,7 @@ const MedMngCreateComponent = () => (
   <>
     <SEOHead
       title="Transformer un item EDN en chanson"
-      description={`Générez une chanson pédagogique à partir des paroles d'un item EDN (rang A, B ou A+B) dans le style de votre choix. ${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois avec ${NOM_OFFRE_PREMIUM}.`}
+      description={`Générez une chanson pédagogique à partir des paroles d'un item EDN (rang A, B ou A+B) dans le style de votre choix. ${PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1)} (${NOM_OFFRE_PREMIUM}).`}
       keywords="musique, IA, génération, EDN, apprentissage"
       canonical="/med-mng/create"
     />

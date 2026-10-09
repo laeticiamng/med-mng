@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { TranslatedText } from '@/components/global/TranslatedText';
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
@@ -65,7 +66,7 @@ export const AppleMusicPlayer = () => {
                     « Paroles actuelles » n'existait dans aucun item. */}
                 <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
                   <p className="text-sm text-muted-foreground">
-                    <TranslatedText text="Chaque item peut être mis en chanson à partir de ses compétences officielles : la génération audio est incluse dans Med MNG Premium (30 chansons par mois)." />
+                    <TranslatedText text={GENERATION_AUDIO_DISPONIBLE ? "Chaque item peut être mis en chanson à partir de ses compétences officielles : la génération audio est incluse dans Med MNG Premium (30 chansons par mois)." : "Chaque item a ses paroles chantables, tirées de ses compétences officielles. La génération audio des chansons sera bientôt disponible dans Med MNG Premium."} />
                   </p>
                 </div>
               </div>
@@ -87,7 +88,7 @@ export const AppleMusicPlayer = () => {
                 {/* fix(allégation) 04.10.2026 : un compte gratuit ne génère pas de chanson
                     (mm-generate-music répond 402) ; il ouvre les paroles, le récit, les
                     planches et le quiz des 10 items d'essai. */}
-                <TranslatedText text="Gratuit : paroles, récit, planches et quiz de 10 items d'essai. Génération audio avec Premium." />
+                <TranslatedText text={`Gratuit : paroles, récit, planches et quiz de 10 items d'essai. ${GENERATION_AUDIO_DISPONIBLE ? 'Génération audio avec Premium.' : 'Génération audio bientôt disponible.'}`} />
               </p>
             </div>
 

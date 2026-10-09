@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FORMULES_PREMIUM, ITEMS_GRATUITS, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM } from '@/config/offre';
+import { FORMULES_PREMIUM, ITEMS_GRATUITS, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM, PROMESSE_AUDIO_COURTE } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import type { MotifRecommandation, Recommandation } from '@/lib/recommandation';
 import { AlertTriangle, ArrowRight, CalendarClock, Gift, History, Info, ListOrdered, UserPlus } from 'lucide-react';
@@ -165,7 +165,7 @@ export function LigneOffre() {
           <li>Paroles, récit, planches et quiz des {NOMBRE_ITEMS_GRATUITS} items d'essai ({ITEMS_GRATUITS.join(', ')}) : gratuits.</li>
           <li>
             {NOM_OFFRE_PREMIUM} ({annuel.prixAffiche} ou {FORMULES_PREMIUM.mensuel.prixAffiche}) : contenu immersif des{' '}
-            {NOMBRE_ITEMS_TOTAL} items et génération audio.
+            {NOMBRE_ITEMS_TOTAL} items et {PROMESSE_AUDIO_COURTE}.
           </li>
         </ul>
       </details>

@@ -7,6 +7,7 @@
  * - Organization : l'organisation Med MNG
  * - FAQPage : questions fréquentes
  */
+import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, PROMESSE_AUDIO_COURTE } from '@/config/offre';
 
 const SITE_URL = 'https://medmng.com';
 
@@ -26,7 +27,7 @@ const OFFRES_JSONLD = [
     price: '69',
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
-    description: 'Contenu immersif des 367 items EDN et 30 générations audio par mois. 69 € par an (environ 5,75 € par mois).',
+    description: `Contenu immersif des 367 items EDN et ${PROMESSE_AUDIO}. 69 € par an (environ 5,75 € par mois).`,
     priceSpecification: {
       '@type': 'UnitPriceSpecification',
       price: '69',
@@ -40,7 +41,7 @@ const OFFRES_JSONLD = [
     price: '9.90',
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
-    description: 'Contenu immersif des 367 items EDN et 30 générations audio par mois. 9,90 € par mois.',
+    description: `Contenu immersif des 367 items EDN et ${PROMESSE_AUDIO}. 9,90 € par mois.`,
     priceSpecification: {
       '@type': 'UnitPriceSpecification',
       price: '9.90',
@@ -145,7 +146,7 @@ export const createProductSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: 'Med MNG Premium',
-  description: 'Med MNG Premium : contenu immersif des 367 items EDN (paroles, récit, planches, quiz) et génération audio. 69 € par an ou 9,90 € par mois.',
+  description: `Med MNG Premium : contenu immersif des 367 items EDN (paroles, récit, planches, quiz) et ${PROMESSE_AUDIO_COURTE}. 69 € par an ou 9,90 € par mois.`,
   brand: {
     '@type': 'Organization',
     name: 'Med MNG par EmotionsCare',
@@ -180,7 +181,7 @@ export const createFAQPageSchema = () => ({
       name: 'Med MNG est-il gratuit ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'En partie. Les fiches officielles des 367 items (compétences rang A et rang B) et les situations ECOS sont gratuites, ainsi que le contenu immersif complet de 10 items d\'essai. Med MNG Premium (69 € par an ou 9,90 € par mois) ouvre le contenu immersif des 367 items et la génération audio (30 par mois).',
+        text: `En partie. Les fiches officielles des 367 items (compétences rang A et rang B) et les situations ECOS sont gratuites, ainsi que le contenu immersif complet de 10 items d\'essai. Med MNG Premium (69 € par an ou 9,90 € par mois) ouvre le contenu immersif des 367 items et la ${PROMESSE_AUDIO_COURTE}.`,
       },
     },
     {
@@ -188,7 +189,7 @@ export const createFAQPageSchema = () => ({
       name: 'Med MNG couvre-t-il tous les items EDN ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans Med MNG Premium, et offert pour 10 items d\'essai ; l\'audio des chansons se génère à la demande.',
+        text: `Oui, les 367 items EDN sont présents avec leurs compétences rang A et rang B. Le contenu immersif (paroles, récit, planches, quiz) est inclus dans Med MNG Premium, et offert pour 10 items d'essai ; ${GENERATION_AUDIO_DISPONIBLE ? "l'audio des chansons se génère à la demande." : "la génération de l'audio des chansons est momentanément suspendue."}`,
       },
     },
     {
@@ -229,7 +230,7 @@ export const createFAQPageSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les situations ECOS de Med MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. Med MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
+        text: `Oui, les situations ECOS de Med MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. Med MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la ${PROMESSE_AUDIO_COURTE}.`,
       },
     },
     {

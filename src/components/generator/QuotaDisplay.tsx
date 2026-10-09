@@ -7,6 +7,8 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { Crown, ExternalLink, RefreshCw } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
+import { AnnonceAudioSuspendue } from '@/components/offre/AnnonceAudioSuspendue';
 
 interface QuotaDisplayProps {
   user: { id: string } | null;
@@ -58,6 +60,10 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   }, [usagePercentage]);
 
   if (!user) return null;
+
+  if (!GENERATION_AUDIO_DISPONIBLE) {
+    return <AnnonceAudioSuspendue className="mb-6" />;
+  }
 
   if (!aAccesPremium) {
     return (

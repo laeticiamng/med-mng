@@ -1,3 +1,4 @@
+import { parolesChantees } from '../../supabase/functions/_shared/mm-paroles-chantees';
 import { describe, expect, it } from 'vitest';
 import {
   STYLES_MUSICAUX,
@@ -5,6 +6,7 @@ import {
   DUREE_CHANSON,
   POIDS_PAR_DEFAUT,
   calculerDureeSecondes,
+  compterMotsChantes,
   choisirModeleSuno,
   compterLignesChantees,
   construireNegativeTags,
@@ -96,22 +98,34 @@ describe('catalogue des styles musicaux', () => {
 });
 
 describe('durée explicite demandée à Suno', () => {
-  it('calcule lignes chantées × 4,5 s + 15 s, bornée à 90–300 s (jamais les 20 s par défaut)', () => {
+  const attendue = (p: string) =>
+    Math.min(DUREE_CHANSON.max, Math.max(DUREE_CHANSON.min, Math.round(
+      Math.max(compterLignesChantees(p) * DUREE_CHANSON.parLigne, compterMotsChantes(p) / DUREE_CHANSON.motsParSeconde) + DUREE_CHANSON.marge
+    )));
+
+  it('le plus long de : lignes × 4,5 s ou mots ÷ 1,3 mot/s, + 20 s, borné à 90–360 s (jamais les 20 s par défaut)', () => {
     const paroles = parolesTest(40).join('\n');
     expect(compterLignesChantees(paroles)).toBe(40);
-    expect(calculerDureeSecondes(paroles)).toBe(Math.round(40 * DUREE_CHANSON.parLigne + DUREE_CHANSON.marge)); // 195
+    expect(calculerDureeSecondes(paroles)).toBe(attendue(paroles));
     expect(calculerDureeSecondes('[Refrain]\nune seule ligne')).toBe(DUREE_CHANSON.min);
     expect(calculerDureeSecondes(parolesTest(120).join('\n'))).toBe(DUREE_CHANSON.max);
     expect(calculerDureeSecondes('')).toBe(DUREE_CHANSON.min);
   });
 
+  it('IC-150 (341 mots, 44 lignes) : assez long pour TOUT chanter (constat du 09.10 : 120 s = 40 à 50 % chantés)', () => {
+    const lignes = Array.from({ length: 44 }, (_, i) => (i % 2 ? 'huit mots dans cette ligne de paroles médicales' : 'sept mots dans cette ligne de paroles'));
+    const p = lignes.join('\n');
+    expect(compterMotsChantes(p)).toBe(22 * 8 + 22 * 7);
+    expect(calculerDureeSecondes(p)).toBe(Math.round(330 / 1.3 + 20)); // 274 s
+  });
+
   it('respecte une durée demandée valide, bornée, et ignore une durée aberrante', () => {
     const paroles = parolesTest(40).join('\n');
     expect(calculerDureeSecondes(paroles, 240)).toBe(240);
-    expect(calculerDureeSecondes(paroles, 600)).toBe(195); // > 360 s : ignorée → calcul
+    expect(calculerDureeSecondes(paroles, 600)).toBe(attendue(paroles)); // > 360 s : ignorée → calcul
     expect(calculerDureeSecondes(paroles, 30)).toBe(90);   // valide pour Suno mais sous notre minimum
-    expect(calculerDureeSecondes(paroles, 350)).toBe(300);
-    expect(calculerDureeSecondes(paroles, Number.NaN)).toBe(195);
+    expect(calculerDureeSecondes(paroles, 350)).toBe(350);
+    expect(calculerDureeSecondes(paroles, Number.NaN)).toBe(attendue(paroles));
   });
 });
 
@@ -170,12 +184,13 @@ describe('construireRequeteSuno (charge utile /generate)', () => {
   it('envoie les paroles dans `lyrics` (jamais `prompt`), V6, durée explicite, défauts 0,7 / 0,3 / 1', () => {
     const { chargeUtile, rang, style } = construireRequeteSuno(base);
     expect(chargeUtile).not.toHaveProperty('prompt');
-    expect(chargeUtile.lyrics).toBe(parolesTest(40).join('\n'));
+    // Version chantée : nombres en toutes lettres (« Vers numéro 1 » → « Vers numéro un »).
+    expect(chargeUtile.lyrics).toBe(parolesChantees(parolesTest(40).join('\n')));
     expect(chargeUtile.customMode).toBe(true);
     expect(chargeUtile.instrumental).toBe(false);
     expect(chargeUtile.model).toBe('V6');
     expect(chargeUtile.callBackUrl).toBe(base.callBackUrl);
-    expect(chargeUtile.duration).toBe(195);
+    expect(chargeUtile.duration).toBe(calculerDureeSecondes(chargeUtile.lyrics));
     expect(chargeUtile.styleWeight).toBe(POIDS_PAR_DEFAUT.styleWeight);
     expect(chargeUtile.weirdnessConstraint).toBe(POIDS_PAR_DEFAUT.weirdnessConstraint);
     expect(chargeUtile.variety).toBe(1);
@@ -219,7 +234,8 @@ describe('construireRequeteSuno (charge utile /generate)', () => {
     expect(r.chargeUtile.negativeTags.length).toBeLessThanOrEqual(LIMITES_SUNO.negativeTags);
     expect(r.chargeUtile.title.length).toBeLessThanOrEqual(LIMITES_SUNO.titre);
     expect(r.chargeUtile.style.length).toBeLessThanOrEqual(LIMITES_SUNO.style);
-    expect(r.chargeUtile.duration).toBe(300);
+    expect(r.chargeUtile.duration).toBe(calculerDureeSecondes(r.chargeUtile.lyrics));
+    expect(r.chargeUtile.duration).toBeLessThanOrEqual(DUREE_CHANSON.max);
   });
 
   it('remplace un style inconnu ou ancien et signale le remplacement', () => {
@@ -362,7 +378,7 @@ describe('front : paroles par rang et corps de requête', () => {
     const preparees = validateGenerationInput(parolesTest(60), 'pop', 'A');
     expect(preparees.tronque).toBe(false);
     expect(preparees.texte.length).toBeGreaterThan(2800);
-    expect(preparees.dureeEstimee).toBe(285);
+    expect(preparees.dureeEstimee).toBe(calculerDureeSecondes(parolesChantees(preparees.texte)));
     expect(() => validateGenerationInput([], 'pop', 'B')).toThrow(/rang B/);
     expect(() => validateGenerationInput(['x'], '', 'A')).toThrow(/style/);
   });

@@ -1,4 +1,5 @@
 import { TITRE_ACCUEIL } from '@/lib/titrePage';
+import { PROMESSE_AUDIO_COURTE } from '@/config/offre';
 /**
  * SEO Configuration - Meta tags uniques par route
  * Chaque page a un title, description, keywords et structured data dédiés
@@ -119,7 +120,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/pricing': {
     title: 'Tarifs & Abonnements',
-    description: 'Med MNG : fiches officielles des 367 items gratuites et 10 items d\'essai en immersion. Med MNG Premium : tous les items en immersion et génération audio, 69 €/an ou 9,90 €/mois.',
+    description: `Med MNG : fiches officielles des 367 items gratuites et 10 items d'essai en immersion. Med MNG Premium : tous les items en immersion et ${PROMESSE_AUDIO_COURTE}, 69 €/an ou 9,90 €/mois.`,
     keywords: `${BASE_KEYWORDS}, tarifs, prix, abonnement, premium, pro`,
     canonical: '/med-mng/pricing',
   },

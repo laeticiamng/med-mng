@@ -3,7 +3,7 @@ import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
-import { FORMULES_PREMIUM, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM } from '@/config/offre';
+import { FORMULES_PREMIUM, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM, PROMESSE_AUDIO_COURTE } from '@/config/offre';
 
 interface EncartPremiumProps {
   /** Ce qui est verrouillé, ex. « Les paroles de cet item ». */
@@ -32,7 +32,7 @@ export function EncartPremium({ contenu, className }: EncartPremiumProps) {
           et le contenu immersif complet est offert pour {NOMBRE_ITEMS_GRATUITS} items d'essai.
         </p>
         <p className="text-sm text-muted-foreground">
-          {NOM_OFFRE_PREMIUM} : paroles, récits, planches et quiz des {NOMBRE_ITEMS_TOTAL} items, et génération audio.
+          {NOM_OFFRE_PREMIUM} : paroles, récits, planches et quiz des {NOMBRE_ITEMS_TOTAL} items, et {PROMESSE_AUDIO_COURTE}.
           {' '}{annuel.prixAffiche} ({annuel.equivalentMensuel}) ou {FORMULES_PREMIUM.mensuel.prixAffiche}.
         </p>
         <Button asChild size="lg">

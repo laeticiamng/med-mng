@@ -4,6 +4,7 @@
 // metadata.app = "medmng" et les prix sont retrouvés par lookup_key, jamais par
 // un identifiant codé en dur (les anciens price IDs 19/29/39 € sont abandonnés).
 import type Stripe from "https://esm.sh/stripe@18.5.0";
+import { GENERATION_AUDIO_DISPONIBLE } from './mm-disponibilite.ts';
 
 export const MM_APP = "medmng";
 
@@ -34,6 +35,31 @@ export const MM_PLAN_ID = "premium";
 
 const NOM_PRODUIT = "MED MNG Premium";
 
+/** Description affichée par Stripe (Checkout, factures) : suit l'interrupteur de génération audio. */
+export const DESCRIPTION_PRODUIT = GENERATION_AUDIO_DISPONIBLE
+  ? "Contenu immersif des 367 items EDN et génération audio."
+  : "Contenu immersif des 367 items EDN (paroles, récits, planches, quiz). Génération audio bientôt disponible.";
+
+/** Produits déjà alignés pendant la vie de l'instance (un seul contrôle par démarrage à froid). */
+const produitsAlignes = new Set<string>();
+
+/**
+ * Aligne la description du produit Stripe EXISTANT sur l'offre réellement disponible
+ * (sinon Checkout continuerait d'afficher l'ancienne promesse). Ne bloque jamais le paiement.
+ */
+export async function alignerDescriptionProduit(stripe: Stripe, produitId: string): Promise<void> {
+  if (produitsAlignes.has(produitId)) return;
+  try {
+    const produit = await stripe.products.retrieve(produitId);
+    if (produit.description !== DESCRIPTION_PRODUIT) {
+      await stripe.products.update(produitId, { description: DESCRIPTION_PRODUIT });
+    }
+    produitsAlignes.add(produitId);
+  } catch (e) {
+    console.warn("[mm-stripe-catalog] description produit non alignée :", e instanceof Error ? e.message : e);
+  }
+}
+
 /** Retrouve le produit MED MNG Premium (metadata app=medmng) ou le crée. */
 async function produitPremium(stripe: Stripe): Promise<string> {
   try {
@@ -41,13 +67,16 @@ async function produitPremium(stripe: Stripe): Promise<string> {
       query: `metadata['app']:'${MM_APP}' AND metadata['offre']:'premium' AND active:'true'`,
       limit: 1,
     });
-    if (recherche.data.length > 0) return recherche.data[0].id;
+    if (recherche.data.length > 0) {
+      await alignerDescriptionProduit(stripe, recherche.data[0].id);
+      return recherche.data[0].id;
+    }
   } catch (_e) {
     // La recherche Stripe n'est pas disponible partout : on crée le produit.
   }
   const produit = await stripe.products.create({
     name: NOM_PRODUIT,
-    description: "Contenu immersif des 367 items EDN et génération audio.",
+    description: DESCRIPTION_PRODUIT,
     metadata: { app: MM_APP, offre: "premium" },
   });
   return produit.id;
@@ -60,7 +89,12 @@ async function produitPremium(stripe: Stripe): Promise<string> {
 export async function prixMedMng(stripe: Stripe, formule: MmFormule): Promise<string> {
   const def = MM_PRIX[formule];
   const existants = await stripe.prices.list({ lookup_keys: [def.lookup_key], active: true, limit: 1 });
-  if (existants.data.length > 0) return existants.data[0].id;
+  if (existants.data.length > 0) {
+    const prixExistant = existants.data[0];
+    const produitId = typeof prixExistant.product === "string" ? prixExistant.product : prixExistant.product.id;
+    await alignerDescriptionProduit(stripe, produitId);
+    return prixExistant.id;
+  }
 
   const produit = await produitPremium(stripe);
   const prix = await stripe.prices.create({

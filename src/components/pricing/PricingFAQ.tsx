@@ -1,6 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
+import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 
 const faqs = [
   {
@@ -9,7 +10,7 @@ const faqs = [
   },
   {
     question: "Que contient Med MNG Premium ?",
-    answer: "Le contenu immersif des 367 items (paroles rang A, rang B et A+B, récit, planches, quiz) et 30 générations audio de chansons par mois. Deux formules : 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il n'y a pas de période d'essai payante : les 10 items d'essai sont ouverts à tous."
+    answer: `Le contenu immersif des 367 items (paroles rang A, rang B et A+B, récit, planches, quiz) et ${PROMESSE_AUDIO}. Deux formules : 69 € par an (environ 5,75 € par mois) ou 9,90 € par mois. Il n'y a pas de période d'essai payante : les 10 items d'essai sont ouverts à tous.`
   },
   {
     question: "Comment fonctionne le droit de rétractation ?",
@@ -29,7 +30,7 @@ const faqs = [
   },
   {
     question: "Comment fonctionne la musique IA pour réviser ?",
-    answer: "Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. Avec Med MNG Premium, vous pouvez ensuite générer l'audio de la chanson (30 générations par mois)."
+    answer: `Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. ${GENERATION_AUDIO_DISPONIBLE ? `Avec Med MNG Premium, vous pouvez ensuite générer l'audio de la chanson (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "La génération de l'audio est momentanément suspendue ; les paroles restent disponibles."}`
   },
   {
     question: "Mes données sont-elles sécurisées ?",

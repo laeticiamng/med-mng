@@ -2,12 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
-import {
-  FORMULES_PREMIUM,
-  NOM_OFFRE_PREMIUM,
-  QUOTA_GENERATIONS_AUDIO_PREMIUM,
-  type FormulePremium,
-} from '@/config/offre';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, type FormulePremium, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 /**
  * Abonnement Med MNG de l'utilisateur connecté.
@@ -257,6 +252,7 @@ export const useSubscription = () => {
   const canSaveMusic = useCallback((): boolean => isSubscriptionActive(), [isSubscriptionActive]);
 
   const getUsageDisplay = useCallback((): string => {
+    if (!GENERATION_AUDIO_DISPONIBLE) return 'Génération audio bientôt disponible';
     if (!musicQuota) return '';
     if (musicQuota.quota_limit === 0) return 'Génération audio incluse dans Med MNG Premium';
     return `${musicQuota.current_usage}/${musicQuota.quota_limit} générations ce mois`;

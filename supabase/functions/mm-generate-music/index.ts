@@ -21,6 +21,9 @@
  * testé par vitest : src/tests/mmSunoRequete.test.ts).
  */
 
+import { GENERATION_AUDIO_DISPONIBLE, MESSAGE_GENERATION_SUSPENDUE } from '../_shared/mm-disponibilite.ts';
+import { CONSIGNE_IA_AMBIANCE, interpreterVerdictIA, verifierAmbianceLocale } from '../_shared/mm-ambiance.ts';
+import { completionIA } from '../_shared/ia-resiliente.ts';
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
@@ -59,6 +62,8 @@ interface RequeteGeneration {
   variety?: number;
   /** Durée souhaitée en secondes (10–360) ; absente → calculée d'après les paroles. */
   duration?: number;
+  /** Ambiance libre (≤ 200 caractères, contrôlée : _shared/mm-ambiance.ts). */
+  ambiance?: string;
   // Champs historiques ignorés : model, customMode, instrumental, fastMode, optimized, composition, personaId, audioWeight.
   [cle: string]: unknown;
 }
@@ -298,6 +303,12 @@ serve(async (req) => {
     // Contrôle serveur : abonnement MED MNG Premium actif + quota mensuel.
     // (Le front ne fait pas foi : ce contrôle est le seul qui compte.)
     // Il précède la lecture du corps : un appel anonyme reçoit 401 quel que soit le corps.
+    // Suspension ciblée de la génération audio (décision CEO 09.10.2026, _shared/mm-disponibilite.ts) :
+    // aucun appel au fournisseur, aucune réservation ; l'anonyme garde son 401 ci-dessous.
+    if (userId && !GENERATION_AUDIO_DISPONIBLE) {
+      return reponseJson({ success: false, error: MESSAGE_GENERATION_SUSPENDUE, code: 'GENERATION_SUSPENDUE' }, 503);
+    }
+
     const refus = await verifierDroitGeneration(supabase, userId);
     if (refus) {
       return reponseJson({ success: false, error: refus.message, code: refus.code }, refus.status);
@@ -327,6 +338,37 @@ serve(async (req) => {
       return reponseJson({ success: false, error: 'Aucune parole à chanter : choisissez un item et un rang.', code: 'PAROLES_VIDES' }, 400);
     }
 
+    // Ambiance libre : contrôle local puis contrôle par IA (noms d'artistes, titres, imitations)
+    // AVANT toute réservation ni appel au fournisseur ; refus = 422, rien de décompté.
+    const ambianceLocale = verifierAmbianceLocale(body.ambiance);
+    if (!ambianceLocale.ok) {
+      return reponseJson({ success: false, error: ambianceLocale.raison, code: 'AMBIANCE_REFUSEE' }, 422);
+    }
+    let ambianceTags: string | null = null;
+    if (ambianceLocale.texte) {
+      let verdict = { autorise: false, raison: 'Ambiance impossible à vérifier, réessayez sans elle.', tags: '' };
+      try {
+        const r = await completionIA({
+          model: 'google/gemini-2.5-flash',
+          temperature: 0,
+          messages: [
+            { role: 'system', content: CONSIGNE_IA_AMBIANCE },
+            { role: 'user', content: ambianceLocale.texte },
+          ],
+        });
+        if (r.ok) {
+          const j = await r.json();
+          verdict = interpreterVerdictIA(String(j?.choices?.[0]?.message?.content ?? ''));
+        }
+      } catch (e) {
+        console.warn('⚠️ Contrôle de l\'ambiance indisponible :', e instanceof Error ? e.message : e);
+      }
+      if (!verdict.autorise) {
+        return reponseJson({ success: false, error: verdict.raison, code: 'AMBIANCE_REFUSEE' }, 422);
+      }
+      ambianceTags = verdict.tags;
+    }
+
     const requete = construireRequeteSuno({
       paroles,
       style: body.style,
@@ -341,6 +383,7 @@ serve(async (req) => {
       weirdnessConstraint: body.weirdnessConstraint,
       variety: body.variety,
       dureeDemandee: typeof body.duration === 'number' ? body.duration : null,
+      ambianceTags,
       modele,
       // URL de rappel signée et liée à l'utilisateur (vague sécurité F66-MM) : sunoapi.org ne
       // signe pas ses rappels, mm-suno-callback refuse ceux dont l'URL n'est pas signée.
@@ -444,7 +487,9 @@ serve(async (req) => {
           styleWeight: chargeUtile.styleWeight,
           weirdnessConstraint: chargeUtile.weirdnessConstraint,
           variety: chargeUtile.variety,
-          parolesTronquees: requete.paroles.tronque,
+          ambiance: ambianceLocale.texte || null,
+        ambianceTags,
+        parolesTronquees: requete.paroles.tronque,
           lignesRetirees: requete.paroles.lignesRetirees,
         },
         generation_status: 'generating',

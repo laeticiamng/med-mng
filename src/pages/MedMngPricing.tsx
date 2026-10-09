@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { trackConversionEvent } from '@/lib/conversionTracking';
+import { PROMESSE_AUDIO_COURTE } from '@/config/offre';
 
 export const MedMngPricing = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export const MedMngPricing = () => {
     <>
       <SEOHead
         title="Tarifs – Premium 69 €/an"
-        description="Med MNG : fiches officielles des 367 items EDN gratuites et 10 items d'essai en immersion. Med MNG Premium : contenu immersif des 367 items et génération audio, 69 €/an ou 9,90 €/mois."
+        description={`Med MNG : fiches officielles des 367 items EDN gratuites et 10 items d'essai en immersion. Med MNG Premium : contenu immersif des 367 items et ${PROMESSE_AUDIO_COURTE}, 69 €/an ou 9,90 €/mois.`}
         keywords="tarifs EDN, abonnement ECOS, préparation médecine, prix"
         canonical="/med-mng/pricing"
       />
@@ -66,7 +67,7 @@ export const MedMngPricing = () => {
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               Les fiches officielles des 367 items sont gratuites, et 10 items d'essai sont ouverts en immersion complète.
-              Med MNG Premium ouvre le contenu immersif des 367 items et la génération audio.
+              Med MNG Premium ouvre le contenu immersif des 367 items et la {PROMESSE_AUDIO_COURTE}.
             </p>
             
             {/* Trust badges */}
