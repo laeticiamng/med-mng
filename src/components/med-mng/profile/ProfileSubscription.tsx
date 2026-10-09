@@ -7,13 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 import { Crown, CreditCard, ArrowRight, Loader2, Settings } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
-import {
-  FORMULES_PREMIUM,
-  NOM_OFFRE_PREMIUM,
-  NOMBRE_ITEMS_GRATUITS,
-  NOMBRE_ITEMS_TOTAL,
-  QUOTA_GENERATIONS_AUDIO_PREMIUM,
-} from '@/config/offre';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, QUOTA_GENERATIONS_AUDIO_PREMIUM, PROMESSE_AUDIO, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProfileSubscriptionProps {
@@ -115,12 +109,12 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ affich
             {actif && (
               <li className="flex items-center gap-2">
                 <span className="h-2 w-2 bg-success rounded-full" />
-                {QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois
+                {PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1)}
               </li>
             )}
           </ul>
 
-          {actif && (
+          {actif && GENERATION_AUDIO_DISPONIBLE && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span>Générations audio ce mois-ci</span>

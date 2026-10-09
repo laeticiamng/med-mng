@@ -30,6 +30,8 @@ describe('Accueil — section « Écoutez. Apprenez. »', () => {
     expect(container.querySelector('audio')).toBeNull();
     expect(container.querySelector('[data-onde-simulee]')).toBeNull();
     expect(container.querySelectorAll('.w-1.rounded-full').length).toBe(0);
-    expect(screen.getByText(/Génération audio avec Premium/)).toBeTruthy();
+    // Suspension ciblée du 09.10.2026 : l'audio est annoncé « bientôt disponible », jamais promis.
+    expect(screen.getByText(/Génération audio bientôt disponible/)).toBeTruthy();
+    expect(screen.queryByText(/30 chansons par mois/)).toBeNull();
   });
 });

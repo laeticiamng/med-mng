@@ -10,17 +10,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  ITEMS_GRATUITS,
-  NOM_OFFRE_PREMIUM,
-  estItemGratuit,
-} from '@/config/offre';
+import { ITEMS_GRATUITS, NOM_OFFRE_PREMIUM, estItemGratuit, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { avecSuivant } from '@/lib/cheminSuivant';
 import {
-  LIMITES_SUNO,
   dureeEstimeeAffichee,
-  tronquerParoles,
+  parolesEnvoyees,
 } from '@/config/stylesMusicaux';
 import { libelleStyle } from '@/config/stylesMusicaux';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
@@ -31,6 +26,9 @@ import { raisonRangIndisponible } from './RangSelector';
 import { AdvancedParamsToggle } from './AdvancedParamsToggle';
 import { EdnItemSelector } from './EdnItemSelector';
 import { EncartGenerationAudio } from '@/components/offre/EncartGenerationAudio';
+import { AnnonceAudioSuspendue } from '@/components/offre/AnnonceAudioSuspendue';
+import { AmbianceLibre } from './AmbianceLibre';
+import { verifierAmbianceLocale } from '../../../supabase/functions/_shared/mm-ambiance';
 import {
   KeyboardShortcutsHelp,
   useKeyboardShortcuts,
@@ -193,10 +191,13 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     Partial<AdvancedSunoParams> | undefined
   >(undefined);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [ambiance, setAmbiance] = useState('');
+  const ambianceValide = verifierAmbianceLocale(ambiance).ok;
 
   const handleGenerateWithParams = useCallback(() => {
-    handleGenerate(advancedParams);
-  }, [handleGenerate, advancedParams]);
+    if (!verifierAmbianceLocale(ambiance).ok) return;
+    handleGenerate({ ...advancedParams, ...(ambiance.trim() ? { ambiance: ambiance.trim() } : {}) });
+  }, [handleGenerate, advancedParams, ambiance]);
 
   useKeyboardShortcuts({
     onGenerate: handleGenerateWithParams,
@@ -237,7 +238,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
 
   const apercuEnvoi = useMemo(() => {
     if (!previewLyrics) return null;
-    const coupe = tronquerParoles(previewLyrics, LIMITES_SUNO.paroles);
+    const coupe = parolesEnvoyees(previewLyrics);
     return {
       duree: dureeEstimeeAffichee(previewLyrics),
       tronque: coupe.tronque,
@@ -336,7 +337,10 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
             selectedStyle={selectedStyle}
             setSelectedStyle={setSelectedStyle}
           />
-          {selectedStyle && (
+          {selectedStyle && GENERATION_AUDIO_DISPONIBLE && (
+            <AmbianceLibre valeur={ambiance} onChange={setAmbiance} disabled={isGenerating} />
+          )}
+          {selectedStyle && GENERATION_AUDIO_DISPONIBLE && (
             <AdvancedParamsToggle
               onParamsChange={setAdvancedParams}
               disabled={isGenerating}
@@ -390,7 +394,9 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
                 {apercuEnvoi ? ` · ≈ ${apercuEnvoi.duree}` : ''}
               </p>
 
-              {generationReservee ? (
+              {!GENERATION_AUDIO_DISPONIBLE ? (
+                <AnnonceAudioSuspendue />
+              ) : generationReservee ? (
                 <EncartGenerationAudio />
               ) : (
                 <>
@@ -400,6 +406,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
                     onClick={handleGenerateWithParams}
                     disabled={
                       !user ||
+                      !ambianceValide ||
                       !canGenerate() ||
                       isGenerating ||
                       (user && !canGenerateMusic()) ||

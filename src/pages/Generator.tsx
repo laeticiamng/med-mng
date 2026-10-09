@@ -23,13 +23,7 @@ import { Button } from '@/components/ui/button';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumCard } from '@/components/ui/premium-card';
-import {
-  FORMULES_PREMIUM,
-  NOMBRE_ITEMS_TOTAL,
-  NOM_OFFRE_PREMIUM,
-  QUOTA_GENERATIONS_AUDIO_PREMIUM,
-  normaliserCodeItem,
-} from '@/config/offre';
+import { FORMULES_PREMIUM, NOMBRE_ITEMS_TOTAL, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, normaliserCodeItem, GENERATION_AUDIO_DISPONIBLE, MESSAGE_GENERATION_SUSPENDUE } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { libelleStyle, normaliserSlugStyle } from '@/config/stylesMusicaux';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
@@ -618,7 +612,7 @@ const Generator = () => {
                       6
                     </span>
                     <TranslatedText
-                      text={`${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois avec ${NOM_OFFRE_PREMIUM} ; une génération qui échoue n'est pas décomptée`}
+                      text={GENERATION_AUDIO_DISPONIBLE ? `${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois avec ${NOM_OFFRE_PREMIUM} ; une génération qui échoue n'est pas décomptée` : MESSAGE_GENERATION_SUSPENDUE}
                     />
                   </p>
                 </div>

@@ -1,6 +1,6 @@
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { parolesSontRedigees } from '@/components/edn/music/utils/parolesFormatter';
-import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -232,7 +232,8 @@ export const useParolesMusicales = (
     handlePlayAudio,
     parolesRegenerees,
     musicQuota,
-    aAccesGeneration: isSubscriptionActive(),
+    // Suspension ciblée (09.10.2026) : pas de bouton de génération, encart d'annonce à la place.
+    aAccesGeneration: GENERATION_AUDIO_DISPONIBLE && isSubscriptionActive(),
     chargementAcces: chargementAbonnement,
     connecte: Boolean(user),
     seek,

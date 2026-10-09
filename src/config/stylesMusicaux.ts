@@ -17,7 +17,9 @@ import {
   LIMITES_SUNO,
   DUREE_CHANSON,
   type StyleMusical,
+  normaliserParoles,
 } from '../../supabase/functions/_shared/mm-suno-requete.ts';
+import { parolesChantees } from '../../supabase/functions/_shared/mm-paroles-chantees.ts';
 
 export {
   STYLES_MUSICAUX,
@@ -30,6 +32,11 @@ export {
   DUREE_CHANSON,
 };
 export type { StyleMusical };
+export { parolesChantees };
+
+/** Paroles telles qu'elles seront envoyées au moteur (version chantée, limite du fournisseur). */
+export const parolesEnvoyees = (paroles: string | string[]) =>
+  tronquerParoles(parolesChantees(normaliserParoles(paroles)));
 
 /** Le slug est-il un style proposé aujourd'hui (alias anciens exclus) ? */
 export const estStyleActuel = (slug: string | null | undefined): boolean =>
@@ -50,7 +57,7 @@ export const LIBELLES_ENERGIE: Record<StyleMusical['energie'], string> = {
 
 /** Durée estimée (mm:ss) de la chanson pour des paroles données, telle que le serveur la demandera. */
 export const dureeEstimeeAffichee = (paroles: string | string[]): string => {
-  const texte = tronquerParoles(paroles).texte;
+  const texte = parolesEnvoyees(paroles).texte;
   const secondes = calculerDureeSecondes(texte);
   const minutes = Math.floor(secondes / 60);
   return `${minutes}:${String(secondes % 60).padStart(2, '0')}`;

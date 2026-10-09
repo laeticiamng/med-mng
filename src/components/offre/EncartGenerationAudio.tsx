@@ -3,6 +3,8 @@ import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
 import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
+import { AnnonceAudioSuspendue } from './AnnonceAudioSuspendue';
 
 interface EncartGenerationAudioProps {
   /** Visiteur non connecté : on propose aussi la connexion. */
@@ -17,6 +19,7 @@ interface EncartGenerationAudioProps {
  * message passager « Inclus dans Premium » apparaissait après le clic.
  */
 export function EncartGenerationAudio({ connecte = true, className }: EncartGenerationAudioProps) {
+  if (!GENERATION_AUDIO_DISPONIBLE) return <AnnonceAudioSuspendue className={className} />;
   return (
     <div
       className={`rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-5 space-y-3 ${className ?? ''}`}

@@ -13,6 +13,7 @@
  *    `styleWeight` / `weirdnessConstraint` 0–1 (2 décimales), `variety` 0–4,
  *    `duration` 10–360 s (défaut 20 s si absent → toujours envoyée).
  */
+import { parolesChantees } from './mm-paroles-chantees.ts';
 
 // ---------------------------------------------------------------------------
 // Modèles
@@ -44,12 +45,27 @@ export const LIMITES_SUNO = {
 /** Bornes MED MNG de la durée calculée (secondes). */
 export const DUREE_CHANSON = {
   min: 90,
-  max: 300,
-  /** Secondes chantées par ligne de paroles (estimation). */
+  /** Maximum accepté par le fournisseur (LIMITES_SUNO.dureeMax). */
+  max: 360,
+  /** Secondes chantées par ligne de paroles (plancher). */
   parLigne: 4.5,
+  /**
+   * Mots chantés par seconde. Mesure du 09.10.2026 sur les chansons V6 de production
+   * (IC-150, 120 s) : ≈ 1,4 mot/s ; une durée calculée sur les seules lignes (213 s pour
+   * 341 mots) laissait 40 à 50 % des paroles NON chantées à 120 s. On retient 1,3 (marge).
+   */
+  motsParSeconde: 1.3,
   /** Intro + outro. */
-  marge: 15,
+  marge: 20,
 } as const;
+
+/** Nombre de mots chantés (lignes hors balises de structure). */
+export function compterMotsChantes(paroles: string): number {
+  return paroles
+    .split(/\r?\n/)
+    .filter(estLigneChantee)
+    .reduce((n, l) => n + l.split(/[\s'’-]+/).filter((m) => /[\p{L}\d]/u.test(m)).length, 0);
+}
 
 // ---------------------------------------------------------------------------
 // Styles musicaux (source de vérité unique front + serveur)
@@ -228,8 +244,8 @@ export function compterLignesChantees(paroles: string): number {
 
 /**
  * Durée demandée à Suno (secondes entières).
- *  - `dureeDemandee` valide (10–360 s) : respectée, bornée à 90–300 s ;
- *  - sinon : lignes chantées × 4,5 s + 15 s, bornée à 90–300 s.
+ *  - `dureeDemandee` valide (10–360 s) : respectée, bornée à 90–360 s ;
+ *  - sinon : max(lignes × 4,5 s ; mots ÷ 1,3 mot/s) + 20 s, bornée à 90–360 s.
  * Sans durée explicite Suno rendrait 20 secondes.
  */
 export function calculerDureeSecondes(paroles: string, dureeDemandee?: number | null): number {
@@ -239,7 +255,9 @@ export function calculerDureeSecondes(paroles: string, dureeDemandee?: number | 
     return borner(dureeDemandee);
   }
   const lignes = compterLignesChantees(paroles);
-  return borner(lignes * DUREE_CHANSON.parLigne + DUREE_CHANSON.marge);
+  const mots = compterMotsChantes(paroles);
+  // Le plus long des deux estimateurs : toutes les paroles doivent tenir dans la chanson.
+  return borner(Math.max(lignes * DUREE_CHANSON.parLigne, mots / DUREE_CHANSON.motsParSeconde) + DUREE_CHANSON.marge);
 }
 
 export interface ParolesTronquees {
@@ -380,15 +398,19 @@ function tagsContradictoires(prompt: string, negatifs: string[]): string[] {
 export interface OptionsStyle {
   genreVocal?: GenreVocal;
   langue?: string;
+  ambianceTags?: string | null;
 }
 
 /** Style final propre : tags anglais courts séparés par des virgules (≤ 1 000). */
 export function construireStyle(style: StyleMusical, options: OptionsStyle = {}): string {
+  // Ambiance libre (tags anglais déjà contrôlés, _shared/mm-ambiance.ts) : après le style du
+  // catalogue, avant la voix ; la limite du fournisseur est respectée par joindreTags.
+  const ambiance = options.ambianceTags ? `, ${options.ambianceTags}` : '';
   const voix = options.genreVocal === 'm' ? 'clear male vocals'
     : options.genreVocal === 'f' ? 'clear female vocals'
     : VOIX_PAR_DEFAUT;
   const langue = (options.langue || 'fr').toLowerCase();
-  const tags = normaliserTags(`${style.prompt}, ${voix}${langue === 'fr' ? ', french lyrics' : ''}`);
+  const tags = normaliserTags(`${style.prompt}${ambiance}, ${voix}${langue === 'fr' ? ', french lyrics' : ''}`);
   return joindreTags(tags, LIMITES_SUNO.style);
 }
 
@@ -424,6 +446,8 @@ export interface EntreeRequeteSuno {
   weirdnessConstraint?: unknown;
   variety?: unknown;
   dureeDemandee?: number | null;
+  /** Ambiance libre, déjà contrôlée et traduite en tags anglais (mm-ambiance.ts). */
+  ambianceTags?: string | null;
   modele: ModeleSuno;
   callBackUrl: string;
 }
@@ -458,7 +482,8 @@ export function construireRequeteSuno(entree: EntreeRequeteSuno): RequeteSunoCon
   const style = resoudreStyle(entree.style);
   const styleRemplace = !!entree.style && style.slug !== (entree.style || '').trim().toLowerCase();
   const rang = normaliserRang(entree.rang);
-  const paroles = tronquerParoles(entree.paroles);
+  // Version CHANTÉE (nombres, unités, ordinaux en toutes lettres), puis limite du fournisseur.
+  const paroles = tronquerParoles(parolesChantees(normaliserParoles(entree.paroles)));
   if (!paroles.texte || compterLignesChantees(paroles.texte) === 0) throw new Error('PAROLES_VIDES');
   const genreVocal = normaliserGenreVocal(entree.genreVocal);
 
@@ -475,7 +500,7 @@ export function construireRequeteSuno(entree: EntreeRequeteSuno): RequeteSunoCon
     model: entree.modele,
     callBackUrl: entree.callBackUrl,
     lyrics: paroles.texte,
-    style: construireStyle(style, { genreVocal, langue: entree.langue || 'fr' }),
+    style: construireStyle(style, { genreVocal, langue: entree.langue || 'fr', ambianceTags: entree.ambianceTags }),
     title: titre,
     negativeTags: construireNegativeTags(style, entree.negativeTags),
     ...(genreVocal ? { vocalGender: genreVocal } : {}),

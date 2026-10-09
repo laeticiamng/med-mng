@@ -1,3 +1,5 @@
+import { GENERATION_AUDIO_DISPONIBLE as AUDIO_OUVERT } from '../../supabase/functions/_shared/mm-disponibilite.ts';
+
 /**
  * Offre commerciale Med MNG — source de vérité UNIQUE côté front.
  *
@@ -38,6 +40,21 @@ export const NOMBRE_ITEMS_GRATUITS = ITEMS_GRATUITS.length;
 
 /** Générations audio incluses par mois dans Med MNG Premium. */
 export const QUOTA_GENERATIONS_AUDIO_PREMIUM = 30;
+
+export {
+  GENERATION_AUDIO_DISPONIBLE,
+  MESSAGE_GENERATION_SUSPENDUE,
+} from '../../supabase/functions/_shared/mm-disponibilite.ts';
+
+/**
+ * Ce que l'offre promet pour l'audio, selon la disponibilité réelle (jamais de promesse
+ * d'une génération immédiatement disponible pendant la suspension du 09.10.2026).
+ */
+export const PROMESSE_AUDIO = AUDIO_OUVERT
+  ? `${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio de chansons par mois`
+  : 'génération audio des chansons : bientôt disponible (incluse dans Premium dès sa réouverture)';
+/** Forme courte, dans une énumération (« paroles, récits, planches, quiz et … »). */
+export const PROMESSE_AUDIO_COURTE = AUDIO_OUVERT ? 'génération audio' : 'génération audio (bientôt disponible)';
 
 export const NOM_OFFRE_PREMIUM = 'Med MNG Premium';
 

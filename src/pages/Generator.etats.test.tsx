@@ -10,6 +10,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('react-router-dom', async () => vi.importActual('react-router-dom'));
 
+// Disponibilité de la génération audio (drapeau partagé) : ouverte pour les états
+// historiques ci-dessous, fermée pour le test de la suspension du 09.10.2026.
+const dispo = vi.hoisted(() => ({ ouverte: true }));
+vi.mock('../../supabase/functions/_shared/mm-disponibilite.ts', () => ({
+  get GENERATION_AUDIO_DISPONIBLE() {
+    return dispo.ouverte;
+  },
+  MESSAGE_GENERATION_SUSPENDUE: 'La génération audio est momentanément suspendue (test).',
+}));
+
 const s = vi.hoisted(() => ({
   user: { id: 'u1' } as null | { id: string },
   aAccesPremium: false,
@@ -158,6 +168,7 @@ const rendre = () =>
 
 describe('Med MNG Create — états de la page', () => {
   beforeEach(() => {
+    dispo.ouverte = true;
     s.user = { id: 'u1' };
     s.aAccesPremium = false;
     s.estAdmin = false;
@@ -300,5 +311,19 @@ describe('Med MNG Create — états de la page', () => {
     expect(
       await screen.findByRole('button', { name: /Générer la chanson/ })
     ).toBeEnabled();
+  });
+
+  it('suspension ciblée : annonce à la place du bouton, même en Premium, aucune demande envoyée', () => {
+    dispo.ouverte = false;
+    s.aAccesPremium = true;
+    s.musicQuota = { can_generate: true, current_usage: 3, quota_limit: 30, plan_name: 'Med MNG Premium' };
+    s.preferences = TOUT_CHOISI;
+    rendre();
+    expect(screen.getAllByTestId('annonce-audio-suspendue').length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: /Générer la chanson/ })).toBeNull();
+    expect(screen.queryByText('3/30')).toBeNull();
+    // Les paroles restent lisibles.
+    expect(screen.getByText('Ligne une, chantée.')).toBeInTheDocument();
+    expect(s.generate).not.toHaveBeenCalled();
   });
 });

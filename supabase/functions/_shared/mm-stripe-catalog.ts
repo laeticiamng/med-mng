@@ -4,6 +4,7 @@
 // metadata.app = "medmng" et les prix sont retrouvés par lookup_key, jamais par
 // un identifiant codé en dur (les anciens price IDs 19/29/39 € sont abandonnés).
 import type Stripe from "https://esm.sh/stripe@18.5.0";
+import { GENERATION_AUDIO_DISPONIBLE } from './mm-disponibilite.ts';
 
 export const MM_APP = "medmng";
 
@@ -47,7 +48,9 @@ async function produitPremium(stripe: Stripe): Promise<string> {
   }
   const produit = await stripe.products.create({
     name: NOM_PRODUIT,
-    description: "Contenu immersif des 367 items EDN et génération audio.",
+    description: GENERATION_AUDIO_DISPONIBLE
+      ? "Contenu immersif des 367 items EDN et génération audio."
+      : "Contenu immersif des 367 items EDN (paroles, récits, planches, quiz). Génération audio bientôt disponible.",
     metadata: { app: MM_APP, offre: "premium" },
   });
   return produit.id;

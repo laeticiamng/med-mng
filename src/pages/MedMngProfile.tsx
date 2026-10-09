@@ -17,7 +17,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { useSubscription } from '@/hooks/useSubscription';
-import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { NOM_OFFRE_PREMIUM, QUOTA_GENERATIONS_AUDIO_PREMIUM, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -329,9 +329,9 @@ const MedMngProfileComponent = () => {
                   <TrendingUp className="h-6 w-6 text-success" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{generationsRestantes ?? '—'}</p>
+                  <p className="text-2xl font-bold text-foreground">{GENERATION_AUDIO_DISPONIBLE ? (generationsRestantes ?? '—') : '—'}</p>
                   <p className="text-sm text-muted-foreground">
-                    {generationsRestantes !== null ? 'Générations audio restantes ce mois-ci' : `Génération audio : ${NOM_OFFRE_PREMIUM}`}
+                    {!GENERATION_AUDIO_DISPONIBLE ? 'Génération audio : bientôt disponible' : generationsRestantes !== null ? 'Générations audio restantes ce mois-ci' : `Génération audio : ${NOM_OFFRE_PREMIUM}`}
                   </p>
                 </div>
               </div>

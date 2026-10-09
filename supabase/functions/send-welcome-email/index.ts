@@ -1,3 +1,4 @@
+import { GENERATION_AUDIO_DISPONIBLE } from '../_shared/mm-disponibilite.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
 import { getCorsHeaders } from '../_shared/cors.ts';
@@ -92,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
           <p>Bonjour${prenom ? ` <strong>${prenom}</strong>` : ''},</p>
           <p>Votre compte Med MNG est créé.</p>
           <p><strong>Gratuit :</strong> les fiches officielles des 367 items EDN (compétences de rang A et de rang B du référentiel LiSA 2026), le contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai (IC-1, IC-161, IC-154, IC-27, IC-247, IC-359, IC-224, IC-340, IC-356, IC-66) et 12 situations ECOS guidées.</p>
-          <p><strong>Premium (69 € par an ou 9,90 € par mois) :</strong> le contenu immersif des 367 items et 30 générations audio de chansons par mois.</p>
+          <p><strong>Premium (69 € par an ou 9,90 € par mois) :</strong> le contenu immersif des 367 items et ${GENERATION_AUDIO_DISPONIBLE ? '30 générations audio de chansons par mois' : 'la génération audio des chansons, bientôt disponible'}.</p>
           <p style="text-align: center; margin: 28px 0;">
             <a href="${SITE}/edn-complete" style="display: inline-block; background: #3B82F6; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Commencer à réviser</a>
           </p>

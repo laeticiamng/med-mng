@@ -6,14 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Crown, BookOpen } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import {
-  FORMULES_PREMIUM,
-  NOM_OFFRE_PREMIUM,
-  NOMBRE_ITEMS_GRATUITS,
-  NOMBRE_ITEMS_TOTAL,
-  QUOTA_GENERATIONS_AUDIO_PREMIUM,
-  type FormulePremium,
-} from '@/config/offre';
+import { FORMULES_PREMIUM, NOM_OFFRE_PREMIUM, NOMBRE_ITEMS_GRATUITS, NOMBRE_ITEMS_TOTAL, QUOTA_GENERATIONS_AUDIO_PREMIUM, type FormulePremium, PROMESSE_AUDIO } from '@/config/offre';
 
 interface PricingPlansProps {
   /** Appelé avec la formule choisie (« annuel » ou « mensuel »). */
@@ -32,7 +25,7 @@ const INCLUS_GRATUIT = [
 
 const INCLUS_PREMIUM = [
   `Tout le contenu immersif des ${NOMBRE_ITEMS_TOTAL} items : paroles rang A, rang B et A+B, récit, planches, quiz`,
-  `${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio de chansons par mois`,
+  PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1),
   'Fiches officielles et situations ECOS',
 ];
 

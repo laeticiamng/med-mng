@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { PROMESSE_AUDIO, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 const CGU = () => {
   const { logActivity } = useActivityTracking();
@@ -94,7 +95,7 @@ const CGU = () => {
                 <p className="font-semibold text-foreground mb-2">Services proposés :</p>
                 <ul className="space-y-1 text-sm">
                   <li>• 367 items EDN : fiche, compétences rang A et rang B (référentiel LiSA 2026, UNESS), quiz</li>
-                  <li>• Paroles de chansons pédagogiques générées par IA et génération audio par IA à la demande (prestataires listés dans la politique de confidentialité)</li>
+                  <li>• Paroles de chansons pédagogiques générées par IA et génération audio par IA à la demande{GENERATION_AUDIO_DISPONIBLE ? '' : ' (momentanément suspendue)'} (prestataires listés dans la politique de confidentialité)</li>
                   <li>• Récits et planches illustrées générés par IA pour chacun des 367 items</li>
                   <li>• Situations ECOS guidées avec grille d'auto-évaluation</li>
                   <li>• Bibliothèque personnelle de contenus</li>
@@ -150,7 +151,7 @@ const CGU = () => {
                 <h4 className="font-semibold text-foreground mb-2">Offre :</h4>
                 <ul className="text-sm space-y-1">
                   <li>• <strong>Gratuit</strong> : fiches officielles des 367 items (compétences rang A et rang B) et contenu immersif complet de 10 items d'essai</li>
-                  <li>• <strong>Med MNG Premium</strong> : contenu immersif des 367 items et 30 générations audio par mois — 69 €/an ou 9,90 €/mois</li>
+                  <li>• <strong>Med MNG Premium</strong> : contenu immersif des 367 items et {PROMESSE_AUDIO} — 69 €/an ou 9,90 €/mois</li>
                 </ul>
               </div>
 

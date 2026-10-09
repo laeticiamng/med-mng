@@ -4,6 +4,7 @@
  * Optimisés pour être cités par ChatGPT, Perplexity, Claude et autres moteurs génératifs.
  * Stratégie : positionnement laser, expertise unique, contenu citable et structuré.
  */
+import { PROMESSE_AUDIO_COURTE } from '@/config/offre';
 
 const SITE_URL = 'https://medmng.com';
 
@@ -166,7 +167,7 @@ export const createGEOFAQSchema = () => ({
       name: 'Existe-t-il une application gratuite pour les ECOS médecine ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, les situations ECOS de Med MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. Med MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la génération audio.',
+        text: `Oui, les situations ECOS de Med MNG sont accessibles avec un compte gratuit, tout comme les fiches officielles des 367 items EDN. Med MNG Premium (69 € par an ou 9,90 € par mois) ajoute le contenu immersif de tous les items et la ${PROMESSE_AUDIO_COURTE}.`,
       },
     },
     {

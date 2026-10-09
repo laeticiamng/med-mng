@@ -2,7 +2,7 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
-import { NOM_OFFRE_PREMIUM, NOMBRE_ITEMS_TOTAL, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { NOM_OFFRE_PREMIUM, NOMBRE_ITEMS_TOTAL, PROMESSE_AUDIO } from '@/config/offre';
 import { useSubscription } from '@/hooks/useSubscription';
 import { ArrowRight, BookOpen, CheckCircle, Clock, Home, Settings } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -97,7 +97,7 @@ export const MedMngSuccess = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-success" />
-                    <span>{QUOTA_GENERATIONS_AUDIO_PREMIUM} générations audio par mois</span>
+                    <span>{PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1)}</span>
                   </li>
                 </ul>
               </div>

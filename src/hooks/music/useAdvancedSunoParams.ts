@@ -14,6 +14,8 @@ export type VocalGender = 'm' | 'f';
 export interface AdvancedSunoParams {
   vocalGender?: VocalGender;
   negativeTags?: string;
+  /** Ambiance libre (≤ 200 caractères), contrôlée par le serveur. */
+  ambiance?: string;
   /** 0–100 (%) */
   styleWeight?: number;
   /** 0–100 (%) */

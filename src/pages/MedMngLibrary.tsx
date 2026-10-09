@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { QUOTA_GENERATIONS_AUDIO_PREMIUM, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -353,7 +353,7 @@ const MedMngLibraryComponent = () => {
               </div>
             )}
             {/* Générations audio restantes ce mois-ci (Premium) */}
-            {generationsRestantes !== null && (
+            {generationsRestantes !== null && GENERATION_AUDIO_DISPONIBLE && (
               <div className="text-right shrink-0">
                 <div className="bg-card rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 shadow-sm">
                   <TranslatedText text="Générations restantes ce mois-ci" className="text-xs text-muted-foreground hidden sm:block" />

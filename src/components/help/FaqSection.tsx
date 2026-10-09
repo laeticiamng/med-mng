@@ -10,6 +10,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { BookOpen, Brain, HelpCircle, Music, Zap } from "lucide-react";
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { PROMESSE_AUDIO } from '@/config/offre';
 const faqItems = [
   {
     id: "rang-ab",
@@ -79,7 +80,7 @@ const faqItems = [
           <Zap className="w-4 h-4 text-warning" />
           <p className="text-xs text-muted-foreground">
             <strong>Gratuit</strong> : 10 items d'essai complets.
-            <strong>Premium</strong> : les 367 items et 30 générations audio par mois.
+            <strong>Premium</strong> : les 367 items et {PROMESSE_AUDIO}.
           </p>
         </div>
       </div>
@@ -108,7 +109,7 @@ const faqItems = [
           </p>
           <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
             <li>Le contenu immersif des 367 items</li>
-            <li>30 générations audio de chansons par mois</li>
+            <li>{PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1)}</li>
           </ul>
         </div>
       </div>
