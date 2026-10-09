@@ -105,6 +105,14 @@ const estStatutActif = (s: StatutAbonnement | undefined) => s === 'active' || s 
  */
 export const STATUTS_PRELEVABLES: readonly StatutAbonnement[] = ['active', 'trialing', 'past_due', 'unpaid'];
 
+/**
+ * Un vrai identifiant d'abonnement Stripe. Les lignes de démonstration (`sim_…`, essais de
+ * 2025) ne peuvent pas être prélevées : même règle que `delete-user-account`
+ * (`estIdAbonnementStripe`), qui ne les compte pas non plus.
+ */
+export const estIdAbonnementStripe = (id: unknown): id is string =>
+  typeof id === 'string' && /^sub_[A-Za-z0-9]+$/.test(id);
+
 const periodeEnCours = (fin: string | null | undefined) =>
   !fin || new Date(fin).getTime() > Date.now();
 
@@ -145,7 +153,7 @@ export const useSubscription = () => {
         supabase.rpc('get_user_subscription', { user_uuid: user.id }),
         supabase
           .from('user_subscriptions')
-          .select('status, current_period_end')
+          .select('status, current_period_end, stripe_subscription_id')
           .eq('user_id', user.id)
           .order('current_period_end', { ascending: false, nullsFirst: false })
           .limit(5),
@@ -156,7 +164,9 @@ export const useSubscription = () => {
       // Indépendant de la RPC (qui ne renvoie que active/trialing) : un impayé
       // (past_due, unpaid) reste prélevable par Stripe et bloque la suppression.
       setAbonnementPrelevable(
-        (lignes ?? []).some((l) => STATUTS_PRELEVABLES.includes(normalizeStatus(l.status)))
+        (lignes ?? []).some(
+          (l) => estIdAbonnementStripe(l.stripe_subscription_id) && STATUTS_PRELEVABLES.includes(normalizeStatus(l.status))
+        )
       );
 
       if (subError) {

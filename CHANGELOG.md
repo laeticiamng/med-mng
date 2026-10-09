@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-09] — Suspension de l'audio, Med MNG Create, cohérence finale
+### Suspendu (décision CEO du 09.10.2026)
+- Génération audio des chansons : nouvelles générations refusées côté serveur (`mm-generate-music`, `GENERATION_SUSPENDUE`, avant toute réservation ou tout appel au fournisseur) tant que les droits commerciaux du moteur musical ne sont pas établis par écrit. Drapeau unique `_shared/mm-disponibilite.ts` (site et serveur). Paroles, fiches, quiz, récits, planches et chansons déjà créées restent disponibles ; prix et formules inchangés (#232).
+### Corrigé
+- Accueil : l'aide sous « Mettre un item en chanson » affichait du code (`{GENERATION_AUDIO_DISPONIBLE ? … }`) (#233).
+- Promesses d'audio restantes (cohérence finale) : `llms.txt` (« génération audio à la demande », « 30 générations par mois »), données structurées (FAQ « puis vous pouvez générer l'audio », « que vous pouvez mettre en musique », étape HowTo « générer l'audio dans la limite de vos crédits »), FAQ du site, bannière du générateur, message de connexion de l'onglet Musique, présentation de la méthode (« génération à la demande »), fin de quiz (« générez une chanson pour réviser »).
+- Données structurées : « cas cliniques, QROC » (fonctions retirées), « 31 spécialités », licence Creative Commons inventée et « le système identifie vos lacunes automatiquement » retirés ; étape « Répétition espacée » décrite telle qu'elle est.
+- Webhook Stripe : l'état de l'abonnement est relu chez Stripe sur `customer.subscription.created/updated` et `invoice.payment_failed` (un événement ancien livré en retard pouvait rouvrir Premium après une résiliation, ou couper l'accès d'un abonné à jour).
+- Mes données : une ligne d'abonnement de démonstration (`sim_…`, 2025) n'est plus présentée comme un abonnement à résilier (même règle que le serveur `delete-user-account`).
+- E-mail de bienvenue envoyé une seule fois par compte (#230) ; paroles fidèles au texte officiel (#227, #229) ; Med MNG Create reconçu (#231).
+### Retiré
+- Rapports d'audit de février et mars 2026 à la racine (`AUDIT_TECHNIQUE_*.md`) : leurs constats (fonctions ouvertes, fonctionnalités fictives) ont été traités entre le 04 et le 09.10.2026 (voir ci-dessous) ; leur verdict « non prêt » ne décrivait plus le produit.
+- PR obsolètes fermées avec justification : #11, #30, #86, #115, #188, #191, #192, #197, #218.
+### Tests
+- Vitest : JSON-LD GEO et `llms.txt` sans promesse d'audio ni fonction retirée ; webhook (relecture Stripe avant écriture, signature avant traitement) ; identifiant d'abonnement réel. 123 fichiers, 1 538 tests, 0 échec.
+
 ## [2026-10-05] — Note finale vérifiée
 ### Retiré
 - « Révision rapide » (`/revision-rapide`, présente dans le sitemap) : son quiz était fabriqué (rang « A » d'un item, « Rang C – Expertise », distracteurs « Analyse financière », bonne réponse toujours la première) → redirigée vers les fiches officielles, retirée du sitemap.

@@ -165,7 +165,7 @@ export const createFAQPageSchema = () => ({
       name: 'Qu\'est-ce que Med MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel LiSA 2026 (UNESS), ainsi qu\'un contenu immersif (paroles de chanson, récit, planches, quiz) que vous pouvez mettre en musique.',
+        text: `Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel LiSA 2026 (UNESS), ainsi qu'un contenu immersif (paroles de chanson, récit, planches, quiz)${GENERATION_AUDIO_DISPONIBLE ? ' que vous pouvez mettre en musique' : ''}.`,
       },
     },
     {
@@ -222,7 +222,7 @@ export const createFAQPageSchema = () => ({
       name: 'Comment apprendre la médecine par la musique ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Med MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B, puis vous pouvez générer l\'audio. Réécouter une chanson peut aider à retenir, en complément du rappel actif (quiz) et de vos cours.',
+        text: `Med MNG rédige, pour chaque item EDN, des paroles de chanson à partir des compétences rang A et rang B${GENERATION_AUDIO_DISPONIBLE ? ", puis vous pouvez générer l'audio" : " (la génération de l'audio est momentanément suspendue)"}. Réécouter ou chanter les paroles peut aider à retenir, en complément du rappel actif (quiz) et de vos cours.`,
       },
     },
     {
@@ -246,7 +246,7 @@ export const createFAQPageSchema = () => ({
       name: 'Med MNG utilise-t-il l\'intelligence artificielle ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Oui, pour deux usages : les paroles, récits, planches et quiz de chaque item ont été rédigés avec l\'aide de l\'IA à partir des compétences du référentiel LiSA 2026 (UNESS), et l\'audio des chansons est généré par IA (Premium). Les fiches de compétences rang A / rang B reprennent le référentiel, sans IA. Med MNG ne propose ni chat médical, ni cas cliniques, ni examens blancs générés par IA.',
+        text: `Oui, pour deux usages : les paroles, récits, planches et quiz de chaque item ont été rédigés avec l'aide de l'IA à partir des compétences du référentiel LiSA 2026 (UNESS), et l'audio des chansons est généré par IA (Premium${GENERATION_AUDIO_DISPONIBLE ? '' : ' ; nouvelles générations momentanément suspendues'}). Les fiches de compétences rang A / rang B reprennent le référentiel, sans IA. Med MNG ne propose ni chat médical, ni cas cliniques, ni examens blancs générés par IA.`,
       },
     },
   ],
