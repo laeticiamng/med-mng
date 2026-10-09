@@ -706,11 +706,15 @@ describe('📊 Module Performance Monitoring', () => {
         return ts + skew;
       };
 
+      // Horloge figée : sans cela, quelques ms s'écoulent entre les appels à Date.now() et le
+      // test échoue au hasard en CI (1791535563450 ≠ …452, PR #230).
+      const maintenant = vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
       const localTs = Date.now();
       const serverTime = Date.now() + 5000; // Server 5s ahead
-      
+
       const normalized = normalizeTimestamp(localTs, serverTime);
       expect(normalized).toBe(localTs + 5000);
+      maintenant.mockRestore();
     });
   });
 });

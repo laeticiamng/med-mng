@@ -100,7 +100,16 @@ const handler = async (req: Request): Promise<Response> => {
         </body>
         </html>
       `,
+    }, {
+      // Un seul e-mail de bienvenue par compte, même si l'application appelle deux fois
+      // (double événement SIGNED_IN observé en production le 09.10.2026).
+      idempotence: `mm-bienvenue/${utilisateur.id}`,
     });
+
+    // 409 Resend = même clé déjà utilisée (avec un contenu différent) : l'e-mail est déjà parti.
+    if (!envoi.ok && envoi.status === 409) {
+      return repondre({ success: true, envoye: false });
+    }
 
     if (!envoi.ok) {
       // Statut et nom d'erreur seulement : le message de Resend peut contenir une adresse e-mail.

@@ -57,6 +57,20 @@ describe('mm-email — résultat réel de l’envoi', () => {
     expect(JSON.stringify(r)).not.toContain('@');
   });
 
+  it('clé d’idempotence transmise à Resend (bienvenue : un seul e-mail par compte)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(reponse(200, { id: 'em_2' }));
+    await envoyerEmail(email, { cle: 'cle-factice', fetchImpl, idempotence: 'mm-bienvenue/u1' });
+    expect(fetchImpl.mock.calls[0][1].headers['Idempotency-Key']).toBe('mm-bienvenue/u1');
+    await envoyerEmail(email, { cle: 'cle-factice', fetchImpl });
+    expect(fetchImpl.mock.calls[1][1].headers).not.toHaveProperty('Idempotency-Key');
+  });
+
+  it('bienvenue : la fonction envoie avec une clé par compte et traite 409 comme déjà envoyé', () => {
+    const src = readFileSync(resolve(__dirname, '../../supabase/functions/send-welcome-email/index.ts'), 'utf8');
+    expect(src).toContain('idempotence: `mm-bienvenue/${utilisateur.id}`');
+    expect(src).toMatch(/envoi\.status === 409/);
+  });
+
   it('200 : identifiant rendu', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(reponse(200, { id: 'em_1' }));
     expect(await envoyerEmail(email, { cle: 'cle-factice', fetchImpl })).toEqual({ ok: true, id: 'em_1' });

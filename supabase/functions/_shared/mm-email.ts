@@ -59,7 +59,7 @@ export interface EmailAEnvoyer {
  */
 export async function envoyerEmail(
   email: EmailAEnvoyer,
-  options: { cle?: string | null; fetchImpl?: typeof fetch } = {},
+  options: { cle?: string | null; fetchImpl?: typeof fetch; idempotence?: string | null } = {},
 ): Promise<ResultatEnvoi> {
   const cle = options.cle === undefined ? lireEnvDeno('RESEND_API_KEY') : options.cle;
   if (!cle) return { ok: false, status: 0, erreur: 'resend_api_key_absente' };
@@ -68,7 +68,12 @@ export async function envoyerEmail(
   try {
     reponse = await appel('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${cle}`, 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: `Bearer ${cle}`,
+        'Content-Type': 'application/json',
+        // Clé d'idempotence Resend (24 h) : deux appels identiques = un seul e-mail envoyé.
+        ...(options.idempotence ? { 'Idempotency-Key': options.idempotence.slice(0, 256) } : {}),
+      },
       body: JSON.stringify(email),
     });
   } catch (e) {
