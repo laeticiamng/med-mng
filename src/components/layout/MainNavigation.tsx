@@ -310,6 +310,8 @@ export const MainNavigation: React.FC = () => {
               className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 p-0"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              // Retour du focus à la fermeture du centre d'accessibilité ouvert depuis ce menu
+              data-retour-focus-accessibilite=""
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
