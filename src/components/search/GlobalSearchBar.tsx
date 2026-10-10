@@ -35,6 +35,12 @@ export const GlobalSearchBar: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  /**
+   * Numéro de la dernière recherche lancée : la réponse d'une recherche plus ancienne
+   * (« insuffisance », tapée avant « insuffisance cardiaque ») arrivée en retard ne doit
+   * pas remplacer les résultats de la recherche en cours (test en production du 09.10.2026).
+   */
+  const derniereRecherche = useRef(0);
 
   // Keyboard shortcut to open search
   useEffect(() => {
@@ -57,8 +63,11 @@ export const GlobalSearchBar: React.FC = () => {
 
   // Search function
   const performSearch = useCallback(async (searchQuery: string) => {
+    const numeroRecherche = ++derniereRecherche.current;
+    const perimee = () => numeroRecherche !== derniereRecherche.current;
     if (!searchQuery.trim() || searchQuery.length < 2) {
       setResults([]);
+      setLoading(false);
       return;
     }
 
@@ -152,18 +161,24 @@ export const GlobalSearchBar: React.FC = () => {
 
       // Cas cliniques générés par IA : retirés de l'offre (DC7, 04.10.2026), plus proposés.
 
-      // Sort by relevance
-      searchResults.sort((a, b) => b.relevance - a.relevance);
+      // Pertinence, puis numéro d'item (IC-234 avant IC-348 à pertinence égale)
+      const numeroDe = (r: SearchResult) => parseInt(/IC-(\d+)/.exec(r.title)?.[1] ?? '9999', 10);
+      searchResults.sort((a, b) => b.relevance - a.relevance || numeroDe(a) - numeroDe(b));
+      if (perimee()) return;
       setResults(searchResults);
+      setSelectedIndex(0);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Search error:', error);
     } finally {
-      setLoading(false);
+      if (!perimee()) setLoading(false);
     }
   }, []);
 
   // Debounced search
   useEffect(() => {
+    // Dès que la saisie change, toute recherche en cours est périmée (revue Codex #241) :
+    // sa réponse, même reçue pendant le délai de 300 ms, ne doit rien afficher.
+    derniereRecherche.current += 1;
     const timeoutId = setTimeout(() => performSearch(query), 300);
     return () => clearTimeout(timeoutId);
   }, [query, performSearch]);
