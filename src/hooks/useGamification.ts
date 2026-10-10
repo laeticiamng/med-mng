@@ -1,7 +1,7 @@
 import { jourLocal, serieActuelle } from '@/lib/jourLocal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface Badge {
   id: string;
@@ -90,14 +90,177 @@ const LIBELLES_ACTIVITE: Record<string, string> = {
   aiQuestion: "Question à l'assistant",
 };
 
+// ---------------------------------------------------------------------------
+// Statistiques partagées entre composants.
+//
+// CONSTAT (test en production du 09.10.2026) : ~97 requêtes en 12 s à l'ouverture de
+// /edn-complete. Une quarantaine de composants (navigation, pied de page, barre mobile,
+// cartes…) appellent chacun useGamification().loadStats(userId) : 5 requêtes par instance.
+// Et 2 × 401 sur user_gamification_stats à la déconnexion : un chargement commencé avant la
+// déconnexion finissait par une écriture (upsert) sans session.
+//
+// Désormais : un seul chargement par utilisateur (partagé s'il est en cours, réutilisé
+// pendant 30 s), diffusé à toutes les instances ; la déconnexion vide le cache, et aucun
+// résultat ni aucune écriture d'un chargement commencé avant elle n'est conservé.
+// ---------------------------------------------------------------------------
+const DUREE_CACHE_STATS_MS = 30_000;
+const cacheStats = new Map<string, { a: number; stats: GamificationStats }>();
+const chargementsEnCours = new Map<string, Promise<GamificationStats | null>>();
+const abonnesStats = new Set<(userId: string, stats: GamificationStats) => void>();
+let generationAuth = 0;
+
+/** Vide le cache partagé (déconnexion ; tests). */
+export function viderCacheGamification(): void {
+  generationAuth += 1;
+  cacheStats.clear();
+  chargementsEnCours.clear();
+}
+
+try {
+  supabase.auth?.onAuthStateChange?.((evenement) => {
+    if (evenement === 'SIGNED_OUT') viderCacheGamification();
+  });
+} catch {
+  // Client simulé (tests) : pas d'invalidation automatique.
+}
+
+const calculerNiveau = (xp: number) => Math.floor(xp / XP_PER_LEVEL) + 1;
+const calculerXPAvantNiveau = (xp: number) => XP_PER_LEVEL - (xp % XP_PER_LEVEL);
+
+function publierStats(userId: string, stats: GamificationStats): void {
+  cacheStats.set(userId, { a: Date.now(), stats });
+  abonnesStats.forEach((f) => f(userId, stats));
+}
+
+function statsEnCache(userId: string): GamificationStats | null {
+  const entree = cacheStats.get(userId);
+  return entree && Date.now() - entree.a < DUREE_CACHE_STATS_MS ? entree.stats : null;
+}
+
+/** Vrai si la session locale (sans requête réseau) est toujours celle de `userId`. */
+async function sessionToujoursActive(userId: string, generation: number): Promise<boolean> {
+  if (generation !== generationAuth) return false;
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data?.session?.user?.id === userId && generation === generationAuth;
+  } catch {
+    return false;
+  }
+}
+
+async function lireStatsServeur(userId: string, generation: number): Promise<GamificationStats | null> {
+  // Charger les badges depuis Supabase
+  const { data: userBadges } = await supabase
+    .from('user_badges')
+    .select('badge_id, badge_name, badge_description, badge_icon, earned_at, unlocked')
+    .eq('user_id', userId)
+    .eq('unlocked', true);
+
+  const badges: Badge[] = (userBadges || []).map(ub => {
+    const def = BADGE_DEFINITIONS.find(b => b.id === ub.badge_id);
+    return {
+      id: ub.badge_id,
+      name: ub.badge_name || def?.name || 'Badge',
+      description: ub.badge_description || def?.description || '',
+      icon: ub.badge_icon || def?.icon || '🏆',
+      rarity: def?.rarity || 'common',
+      unlockedAt: ub.earned_at,
+    };
+  });
+
+  // Charger les points totaux depuis gamification_activities
+  const { data: activities } = await supabase
+    .from('gamification_activities')
+    .select('points_earned')
+    .eq('user_id', userId);
+  
+  const totalPoints = (activities || []).reduce((sum, a) => sum + (a.points_earned || 0), 0);
+
+  // Calculate streak from user_activity_log
+  const { data: activityLog } = await supabase
+    .from('user_activity_log')
+    .select('activity_date')
+    .eq('user_id', userId)
+    .order('activity_date', { ascending: false })
+    .limit(60);
+
+  // Jours locaux (activity_date est écrit en jour local) : série calendaire.
+  const currentStreak = serieActuelle((activityLog ?? []).map(a => a.activity_date));
+
+  // Weekly progress from activity log
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const { count: weeklyCount } = await supabase
+    .from('user_activity_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('activity_date', jourLocal(weekStart));
+
+  // Récupérer le longest streak depuis Supabase
+  const { data: gamificationData } = await supabase
+    .from('user_gamification_stats')
+    .select('longest_streak')
+    .eq('user_id', userId)
+    .maybeSingle();
+  
+  const storedLongestStreak = gamificationData?.longest_streak || 0;
+  const longestStreak = Math.max(storedLongestStreak, currentStreak);
+
+  const baseStats: GamificationStats = {
+    totalPoints,
+    currentStreak,
+    longestStreak,
+    level: calculerNiveau(totalPoints),
+    xpToNextLevel: calculerXPAvantNiveau(totalPoints),
+    currentXP: totalPoints,
+    badges,
+    weeklyGoalProgress: weeklyCount || 0,
+    weeklyGoal: 50,
+  };
+
+  // Déconnexion survenue pendant le chargement : résultat écarté.
+  if (generation !== generationAuth) return null;
+
+  // Sauvegarder longestStreak, seulement si la session est toujours celle de cet utilisateur
+  // (sinon l'écriture part sans jeton → 401).
+  if (longestStreak > storedLongestStreak && (await sessionToujoursActive(userId, generation))) {
+    await (supabase as any).from('user_gamification_stats').upsert({
+      user_id: userId,
+      longest_streak: longestStreak,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+  }
+
+  return baseStats;
+}
+
+/** Un chargement par utilisateur : réutilisé 30 s, partagé s'il est en cours ; `force` relit. */
+function chargerStatsPartagees(userId: string, force: boolean): Promise<GamificationStats | null> {
+  if (!force) {
+    const enCache = statsEnCache(userId);
+    if (enCache) return Promise.resolve(enCache);
+    const enCours = chargementsEnCours.get(userId);
+    if (enCours) return enCours;
+  }
+  const generation = generationAuth;
+  const promesse = lireStatsServeur(userId, generation)
+    .then((stats) => {
+      if (stats && generation === generationAuth) publierStats(userId, stats);
+      return generation === generationAuth ? stats : null;
+    })
+    .finally(() => {
+      if (chargementsEnCours.get(userId) === promesse) chargementsEnCours.delete(userId);
+    });
+  chargementsEnCours.set(userId, promesse);
+  return promesse;
+}
+
 export function useGamification() {
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [_newlyUnlockedBadge, _setNewlyUnlockedBadge] = useState<Badge | null>(null);
   const { toast } = useToast();
 
-  const calculateLevel = (xp: number) => Math.floor(xp / XP_PER_LEVEL) + 1;
-  const calculateXPToNext = (xp: number) => XP_PER_LEVEL - (xp % XP_PER_LEVEL);
 
   // Default stats for non-authenticated users
   const getDefaultStats = (): GamificationStats => ({
@@ -112,100 +275,47 @@ export function useGamification() {
     weeklyGoal: 50,
   });
 
-  const loadStats = useCallback(async (userId: string) => {
+  // Utilisateur dont cette instance affiche les statistiques (diffusion partagée).
+  const utilisateurAffiche = useRef<string | null>(null);
+
+  useEffect(() => {
+    const recevoir = (userId: string, nouvelles: GamificationStats) => {
+      if (userId === utilisateurAffiche.current) setStats(nouvelles);
+    };
+    abonnesStats.add(recevoir);
+    return () => {
+      abonnesStats.delete(recevoir);
+    };
+  }, []);
+
+  const chargerStats = useCallback(async (userId: string, force: boolean) => {
     if (!userId || userId === '00000000-0000-0000-0000-000000000000') {
+      utilisateurAffiche.current = null;
       setStats(getDefaultStats());
       setLoading(false);
       return;
     }
-    
+
+    utilisateurAffiche.current = userId;
+    const enCache = force ? null : statsEnCache(userId);
+    if (enCache) {
+      setStats(enCache);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      // Charger les badges depuis Supabase
-      const { data: userBadges } = await supabase
-        .from('user_badges')
-        .select('badge_id, badge_name, badge_description, badge_icon, earned_at, unlocked')
-        .eq('user_id', userId)
-        .eq('unlocked', true);
-
-      const badges: Badge[] = (userBadges || []).map(ub => {
-        const def = BADGE_DEFINITIONS.find(b => b.id === ub.badge_id);
-        return {
-          id: ub.badge_id,
-          name: ub.badge_name || def?.name || 'Badge',
-          description: ub.badge_description || def?.description || '',
-          icon: ub.badge_icon || def?.icon || '🏆',
-          rarity: def?.rarity || 'common',
-          unlockedAt: ub.earned_at,
-        };
-      });
-
-      // Charger les points totaux depuis gamification_activities
-      const { data: activities } = await supabase
-        .from('gamification_activities')
-        .select('points_earned')
-        .eq('user_id', userId);
-      
-      const totalPoints = (activities || []).reduce((sum, a) => sum + (a.points_earned || 0), 0);
-
-      // Calculate streak from user_activity_log
-      const { data: activityLog } = await supabase
-        .from('user_activity_log')
-        .select('activity_date')
-        .eq('user_id', userId)
-        .order('activity_date', { ascending: false })
-        .limit(60);
-
-      // Jours locaux (activity_date est écrit en jour local) : série calendaire.
-      const currentStreak = serieActuelle((activityLog ?? []).map(a => a.activity_date));
-
-      // Weekly progress from activity log
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      const { count: weeklyCount } = await supabase
-        .from('user_activity_log')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .gte('activity_date', jourLocal(weekStart));
-
-      // Récupérer le longest streak depuis Supabase
-      const { data: gamificationData } = await supabase
-        .from('user_gamification_stats')
-        .select('longest_streak')
-        .eq('user_id', userId)
-        .maybeSingle();
-      
-      const storedLongestStreak = gamificationData?.longest_streak || 0;
-      const longestStreak = Math.max(storedLongestStreak, currentStreak);
-
-      const baseStats: GamificationStats = {
-        totalPoints,
-        currentStreak,
-        longestStreak,
-        level: calculateLevel(totalPoints),
-        xpToNextLevel: calculateXPToNext(totalPoints),
-        currentXP: totalPoints,
-        badges,
-        weeklyGoalProgress: weeklyCount || 0,
-        weeklyGoal: 50,
-      };
-
-      setStats(baseStats);
-      
-      // Sauvegarder longestStreak dans Supabase
-      if (longestStreak > storedLongestStreak) {
-        await (supabase as any).from('user_gamification_stats').upsert({
-          user_id: userId,
-          longest_streak: longestStreak,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-      }
+      const chargees = await chargerStatsPartagees(userId, force);
+      if (chargees && utilisateurAffiche.current === userId) setStats(chargees);
     } catch (error) {
       console.error('Error loading gamification stats:', error);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const loadStats = useCallback((userId: string) => chargerStats(userId, false), [chargerStats]);
 
   // Add points function
   const addPoints = useCallback(async (userId: string, points: number, reason: string = 'activity'): Promise<boolean> => {
@@ -223,14 +333,14 @@ export function useGamification() {
       } as any);
       if (error) throw error;
 
-      // Reload stats to reflect new points
-      await loadStats(userId);
+      // Relecture forcée (le cache partagé contient les points d'avant)
+      await chargerStats(userId, true);
       return true;
     } catch (error) {
       console.error('Error adding points:', error);
       return false;
     }
-  }, [loadStats]);
+  }, [chargerStats]);
 
   const unlockBadge = useCallback(async (userId: string, badgeId: string) => {
     if (!stats) return false;
@@ -267,6 +377,7 @@ export function useGamification() {
     };
 
     setStats(updatedStats);
+    publierStats(userId, updatedStats);
 
     toast({
       title: `${badgeDef.icon} Badge débloqué !`,
@@ -518,7 +629,7 @@ export function useGamification() {
           userId,
           displayName: (profile as any)?.name || 'Utilisateur',
           totalPoints: points,
-          level: calculateLevel(points),
+          level: calculerNiveau(points),
           badges: badgeCounts.get(userId) || 0
         };
       });
@@ -604,13 +715,13 @@ export function useGamification() {
         longest_streak: 0,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
-      await loadStats(userId);
+      await chargerStats(userId, true);
       return true;
     } catch (error) {
       console.error('Error resetting streak:', error);
       return false;
     }
-  }, [loadStats]);
+  }, [chargerStats]);
 
   return {
     stats,

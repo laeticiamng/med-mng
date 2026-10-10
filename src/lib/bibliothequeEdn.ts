@@ -159,6 +159,30 @@ export const correspondRecherche = (item: ItemRecherchable, recherche: string): 
   );
 };
 
+/**
+ * Pertinence d'un item pour une recherche (plus petit = plus pertinent) :
+ * 0 = le titre correspond, 1 = numéro, code, sous-titre, discipline ou mots-clés,
+ * 2 = seulement une compétence (chargée ou trouvée côté serveur).
+ *
+ * CONSTAT (test en production du 09.10.2026) : « insuffisance cardiaque » faisait
+ * apparaître en tête un item qui ne cite l'insuffisance cardiaque que dans une compétence
+ * (IC-348, « Insuffisance rénale aiguë ») ; l'item dont c'est le titre (IC-234) doit passer
+ * devant. Le contenu des items n'est pas modifié, seul l'ordre l'est.
+ */
+export const rangPertinence = (item: ItemRecherchable, recherche: string): number => {
+  const q = normaliserTexte(recherche);
+  if (!q) return 0;
+  if (normaliserTexte(item.title).includes(q) || contientRecherche(item.title, recherche)) return 0;
+  if (
+    String(numeroItem(item.item_code)) === q ||
+    normaliserTexte(item.item_code).includes(q) ||
+    (!!item.subtitle && (normaliserTexte(item.subtitle).includes(q) || contientRecherche(item.subtitle, recherche))) ||
+    (!!item.specialite && normaliserTexte(item.specialite).includes(q)) ||
+    (!!item.mots_cles && item.mots_cles.some((m) => normaliserTexte(m).includes(q)))
+  ) return 1;
+  return 2;
+};
+
 // ---- Tri ------------------------------------------------------------------
 
 export type Tri = 'numero' | 'titre' | 'competences' | 'rangA' | 'derniere_revision';

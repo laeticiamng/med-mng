@@ -120,4 +120,54 @@ describe('Mes données RGPD — suppression du compte', () => {
     await waitFor(() => expect(etat.signOut).toHaveBeenCalled());
     assign.mockRestore();
   });
+
+  // Test en production du 09.10.2026 : ~24 s sans état visible, toast effacé par la redirection
+  // immédiate, bouton de confirmation sous la ligne de flottaison.
+  it('confirmation : amenée à l’écran et focus sur le bouton de confirmation', async () => {
+    const scroll = vi.fn();
+    const avant = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scroll;
+    try {
+      render(
+        <MemoryRouter>
+          <MesDonneesRGPD />
+        </MemoryRouter>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /Demander la suppression/ }));
+      const confirmer = screen.getByRole('button', { name: /Oui, supprimer définitivement/ });
+      await waitFor(() => expect(confirmer).toHaveFocus());
+      expect(scroll).toHaveBeenCalled();
+    } finally {
+      Element.prototype.scrollIntoView = avant;
+    }
+  });
+
+  it('pendant la suppression : état « en cours » visible et boutons désactivés', async () => {
+    let terminer: (v: unknown) => void = () => {};
+    etat.invoke.mockReturnValue(new Promise((r) => { terminer = r; }));
+    await confirmerSuppression();
+    const bouton = await screen.findByRole('button', { name: /Suppression en cours/ });
+    expect(bouton).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Annuler/ })).toBeDisabled();
+    expect(screen.getByText(/jusqu'à 30 secondes/)).toBeInTheDocument();
+    terminer({ data: null, error: erreurHttp(503, { error: 'x', message: 'Rien n’a été supprimé.' }) });
+    await waitFor(() => expect(screen.getByRole('button', { name: /Oui, supprimer définitivement/ })).not.toBeDisabled());
+  });
+
+  it('suppression acceptée : confirmation visible et toast avant la redirection', async () => {
+    etat.invoke.mockResolvedValue({ data: { status: 'deleted' }, error: null });
+    etat.signOut.mockResolvedValue({ error: null });
+    const lieu = { href: '' } as Location;
+    const espion = vi.spyOn(window, 'location', 'get').mockReturnValue(lieu);
+    try {
+      await confirmerSuppression();
+      expect(await screen.findByText(/Votre compte a été supprimé/)).toBeInTheDocument();
+      expect(etat.toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Compte supprimé' }));
+      // Pas de redirection immédiate : le message reste lisible
+      expect(lieu.href).toBe('');
+      await waitFor(() => expect(lieu.href).toBe('/'), { timeout: 4000 });
+    } finally {
+      espion.mockRestore();
+    }
+  });
 });

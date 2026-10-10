@@ -11,10 +11,11 @@ import {
     Database,
     Download,
     Info,
+    Loader2,
     Shield,
     Trash2
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -27,6 +28,27 @@ const MesDonneesRGPD = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   /** Refus « abonnement encore prélevable » (409) : message du service à afficher. */
   const [refusAbonnement, setRefusAbonnement] = useState<string | null>(null);
+  /**
+   * Test en production du 09.10.2026 : la suppression prend jusqu'à ~25 s (service commun,
+   * effacement des données de plusieurs applications) sans aucun état visible, et la
+   * redirection immédiate effaçait le toast de confirmation. État explicite désormais.
+   */
+  const [suppression, setSuppression] = useState<'inactive' | 'en_cours' | 'terminee'>('inactive');
+  const blocConfirmation = useRef<HTMLDivElement>(null);
+  const boutonConfirmer = useRef<HTMLButtonElement>(null);
+  const minuterieRedirection = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // La confirmation apparaît sous la ligne de flottaison (mobile) : on l'amène à l'écran et
+  // on y place le focus, pour qu'elle soit vue et annoncée.
+  useEffect(() => {
+    if (!confirmDelete) return;
+    blocConfirmation.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    boutonConfirmer.current?.focus({ preventScroll: true });
+  }, [confirmDelete]);
+
+  useEffect(() => () => {
+    if (minuterieRedirection.current) clearTimeout(minuterieRedirection.current);
+  }, []);
 
   const { abonnementPrelevable, openCustomerPortal } = useSubscription();
 
@@ -152,7 +174,9 @@ const MesDonneesRGPD = () => {
     }
 
     setLoading(true);
+    setSuppression('en_cours');
     setRefusAbonnement(null);
+    let terminee = false;
     try {
       const user = await getCurrentUser();
       if (!user) {
@@ -180,15 +204,24 @@ const MesDonneesRGPD = () => {
       }
 
       if (data?.status === 'deleted') {
-        toast({ title: "Compte supprimé", description: "Votre compte et vos données personnelles ont été effacés." });
+        toast({ title: "Compte supprimé", description: "Votre compte et vos données personnelles ont été effacés. Retour à l'accueil…" });
       } else {
         toast({
           title: "Demande enregistrée",
           description: "La suppression n'a pas pu se terminer automatiquement : elle sera finalisée à la main par notre équipe.",
         });
       }
-      await supabase.auth.signOut();
-      window.location.href = '/';
+      terminee = true;
+      setSuppression('terminee');
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // Compte déjà effacé côté serveur : la session locale est de toute façon abandonnée.
+      }
+      // Laisse le temps de lire la confirmation avant de quitter la page.
+      minuterieRedirection.current = setTimeout(() => {
+        window.location.href = '/';
+      }, 3000);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Erreur suppression:', error);
       toast({
@@ -197,6 +230,7 @@ const MesDonneesRGPD = () => {
         variant: "destructive",
       });
     } finally {
+      if (!terminee) setSuppression('inactive');
       setLoading(false);
     }
   };
@@ -385,7 +419,15 @@ const MesDonneesRGPD = () => {
               </Alert>
             )}
 
-            {!confirmDelete ? (
+            {suppression === 'terminee' ? (
+              <Alert role="status" className="bg-success/10 border-success/30">
+                <CheckCircle className="h-4 w-4 text-success" />
+                <AlertDescription className="text-foreground">
+                  <strong>Votre compte a été supprimé.</strong><br/>
+                  Vous allez être redirigé vers l'accueil dans quelques secondes.
+                </AlertDescription>
+              </Alert>
+            ) : !confirmDelete ? (
               <Button 
                 variant="destructive"
                 onClick={handleDeleteAccount}
@@ -396,7 +438,11 @@ const MesDonneesRGPD = () => {
                 <span>Demander la suppression</span>
               </Button>
             ) : (
-              <div className="space-y-3">
+              <div
+                ref={blocConfirmation}
+                className="space-y-3 scroll-mt-24"
+                aria-busy={suppression === 'en_cours'}
+              >
                 <Alert className="bg-warning/10 border-warning/30">
                   <AlertTriangle className="h-4 w-4 text-warning" />
                   <AlertDescription className="text-warning-foreground">
@@ -404,15 +450,20 @@ const MesDonneesRGPD = () => {
                     Cette action ne peut pas être annulée.
                   </AlertDescription>
                 </Alert>
-                <div className="flex space-x-3">
+                <div className="flex flex-wrap gap-3">
                   <Button 
+                    ref={boutonConfirmer}
                     variant="destructive"
                     onClick={handleDeleteAccount}
                     disabled={loading}
                     className="flex items-center space-x-2"
                   >
-                    <Trash2 className="h-4 w-4" />
-                    <span>{loading ? 'Suppression...' : 'Oui, supprimer définitivement'}</span>
+                    {suppression === 'en_cours' ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    <span>{suppression === 'en_cours' ? 'Suppression en cours…' : 'Oui, supprimer définitivement'}</span>
                   </Button>
                   <Button 
                     variant="outline"
@@ -422,6 +473,12 @@ const MesDonneesRGPD = () => {
                     Annuler
                   </Button>
                 </div>
+                {suppression === 'en_cours' && (
+                  <p role="status" className="text-sm text-muted-foreground">
+                    Suppression en cours : vos données sont effacées dans les services qui partagent votre compte.
+                    Cela peut prendre jusqu'à 30 secondes, ne fermez pas la page.
+                  </p>
+                )}
               </div>
             )}
           </Card>

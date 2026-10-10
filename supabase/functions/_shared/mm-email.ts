@@ -87,6 +87,28 @@ export async function envoyerEmail(
   return { ok: true, id: typeof corps?.id === 'string' ? corps.id : null };
 }
 
+/**
+ * Domaines réservés (RFC 2606, RFC 6761) : aucune boîte n'y existe. Resend refuse ces
+ * destinataires (422 validation_error) — cause des 502 de send-welcome-email observés le
+ * 09.10.2026 avec des comptes de test en « @example.com ».
+ */
+const DOMAINES_RESERVES = /(^|\.)(example\.(com|net|org)|example|test|invalid|localhost)$/i;
+
+/** Vrai si l'adresse ne peut recevoir aucun e-mail (domaine réservé ou absent). */
+export function adresseNonLivrable(email: string | null | undefined): boolean {
+  const domaine = String(email ?? '').split('@').pop()?.trim().toLowerCase() ?? '';
+  return !domaine || !String(email ?? '').includes('@') || DOMAINES_RESERVES.test(domaine);
+}
+
+/**
+ * Refus définitif de Resend (400/422 : requête ou destinataire invalide) : réessayer ne
+ * changera rien et ce n'est pas une panne du service. Les autres échecs (403 domaine
+ * expéditeur non vérifié, 429, 5xx, réseau) restent des pannes à signaler.
+ */
+export function refusDefinitif(resultat: Extract<ResultatEnvoi, { ok: false }>): boolean {
+  return resultat.status === 400 || resultat.status === 422;
+}
+
 /** Ligne de journal sans donnée personnelle pour un envoi refusé. */
 export function journaliserEchec(fonction: string, resultat: Extract<ResultatEnvoi, { ok: false }>): void {
   console.error(`[${fonction}] e-mail NON envoyé (Resend ${resultat.status || 'injoignable'} : ${resultat.erreur})`);
