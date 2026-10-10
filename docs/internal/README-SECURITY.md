@@ -193,7 +193,7 @@ curl -X POST "https://votre-projet.supabase.co/functions/v1/extract-edn-objectif
 
 ### Documentation Interne
 - `docs/archive/2025-2026/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
-- `SECURITY_FIXES_COMPLETED.md` - Rapport de sécurisation
+- `docs/archive/2025-2026/internal/SECURITY_FIXES_COMPLETED.md` - Rapport de sécurisation (archivé)
 - `scripts/security-scanner.js` - Outil de scan
 
 ### Standards de Sécurité
