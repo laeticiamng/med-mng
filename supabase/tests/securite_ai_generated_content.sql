@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Non-régression : ai_generated_content n'est lisible que par les administrateurs
--- (migration 20261010030000_mm_ai_generated_content_admin)
+-- (migration 20261010022829_mm_ai_generated_content_admin)
 -- ============================================================================
 -- Lecture seule, transaction annulée. Un passage complet affiche
 -- « securite_ai_generated_content : OK ».
