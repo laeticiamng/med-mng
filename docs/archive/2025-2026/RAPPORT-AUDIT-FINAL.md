@@ -27,8 +27,8 @@
 - Déblocage visuel de la page
 
 ### 3. ✅ Documentation complète
-- `docs/AUDIT-COMPLET-PLATEFORME.md` (analyse détaillée)
-- `docs/RAPPORT-AUDIT-FINAL.md` (ce document)
+- `docs/archive/2025-2026/AUDIT-COMPLET-PLATEFORME.md` (analyse détaillée)
+- `docs/archive/2025-2026/RAPPORT-AUDIT-FINAL.md` (ce document)
 
 ---
 

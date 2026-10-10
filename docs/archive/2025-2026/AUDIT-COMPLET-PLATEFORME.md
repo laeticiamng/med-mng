@@ -77,7 +77,7 @@ IC-25:
 **Cause**: 
 - Edge Function `regenerate-all-oic-content` ne génère pas correctement les sections
 - Problème de mapping entre `item_code` (IC-1) et `item_parent` (001)
-- Problème de déploiement des Edge Functions (voir docs/DIAGNOSTIC-DEPLOIEMENT.md)
+- Problème de déploiement des Edge Functions (voir docs/archive/2025-2026/DIAGNOSTIC-DEPLOIEMENT.md)
 
 **Solution**: 
 1. ✅ Corriger les imports Deno std (FAIT)

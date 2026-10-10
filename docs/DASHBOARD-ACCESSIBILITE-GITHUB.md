@@ -496,7 +496,7 @@ jobs:
 
 - [Tests Accessibilité CI/CD](./TESTS-ACCESSIBILITE-CI-CD.md)
 - [Branch Protection Rules](./GITHUB-BRANCH-PROTECTION.md)
-- [Accessibilité 100% Certifiée](./ACCESSIBILITE-100-CERTIFIEE.md)
+- [Accessibilité 100% Certifiée](archive/2025-2026/ACCESSIBILITE-100-CERTIFIEE.md)
 
 ### Outils externes
 

@@ -233,9 +233,9 @@ ORDER BY
 - [Security Best Practices](https://supabase.com/docs/guides/platform/going-into-prod#security)
 
 ### Documentation Interne
-- `docs/AUDIT-SECURITE-COMPLET-21-OCT-2025.md` - Audit détaillé
+- `docs/archive/2025-2026/AUDIT-SECURITE-COMPLET-21-OCT-2025.md` - Audit détaillé
 - `docs/rls.md` - Configuration RLS
-- `docs/supabase-rls-audit.md` - Audit RLS historique
+- `docs/archive/2025-2026/supabase-rls-audit.md` - Audit RLS historique
 - `SECURITY_FIXES_IMPLEMENTED.md` - Correctifs appliqués
 
 ---

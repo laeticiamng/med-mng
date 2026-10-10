@@ -2,6 +2,8 @@
 
 Bienvenue dans la documentation complète du module Générateur Musical de MED-MNG.
 
+> **État vérifié du produit : [`SOURCE_DE_VERITE.md`](./SOURCE_DE_VERITE.md).** Les rapports d'audit, de « certification » et de correction de 2025-2026 sont archivés dans [`archive/2025-2026/`](./archive/2025-2026/INDEX.md) (index) : ils ne font plus foi.
+
 ---
 
 ## 📖 Table des Matières
@@ -30,13 +32,13 @@ Bienvenue dans la documentation complète du module Générateur Musical de MED-
   - Schéma base de données
   - API Reference
 
-- **[Audit & Refactoring](./GENERATOR-AUDIT-REPORT.md)** 📊
+- **[Audit & Refactoring](archive/2025-2026/GENERATOR-AUDIT-REPORT.md)** 📊
   - État du module
   - Problèmes identifiés
   - Corrections appliquées
   - Actions recommandées
 
-- **[Refactoring Détaillé](./REFACTORING-GENERATE-MUSIC.md)** ♻️
+- **[Refactoring Détaillé](archive/2025-2026/REFACTORING-GENERATE-MUSIC.md)** ♻️
   - Migration 562 → 265 lignes
   - Modules créés
   - Avantages
@@ -50,7 +52,7 @@ Bienvenue dans la documentation complète du module Générateur Musical de MED-
   - Logs edge functions
   - Accès aux données
 
-- **[Audit de Sécurité](./SECURITY-AUDIT.md)** 🔒
+- **[Audit de Sécurité](archive/2025-2026/SECURITY-AUDIT.md)** 🔒
   - RLS Policies
   - Fonctions sécurisées
   - Warnings et résolutions
@@ -81,7 +83,7 @@ Bienvenue dans la documentation complète du module Générateur Musical de MED-
 
 ```markdown
 1. Lire la [Documentation Technique](./GENERATOR-TECHNICAL-DOCS.md)
-2. Consulter l'[Audit Report](./GENERATOR-AUDIT-REPORT.md)
+2. Consulter l'[Audit Report](archive/2025-2026/GENERATOR-AUDIT-REPORT.md)
 3. Explorer le code dans src/pages/Generator.tsx
 4. Vérifier les tests dans tests/e2e/generator/
 ```

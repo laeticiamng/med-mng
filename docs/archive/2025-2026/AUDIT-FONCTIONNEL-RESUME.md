@@ -4,7 +4,7 @@
 
 **PLATEFORME CERTIFIÉE 100% OPTIMISÉE** - Production Ready
 
-> **Audit Complet des Limites**: `docs/AUDIT-LIMITES-PLATEFORME-21-OCT-2025.md`
+> **Audit Complet des Limites**: `docs/archive/2025-2026/AUDIT-LIMITES-PLATEFORME-21-OCT-2025.md`
 
 ---
 
@@ -199,4 +199,4 @@ grep -rl "console\.log.*DEBUG\|console\.log.*🔍" src/ | \
 ---
 
 *Audit réalisé le 21 octobre 2025*  
-*Pour détails complets: `docs/AUDIT-FONCTIONNEL-21-OCT-2025.md`*
+*Pour détails complets: `docs/archive/2025-2026/AUDIT-FONCTIONNEL-21-OCT-2025.md`*

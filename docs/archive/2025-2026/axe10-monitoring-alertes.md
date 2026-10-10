@@ -204,7 +204,7 @@ Implémenter un système complet de monitoring et d'alertes pour surveiller la s
 
 #### **Fichiers Documentation**
 - `monitoring/README.md` : Guide complet
-- `docs/axe10-monitoring-alertes.md` : Spécifications
+- `docs/archive/2025-2026/axe10-monitoring-alertes.md` : Spécifications
 - Scripts commentés et auto-documentés
 - Exemples configuration dans le code
 

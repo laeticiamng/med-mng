@@ -362,11 +362,11 @@ for (let i = 0; i < itemNumbers.length; i += batchSize) {
 3. ✅ `src/components/edn/scene/SceneHeader.tsx`
    - Correction crash objet React (session précédente)
 
-4. ✅ `docs/AUDIT-UTILISATEUR-EDN-COMPLET-2025.md`
+4. ✅ `docs/archive/2025-2026/AUDIT-UTILISATEUR-EDN-COMPLET-2025.md`
    - Documentation des problèmes
    - Plan de correction
 
-5. ✅ `docs/AUDIT-FINAL-EDN-COMPLETE-VALIDATION.md`
+5. ✅ `docs/archive/2025-2026/AUDIT-FINAL-EDN-COMPLETE-VALIDATION.md`
    - Ce document
    - Validation post-corrections
 

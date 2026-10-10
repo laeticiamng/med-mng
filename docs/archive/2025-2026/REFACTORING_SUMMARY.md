@@ -365,7 +365,7 @@ border, input, ring
 
 ### Pour les Développeurs
 - **Documentation:** `docs/` directory
-- **Logs:** `docs/REFACTORING_COMPLETE_LOG.md`
+- **Logs:** `docs/archive/2025-2026/REFACTORING_COMPLETE_LOG.md`
 - **Issues:** Créer dans le projet
 - **Questions:** Discord MED-MNG
 

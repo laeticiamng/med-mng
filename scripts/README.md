@@ -116,7 +116,7 @@ Le script détecte automatiquement:
 ## 📚 Documentation
 
 - [Guide ESLint personnalisé](../docs/ESLINT_CUSTOM_RULE_GUIDE.md)
-- [Rapport migration UI](../docs/UI_COMPONENTS_MIGRATION_REPORT.md)
+- [Rapport migration UI](../docs/archive/2025-2026/UI_COMPONENTS_MIGRATION_REPORT.md)
 - [Guide Design System](../docs/DESIGN_SYSTEM_GUIDE.md)
 
 ## ⚠️ Avertissements

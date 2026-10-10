@@ -28,8 +28,8 @@
 
 ## 📊 DOCUMENTS CRÉÉS/MIS À JOUR
 - ✅ `README.md` - Mise à jour complète architecture et statut
-- ✅ `docs/AUDIT-PLATEFORME-28-JUILLET-2025.md` - Audit exhaustif
-- ✅ `docs/FONCTIONNALITES-IMPLEMENTEES.md` - État des fonctionnalités
+- ✅ `docs/archive/2025-2026/AUDIT-PLATEFORME-28-JUILLET-2025.md` - Audit exhaustif
+- ✅ `docs/archive/2025-2026/FONCTIONNALITES-IMPLEMENTEES.md` - État des fonctionnalités
 - ✅ `docs/FAQ.md` - Mise à jour en-têtes et dates
 
 **Plateforme hautement sécurisée (Grade A) et production-ready.**

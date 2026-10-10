@@ -332,7 +332,7 @@ useEffect(() => {
    - Lignes modifiées : 408-417, 808-814
 
 ### Documentation
-4. **`docs/AUDIT-UTILISATEUR-EDN-COMPLETE-FINAL-2025.md`** (ce fichier)
+4. **`docs/archive/2025-2026/AUDIT-UTILISATEUR-EDN-COMPLETE-FINAL-2025.md`** (ce fichier)
    - Audit complet de la plateforme
    - Documentation des corrections
    - Plan de tests validés

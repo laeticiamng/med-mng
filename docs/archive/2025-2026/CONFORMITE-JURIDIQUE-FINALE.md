@@ -309,8 +309,8 @@
 7. `src/components/common/AIGeneratedBadge.tsx` - Watermark AI Act
 
 ### Documentation:
-8. `docs/FAILLES-JURIDIQUES-COMPLETES.md` - Rapport audit initial
-9. `docs/CONFORMITE-JURIDIQUE-FINALE.md` - Ce document (certification)
+8. `docs/archive/2025-2026/FAILLES-JURIDIQUES-COMPLETES.md` - Rapport audit initial
+9. `docs/archive/2025-2026/CONFORMITE-JURIDIQUE-FINALE.md` - Ce document (certification)
 
 ---
 

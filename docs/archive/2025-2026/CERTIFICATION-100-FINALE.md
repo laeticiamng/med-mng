@@ -171,8 +171,8 @@ Grade:           A+
 4. ✅ `src/tests/hooks/useEdnItem.test.ts` - Tests complets
 5. ✅ `src/tests/hooks/useMedMngApi.test.ts` - Placeholder
 6. ✅ `src/tests/hooks/useIAQuota.test.ts` - Placeholder
-7. ✅ `docs/OPTIMISATION-FINALE-100.md` - Rapport détaillé
-8. ✅ `docs/CERTIFICATION-100-FINALE.md` - Ce document
+7. ✅ `docs/archive/2025-2026/OPTIMISATION-FINALE-100.md` - Rapport détaillé
+8. ✅ `docs/archive/2025-2026/CERTIFICATION-100-FINALE.md` - Ce document
 
 ### Fichiers Modifiés
 1. ✅ `src/components/GeneratorMusicPlayer.tsx` - Debug conditionnel
@@ -182,8 +182,8 @@ Grade:           A+
 5. ✅ `src/hooks/usePlayer.ts` - TODO résolu + types
 6. ✅ `src/hooks/music/useMusicPolling.ts` - Types stricts
 7. ✅ `src/hooks/useMusicGenerationStatus.ts` - Types stricts
-8. ✅ `docs/AUDIT-FONCTIONNEL-RESUME.md` - Scores mis à jour
-9. ✅ `docs/PRODUCTION-OPTIMIZATION-COMPLETE.md` - Documentation
+8. ✅ `docs/archive/2025-2026/AUDIT-FONCTIONNEL-RESUME.md` - Scores mis à jour
+9. ✅ `docs/archive/2025-2026/PRODUCTION-OPTIMIZATION-COMPLETE.md` - Documentation
 
 ### Migrations DB
 1. ✅ Migration Supabase sécurité (views + functions)
@@ -282,9 +282,9 @@ Résultat:           PARFAIT ✅
 ## 📞 SUPPORT
 
 Pour toute question concernant cette certification:
-- 📄 Documentation: `docs/OPTIMISATION-FINALE-100.md`
-- 📄 Rapport Audit: `docs/AUDIT-LIMITES-PLATEFORME-21-OCT-2025.md`
-- 📄 Résumé Fonctionnel: `docs/AUDIT-FONCTIONNEL-RESUME.md`
+- 📄 Documentation: `docs/archive/2025-2026/OPTIMISATION-FINALE-100.md`
+- 📄 Rapport Audit: `docs/archive/2025-2026/AUDIT-LIMITES-PLATEFORME-21-OCT-2025.md`
+- 📄 Résumé Fonctionnel: `docs/archive/2025-2026/AUDIT-FONCTIONNEL-RESUME.md`
 
 ---
 

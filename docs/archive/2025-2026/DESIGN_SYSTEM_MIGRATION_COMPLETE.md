@@ -19,7 +19,7 @@ Migration complète du design system pour éliminer **toutes les couleurs hardco
 | Fichier | Description |
 |---------|-------------|
 | `docs/DESIGN_SYSTEM_GUIDE.md` | Guide complet du design system avec exemples avant/après |
-| `docs/DESIGN_SYSTEM_MIGRATION_COMPLETE.md` | Ce document - rapport final de migration |
+| `docs/archive/2025-2026/DESIGN_SYSTEM_MIGRATION_COMPLETE.md` | Ce document - rapport final de migration |
 
 ### 2. Composants UI Améliorés
 

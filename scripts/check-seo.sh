@@ -161,6 +161,6 @@ if [ $total_issues -eq 0 ]; then
   exit 0
 else
   echo -e "\n${YELLOW}⚠️  $total_issues problèmes SEO à corriger${NC}"
-  echo -e "\nConsultez docs/AUDIT_CORRECTIONS.md pour les solutions"
+  echo -e "\nConsultez docs/archive/2025-2026/AUDIT_CORRECTIONS.md pour les solutions"
   exit 1
 fi

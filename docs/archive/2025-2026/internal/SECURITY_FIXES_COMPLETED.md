@@ -94,7 +94,7 @@ RESEND_API_KEY=...
 - ✅ Peut être intégré en CI/CD
 
 ### 📖 DOCUMENTATION COMPLÈTE
-- ✅ `docs/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
+- ✅ `docs/archive/2025-2026/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
 - ✅ `SECURITY_FIXES_COMPLETED.md` - Ce fichier de statut
 - ✅ `.env.example` sécurisé avec placeholders uniquement
 

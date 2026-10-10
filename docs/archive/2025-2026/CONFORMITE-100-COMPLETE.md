@@ -39,8 +39,8 @@
 
 ### Nouveaux fichiers
 1. ✅ `src/pages/MesDonneesRGPD.tsx` - Interface RGPD complète
-2. ✅ `docs/FAILLES-JURIDIQUES-AVANCEES.md` - Audit approfondi
-3. ✅ `docs/CONFORMITE-100-COMPLETE.md` - Ce document
+2. ✅ `docs/archive/2025-2026/FAILLES-JURIDIQUES-AVANCEES.md` - Audit approfondi
+3. ✅ `docs/archive/2025-2026/CONFORMITE-100-COMPLETE.md` - Ce document
 
 ### Fichiers mis à jour
 1. ✅ `src/pages/PolitiqueConfidentialite.tsx` - Harmonisation données santé + transferts USA

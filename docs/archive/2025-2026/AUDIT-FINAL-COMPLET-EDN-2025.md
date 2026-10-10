@@ -391,9 +391,9 @@ if (oicRangA && oicRangA.length > 0) {
 - Bug critique résolu (affichage 0 → 4872 compétences)
 
 ### 5. Documentation
-- `docs/AUDIT-CRITIQUE-EDN-COMPLETE-CORRECTION.md` (créé)
-- `docs/AUDIT-UTILISATEUR-EDN-COMPLETE-FINAL-2025.md` (créé)
-- `docs/AUDIT-FINAL-COMPLET-EDN-2025.md` (ce fichier)
+- `docs/archive/2025-2026/AUDIT-CRITIQUE-EDN-COMPLETE-CORRECTION.md` (créé)
+- `docs/archive/2025-2026/AUDIT-UTILISATEUR-EDN-COMPLETE-FINAL-2025.md` (créé)
+- `docs/archive/2025-2026/AUDIT-FINAL-COMPLET-EDN-2025.md` (ce fichier)
 
 ---
 

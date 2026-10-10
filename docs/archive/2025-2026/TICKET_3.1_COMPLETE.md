@@ -96,7 +96,7 @@ if (!SECRET) {
 ### Outils de validation
 - ✅ `scripts/security-validation.js` - Validation complète
 - ✅ `scripts/secure-env-template.js` - Template sécurisé
-- ✅ `docs/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
+- ✅ `docs/archive/2025-2026/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
 
 ## 🚀 PROCESSUS DE ROTATION
 

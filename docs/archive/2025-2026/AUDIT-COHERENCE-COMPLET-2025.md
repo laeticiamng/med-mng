@@ -336,7 +336,7 @@ error: "bg-destructive/10 text-destructive border-destructive/20"
   - Rapport de migration
 
 ### 3. Documentation ✅
-- `docs/MIGRATION_PROGRESS.md` - Suivi des progrès
+- `docs/archive/2025-2026/MIGRATION_PROGRESS.md` - Suivi des progrès
 - `scripts/README-MIGRATION.md` - Guide d'utilisation
 - Ce fichier - Audit complet
 
