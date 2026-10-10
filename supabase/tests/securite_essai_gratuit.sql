@@ -1,6 +1,7 @@
 -- ============================================================================
 -- Non-régression MED MNG sur la base partagée : essai gratuit, contenu Premium, droits SQL
--- (migrations 20261009150134 [emotionscare, A19 bis], 20261009190700_mm_securite_definer_et_initplan)
+-- (migrations 20261009150134 [emotionscare, A19 bis], 20261009190700_mm_securite_definer_et_initplan ;
+--  points 5 et 6 ajoutés le 10.10.2026 : verrouillage des 357 items Premium, rang B des items d'essai)
 -- ============================================================================
 -- Lecture seule, transaction annulée. Un passage complet affiche « securite_essai_gratuit : OK ».
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/securite_essai_gratuit.sql
@@ -77,6 +78,50 @@ begin
         ~ 'auth\.(uid|role|jwt|email)\(\)';
   if restant is not null then
     raise exception 'ÉCHEC 4 : auth.<fn>() réévalué par ligne : %', restant;
+  end if;
+
+  -- 5. Compte connecté SANS abonnement : 357 des 367 items actifs verrouillés (10 d'essai
+  --    ouverts) ; colonnes Premium de edn_items_complete jamais accordées directement
+  --    (vérifié en production le 10.10.2026 : 367 actifs, 357 verrouillés).
+  if has_column_privilege('authenticated', 'public.edn_items_complete', 'paroles_rang_b', 'SELECT')
+     or has_column_privilege('authenticated', 'public.edn_items_complete', 'paroles_rang_a', 'SELECT')
+     or has_column_privilege('authenticated', 'public.edn_items_complete', 'paroles_musicales', 'SELECT')
+     or has_column_privilege('authenticated', 'public.edn_items_complete', 'quiz_questions', 'SELECT')
+     or has_column_privilege('authenticated', 'public.edn_items_complete', 'payload_v2', 'SELECT')
+     or has_column_privilege('anon', 'public.edn_items_complete', 'paroles_rang_b', 'SELECT') then
+    raise exception 'ÉCHEC 5 : colonnes Premium de edn_items_complete accordées';
+  end if;
+
+  declare
+    total int := 0;
+    verrouilles int := 0;
+    code text;
+  begin
+    perform set_config('request.jwt.claims',
+      json_build_object('role', 'authenticated', 'sub', gen_random_uuid())::text, true);
+    set local role authenticated;
+    for code in select c.item_code from public.edn_items_complete c where c.status = 'active' loop
+      total := total + 1;
+      if coalesce((public.mm_contenu_immersif_item(code) ->> 'verrouille')::boolean, false) then
+        verrouilles := verrouilles + 1;
+      end if;
+    end loop;
+    reset role;
+    if total - verrouilles <> 10 then
+      raise exception 'ÉCHEC 5b : % item(s) ouverts sur % pour un compte sans abonnement (attendu : 10)',
+        total - verrouilles, total;
+    end if;
+  end;
+
+  -- 6. Items d'essai : rang B présent (paroles et compétences) quand le référentiel en compte.
+  --    IC-1 n'a aucune compétence de rang B dans le référentiel LiSA (15 de rang A) : exempté.
+  select string_agg(c.item_code, ', ') into restant
+  from public.edn_items_complete c
+  where c.item_code = any (public.mm_items_gratuits())
+    and coalesce(c.competences_count_rang_b, 0) > 0
+    and coalesce(array_length(c.paroles_rang_b, 1), 0) = 0;
+  if restant is not null then
+    raise exception 'ÉCHEC 6 : items d''essai sans paroles de rang B : %', restant;
   end if;
 end $$;
 

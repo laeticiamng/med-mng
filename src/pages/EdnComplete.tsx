@@ -42,6 +42,7 @@ import {
 import {
   appartientADiscipline,
   comparateur,
+  rangPertinence,
   correspondContenu,
   correspondRecherche,
   LIBELLES_TRI,
@@ -268,7 +269,15 @@ export default function EdnComplete() {
       if (filtreStatut === 'favorites') return isFavorite(item.item_code);
       if (filtreStatut !== 'all') return statutItem(item.item_code) === filtreStatut;
       return true;
-    }).sort(comparateur(sortBy, derniereActivite));
+    }).sort((a, b) => {
+      // Recherche active avec le tri par défaut : les items dont le TITRE correspond d'abord,
+      // ceux trouvés seulement par une compétence ensuite (src/lib/bibliothequeEdn.ts).
+      if (searchTerm.trim() && sortBy === 'numero') {
+        const ecart = rangPertinence(a, searchTerm) - rangPertinence(b, searchTerm);
+        if (ecart !== 0) return ecart;
+      }
+      return comparateur(sortBy, derniereActivite)(a, b);
+    });
   }, [allItems, searchTerm, competencesTrouvees, filtreStatut, filtreContenu, selectedSpecialty, sortBy, isFavorite, statutItem, etats]);
 
   // Une discipline absente des données rechargées (cache périmé) ne doit pas laisser « 0 item ».

@@ -6,6 +6,7 @@ import {
   correspondRecherche,
   listerDisciplines,
   listerOptionsContenu,
+  rangPertinence,
   type ItemBibliotheque,
 } from './bibliothequeEdn';
 
@@ -85,4 +86,28 @@ describe('tri', () => {
   it('titre', () => expect(codes('titre')).toEqual(['IC-280', 'IC-230', 'IC-2', 'IC-99', 'IC-233']));
   it('nombre de compétences', () => expect(codes('competences')).toEqual(['IC-233', 'IC-230', 'IC-2', 'IC-99', 'IC-280']));
   it('rang A', () => expect(codes('rangA')).toEqual(['IC-233', 'IC-2', 'IC-230', 'IC-280', 'IC-99']));
+});
+
+// Test en production du 09.10.2026 : « insuffisance cardiaque » plaçait en tête l'IC-348
+// (cité dans une seule compétence) au lieu de l'IC-234 dont c'est le titre.
+describe('rangPertinence', () => {
+  const ic234 = { item_code: 'IC-234', title: "Insuffisance cardiaque de l'adulte", specialite: 'Cardiologie' };
+  const ic348 = { item_code: 'IC-348', title: 'Insuffisance rénale aiguë - Anurie', specialite: "Médecine d'urgence" };
+  const ic232 = { item_code: 'IC-232', title: 'Fibrillation atriale', specialite: 'Cardiologie' };
+
+  it('titre avant compétence seule', () => {
+    expect(rangPertinence(ic234, 'insuffisance cardiaque')).toBe(0);
+    expect(rangPertinence(ic348, 'insuffisance cardiaque')).toBe(2);
+    const tries = [ic348, ic234].sort(
+      (a, b) => rangPertinence(a, 'insuffisance cardiaque') - rangPertinence(b, 'insuffisance cardiaque'),
+    );
+    expect(tries[0].item_code).toBe('IC-234');
+  });
+
+  it('accents, pluriel et discipline', () => {
+    expect(rangPertinence(ic234, 'Insuffisances cardiaques')).toBe(0);
+    expect(rangPertinence(ic232, 'cardiologie')).toBe(1);
+    expect(rangPertinence(ic232, '232')).toBe(1);
+    expect(rangPertinence(ic232, '')).toBe(0);
+  });
 });

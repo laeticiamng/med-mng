@@ -2,6 +2,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { supabase } from './integrations/supabase/client'
+import { installerPartageGetUser } from './lib/partageGetUser'
+
+// Un seul GET /auth/v1/user partagé entre composants (voir src/lib/partageGetUser.ts).
+installerPartageGetUser(supabase.auth)
 
 // Initialize analytics and error tracking
 const initializeAnalytics = async () => {
