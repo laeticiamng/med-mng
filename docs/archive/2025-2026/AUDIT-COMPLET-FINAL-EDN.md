@@ -454,14 +454,14 @@
 
 ## 📄 DOCUMENTS CRÉÉS
 
-1. `docs/AUDIT-EDN-COMPLETE.md` - Problèmes initiaux
-2. `docs/CORRECTIONS-EDN-COMPLETE.md` - Corrections appliquées
-3. `docs/AUDIT-EDN-COMPOSANTS-ENFANTS.md` - Analyse composants
-4. `docs/AUDIT-NOTIFICATIONS-INVASIF.md` - Bug notifications
-5. `docs/AUDIT-TESTS-UTILISATEUR-EDN.md` - Tests fonctionnels
-6. `docs/NETTOYAGE-ROUTES-EDN.md` - Nettoyage routes
-7. `docs/AUDIT-FINAL-EDN-COMPLETE.md` - Rapport final
-8. `docs/AUDIT-COMPLET-FINAL-EDN.md` - **Ce document** ⭐
+1. `docs/archive/2025-2026/AUDIT-EDN-COMPLETE.md` - Problèmes initiaux
+2. `docs/archive/2025-2026/CORRECTIONS-EDN-COMPLETE.md` - Corrections appliquées
+3. `docs/archive/2025-2026/AUDIT-EDN-COMPOSANTS-ENFANTS.md` - Analyse composants
+4. `docs/archive/2025-2026/AUDIT-NOTIFICATIONS-INVASIF.md` - Bug notifications
+5. `docs/archive/2025-2026/AUDIT-TESTS-UTILISATEUR-EDN.md` - Tests fonctionnels
+6. `docs/archive/2025-2026/NETTOYAGE-ROUTES-EDN.md` - Nettoyage routes
+7. `docs/archive/2025-2026/AUDIT-FINAL-EDN-COMPLETE.md` - Rapport final
+8. `docs/archive/2025-2026/AUDIT-COMPLET-FINAL-EDN.md` - **Ce document** ⭐
 
 ---
 

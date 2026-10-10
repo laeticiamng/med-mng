@@ -296,7 +296,7 @@ class SecurityScanner {
     console.log('```\n');
 
     console.log('📖 DOCUMENTATION:');
-    console.log('- Voir docs/SECURITY_AUDIT_COMPLETE.md pour plus de détails');
+    console.log('- Voir docs/archive/2025-2026/SECURITY_AUDIT_COMPLETE.md pour plus de détails');
     console.log('- Configurer les variables d\'environnement selon .env.example\n');
   }
 

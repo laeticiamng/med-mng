@@ -116,12 +116,12 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGc..."; // Clé publique appropriée
 
 **Documents principaux :**
 - ✅ `README.md` : **Mis à jour** avec statut Grade A (98.3%)
-- ✅ `docs/STATUT-PLATEFORME-RESUME.md` : **Mis à jour** 
-- ✅ `docs/SECURITY-STATUS-JULY-2025.md` : **Nouveau rapport créé**
+- ✅ `docs/archive/2025-2026/STATUT-PLATEFORME-RESUME.md` : **Mis à jour** 
+- ✅ `docs/archive/2025-2026/SECURITY-STATUS-JULY-2025.md` : **Nouveau rapport créé**
 - ✅ `README-SECURITY.md` : **Actualisé** avec nouvelles métriques
 
 **Guides spécialisés :**
-- ✅ `docs/AUDIT-PLATEFORME-28-JUILLET-2025.md` : Audit exhaustif
+- ✅ `docs/archive/2025-2026/AUDIT-PLATEFORME-28-JUILLET-2025.md` : Audit exhaustif
 - ✅ `docs/CI-CD-PIPELINE.md` : Pipeline complet
 - ✅ `docs/E2E-TESTS.md` : Tests documentés
 - ✅ `docs/FAQ.md` : Questions fréquentes à jour

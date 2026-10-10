@@ -69,7 +69,7 @@ supabase/functions/
 - ✅ Maintenance simplifiée (-53% lignes)
 - ✅ Documentation complète
 
-📄 Voir [REFACTORING-GENERATE-MUSIC.md](./REFACTORING-GENERATE-MUSIC.md)
+📄 Voir [REFACTORING-GENERATE-MUSIC.md](REFACTORING-GENERATE-MUSIC.md)
 
 ---
 
@@ -191,7 +191,7 @@ supabase/functions/
 - [Generate Music Logs](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/functions/generate-music/logs)
 - [Music Status Logs](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/functions/music-status/logs)
 - [Database Linter](https://supabase.com/docs/guides/database/database-linter)
-- [Test E2E Generator](./E2E-TESTS.md)
+- [Test E2E Generator](../../E2E-TESTS.md)
 
 ---
 

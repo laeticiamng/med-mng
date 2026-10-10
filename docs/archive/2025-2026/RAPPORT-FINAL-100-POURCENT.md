@@ -319,8 +319,8 @@ describe('TableauSectionEnhanced', () => {
 ## 📞 CONTACT ET SUPPORT
 
 ### Pour les développeurs
-- **Documentation technique** : `docs/AUDIT-PLATEFORME-22-OCT-2025.md`
-- **Architecture** : `docs/SCORE-100-CHECKLIST.md`
+- **Documentation technique** : `docs/archive/2025-2026/AUDIT-PLATEFORME-22-OCT-2025.md`
+- **Architecture** : `docs/archive/2025-2026/SCORE-100-CHECKLIST.md`
 - **Migrations** : `supabase/migrations/`
 
 ### Pour les étudiants
@@ -380,9 +380,9 @@ Les 4 points restants sont des optimisations "nice-to-have" qui n'impactent pas 
 1. `src/utils/tableauTransformations.ts` - Transformation automatique
 2. `src/components/edn/TableauSectionEnhanced.tsx` - Affichage enrichi
 3. `src/components/edn/tableau/TableauRangB.tsx` - Support Rang B
-4. `docs/AUDIT-PLATEFORME-22-OCT-2025.md` - Audit complet
-5. `docs/SCORE-100-CHECKLIST.md` - Checklist détaillée
-6. `docs/RAPPORT-FINAL-100-POURCENT.md` - Ce rapport
+4. `docs/archive/2025-2026/AUDIT-PLATEFORME-22-OCT-2025.md` - Audit complet
+5. `docs/archive/2025-2026/SCORE-100-CHECKLIST.md` - Checklist détaillée
+6. `docs/archive/2025-2026/RAPPORT-FINAL-100-POURCENT.md` - Ce rapport
 
 **Fichiers modifiés** :
 1. `src/pages/EdnComplete.tsx` - Flux de traitement

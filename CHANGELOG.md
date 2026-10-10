@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-10] — Sécurité `ai_generated_content`, défauts du test en production, archives
+### Sécurité
+- `ai_generated_content` : lecture réservée aux administrateurs (était lisible par tout compte connecté : contenus « premium » et un questionnaire de santé). Migration `20261010022829_mm_ai_generated_content_admin`, test `supabase/tests/securite_ai_generated_content.sql` (#240).
+### Corrigé (#241, #237)
+- `send-welcome-email` : plus de 502 pour une adresse non livrable (domaine réservé) ni pour un refus définitif de Resend.
+- Suppression de compte : état « en cours », confirmation visible et focalisée, message et toast avant la redirection.
+- `/edn-complete` : `getUser()` et statistiques de gamification partagés entre composants ; plus d'écriture `user_gamification_stats` après déconnexion.
+- Recherche : items dont le titre correspond avant ceux trouvés par une compétence ; réponses périmées ignorées dans ⌘K.
+- Bandeau cookies masqué tant que le panneau d'accessibilité est ouvert (#237).
+### Documentation
+- 210 rapports d'audit, tickets et « certifications » de 2025-2026 déplacés dans `docs/archive/2025-2026/` (index : `docs/archive/2025-2026/INDEX.md`) ; `docs/SOURCE_DE_VERITE.md` : état au 10.10.2026.
+
 ## [2026-10-09, soir] — Génération musicale réactivée
 ### Réactivé (décision explicite de l'utilisatrice, 09.10.2026)
 - Génération audio des chansons (Premium, 30 par mois) : drapeau `GENERATION_AUDIO_DISPONIBLE` repassé à `true` ; fournisseur technique inchangé (sunoapi.org), aucune migration prévue. Les textes pilotés par le drapeau (offre, tarifs, FAQ, CGV, CGU, JSON-LD, accueil, Create, profil, bibliothèque, e-mail de bienvenue, description du produit Stripe) retrouvent leur formulation d'avant la suspension ; `public/llms.txt` aussi. Conservé : réservation atomique avant l'appel au fournisseur, refus si les compteurs sont illisibles, paroles chantées fidèles, ambiance libre contrôlée, webhook Stripe qui relit l'abonnement. Le message de suspension (inutilisé tant que le drapeau est ouvert) ne mentionne plus de « licences ».

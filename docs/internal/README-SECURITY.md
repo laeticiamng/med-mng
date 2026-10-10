@@ -184,7 +184,7 @@ curl -X POST "https://votre-projet.supabase.co/functions/v1/extract-edn-objectif
 
 ### Support Sécurité
 - **Scanner:** `node scripts/security-scanner.js`
-- **Documentation:** `docs/SECURITY_AUDIT_COMPLETE.md`
+- **Documentation:** `docs/archive/2025-2026/SECURITY_AUDIT_COMPLETE.md`
 - **Logs:** Vérifier masquage des credentials
 
 ---
@@ -192,7 +192,7 @@ curl -X POST "https://votre-projet.supabase.co/functions/v1/extract-edn-objectif
 ## 📖 RESSOURCES
 
 ### Documentation Interne
-- `docs/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
+- `docs/archive/2025-2026/SECURITY_AUDIT_COMPLETE.md` - Audit détaillé
 - `SECURITY_FIXES_COMPLETED.md` - Rapport de sécurisation
 - `scripts/security-scanner.js` - Outil de scan
 

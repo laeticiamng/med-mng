@@ -299,7 +299,7 @@ npx tsc --noEmit
 
 ### Documentation
 - [📚 Guide démarrage](../README.md)
-- [🔒 Sécurité](./axe5-security.md)
+- [🔒 Sécurité](archive/2025-2026/axe5-security.md)
 - [🧪 Tests](./TESTING_COMPLETE.md)
 - [📊 Monitoring](./axe3-monitoring.md)
 

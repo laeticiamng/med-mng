@@ -362,4 +362,4 @@ Fichiers: 15+ documents
 
 ---
 
-*Dernière mise à jour : 28 Juillet 2025 - [Audit complet](./AUDIT-PLATEFORME-28-JUILLET-2025.md)*
+*Dernière mise à jour : 28 Juillet 2025 - [Audit complet](AUDIT-PLATEFORME-28-JUILLET-2025.md)*

@@ -205,7 +205,7 @@ rules: {
 
 **Fichiers créés**:
 - `docs/ESLINT_CUSTOM_RULE_GUIDE.md` - Guide complet de la règle ESLint
-- `docs/ACCESSIBILITY_MIGRATION_REPORT.md` - Ce rapport
+- `docs/archive/2025-2026/ACCESSIBILITY_MIGRATION_REPORT.md` - Ce rapport
 - `docs/DESIGN_SYSTEM_GUIDE.md` - Guide général du design system (déjà existant)
 
 ---
@@ -316,7 +316,7 @@ Si on continue au même rythme:
 Pour questions ou problèmes:
 - **Slack**: #design-system
 - **Email**: design-system@company.com
-- **Documentation**: [docs/DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md)
+- **Documentation**: [docs/DESIGN_SYSTEM_GUIDE.md](../../DESIGN_SYSTEM_GUIDE.md)
 
 ---
 

@@ -310,8 +310,8 @@ node scripts/migrate-colors.js --stats
 ### Documentation interne
 
 - [Guide du Design System](./DESIGN_SYSTEM_GUIDE.md)
-- [Rapport migration Accessibility](./ACCESSIBILITY_MIGRATION_REPORT.md)
-- [Rapport migration UI](./UI_COMPONENTS_MIGRATION_REPORT.md)
+- [Rapport migration Accessibility](archive/2025-2026/ACCESSIBILITY_MIGRATION_REPORT.md)
+- [Rapport migration UI](archive/2025-2026/UI_COMPONENTS_MIGRATION_REPORT.md)
 - [Guide ESLint personnalisé](./ESLINT_CUSTOM_RULE_GUIDE.md)
 
 ### Tokens sémantiques

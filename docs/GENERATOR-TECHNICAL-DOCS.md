@@ -652,10 +652,10 @@ supabase functions logs generate-music --filter "ERROR"
 ## 📚 Ressources
 
 - [Guide Utilisateur](./GENERATOR-USER-GUIDE.md)
-- [Audit Report](./GENERATOR-AUDIT-REPORT.md)
-- [Refactoring](./REFACTORING-GENERATE-MUSIC.md)
+- [Audit Report](archive/2025-2026/GENERATOR-AUDIT-REPORT.md)
+- [Refactoring](archive/2025-2026/REFACTORING-GENERATE-MUSIC.md)
 - [Monitoring & Logs](./MONITORING-LOGS.md)
-- [Security Audit](./SECURITY-AUDIT.md)
+- [Security Audit](archive/2025-2026/SECURITY-AUDIT.md)
 - [E2E Tests](./E2E-TESTS.md)
 
 ---
