@@ -176,6 +176,9 @@ export const GlobalSearchBar: React.FC = () => {
 
   // Debounced search
   useEffect(() => {
+    // Dès que la saisie change, toute recherche en cours est périmée (revue Codex #241) :
+    // sa réponse, même reçue pendant le délai de 300 ms, ne doit rien afficher.
+    derniereRecherche.current += 1;
     const timeoutId = setTimeout(() => performSearch(query), 300);
     return () => clearTimeout(timeoutId);
   }, [query, performSearch]);

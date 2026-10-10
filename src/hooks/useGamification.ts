@@ -152,13 +152,26 @@ async function sessionToujoursActive(userId: string, generation: number): Promis
   }
 }
 
+/**
+ * Revue Codex #241 : une lecture en erreur ne doit pas devenir des zéros mis en cache et
+ * diffusés pendant 30 s. Toute erreur interrompt le chargement : rien n'est publié ni mis en
+ * cache, le prochain loadStats relit le serveur.
+ */
+function verifierLecture(erreur: unknown, table: string): void {
+  if (erreur) {
+    const message = (erreur as { message?: string })?.message ?? String(erreur);
+    throw new Error(`Lecture ${table} impossible : ${message}`);
+  }
+}
+
 async function lireStatsServeur(userId: string, generation: number): Promise<GamificationStats | null> {
   // Charger les badges depuis Supabase
-  const { data: userBadges } = await supabase
+  const { data: userBadges, error: erreurBadges } = await supabase
     .from('user_badges')
     .select('badge_id, badge_name, badge_description, badge_icon, earned_at, unlocked')
     .eq('user_id', userId)
     .eq('unlocked', true);
+  verifierLecture(erreurBadges, 'user_badges');
 
   const badges: Badge[] = (userBadges || []).map(ub => {
     const def = BADGE_DEFINITIONS.find(b => b.id === ub.badge_id);
@@ -173,20 +186,22 @@ async function lireStatsServeur(userId: string, generation: number): Promise<Gam
   });
 
   // Charger les points totaux depuis gamification_activities
-  const { data: activities } = await supabase
+  const { data: activities, error: erreurActivites } = await supabase
     .from('gamification_activities')
     .select('points_earned')
     .eq('user_id', userId);
+  verifierLecture(erreurActivites, 'gamification_activities');
   
   const totalPoints = (activities || []).reduce((sum, a) => sum + (a.points_earned || 0), 0);
 
   // Calculate streak from user_activity_log
-  const { data: activityLog } = await supabase
+  const { data: activityLog, error: erreurJournal } = await supabase
     .from('user_activity_log')
     .select('activity_date')
     .eq('user_id', userId)
     .order('activity_date', { ascending: false })
     .limit(60);
+  verifierLecture(erreurJournal, 'user_activity_log');
 
   // Jours locaux (activity_date est écrit en jour local) : série calendaire.
   const currentStreak = serieActuelle((activityLog ?? []).map(a => a.activity_date));
@@ -194,18 +209,20 @@ async function lireStatsServeur(userId: string, generation: number): Promise<Gam
   // Weekly progress from activity log
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-  const { count: weeklyCount } = await supabase
+  const { count: weeklyCount, error: erreurSemaine } = await supabase
     .from('user_activity_log')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .gte('activity_date', jourLocal(weekStart));
+  verifierLecture(erreurSemaine, 'user_activity_log (semaine)');
 
   // Récupérer le longest streak depuis Supabase
-  const { data: gamificationData } = await supabase
+  const { data: gamificationData, error: erreurStats } = await supabase
     .from('user_gamification_stats')
     .select('longest_streak')
     .eq('user_id', userId)
     .maybeSingle();
+  verifierLecture(erreurStats, 'user_gamification_stats');
   
   const storedLongestStreak = gamificationData?.longest_streak || 0;
   const longestStreak = Math.max(storedLongestStreak, currentStreak);
@@ -388,13 +405,19 @@ export function useGamification() {
       unlockedAt: new Date().toISOString(),
     };
 
+    // Affichage immédiat sur la base la plus récente (cache partagé s'il existe), puis
+    // relecture forcée : elle part APRÈS l'insertion du badge, dépasse tout chargement lancé
+    // avant (qui ne republiera donc pas de statistiques sans le badge) et rapporte les points
+    // à jour.
+    const base = statsEnCache(userId) ?? stats;
     const updatedStats: GamificationStats = {
-      ...stats,
-      badges: [...stats.badges, newBadge],
+      ...base,
+      badges: [...base.badges.filter((b) => b.id !== badgeId), newBadge],
     };
 
     setStats(updatedStats);
     publierStats(userId, updatedStats);
+    chargerStatsPartagees(userId, true).catch((e) => console.error('Error loading gamification stats:', e));
 
     toast({
       title: `${badgeDef.icon} Badge débloqué !`,
