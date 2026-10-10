@@ -33,7 +33,7 @@ const MesDonneesRGPD = () => {
    * effacement des données de plusieurs applications) sans aucun état visible, et la
    * redirection immédiate effaçait le toast de confirmation. État explicite désormais.
    */
-  const [suppression, setSuppression] = useState<'inactive' | 'en_cours' | 'terminee'>('inactive');
+  const [suppression, setSuppression] = useState<'inactive' | 'en_cours' | 'terminee' | 'en_attente'>('inactive');
   const blocConfirmation = useRef<HTMLDivElement>(null);
   const boutonConfirmer = useRef<HTMLButtonElement>(null);
   const minuterieRedirection = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -212,7 +212,9 @@ const MesDonneesRGPD = () => {
         });
       }
       terminee = true;
-      setSuppression('terminee');
+      // « Supprimé » seulement si le service le confirme ; sinon demande enregistrée, à finaliser
+      // à la main (revue Codex #241 : pas de fausse confirmation).
+      setSuppression(data?.status === 'deleted' ? 'terminee' : 'en_attente');
       try {
         await supabase.auth.signOut();
       } catch {
@@ -419,7 +421,16 @@ const MesDonneesRGPD = () => {
               </Alert>
             )}
 
-            {suppression === 'terminee' ? (
+            {suppression === 'en_attente' ? (
+              <Alert role="status" className="bg-warning/10 border-warning/30">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertDescription className="text-foreground">
+                  <strong>Demande de suppression enregistrée.</strong><br/>
+                  Elle n'a pas pu se terminer automatiquement : notre équipe la finalisera à la main
+                  (contact@emotionscare.com). Vous allez être redirigé vers l'accueil.
+                </AlertDescription>
+              </Alert>
+            ) : suppression === 'terminee' ? (
               <Alert role="status" className="bg-success/10 border-success/30">
                 <CheckCircle className="h-4 w-4 text-success" />
                 <AlertDescription className="text-foreground">

@@ -170,4 +170,19 @@ describe('Mes données RGPD — suppression du compte', () => {
       espion.mockRestore();
     }
   });
+
+  it('suppression non finalisée (statut ≠ deleted) : pas de fausse confirmation', async () => {
+    etat.invoke.mockResolvedValue({ data: { status: 'pending_manual' }, error: null });
+    etat.signOut.mockResolvedValue({ error: null });
+    const espion = vi.spyOn(window, 'location', 'get').mockReturnValue({ href: '' } as Location);
+    try {
+      await confirmerSuppression();
+      expect(await screen.findByText(/Demande de suppression enregistrée/)).toBeInTheDocument();
+      expect(screen.queryByText(/Votre compte a été supprimé/)).not.toBeInTheDocument();
+      expect(etat.toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Demande enregistrée' }));
+      expect(etat.toast).not.toHaveBeenCalledWith(expect.objectContaining({ title: 'Compte supprimé' }));
+    } finally {
+      espion.mockRestore();
+    }
+  });
 });

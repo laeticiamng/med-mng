@@ -3,8 +3,8 @@ import { installerPartageGetUser } from '../partageGetUser';
 
 /**
  * 09.10.2026 (test en production) : 6 × GET /auth/v1/user à l'ouverture de /edn-complete.
- * Les appels simultanés ou rapprochés doivent partager une seule requête, sans jamais
- * resservir l'utilisateur d'avant une déconnexion.
+ * Les appels simultanés partagent une seule requête ; rien n'est conservé après la réponse
+ * (revue Codex #241 : la validation serveur de getUser() doit être préservée).
  */
 function fauxAuth() {
   let ecouteur: ((evenement: string) => void) | null = null;
@@ -46,65 +46,47 @@ describe('installerPartageGetUser', () => {
     expect(new Set(reponses.map((r) => (r as { data: { user: { id: string } } }).data.user.id))).toEqual(new Set(['u1']));
   });
 
-  it('appel rapproché : resservi depuis le cache, sans requête', async () => {
+  it('après la réponse : aucun cache, l’appel suivant revalide auprès du serveur (session révoquée détectée)', async () => {
     const f = fauxAuth();
     const original = f.auth.getUser;
     installerPartageGetUser(f.auth as never);
     const p1 = f.auth.getUser();
     f.resoudre();
     await p1;
-    await f.auth.getUser();
-    expect(original).toHaveBeenCalledTimes(1);
+    const p2 = f.auth.getUser();
+    f.resoudre();
+    const r2 = (await p2) as { data: { user: { id: string } } };
+    expect(original).toHaveBeenCalledTimes(2);
+    expect(r2.data.user.id).toBe('u2');
   });
 
-  it('cache expiré : nouvelle requête', async () => {
-    let maintenant = 1_000_000;
-    const horloge = vi.spyOn(Date, 'now').mockImplementation(() => maintenant);
-    try {
-      const f = fauxAuth();
-      const original = f.auth.getUser;
-      installerPartageGetUser(f.auth as never, 1000);
-      const p1 = f.auth.getUser();
-      f.resoudre();
-      await p1;
-      maintenant += 1500;
-      const p2 = f.auth.getUser();
-      f.resoudre();
-      await p2;
-      expect(original).toHaveBeenCalledTimes(2);
-    } finally {
-      horloge.mockRestore();
-    }
-  });
-
-  it('déconnexion : cache vidé, et une requête lancée avant n’est pas mise en cache', async () => {
+  it('déconnexion pendant un appel : les appels suivants ne rejoignent pas l’appel d’avant', async () => {
     const f = fauxAuth();
     const original = f.auth.getUser;
     installerPartageGetUser(f.auth as never);
     const avant = f.auth.getUser();
     f.emettre('SIGNED_OUT');
-    f.resoudre();
-    await avant;
     const apres = f.auth.getUser();
     f.resoudre();
+    await avant;
     const r = (await apres) as { data: { user: { id: string } } };
     expect(original).toHaveBeenCalledTimes(2);
     expect(r.data.user.id).toBe('u2');
   });
 
-  it('INITIAL_SESSION ne vide pas le cache', async () => {
+  it('INITIAL_SESSION ne détache pas l’appel en cours', async () => {
     const f = fauxAuth();
     const original = f.auth.getUser;
     installerPartageGetUser(f.auth as never);
     const p1 = f.auth.getUser();
-    f.resoudre();
-    await p1;
     f.emettre('INITIAL_SESSION');
-    await f.auth.getUser();
+    const p2 = f.auth.getUser();
+    f.resoudre();
+    await Promise.all([p1, p2]);
     expect(original).toHaveBeenCalledTimes(1);
   });
 
-  it('jeton explicite : jamais partagé ni mis en cache', async () => {
+  it('jeton explicite : jamais partagé', async () => {
     const f = fauxAuth();
     const original = f.auth.getUser;
     installerPartageGetUser(f.auth as never);
