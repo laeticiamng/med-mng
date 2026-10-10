@@ -2,15 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2026-10-10] — Sécurité `ai_generated_content`, archives documentaires
-### Sécurité (appliqué en production)
-- `ai_generated_content` : lecture réservée aux administrateurs (était lisible par tout compte connecté : contenus « premium » et un questionnaire de santé). Migration `20261010022829_mm_ai_generated_content_admin` appliquée le 10.10.2026, test `supabase/tests/securite_ai_generated_content.sql` (#240 — code en attente de fusion).
+## [2026-10-10] — Sécurité `ai_generated_content`, recette en production, archives documentaires
+### Sécurité
+- `ai_generated_content` : lecture réservée aux administrateurs (était lisible par tout compte connecté : contenus « premium » et un questionnaire de santé). Migration `20261010022829_mm_ai_generated_content_admin` appliquée le 10.10.2026, test `supabase/tests/securite_ai_generated_content.sql` (#240).
+### Corrigé (défauts relevés en test navigateur en production)
+- `send-welcome-email` : plus de 502 pour une adresse non livrable (refus définitif du fournisseur → 200 `envoye:false`) ; fonction redéployée (v895, épinglée sur le commit de fusion de #241).
+- Suppression de compte : état « en cours », confirmation ramenée à l'écran avec le focus, « Votre compte a été supprimé » seulement si le service répond `deleted` (sinon « demande enregistrée ») (#241).
+- `/edn-complete` : appels `getUser()` simultanés dédupliqués (sans cache, validation serveur conservée), `getSession()` pour l'affichage, statistiques de gamification partagées (seul le dernier chargement publie, erreurs jamais mises en cache) (#241).
+- Déconnexion : plus d'écriture `user_gamification_stats` sans session (2 × 401) (#241).
+- Recherche : titre avant compétence (bibliothèque), réponses périmées ignorées dès la frappe (⌘K) (#241).
+- Mobile : bandeau cookies masqué tant que le panneau d'accessibilité est ouvert, focus piégé dans le panneau (#237).
 ### Documentation
 - 210 rapports d'audit, tickets et « certifications » de 2025-2026 déplacés dans `docs/archive/2025-2026/` (index : `docs/archive/2025-2026/INDEX.md`) ; `docs/SOURCE_DE_VERITE.md` : état au 10.10.2026.
-### En attente de fusion et de déploiement (non livré)
-- #241 : `send-welcome-email` sans 502 pour une adresse non livrable ; suppression de compte avec état « en cours » et confirmation fidèle au résultat ; requêtes `getUser()` simultanées dédupliquées et statistiques de gamification partagées sur `/edn-complete` ; plus d'écriture `user_gamification_stats` après déconnexion ; titre avant compétence dans la recherche.
-- #237 : bandeau cookies masqué tant que le panneau d'accessibilité est ouvert.
-- À déplacer dans « Corrigé » lors de la fusion et du déploiement effectifs.
 
 ## [2026-10-09, soir] — Génération musicale réactivée
 ### Réactivé (décision explicite de l'utilisatrice, 09.10.2026)

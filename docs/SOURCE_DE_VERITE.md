@@ -45,12 +45,12 @@ Vérifié le 09.10.2026 sur la production. Analyse complète (fonctions SECURITY
 ### Défauts du test en production du 09.10.2026
 | Défaut | Cause établie | Correction | État |
 |---|---|---|---|
-| `send-welcome-email` 502 | Resend 422 `validation_error` : compte de test `@example.com` (domaine réservé) ; le 429 suivant = quota de 2 envois/jour | adresse non livrable détectée avant envoi ; refus définitif 400/422 → 200 `envoye:false` | PR #241, **en attente de fusion et de déploiement** |
-| Suppression de compte ~24 s sans retour | aucun état visible ; toast effacé par la redirection immédiate ; confirmation hors écran | état « en cours », focus/scroll sur la confirmation, message + toast, redirection après 3 s | PR #241, en attente de fusion |
-| ~97 requêtes / 12 s sur `/edn-complete`, `auth/v1/user` ×6 | ~50 appels `getUser()` (réseau) et ~40 `loadStats()` (5 requêtes chacun) | appels `getUser()` simultanés dédupliqués (sans cache : validation serveur préservée), `getSession()` pour l’affichage (pied de page, barre mobile), statistiques de gamification partagées | PR #241, en attente de fusion |
-| 2 × 401 `user_gamification_stats` à la déconnexion | `upsert` d'un chargement commencé avant `signOut` (edge_logs 22:16:44) | plus d'écriture sans session, cache vidé au `SIGNED_OUT` | PR #241, en attente de fusion |
-| « insuffisance cardiaque » → IC-348 en tête | IC-348 n'est trouvé que par une compétence ; IC-234 par son titre | titre avant compétence (bibliothèque), réponses périmées ignorées (⌘K) ; contenu inchangé | PR #241, en attente de fusion |
-| Bandeau cookies sur le panneau d'accessibilité (mobile) | z-index 100 > 50, focus non piégé | Sheet Radix, bandeau masqué pendant une fenêtre modale | PR #237 (revue Codex OK, CI verte), **en attente de fusion** |
+| `send-welcome-email` 502 | Resend 422 `validation_error` : compte de test `@example.com` (domaine réservé) ; le 429 suivant = quota de 2 envois/jour | adresse non livrable détectée avant envoi ; refus définitif 400/422 → 200 `envoye:false` | PR #241 fusionnée ; `send-welcome-email` v895 déployée le 10.10.2026 |
+| Suppression de compte ~24 s sans retour | aucun état visible ; toast effacé par la redirection immédiate ; confirmation hors écran | état « en cours », focus/scroll sur la confirmation, message + toast, redirection après 3 s | PR #241 fusionnée le 10.10.2026 |
+| ~97 requêtes / 12 s sur `/edn-complete`, `auth/v1/user` ×6 | ~50 appels `getUser()` (réseau) et ~40 `loadStats()` (5 requêtes chacun) | appels `getUser()` simultanés dédupliqués (sans cache : validation serveur préservée), `getSession()` pour l’affichage (pied de page, barre mobile), statistiques de gamification partagées | PR #241 fusionnée le 10.10.2026 |
+| 2 × 401 `user_gamification_stats` à la déconnexion | `upsert` d'un chargement commencé avant `signOut` (edge_logs 22:16:44) | plus d'écriture sans session, cache vidé au `SIGNED_OUT` | PR #241 fusionnée le 10.10.2026 |
+| « insuffisance cardiaque » → IC-348 en tête | IC-348 n'est trouvé que par une compétence ; IC-234 par son titre | titre avant compétence (bibliothèque), réponses périmées ignorées (⌘K) ; contenu inchangé | PR #241 fusionnée le 10.10.2026 |
+| Bandeau cookies sur le panneau d'accessibilité (mobile) | z-index 100 > 50, focus non piégé | Sheet Radix, bandeau masqué pendant une fenêtre modale | PR #237 fusionnée le 10.10.2026 |
 
 ### Paiement (Stripe, lecture seule)
 - Prix `medmng_premium_annual` 6 900 ¢ EUR/an et `medmng_premium_monthly` 990 ¢ EUR/mois, TTC (`tax_behavior: inclusive`), produit `prod_VMibhvWumvzzee` (`metadata.app = medmng`).
@@ -60,6 +60,6 @@ Vérifié le 09.10.2026 sur la production. Analyse complète (fonctions SECURITY
 ### Domaine
 - `www.medmng.com` répond 502 (constat du test du 09.10) ; DNS non consultable depuis cet environnement. Action humaine : voir le rapport de la session du 10.10.2026 (ajouter `www.medmng.com` dans Lovable → Settings → Domains, redirigé vers `medmng.com`, et l'enregistrement DNS demandé par Lovable).
 
-### Fusions bloquées
-- La fusion des PR par l'agent a été refusée par la politique de permissions de la session : #237, #240, #241 et la PR de documentation attendent une fusion humaine (CI verte et revue Codex sur le dernier commit à vérifier sur chaque PR).
+### Fusions et déploiements
+- #237, #240 et #241 fusionnées le 10.10.2026 sur instruction directe de la propriétaire (la fusion par l'agent avait été refusée par la politique de permissions) ; CI verte et revue Codex sans remarque sur le dernier commit de chacune. Front republié sur Lovable après synchronisation de `main` ; `send-welcome-email` v895. Vérification navigateur en production : à consigner après la campagne de recette.
 <!-- fin section: etat-10-10 -->
