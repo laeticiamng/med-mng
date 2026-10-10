@@ -369,11 +369,11 @@ rules: {
 
 ## 📚 Ressources
 
-- [Script de migration](../scripts/migrate-colors.js)
-- [Guide ESLint personnalisé](./ESLINT_CUSTOM_RULE_GUIDE.md)
-- [Guide du Design System](./DESIGN_SYSTEM_GUIDE.md)
-- [Rapport migration Accessibility](./ACCESSIBILITY_MIGRATION_REPORT.md)
-- [Rapport migration Admin/Music](./DESIGN_SYSTEM_MIGRATION_COMPLETE.md)
+- [Script de migration](../../../scripts/migrate-colors.js)
+- [Guide ESLint personnalisé](../../ESLINT_CUSTOM_RULE_GUIDE.md)
+- [Guide du Design System](../../DESIGN_SYSTEM_GUIDE.md)
+- [Rapport migration Accessibility](ACCESSIBILITY_MIGRATION_REPORT.md)
+- [Rapport migration Admin/Music](DESIGN_SYSTEM_MIGRATION_COMPLETE.md)
 
 ---
 
@@ -381,7 +381,7 @@ rules: {
 
 **Questions**: #design-system (Slack)  
 **Bugs**: GitHub Issues  
-**Documentation**: [Design System Guide](./DESIGN_SYSTEM_GUIDE.md)
+**Documentation**: [Design System Guide](../../DESIGN_SYSTEM_GUIDE.md)
 
 ---
 

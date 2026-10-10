@@ -306,7 +306,7 @@ Après la migration:
 3. **Tests automatiques** (build + type-check)
 4. **Tests visuels** (light + dark mode)
 5. **Commit** (avec message descriptif)
-6. **Documenter** (mettre à jour REFACTORING_SUMMARY.md)
+6. **Documenter** (mettre à jour docs/SOURCE_DE_VERITE.md ; ancien rapport archivé : docs/archive/2025-2026/REFACTORING_SUMMARY.md)
 
 ---
 

@@ -17,6 +17,6 @@
 
 ## 📋 Prochaine étape
 
-Voir le document détaillé: `docs/ANALYSE-BUG-MAPPING-OIC.md`
+Voir le document détaillé: `docs/archive/2025-2026/ANALYSE-BUG-MAPPING-OIC.md`
 
 **Action immédiate:** Ajouter des logs ultra-détaillés et redéployer avec vérification complète.

@@ -470,7 +470,7 @@ Envoyez ce message à votre équipe après configuration:
 - Pas d'approbation
 
 📚 Ressources:
-- Guide accessibilité: /docs/ACCESSIBILITE-100-CERTIFIEE.md
+- Guide accessibilité (archivé, ne fait plus foi) : /docs/archive/2025-2026/ACCESSIBILITE-100-CERTIFIEE.md
 - Tests en local: npm run test:accessibility
 - Support: #channel-accessibilite
 

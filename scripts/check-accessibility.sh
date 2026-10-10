@@ -119,6 +119,6 @@ else
   [ $total_img_issues -gt 0 ] && echo -e "  - $total_img_issues images sans alt"
   [ $pages_without_helmet -gt 0 ] && echo -e "  - $pages_without_helmet pages sans Helmet SEO"
   
-  echo -e "\nConsultez docs/AUDIT_CORRECTIONS.md pour les solutions"
+  echo -e "\nConsultez docs/archive/2025-2026/AUDIT_CORRECTIONS.md pour les solutions"
   exit 1
 fi

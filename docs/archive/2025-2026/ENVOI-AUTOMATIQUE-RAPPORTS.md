@@ -347,9 +347,9 @@ Avant de lancer les envois automatiques en production :
 
 ### Documentation Projet
 
-- [Dashboard Accessibilité](./DASHBOARD-ACCESSIBILITE-GITHUB.md)
-- [Tests Accessibilité CI/CD](./TESTS-ACCESSIBILITE-CI-CD.md)
-- [Branch Protection Rules](./GITHUB-BRANCH-PROTECTION.md)
+- [Dashboard Accessibilité](../../DASHBOARD-ACCESSIBILITE-GITHUB.md)
+- [Tests Accessibilité CI/CD](../../TESTS-ACCESSIBILITE-CI-CD.md)
+- [Branch Protection Rules](../../GITHUB-BRANCH-PROTECTION.md)
 
 ### Support
 

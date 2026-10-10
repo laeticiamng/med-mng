@@ -180,9 +180,9 @@ await insertGenerationMetric(supabase, { ... });
 ## 🔗 Liens Utiles
 
 - [API Suno Documentation](https://api.sunoapi.org/api/v1)
-- [Tests E2E](../tests/e2e/generator/complete-generation-flow.spec.ts)
-- [Audit Report](./GENERATOR-AUDIT-REPORT.md)
-- [E2E Tests Documentation](./E2E-TESTS.md)
+- [Tests E2E](../../../tests/e2e/generator/complete-generation-flow.spec.ts)
+- [Audit Report](GENERATOR-AUDIT-REPORT.md)
+- [E2E Tests Documentation](../../E2E-TESTS.md)
 
 ---
 

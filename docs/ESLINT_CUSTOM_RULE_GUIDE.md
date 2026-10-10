@@ -168,7 +168,7 @@ className="text-blue-500" // eslint-disable-line custom/no-hardcoded-colors
 ## 📚 Ressources
 
 - [Guide du Design System](./DESIGN_SYSTEM_GUIDE.md)
-- [Rapport de migration Admin/Music](./DESIGN_SYSTEM_MIGRATION_COMPLETE.md)
+- [Rapport de migration Admin/Music](archive/2025-2026/DESIGN_SYSTEM_MIGRATION_COMPLETE.md)
 - [Tokens sémantiques disponibles](../src/index.css)
 - [Configuration Tailwind](../tailwind.config.ts)
 

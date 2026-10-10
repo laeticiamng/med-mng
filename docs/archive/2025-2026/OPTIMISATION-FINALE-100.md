@@ -317,10 +317,10 @@ La plateforme MED-MNG est:
 
 ## 📚 DOCUMENTS CRÉÉS/MIS À JOUR
 
-1. ✅ `docs/PRODUCTION-OPTIMIZATION-COMPLETE.md`
-2. ✅ `docs/AUDIT-FONCTIONNEL-RESUME.md`
-3. ✅ `docs/AUDIT-LIMITES-PLATEFORME-21-OCT-2025.md`
-4. ✅ `docs/OPTIMISATION-FINALE-100.md` (ce document)
+1. ✅ `docs/archive/2025-2026/PRODUCTION-OPTIMIZATION-COMPLETE.md`
+2. ✅ `docs/archive/2025-2026/AUDIT-FONCTIONNEL-RESUME.md`
+3. ✅ `docs/archive/2025-2026/AUDIT-LIMITES-PLATEFORME-21-OCT-2025.md`
+4. ✅ `docs/archive/2025-2026/OPTIMISATION-FINALE-100.md` (ce document)
 5. ✅ `src/config/env.ts` (nouveau)
 6. ✅ `src/types/music.ts` (nouveau)
 7. ✅ `src/tests/hooks/*.test.ts` (4 fichiers)

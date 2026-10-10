@@ -279,9 +279,9 @@ WHERE table_schema = 'public'
 
 ### Guides Internes
 
-- [MONITORING-LOGS.md](./MONITORING-LOGS.md) - Système monitoring
-- [GENERATOR-AUDIT-REPORT.md](./GENERATOR-AUDIT-REPORT.md) - Audit module
-- [REFACTORING-GENERATE-MUSIC.md](./REFACTORING-GENERATE-MUSIC.md) - Refactoring
+- [MONITORING-LOGS.md](../../MONITORING-LOGS.md) - Système monitoring
+- [GENERATOR-AUDIT-REPORT.md](GENERATOR-AUDIT-REPORT.md) - Audit module
+- [REFACTORING-GENERATE-MUSIC.md](REFACTORING-GENERATE-MUSIC.md) - Refactoring
 
 ---
 
