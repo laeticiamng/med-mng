@@ -108,12 +108,16 @@ const cacheStats = new Map<string, { a: number; stats: GamificationStats }>();
 const chargementsEnCours = new Map<string, Promise<GamificationStats | null>>();
 const abonnesStats = new Set<(userId: string, stats: GamificationStats) => void>();
 let generationAuth = 0;
+/** Numéro du dernier chargement lancé, par utilisateur : seul celui-là publie. */
+const dernierChargement = new Map<string, number>();
+let compteurChargements = 0;
 
 /** Vide le cache partagé (déconnexion ; tests). */
 export function viderCacheGamification(): void {
   generationAuth += 1;
   cacheStats.clear();
   chargementsEnCours.clear();
+  dernierChargement.clear();
 }
 
 try {
@@ -234,7 +238,12 @@ async function lireStatsServeur(userId: string, generation: number): Promise<Gam
   return baseStats;
 }
 
-/** Un chargement par utilisateur : réutilisé 30 s, partagé s'il est en cours ; `force` relit. */
+/**
+ * Un chargement par utilisateur : réutilisé 30 s, partagé s'il est en cours ; `force` relit.
+ * Revue Codex #241 : un chargement ancien (lancé avant addPoints/resetStreak) qui se termine
+ * APRÈS la relecture forcée ne doit pas republier des valeurs périmées — seul le dernier
+ * chargement lancé publie ; un chargement dépassé rend le résultat du plus récent.
+ */
 function chargerStatsPartagees(userId: string, force: boolean): Promise<GamificationStats | null> {
   if (!force) {
     const enCache = statsEnCache(userId);
@@ -243,10 +252,18 @@ function chargerStatsPartagees(userId: string, force: boolean): Promise<Gamifica
     if (enCours) return enCours;
   }
   const generation = generationAuth;
-  const promesse = lireStatsServeur(userId, generation)
+  const numero = ++compteurChargements;
+  dernierChargement.set(userId, numero);
+  const promesse: Promise<GamificationStats | null> = lireStatsServeur(userId, generation)
     .then((stats) => {
-      if (stats && generation === generationAuth) publierStats(userId, stats);
-      return generation === generationAuth ? stats : null;
+      if (generation !== generationAuth) return null;
+      if (dernierChargement.get(userId) !== numero) {
+        // Dépassé par un chargement plus récent : on rend le sien (ou le cache qu'il a publié).
+        const plusRecent = chargementsEnCours.get(userId);
+        return plusRecent && plusRecent !== promesse ? plusRecent : statsEnCache(userId) ?? stats;
+      }
+      if (stats) publierStats(userId, stats);
+      return stats;
     })
     .finally(() => {
       if (chargementsEnCours.get(userId) === promesse) chargementsEnCours.delete(userId);
