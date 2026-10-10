@@ -46,10 +46,10 @@ Vérifié le 09.10.2026 sur la production. Analyse complète (fonctions SECURITY
 | Défaut | Cause établie | Correction | État |
 |---|---|---|---|
 | `send-welcome-email` 502 | Resend 422 `validation_error` : compte de test `@example.com` (domaine réservé) ; le 429 suivant = quota de 2 envois/jour | adresse non livrable détectée avant envoi ; refus définitif 400/422 → 200 `envoye:false` | PR #241, **en attente de fusion et de déploiement** |
-| Suppression de compte ~24 s sans retour | aucun état visible ; toast effacé par la redirection immédiate ; confirmation hors écran | état « en cours », focus/scroll sur la confirmation, message + toast, redirection après 3 s | PR #241 |
-| ~97 requêtes / 12 s sur `/edn-complete`, `auth/v1/user` ×6 | ~50 appels `getUser()` (réseau) et ~40 `loadStats()` (5 requêtes chacun) | `getUser()` partagé (cache 30 s), statistiques de gamification partagées | PR #241 |
-| 2 × 401 `user_gamification_stats` à la déconnexion | `upsert` d'un chargement commencé avant `signOut` (edge_logs 22:16:44) | plus d'écriture sans session, cache vidé au `SIGNED_OUT` | PR #241 |
-| « insuffisance cardiaque » → IC-348 en tête | IC-348 n'est trouvé que par une compétence ; IC-234 par son titre | titre avant compétence (bibliothèque), réponses périmées ignorées (⌘K) ; contenu inchangé | PR #241 |
+| Suppression de compte ~24 s sans retour | aucun état visible ; toast effacé par la redirection immédiate ; confirmation hors écran | état « en cours », focus/scroll sur la confirmation, message + toast, redirection après 3 s | PR #241, en attente de fusion |
+| ~97 requêtes / 12 s sur `/edn-complete`, `auth/v1/user` ×6 | ~50 appels `getUser()` (réseau) et ~40 `loadStats()` (5 requêtes chacun) | appels `getUser()` simultanés dédupliqués (sans cache : validation serveur préservée), `getSession()` pour l’affichage (pied de page, barre mobile), statistiques de gamification partagées | PR #241, en attente de fusion |
+| 2 × 401 `user_gamification_stats` à la déconnexion | `upsert` d'un chargement commencé avant `signOut` (edge_logs 22:16:44) | plus d'écriture sans session, cache vidé au `SIGNED_OUT` | PR #241, en attente de fusion |
+| « insuffisance cardiaque » → IC-348 en tête | IC-348 n'est trouvé que par une compétence ; IC-234 par son titre | titre avant compétence (bibliothèque), réponses périmées ignorées (⌘K) ; contenu inchangé | PR #241, en attente de fusion |
 | Bandeau cookies sur le panneau d'accessibilité (mobile) | z-index 100 > 50, focus non piégé | Sheet Radix, bandeau masqué pendant une fenêtre modale | PR #237 (revue Codex OK, CI verte), **en attente de fusion** |
 
 ### Paiement (Stripe, lecture seule)
