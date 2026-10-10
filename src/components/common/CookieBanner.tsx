@@ -52,8 +52,12 @@ export const CookieBanner = () => {
       {/* Bannière principale (masquée pendant le détail : elle recouvrait le bas de la fenêtre et son bouton) */}
       {!showSettings && (
       // Région nommée : le bandeau est rendu hors du <main> et des autres repères (règle axe « region »)
+      // data-bandeau-cookies : masqué (src/index.css) pendant qu'une fenêtre modale Radix est ouverte
+      // (panneau d'accessibilité, recherche, menus) — sinon, en z-[100], il recouvrait le bas de la
+      // fenêtre alors que celle-ci rend le reste de la page inerte (constat du 09.10.2026).
       <section
         aria-label="Bandeau cookies"
+        data-bandeau-cookies=""
         className="fixed bottom-0 left-0 right-0 z-[100] bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_30px_rgba(0,0,0,0.1)] px-4 py-3"
       >
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-3">

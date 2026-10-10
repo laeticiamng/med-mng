@@ -217,6 +217,10 @@ const App = () => {
               <AuthProvider>
               <ComposedProviders>
                               <SkipLinks />
+                              {/* Bandeau cookies tôt dans l'ordre du DOM (affiché en bas, position fixe) :
+                                  au clavier et au lecteur d'écran, le choix vient juste après les liens
+                                  d'accès rapide au lieu d'arriver après toute la page et le pied de page. */}
+                              <CookieBanner />
                               <AutoSEO />
                               <GlobalJsonLd />
                               <div id="app-root" className="min-h-screen bg-background">
@@ -457,7 +461,6 @@ const App = () => {
                                 <HelpButton />
                                 <KeyboardShortcuts />
                                 <AccessibilityCenter />
-                                <CookieBanner />
                                 {import.meta.env.DEV && <DesignSystemDevTools />}
                                 <PWAPrompt />
                                 <OfflineIndicator />

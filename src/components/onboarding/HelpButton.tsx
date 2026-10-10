@@ -54,7 +54,7 @@ export const HelpButton: React.FC = () => {
       icon: Eye,
       title: 'Accessibilité',
       description: 'Contraste, animations, taille du texte',
-      action: () => window.dispatchEvent(new CustomEvent(EVENEMENT_ACCESSIBILITE)),
+      action: () => window.dispatchEvent(new CustomEvent(EVENEMENT_ACCESSIBILITE, { detail: { retour: 'aide' } })),
     },
     {
       icon: Mail,
@@ -72,6 +72,8 @@ export const HelpButton: React.FC = () => {
           size="sm"
           aria-label="Aide"
           title="Aide"
+          // Retour du focus à la fermeture du centre d'accessibilité ouvert depuis ce menu
+          data-retour-focus-accessibilite="aide"
           className="fixed bottom-24 right-6 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 z-40 hidden md:flex"
         >
           <HelpCircle className="h-6 w-6" />
