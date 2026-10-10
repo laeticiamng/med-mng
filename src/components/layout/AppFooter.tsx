@@ -12,7 +12,10 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Affichage seulement : session locale (getSession, sans requête réseau). Le serveur
+      // reste juge des droits (RLS) — test en production du 09.10.2026, auth/v1/user × 6.
+      const { data } = await supabase.auth.getSession();
+      const user = data?.session?.user;
       if (user) {
         setIsLoggedIn(true);
         await loadStats(user.id);

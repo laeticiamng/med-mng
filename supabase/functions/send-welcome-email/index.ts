@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { jetonAppelant } from '../_shared/mm-garde.ts';
-import { envoyerEmail, expediteur, journaliserEchec } from '../_shared/mm-email.ts';
+import { adresseNonLivrable, envoyerEmail, expediteur, journaliserEchec, refusDefinitif } from '../_shared/mm-email.ts';
 import {
   reponseQuotaJournalier,
   reponseVerificationImpossible,
@@ -68,6 +68,12 @@ const handler = async (req: Request): Promise<Response> => {
       return repondre({ success: true, envoye: false });
     }
 
+    // Adresse sans boîte possible (domaine réservé, ex. comptes de test « @example.com ») :
+    // rien à envoyer, ce n'est pas une erreur (auparavant : refus 422 de Resend → 502).
+    if (adresseNonLivrable(utilisateur.email)) {
+      return repondre({ success: true, envoye: false, raison: 'adresse_non_livrable' });
+    }
+
     // Limite journalière par compte, réservée AVANT l'envoi (un envoi en échec compte aussi).
     const reservation = await reserverUtilisationJournaliere(admin, 'mm-bienvenue', utilisateur.id, ENVOIS_MAX_PAR_JOUR);
     if (!reservation) return reponseVerificationImpossible(corsHeaders);
@@ -115,6 +121,11 @@ const handler = async (req: Request): Promise<Response> => {
     if (!envoi.ok) {
       // Statut et nom d'erreur seulement : le message de Resend peut contenir une adresse e-mail.
       journaliserEchec('send-welcome-email', envoi);
+      if (refusDefinitif(envoi)) {
+        // Destinataire ou requête refusés par Resend : définitif, pas une panne (pas de 502,
+        // l'application n'a rien à réessayer). Le refus reste journalisé ci-dessus.
+        return repondre({ success: false, envoye: false, raison: 'refus_definitif' });
+      }
       return repondre({ success: false, envoye: false, error: "L'e-mail de bienvenue n'a pas pu être envoyé." }, 502);
     }
 

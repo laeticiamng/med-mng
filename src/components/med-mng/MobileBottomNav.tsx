@@ -63,7 +63,8 @@ export const MobileBottomNav: React.FC = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    // Affichage seulement : session locale, sans requête réseau (auth/v1/user).
+    supabase.auth.getSession().then(({ data }) => setUser(data?.session?.user ?? null));
   }, []);
 
   const isActive = (path: string) =>

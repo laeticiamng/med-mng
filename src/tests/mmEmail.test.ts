@@ -3,8 +3,10 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   EXPEDITEUR_PAR_DEFAUT,
+  adresseNonLivrable,
   envoyerEmail,
   expediteur,
+  refusDefinitif,
 } from '../../supabase/functions/_shared/mm-email.ts';
 
 /**
@@ -104,5 +106,43 @@ describe('fonctions d’envoi', () => {
     expect(code).toMatch(/expediteur\(/);
     expect(code).toMatch(/envoyerEmail\(/);
     expect(code).toMatch(/\.ok\b/);
+  });
+});
+
+/**
+ * 09.10.2026 (test en production) : send-welcome-email répondait 502 pour des comptes de test
+ * en « @example.com » — Resend refuse ces domaines réservés (422 validation_error). Ce n'est
+ * pas une panne : plus de 502, et aucun appel à Resend pour une adresse sans boîte possible.
+ */
+describe('mm-email — destinataires non livrables et refus définitifs', () => {
+  it('domaines réservés (RFC 2606 / 6761) : non livrables', () => {
+    for (const a of ['qa@example.com', 'x@sub.example.org', 'y@example.net', 'z@foo.test', 'a@b.invalid', 'b@localhost', 'c@demo.example', 'sans-arobase', '', null]) {
+      expect(adresseNonLivrable(a), String(a)).toBe(true);
+    }
+  });
+
+  it('adresses réelles : livrables', () => {
+    for (const a of ['etudiant@gmail.com', 'x@emotionscare-test.fr', 'y@exemple.fr', 'z@myexample.com', 'w@testing.io']) {
+      expect(adresseNonLivrable(a), a).toBe(false);
+    }
+  });
+
+  it('400/422 : refus définitif ; 403, 429, 5xx et réseau : panne', () => {
+    expect(refusDefinitif({ ok: false, status: 422, erreur: 'validation_error' })).toBe(true);
+    expect(refusDefinitif({ ok: false, status: 400, erreur: 'invalid' })).toBe(true);
+    for (const status of [0, 403, 429, 500, 503]) {
+      expect(refusDefinitif({ ok: false, status, erreur: 'x' }), String(status)).toBe(false);
+    }
+  });
+
+  it('send-welcome-email : adresse vérifiée avant le quota et l’envoi, refus définitif sans 502', () => {
+    const src = source('send-welcome-email');
+    const iAdresse = src.indexOf('adresseNonLivrable(utilisateur.email)');
+    expect(iAdresse).toBeGreaterThan(0);
+    expect(iAdresse).toBeLessThan(src.indexOf('reserverUtilisationJournaliere(admin'));
+    expect(iAdresse).toBeLessThan(src.indexOf('await envoyerEmail('));
+    const iRefus = src.indexOf('refusDefinitif(envoi)');
+    expect(iRefus).toBeGreaterThan(0);
+    expect(iRefus).toBeLessThan(src.indexOf('}, 502)'));
   });
 });

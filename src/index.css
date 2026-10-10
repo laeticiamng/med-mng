@@ -971,6 +971,17 @@ html[data-font-size="large"] {
   top: 6px;
 }
 
+/* Bandeau cookies (z-[100]) : masqué pendant qu'une fenêtre modale Radix est ouverte (panneau
+   d'accessibilité, recherche, menus). Radix marque alors le reste de la page « data-aria-hidden »
+   (bibliothèque aria-hidden) : le bandeau, inerte et caché aux lecteurs d'écran, ne doit pas non
+   plus recouvrir visuellement le bas de la fenêtre. Il réapparaît à la fermeture. Le marquage
+   porte sur le bandeau lui-même (une région aria-live voisine garde #root visible) ou sur un
+   ancêtre : les deux cas sont couverts. */
+[data-aria-hidden][data-bandeau-cookies],
+[data-aria-hidden] [data-bandeau-cookies] {
+  visibility: hidden;
+}
+
 /* Screen Reader Only Content */
 .sr-only {
   position: absolute;
