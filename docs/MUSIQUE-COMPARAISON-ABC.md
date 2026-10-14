@@ -19,7 +19,7 @@ fréquence des défauts (échantillon trop petit).
 
 Styles comparés d'abord : **Pop** (genre vocal `f`) et **Afrofusion** (slug `afrobeat`, genre vocal `m`) :
 **6 requêtes**. Le genre vocal est arbitraire mais constant au sein d'un style. Les trois variantes d'un style partagent :
-paroles (28 lignes de test dont 22 chantées, neutres, sans contenu médical, 808 caractères), titre, durée (139 s), modèle (`V6`, valeur du
+paroles (28 lignes de test dont 22 chantées, neutres, sans contenu médical, 808 caractères), titre, durée (139 s, calculée comme sur la page Créer ; la page item enverrait une durée choisie de 120 à 300 s), modèle (`V6`, valeur du
 code), `styleWeight` 0,70, `weirdnessConstraint` 0,30, `variety` 1, suffixes de voix et `french lyrics`.
 
 Confusions connues, à garder en tête : A diffère de B et C par le prompt **et** par les négatifs (v1 contre v2, deux

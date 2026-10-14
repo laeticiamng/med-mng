@@ -26,7 +26,7 @@ Premier contrôle à faire : écouter le même fichier brut (lien Suno temporair
 | `variety` | 1 par défaut, **jamais envoyé par l'interface** | non documenté dans le dépôt (entier 0–4) | testable seulement par un essai direct |
 | Modèle | `SUNO_MODEL` : `V6` (défaut), `V6_WILD`, `V6_MINI`, `V4_5ALL` | les modèles diffèrent ; **les différences de qualité vocale ne sont documentées nulle part dans le dépôt** | non vérifié en direct |
 | Paroles | `parolesChantees` (nombres et unités en lettres), balises `[Couplet]`/`[Refrain]` | une prononciation incorrecte (« 80 à 90 mg » transcrit « 80 à 86 mg », constat du 09.10) peut passer pour une voix artificielle | déjà traité pour les nombres |
-| Durée | `duration` calculée (90–360 s) | une durée trop courte force un débit rapide et haché ; trop longue, des remplissages instrumentaux | transmis |
+| Durée | `duration` (90–360 s) : calculée sur la page Créer, choisie (120–300 s, défaut 240) sur la page item | une durée trop courte force un débit rapide et haché ; trop longue, des remplissages instrumentaux | transmis |
 | Ambiance libre | champ « ambiance » (≤ 200 caractères, contrôlée) | l'utilisateur peut déjà ajouter des tags de voix (« breathy female vocals ») | déjà en production |
 
 ## 3. Pistes à tester (hypothèses, une variable à la fois)

@@ -29,8 +29,8 @@ copie de l'audio dans le compartiment `mm-chansons` → bibliothèque (`med_mng_
 | `vocalGender` | `m` ou `f` seulement si fourni ; sinon absent (Suno décide) | panneau avancé |
 | `styleWeight` | **0,70** par défaut ; l'interface n'envoie que si le curseur ≠ 70 % | `POIDS_PAR_DEFAUT` |
 | `weirdnessConstraint` | **0,30** par défaut ; idem (≠ 30 %) | `POIDS_PAR_DEFAUT` |
-| `variety` | **1** ; le serveur accepte un entier 0–4 dans le corps, **mais l'interface n'en envoie jamais** | `POIDS_PAR_DEFAUT` |
-| `duration` | **toujours envoyée** : `max(lignes × 4,5 s ; mots ÷ 1,3) + 20 s`, bornée 90–360 s (sans elle, Suno rend 20 s) ; l'interface n'envoie jamais de durée | `calculerDureeSecondes` |
+| `variety` | **1** ; le serveur accepte un entier 0–4 dans le corps, **mais aucun écran n'en envoie** (ni la page Créer ni la page item) | `POIDS_PAR_DEFAUT` |
+| `duration` | **toujours envoyée**. **Page Créer (`/med-mng/create`)** : durée calculée, `max(lignes × 4,5 s ; mots ÷ 1,3) + 20 s`, bornée 90–360 s (sans durée, Suno rend 20 s). **Page item (flux EDN, `ParolesMusicalesControls` → `useParolesMusicales` → `useSunoMusicGeneration`)** : durée **choisie** par l'utilisateur, 120 / 180 / 240 / 300 s (défaut 240 s), ajoutée au corps ; le serveur la respecte (bornée 90–360 s) au lieu de la formule basée sur les paroles | `calculerDureeSecondes` |
 
 ### 1.2 Ce qui est ignoré ou jamais envoyé
 
@@ -42,7 +42,7 @@ copie de l'audio dans le compartiment `mm-chansons` → bibliothèque (`med_mng_
 - Style inconnu ou ancien : remplacé par un alias connu, sinon par **`pop`** (journalisé côté serveur ; l'utilisateur
   n'est pas prévenu). Conséquence pour l'activation : le serveur doit connaître un nouveau slug **avant** que l'interface
   ne le propose.
-- `variety` et `duration` côté interface : non exposés.
+- `variety` : non exposé côté interface. `duration` : non exposée sur la page Créer (durée calculée) mais exposée sur la page item (durée choisie 120–300 s, défaut 240 s).
 
 ### 1.3 Longueur réelle des prompts finaux et troncature
 
@@ -66,7 +66,7 @@ peut exister :
    métadonnées et la réponse ; l'interface prépare la même coupe).
 3. **`negativeTags`** : même mécanisme que le style (queue coupée) ; seules des exclusions utilisateur extrêmement longues
    seraient perdues.
-4. **Durée** : plafonnée à 360 s. Des paroles qui demanderaient davantage ne seraient pas chantées en entier.
+4. **Durée** : plafonnée à 360 s. Des paroles qui demanderaient davantage ne seraient pas chantées en entier. Sur la page item, la durée choisie (120 à 300 s) prime sur la formule : une durée courte avec de longues paroles peut laisser des paroles non chantées (constat du 09.10 : 120 s pour 341 mots = 40 à 50 % chantés).
 5. **Titre** : coupé sur un espace avec « … ».
 6. Côté fournisseur : une éventuelle réécriture ou troncature interne n'est **pas observable** ici. Le rappel renvoie
    `tags` et `model_name` par piste, enregistrés dans `metadata` (`tags`, `model_name`) à côté du style envoyé
