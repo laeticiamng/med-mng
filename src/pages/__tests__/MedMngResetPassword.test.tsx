@@ -94,11 +94,69 @@ describe('MedMngResetPassword', () => {
     expect(document.body.textContent).not.toMatch(/otp_expired|AuthApiError|403|invalid or has expired/i);
   });
 
-  it("échec réseau pendant l'échange du jeton : même écran de lien invalide", async () => {
-    etat.verifyOtp.mockRejectedValue(new TypeError('Failed to fetch'));
+  it.each([
+    ['AuthRetryableFetchError (réseau, statut 0)', { name: 'AuthRetryableFetchError', status: 0, message: 'Failed to fetch' }],
+    ['erreur serveur 500', { name: 'AuthApiError', status: 500, message: 'Database error' }],
+    ['erreur serveur 503', { name: 'AuthApiError', status: 503, message: 'unavailable' }],
+    ['trop de requêtes 429', { name: 'AuthApiError', status: 429, code: 'over_request_rate_limit', message: 'Too many' }],
+    ['erreur sans statut', { name: 'AuthUnknownError', message: 'Unexpected' }],
+  ])('échec transitoire (%s) : « Connexion impossible pour le moment », jeton conservé dans l’adresse, rien en cache', async (_nom, erreur) => {
+    const t = jeton();
+    const remplacer = vi.spyOn(window.history, 'replaceState');
+    etat.verifyOtp.mockResolvedValueOnce({ data: {}, error: erreur });
+    afficher(`/med-mng/reset-password?token_hash=${t}&type=recovery`);
+
+    expect(await screen.findByRole('heading', { name: 'Connexion impossible pour le moment' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Réessayer' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Nouveau mot de passe')).not.toBeInTheDocument();
+    expect(remplacer).not.toHaveBeenCalled(); // token_hash conservé dans l'adresse
+    expect(document.body.textContent).not.toMatch(/Failed to fetch|Database error|AuthRetryableFetchError/);
+    remplacer.mockRestore();
+  });
+
+  it('exception réseau pendant l’échange : même écran « Connexion impossible », pas de lien périmé', async () => {
+    etat.verifyOtp.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+    expect(await screen.findByRole('heading', { name: 'Connexion impossible pour le moment' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).not.toBeInTheDocument();
+  });
+
+  it('échec transitoire puis « Réessayer » réussi : le même jeton est rééchangé et le formulaire s’affiche', async () => {
+    const t = jeton();
+    etat.verifyOtp
+      .mockResolvedValueOnce({ data: {}, error: { name: 'AuthRetryableFetchError', status: 0, message: 'Failed to fetch' } })
+      .mockResolvedValueOnce({ data: {}, error: null });
+    afficher(`/med-mng/reset-password?token_hash=${t}&type=recovery`);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Réessayer' }));
+    expect(await screen.findByLabelText('Nouveau mot de passe')).toBeInTheDocument();
+    expect(etat.verifyOtp).toHaveBeenCalledTimes(2);
+    expect(etat.verifyOtp).toHaveBeenNthCalledWith(1, { token_hash: t, type: 'recovery' });
+    expect(etat.verifyOtp).toHaveBeenNthCalledWith(2, { token_hash: t, type: 'recovery' });
+  });
+
+  it('« Réessayer » qui échoue encore de façon transitoire : on peut réessayer de nouveau ; refus définitif ensuite : lien expiré', async () => {
+    etat.verifyOtp
+      .mockResolvedValueOnce({ data: {}, error: { name: 'AuthRetryableFetchError', status: 0, message: 'x' } })
+      .mockResolvedValueOnce({ data: {}, error: { name: 'AuthApiError', status: 500, message: 'x' } })
+      .mockResolvedValueOnce({ data: {}, error: { name: 'AuthApiError', status: 403, code: 'otp_expired', message: 'x' } });
+    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Réessayer' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Réessayer' }));
+    expect(await screen.findByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).toBeInTheDocument();
+    expect(etat.verifyOtp).toHaveBeenCalledTimes(3);
+  });
+
+  it.each([400, 401, 403, 404, 422])('refus définitif (statut %i) : « Lien expiré ou déjà utilisé » et jeton retiré de l’adresse', async (statut) => {
+    const remplacer = vi.spyOn(window.history, 'replaceState');
+    etat.verifyOtp.mockResolvedValueOnce({ data: {}, error: { name: 'AuthApiError', status: statut, message: 'invalid' } });
     afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
     expect(await screen.findByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/Failed to fetch/);
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument();
+    expect(remplacer).toHaveBeenCalled();
+    remplacer.mockRestore();
   });
 
   it("token_hash sans type=recovery : lien invalide, aucun appel à verifyOtp", async () => {

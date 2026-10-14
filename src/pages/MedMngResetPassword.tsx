@@ -12,22 +12,40 @@ import { Loader2, Music } from 'lucide-react';
 import { toast } from 'sonner';
 import { traduireErreurAuth } from '@/lib/erreursAuth';
 
-type EtatLien = 'verification' | 'formulaire' | 'invalide';
+type EtatLien = 'verification' | 'formulaire' | 'invalide' | 'indisponible';
+type ResultatVerification = 'valide' | 'invalide' | 'transitoire';
+
+/**
+ * Refus définitif du jeton (expiré, déjà utilisé, inconnu) : réponse 4xx d'authentification, hors 429.
+ * Tout le reste est transitoire : AuthRetryableFetchError, statut 0 ou absent, 5xx, 429, exception
+ * réseau. Un lien encore valable ne doit jamais être déclaré périmé à cause d'une coupure.
+ */
+const refusDefinitif = (erreur: unknown): boolean => {
+  const { name, status } = (erreur ?? {}) as { name?: unknown; status?: unknown };
+  if (name === 'AuthRetryableFetchError') return false;
+  return typeof status === 'number' && status >= 400 && status < 500 && status !== 429;
+};
 
 /**
  * Échanges de jeton déjà lancés, par token_hash. Un jeton de récupération ne sert qu'une fois :
  * un second appel (double montage de React.StrictMode, retour sur la page) le verrait « déjà utilisé ».
+ * Ne restent en mémoire que le succès et le refus définitif de CE jeton ; un échec transitoire est
+ * oublié dès qu'il est connu, pour que « Réessayer » relance vraiment l'échange.
  */
-const verifications = new Map<string, Promise<boolean>>();
+const verifications = new Map<string, Promise<ResultatVerification>>();
 
-const verifierJeton = (tokenHash: string): Promise<boolean> => {
+const verifierJeton = (tokenHash: string): Promise<ResultatVerification> => {
   let verification = verifications.get(tokenHash);
   if (!verification) {
-    verification = supabase.auth
+    const lancee: Promise<ResultatVerification> = supabase.auth
       .verifyOtp({ token_hash: tokenHash, type: 'recovery' })
-      .then(({ error }) => !error)
-      .catch(() => false);
-    verifications.set(tokenHash, verification);
+      .then(({ error }): ResultatVerification => (!error ? 'valide' : refusDefinitif(error) ? 'invalide' : 'transitoire'))
+      .catch((): ResultatVerification => 'transitoire');
+    verification = lancee;
+    verifications.set(tokenHash, lancee);
+    void lancee.then((resultat) => {
+      if (resultat === 'transitoire' && verifications.get(tokenHash) === lancee) verifications.delete(tokenHash);
+    });
   }
   return verification;
 };
@@ -42,7 +60,7 @@ export const MedMngResetPassword = () => {
   const lienActuel = Boolean(tokenHash) && searchParams.get('type') === 'recovery';
   const lienIncomplet = Boolean(tokenHash) && !lienActuel;
   // Fragment d'erreur renvoyé par l'ancien parcours (#error=access_denied&error_code=otp_expired).
-  const erreurDansFragment =/(^|[#&])error(_code)?=/.test(hash);
+  const erreurDansFragment  = /(^|[#&])error(_code)?=/.test(hash);
   const [etatLien, setEtatLien] = useState<EtatLien>(
     lienIncomplet || erreurDansFragment ? 'invalide' : lienActuel ? 'verification' : 'formulaire',
   );
@@ -52,13 +70,21 @@ export const MedMngResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Incrémenté par « Réessayer » : relance l'échange du même jeton.
+  const [tentative, setTentative] = useState(0);
+
   useEffect(() => {
     if (!lienActuel || !tokenHash) return;
     let actif = true;
-    verifierJeton(tokenHash).then((valide) => {
+    verifierJeton(tokenHash).then((resultat) => {
       if (!actif) return;
-      setEtatLien(valide ? 'formulaire' : 'invalide');
-      // Le jeton n'a plus rien à faire dans l'adresse (historique, en-tête Referer).
+      if (resultat === 'transitoire') {
+        // Le jeton est peut-être encore valable : il reste dans l'adresse pour pouvoir réessayer.
+        setEtatLien('indisponible');
+        return;
+      }
+      setEtatLien(resultat === 'valide' ? 'formulaire' : 'invalide');
+      // Jeton consommé ou refusé : il n'a plus rien à faire dans l'adresse (historique, en-tête Referer).
       try {
         window.history.replaceState(window.history.state, '', window.location.pathname);
       } catch {
@@ -68,7 +94,12 @@ export const MedMngResetPassword = () => {
     return () => {
       actif = false;
     };
-  }, [lienActuel, tokenHash]);
+  }, [lienActuel, tokenHash, tentative]);
+
+  const reessayer = () => {
+    setEtatLien('verification');
+    setTentative((n) => n + 1);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +133,7 @@ export const MedMngResetPassword = () => {
 
   if (etatLien !== 'formulaire') {
     const invalide = etatLien === 'invalide';
+    const indisponible = etatLien === 'indisponible';
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 px-4">
         <Card className="w-full max-w-md">
@@ -111,11 +143,20 @@ export const MedMngResetPassword = () => {
               <span className="text-2xl font-bold text-foreground">Med MNG</span>
             </div>
             <h1 className="text-xl font-semibold leading-none tracking-tight">
-              {invalide ? 'Lien expiré ou déjà utilisé' : 'Vérification du lien'}
+              {invalide ? 'Lien expiré ou déjà utilisé' : indisponible ? 'Connexion impossible pour le moment' : 'Vérification du lien'}
             </h1>
           </CardHeader>
           <CardContent className="space-y-4 text-center">
-            {invalide ? (
+            {indisponible ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Nous n'avons pas pu vérifier votre lien. Il est peut-être encore valable : vérifiez votre connexion puis réessayez.
+                </p>
+                <Button type="button" className="w-full" onClick={reessayer}>
+                  Réessayer
+                </Button>
+              </>
+            ) : invalide ? (
               <>
                 <p className="text-sm text-muted-foreground">
                   Ce lien de réinitialisation n'est plus valable. Demandez-en un nouveau : il reste utilisable pendant 1 heure, une seule fois.
