@@ -36,7 +36,7 @@ import {
   generateMixedLyrics,
 } from '@/utils/generateComprehensiveLyrics';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -80,6 +80,8 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const { handleGenerationComplete } = useGenerationNotifications();
 
   const [chanson, setChanson] = useState<ChansonGeneree | null>(null);
+  /** Rang de la génération réellement lancée : ne suit pas l'onglet affiché pendant qu'elle tourne. */
+  const [rangEnCours, setRangEnCours] = useState<RangChanson | null>(null);
   const [debutGeneration, setDebutGeneration] = useState<number | null>(null);
   const [bibliotheque, setBibliotheque] =
     useState<EtatBibliotheque>('inconnue');
@@ -89,13 +91,23 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   }, [queryClient]);
 
   // Chanson terminée en arrière-plan (callback serveur) : notification, quota et liste à jour.
+  // Le callback passé à useRealtimeGeneration doit garder la même identité d'un rendu
+  // à l'autre : il figure dans les dépendances de sa connexion, et une nouvelle identité
+  // à chaque rendu détruirait puis recréerait le canal realtime en boucle. La dernière
+  // version des fonctions appelées est lue dans une référence.
+  const surChansonTerminee = useRef<(track: unknown) => void>(() => {});
+  surChansonTerminee.current = (track) => {
+    handleGenerationComplete(track);
+    rafraichirQuota();
+    rafraichirChansonsItem();
+  };
+  const onGenerationComplete = useCallback(
+    (track: unknown) => surChansonTerminee.current(track),
+    []
+  );
   useRealtimeGeneration({
     userId: user?.id,
-    onGenerationComplete: (track) => {
-      handleGenerationComplete(track);
-      rafraichirQuota();
-      rafraichirChansonsItem();
-    },
+    onGenerationComplete,
     enabled: !!user,
   });
 
@@ -187,6 +199,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
           return;
         }
 
+        setRangEnCours(rang);
         setDebutGeneration(Date.now());
         setChanson(null);
         setBibliotheque('inconnue');
@@ -203,6 +216,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         );
 
         setDebutGeneration(null);
+        setRangEnCours(null);
         const taskId = resultat.taskId;
         setChanson({
           id: Date.now(),
@@ -245,6 +259,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         // Le hook de génération a déjà affiché un message français, jamais technique.
         if (import.meta.env.DEV) console.error('Erreur génération:', error);
         setDebutGeneration(null);
+        setRangEnCours(null);
         rafraichirQuota();
       }
     },
@@ -275,6 +290,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
           : undefined;
     musicGeneration.cancelGeneration(rang);
     setDebutGeneration(null);
+    setRangEnCours(null);
   }, [musicGeneration]);
 
   const ouvrirBibliotheque = useCallback(async () => {
@@ -311,6 +327,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     progression: musicGeneration.pollingProgress || 0,
     etape: musicGeneration.etape,
     debutGeneration,
+    rangEnCours,
     chanson,
     bibliotheque,
     generer,

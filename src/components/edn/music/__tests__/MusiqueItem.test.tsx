@@ -33,6 +33,8 @@ const etat = vi.hoisted(() => ({
   generer: vi.fn(),
   chansons: [] as Array<Record<string, unknown>>,
   invoke: vi.fn(),
+  generant: false,
+  rappelsTemps: [] as unknown[],
 }));
 
 vi.mock('@/components/med-mng/AuthProvider', () => ({
@@ -54,7 +56,7 @@ vi.mock('@/hooks/useSubscription', () => ({
 }));
 vi.mock('@/hooks/useMusicGenerationWithTranslation', () => ({
   useMusicGenerationWithTranslation: () => ({
-    isGenerating: { rangA: false, rangB: false, rangAB: false },
+    isGenerating: { rangA: etat.generant, rangB: false, rangAB: false },
     generateMusicInLanguage: etat.generer,
     cancelGeneration: vi.fn(),
     pollingProgress: 0,
@@ -69,7 +71,9 @@ vi.mock('@/hooks/useGamification', () => ({
   POINTS_CONFIG: { itemReviewed: 5 },
 }));
 vi.mock('@/hooks/useRealtimeGeneration', () => ({
-  useRealtimeGeneration: vi.fn(),
+  useRealtimeGeneration: (options: { onGenerationComplete?: unknown }) => {
+    etat.rappelsTemps.push(options.onGenerationComplete);
+  },
 }));
 vi.mock('@/components/generator/GenerationNotificationHandler', () => ({
   useGenerationNotifications: () => ({ handleGenerationComplete: vi.fn() }),
@@ -94,7 +98,16 @@ vi.mock('@/components/global/TranslatedText', () => ({
   TranslatedText: ({ text }: { text: string }) => <>{text}</>,
 }));
 vi.mock('@/components/generator/GenerationProgress', () => ({
-  GenerationProgress: () => null,
+  GenerationProgress: ({
+    isGenerating,
+    rang,
+  }: {
+    isGenerating: boolean;
+    rang?: string;
+  }) =>
+    isGenerating ? (
+      <div data-testid="progression" data-rang={rang ?? ''} />
+    ) : null,
 }));
 vi.mock('@/components/music/GeneratorMusicPlayer', () => ({
   GeneratorMusicPlayer: ({
@@ -188,6 +201,8 @@ beforeEach(() => {
     plan_name: 'premium',
   };
   etat.chansons = [];
+  etat.generant = false;
+  etat.rappelsTemps = [];
   etat.invoke.mockReset();
   etat.generer.mockReset();
   etat.generer.mockResolvedValue({
@@ -400,5 +415,35 @@ describe('Musique d’un item — chansons déjà générées', () => {
     await waitFor(() =>
       expect(screen.queryByText('Mes chansons de cet item')).toBeNull()
     );
+  });
+});
+
+describe('Musique d’un item — suivi de la génération', () => {
+  it('le callback realtime garde la même identité à chaque rendu (le canal n’est pas recréé en boucle)', () => {
+    rendre();
+    fireEvent.mouseDown(onglet('Rang B'), { button: 0 });
+    fireEvent.click(onglet('Rang B'));
+    fireEvent.mouseDown(onglet('Rang A+B'), { button: 0 });
+    fireEvent.click(onglet('Rang A+B'));
+    expect(etat.rappelsTemps.length).toBeGreaterThan(2);
+    expect(new Set(etat.rappelsTemps).size).toBe(1);
+  });
+
+  it('changer d’onglet pendant une génération : la progression garde le rang réellement lancé', async () => {
+    etat.generer.mockReturnValue(new Promise(() => {}));
+    rendre();
+    choisirStyle();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    );
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    expect(etat.generer.mock.calls[0][0]).toBe('A');
+    // La génération du rang A est en cours : l'utilisatrice regarde le rang B.
+    etat.generant = true;
+    fireEvent.mouseDown(onglet('Rang B'), { button: 0 });
+    fireEvent.click(onglet('Rang B'));
+    expect(onglet('Rang B')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId('progression')).toHaveAttribute('data-rang', 'A');
+    expect(etat.generer).toHaveBeenCalledTimes(1);
   });
 });

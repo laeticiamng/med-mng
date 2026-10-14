@@ -382,7 +382,7 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
           onCancel={chanson.annuler}
           startTime={chanson.debutGeneration || undefined}
           taskId={chanson.etape?.taskId}
-          rang={rang}
+          rang={chanson.rangEnCours ?? undefined}
         />
 
         {chanson.chanson && (
