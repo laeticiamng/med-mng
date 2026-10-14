@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
+  fenetreHeureUtc,
   fenetreJourUtc,
   reponseQuotaJournalier,
   reponseVerificationImpossible,
+  reserverUtilisation,
   reserverUtilisationJournaliere,
   tailleBase64Decodee,
 } from '../../supabase/functions/_shared/mm-limite-usage.ts';
@@ -85,6 +87,30 @@ const MIDI = new Date('2026-10-04T12:00:00Z');
 describe('fenetreJourUtc', () => {
   it('borne le jour UTC', () => {
     expect(fenetreJourUtc(new Date('2026-10-04T23:59:59Z'))).toEqual({ debut: '2026-10-04T00:00:00.000Z', fin: '2026-10-05T00:00:00.000Z' });
+  });
+});
+
+describe('fenetreHeureUtc et reserverUtilisation (réinitialisation du mot de passe, 14.10.2026)', () => {
+  it('borne l’heure UTC pleine', () => {
+    expect(fenetreHeureUtc(new Date('2026-10-14T10:59:59Z'))).toEqual({ debut: '2026-10-14T10:00:00.000Z', fin: '2026-10-14T11:00:00.000Z' });
+    expect(fenetreHeureUtc(new Date('2026-10-14T23:30:00Z'))).toEqual({ debut: '2026-10-14T23:00:00.000Z', fin: '2026-10-15T00:00:00.000Z' });
+  });
+
+  it('autorise jusqu’au maximum dans l’heure, refuse ensuite, repart à l’heure suivante', async () => {
+    const { client, lignes } = faussebase();
+    const a = new Date('2026-10-14T10:05:00Z');
+    for (let i = 1; i <= 3; i++) {
+      expect(await reserverUtilisation(client, 'mm-mdp-email:h', 3, fenetreHeureUtc(a), a)).toEqual({ autorise: true, utilise: i });
+    }
+    expect(await reserverUtilisation(client, 'mm-mdp-email:h', 3, fenetreHeureUtc(a), a)).toEqual({ autorise: false, utilise: 3 });
+    const b = new Date('2026-10-14T11:00:01Z');
+    expect(await reserverUtilisation(client, 'mm-mdp-email:h', 3, fenetreHeureUtc(b), b)).toEqual({ autorise: true, utilise: 1 });
+    expect(lignes.map((l) => l.window_start)).toEqual(['2026-10-14T10:00:00.000Z', '2026-10-14T11:00:00.000Z']);
+  });
+
+  it('compteur illisible : null (échec fermé)', async () => {
+    const { client } = faussebase({ erreurLecture: true });
+    expect(await reserverUtilisation(client, 'mm-mdp-email:h', 3, fenetreHeureUtc(MIDI), MIDI)).toBeNull();
   });
 });
 

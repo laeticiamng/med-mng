@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 import { TEST_MODE_ENABLED, TEST_USER } from '@/config/testMode';
 import { cheminInterneSur } from '@/lib/cheminSuivant';
+import { MESSAGE_REINITIALISATION_INDISPONIBLE, messageErreurDemandeReinitialisation } from '@/lib/demandeReinitialisation';
 
 interface AuthContextType {
   user: User | null;
@@ -224,15 +225,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
 
-  // Nouvelle fonction: réinitialisation du mot de passe
+  // Réinitialisation du mot de passe : par la fonction Edge `mm-password-reset` et non par
+  // supabase.auth.resetPasswordForEmail. Le projet Supabase est partagé avec EmotionsCare, dont
+  // l'URL de site remplaçait notre redirection (recette du 14.10.2026 : le lien menait à
+  // emotionscare.com) et dont le SMTP par défaut est limité. La fonction envoie un e-mail en
+  // français depuis medmng.com, avec un lien vers /med-mng/reset-password?token_hash=…
+  // La réponse est la même que le compte existe ou non.
   const resetPassword = async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/med-mng/reset-password`,
-      });
-      return { error };
-    } catch (error) {
-      return { error };
+      const { error } = await supabase.functions.invoke('mm-password-reset', { body: { email } });
+      if (error) return { error: { message: await messageErreurDemandeReinitialisation(error) } };
+      return { error: null };
+    } catch {
+      return { error: { message: MESSAGE_REINITIALISATION_INDISPONIBLE } };
     }
   };
 

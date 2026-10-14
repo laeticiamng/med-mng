@@ -124,6 +124,7 @@ Front : `src/pages/Generator.tsx` (rendu sur /med-mng/create) → `useSunoMusicG
 - `send-emails` — Envoi emails
 - `send-push-notification` — Push notifications
 - `send-welcome-email` — Email bienvenue
+- `mm-password-reset` — Réinitialisation du mot de passe Med MNG (publique, `verify_jwt = false`) : POST `{ email }` ; jeton par `auth.admin.generateLink` (aucun e-mail Supabase), lien construit sur `MEDMNG_SITE_URL` (défaut `https://medmng.com`) vers `/med-mng/reset-password?token_hash=…&type=recovery`, e-mail par Resend ; limites 3/h par adresse et 10/h par IP (`rate_limit_counters`) ; réponse 200 `{ ok: true }` identique que le compte existe ou non
 
 ### Utilitaires partagés
 - `_shared` — Modules communs (CORS, alerting, cache, error-utils)

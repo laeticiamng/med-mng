@@ -21,6 +21,15 @@ export function fenetreJourUtc(maintenant: Date): { debut: string; fin: string }
   return { debut: debut.toISOString(), fin: fin.toISOString() };
 }
 
+/** Fenêtre de l'heure UTC pleine contenant `maintenant` (bornes ISO) : de hh:00:00 à (hh+1):00:00. */
+export function fenetreHeureUtc(maintenant: Date): { debut: string; fin: string } {
+  const debut = new Date(Date.UTC(
+    maintenant.getUTCFullYear(), maintenant.getUTCMonth(), maintenant.getUTCDate(), maintenant.getUTCHours(),
+  ));
+  const fin = new Date(debut.getTime() + 60 * 60 * 1000);
+  return { debut: debut.toISOString(), fin: fin.toISOString() };
+}
+
 /** Taille (octets) des données décodées d'une chaîne base64, avec ou sans préfixe « data:…;base64, ». */
 export function tailleBase64Decodee(base64: string): number {
   const brut = base64.includes(',') && base64.startsWith('data:') ? base64.slice(base64.indexOf(',') + 1) : base64;
@@ -36,20 +45,19 @@ export interface ResultatReservation {
 }
 
 /**
- * Réserve une utilisation pour (action, utilisateur) dans la fenêtre du jour.
+ * Réserve une utilisation pour `identifiant` dans la fenêtre donnée (bornes ISO).
  * Renvoie { autorise: false } si la limite est atteinte, null si le compteur est
  * illisible (l'appelant refuse alors l'appel : pas de dépense non comptée).
  * Incrément optimiste (mise à jour conditionnée à la valeur lue), 3 essais.
  */
-export async function reserverUtilisationJournaliere(
+export async function reserverUtilisation(
   supabase: ClientSupabase,
-  action: string,
-  userId: string,
+  identifiant: string,
   maximum: number,
+  fenetre: { debut: string; fin: string },
   maintenant: Date = new Date(),
 ): Promise<ResultatReservation | null> {
-  const identifiant = `${action}:${userId}`;
-  const { debut, fin } = fenetreJourUtc(maintenant);
+  const { debut, fin } = fenetre;
   for (let essai = 0; essai < 3; essai++) {
     const { data, error } = await supabase
       .from('rate_limit_counters')
@@ -87,6 +95,17 @@ export async function reserverUtilisationJournaliere(
     // Mise à jour concurrente : on relit.
   }
   return null;
+}
+
+/** Réserve une utilisation pour (action, utilisateur) dans la fenêtre du jour UTC. */
+export function reserverUtilisationJournaliere(
+  supabase: ClientSupabase,
+  action: string,
+  userId: string,
+  maximum: number,
+  maintenant: Date = new Date(),
+): Promise<ResultatReservation | null> {
+  return reserverUtilisation(supabase, `${action}:${userId}`, maximum, fenetreJourUtc(maintenant), maintenant);
 }
 
 const EN_TETES_JSON = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
