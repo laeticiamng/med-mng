@@ -80,7 +80,7 @@ peut exister :
   bip de notification). Un son métallique ou pauvre vient donc du fournisseur (ou de l'écoute), pas de notre chaîne
   de stockage. À confirmer à l'oreille en comparant le fichier Suno brut et celui de la bibliothèque.
 - Écart de documentation relevé : `docs/supabase-functions-flow.md` décrivait la durée « lignes × 4,5 s + 15 s, bornée
-  90–300 s » ; le code fait `max(lignes × 4,5 ; mots ÷ 1,3) + 20`, bornée 90–360 (corrigé dans ce même PR).
+  90–300 s » ; le code fait deux chemins : durée fournie par le client si valide (page item, 120–300 s), bornée 90–360 s ; sinon `max(lignes × 4,5 ; mots ÷ 1,3) + 20`, bornée 90–360 (corrigé dans ce même PR).
 
 ### 1.5 Deux problèmes distincts, à ne pas confondre
 
