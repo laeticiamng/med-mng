@@ -86,7 +86,9 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const [styleEnCours, setStyleEnCours] = useState<string | null>(null);
   /** Dès le clic, avant toute requête (rédaction des paroles comprise) : verrou contre un second lancement. */
   const [preparation, setPreparation] = useState(false);
-  const lancement = useRef(false);
+  const lancement = useRef<symbol | null>(null);
+  /** Chanson dont le post-traitement (bibliothèque) peut encore mettre l'état à jour. */
+  const chansonCourante = useRef<string | null>(null);
   /** Annulation demandée pendant la rédaction des paroles : aucune génération n'est alors lancée. */
   const annulation = useRef(false);
   const [debutGeneration, setDebutGeneration] = useState<number | null>(null);
@@ -127,11 +129,58 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     );
   const quotaAtteint = Boolean(musicQuota && !musicQuota.can_generate);
 
+  /** Post-traitement d'une chanson prête : bibliothèque, activité, points. Jamais de rejet non traité. */
+  const apresGeneration = useCallback(
+    async (
+      userId: string,
+      taskId: string,
+      rang: RangChanson,
+      style: string,
+      advancedParams: Partial<AdvancedSunoParams> | undefined
+    ) => {
+      const toujoursCourante = () =>
+        chansonCourante.current === (taskId || null);
+      try {
+        if (taskId) {
+          if (toujoursCourante()) setBibliotheque('verification');
+          const biblio = await assurerChansonEnBibliotheque(userId, taskId);
+          if (toujoursCourante()) {
+            setBibliotheque(
+              biblio.etat === 'impossible' ? 'absente' : 'enregistree'
+            );
+          }
+        }
+      } catch (erreur) {
+        if (toujoursCourante()) setBibliotheque('absente');
+        if (import.meta.env.DEV) console.warn('Bibliothèque :', erreur);
+      }
+      try {
+        await logActivity({
+          activity_type: 'music_generation',
+          count: 1,
+          metadata: {
+            itemCode,
+            style,
+            rang,
+            advancedParams: advancedParams ? Object.keys(advancedParams) : [],
+          },
+        });
+        await addPoints(userId, POINTS_CONFIG.itemReviewed, 'itemReviewed');
+        loadStats(userId);
+      } catch (erreur) {
+        if (import.meta.env.DEV) console.warn('Activité :', erreur);
+      }
+      rafraichirChansonsItem();
+    },
+    [itemCode, logActivity, addPoints, loadStats, rafraichirChansonsItem]
+  );
+
   const genererInterne = useCallback(
     async (
       rang: RangChanson,
       style: string,
-      advancedParams?: Partial<AdvancedSunoParams>
+      advancedParams: Partial<AdvancedSunoParams> | undefined,
+      liberer: () => void
     ) => {
       if (!user) {
         toast.error(
@@ -208,6 +257,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         }
 
         if (annulation.current) return;
+        chansonCourante.current = null;
         setDebutGeneration(Date.now());
         setChanson(null);
         setBibliotheque('inconnue');
@@ -225,6 +275,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
 
         setDebutGeneration(null);
         const taskId = resultat.taskId;
+        chansonCourante.current = taskId || null;
         setChanson({
           id: Date.now(),
           taskId,
@@ -241,27 +292,12 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         rafraichirQuota();
         rafraichirChansonsItem();
 
-        if (taskId) {
-          setBibliotheque('verification');
-          const biblio = await assurerChansonEnBibliotheque(user.id, taskId);
-          setBibliotheque(
-            biblio.etat === 'impossible' ? 'absente' : 'enregistree'
-          );
-        }
-
-        await logActivity({
-          activity_type: 'music_generation',
-          count: 1,
-          metadata: {
-            itemCode,
-            style,
-            rang,
-            advancedParams: advancedParams ? Object.keys(advancedParams) : [],
-          },
-        });
-        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
-        loadStats(user.id);
-        rafraichirChansonsItem();
+        // La requête payante est terminée : le verrou anti-double-lancement et
+        // l'état « génération en cours » sont levés ICI. Le reste (bibliothèque,
+        // activité, points) se fait à part, sans bloquer l'interface, et ses
+        // erreurs sont traitées : un appel annexe bloqué ne fige plus la page.
+        liberer();
+        void apresGeneration(user.id, taskId, rang, style, advancedParams);
       } catch (error) {
         // Le hook de génération a déjà affiché un message français, jamais technique.
         if (import.meta.env.DEV) console.error('Erreur génération:', error);
@@ -270,6 +306,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
       }
     },
     [
+      apresGeneration,
       user,
       aAccesPremium,
       musicQuota,
@@ -280,9 +317,6 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
       location.pathname,
       rafraichirQuota,
       rafraichirChansonsItem,
-      logActivity,
-      addPoints,
-      loadStats,
     ]
   );
 
@@ -300,18 +334,24 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
       advancedParams?: Partial<AdvancedSunoParams>
     ) => {
       if (lancement.current) return;
-      lancement.current = true;
+      const jeton = Symbol('lancement');
+      lancement.current = jeton;
       annulation.current = false;
       setPreparation(true);
       setRangEnCours(rang);
       setStyleEnCours(style);
-      try {
-        await genererInterne(rang, style, advancedParams);
-      } finally {
-        lancement.current = false;
+      // Idempotent, et sans effet si un autre lancement a pris le verrou depuis.
+      const liberer = () => {
+        if (lancement.current !== jeton) return;
+        lancement.current = null;
         setPreparation(false);
         setRangEnCours(null);
         setStyleEnCours(null);
+      };
+      try {
+        await genererInterne(rang, style, advancedParams, liberer);
+      } finally {
+        liberer();
       }
     },
     [genererInterne]

@@ -140,6 +140,7 @@ vi.mock('@/integrations/supabase/client', () => {
 
 import { MusiqueItem } from '../MusiqueItem';
 import { useChansonItem } from '@/hooks/useChansonItem';
+import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
 import { generateComprehensiveLyrics } from '@/utils/generateComprehensiveLyrics';
 import { STYLES_MUSICAUX } from '@/config/stylesMusicaux';
 
@@ -540,5 +541,50 @@ describe('Musique d’un item — pas de double génération payante', () => {
     expect(resume).toHaveTextContent(`Rang A · ${premier.libelle}`);
     expect(resume).not.toHaveTextContent(second.libelle);
     expect(etat.generer.mock.calls[0][2]).toBe(premier.slug);
+  });
+});
+
+describe('Musique d’un item — post-traitement après la génération', () => {
+  it('bibliothèque qui ne répond jamais : le bouton est ré-actif et la progression est retirée', async () => {
+    vi.mocked(assurerChansonEnBibliotheque).mockReturnValueOnce(
+      new Promise(() => {})
+    );
+    rendre();
+    choisirStyle();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    );
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    // La chanson est prête : le lecteur est affiché, sans attendre le post-traitement.
+    await waitFor(() =>
+      expect(screen.getByTestId('lecteur')).toBeInTheDocument()
+    );
+    expect(screen.queryByTestId('progression')).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    ).toBeEnabled();
+  });
+
+  it('bibliothèque en erreur : pas de rejet non traité, bouton ré-actif', async () => {
+    vi.mocked(assurerChansonEnBibliotheque).mockRejectedValueOnce(
+      new Error('réseau')
+    );
+    const rejets: unknown[] = [];
+    const surRejet = (e: unknown) => rejets.push(e);
+    process.on('unhandledRejection', surRejet);
+    rendre();
+    choisirStyle();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('lecteur')).toBeInTheDocument()
+    );
+    await new Promise((r) => setTimeout(r, 20));
+    process.off('unhandledRejection', surRejet);
+    expect(rejets).toEqual([]);
+    expect(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    ).toBeEnabled();
   });
 });
