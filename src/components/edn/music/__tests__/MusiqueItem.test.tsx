@@ -1,6 +1,8 @@
 import {
+  act,
   fireEvent,
   render,
+  renderHook,
   screen,
   waitFor,
   within,
@@ -137,6 +139,9 @@ vi.mock('@/integrations/supabase/client', () => {
 });
 
 import { MusiqueItem } from '../MusiqueItem';
+import { useChansonItem } from '@/hooks/useChansonItem';
+import { generateComprehensiveLyrics } from '@/utils/generateComprehensiveLyrics';
+import { STYLES_MUSICAUX } from '@/config/stylesMusicaux';
 
 const REDIGEES_A = [
   '[Couplet 1]',
@@ -445,5 +450,95 @@ describe('Musique d’un item — suivi de la génération', () => {
     expect(onglet('Rang B')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId('progression')).toHaveAttribute('data-rang', 'A');
     expect(etat.generer).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Musique d’un item — pas de double génération payante', () => {
+  const MOTS_CLES = ['mot clé un', 'mot clé deux'];
+
+  it('paroles à rédiger : pendant la rédaction, ni bouton ni second rang ne lancent une deuxième génération', async () => {
+    let finir: (lignes: string[]) => void = () => {};
+    vi.mocked(generateComprehensiveLyrics).mockImplementation(
+      () => new Promise<string[]>((resolve) => (finir = resolve))
+    );
+    rendre({
+      paroles: {
+        ...paroles,
+        paroles_rang_a: MOTS_CLES,
+        paroles_rang_b: MOTS_CLES,
+      },
+    });
+    choisirStyle();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    );
+    // La rédaction est en cours : rien n'est encore envoyé, mais tout est verrouillé.
+    const bouton = screen.getByRole('button', {
+      name: /Générer la chanson du rang A/,
+    });
+    expect(bouton).toBeDisabled();
+    fireEvent.mouseDown(onglet('Rang B'), { button: 0 });
+    fireEvent.click(onglet('Rang B'));
+    const boutonB = screen.getByRole('button', {
+      name: /Générer la chanson du rang A/,
+    });
+    fireEvent.click(boutonB);
+    expect(boutonB).toBeDisabled();
+    expect(etat.generer).not.toHaveBeenCalled();
+    await act(async () => finir(['[Couplet 1]', 'Ligne rédigée.']));
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    expect(etat.generer.mock.calls[0][0]).toBe('A');
+  });
+
+  it('deux lancements rapprochés sur deux rangs : un seul appel à generateMusicInLanguage', async () => {
+    const resolveurs: Array<(lignes: string[]) => void> = [];
+    vi.mocked(generateComprehensiveLyrics).mockImplementation(
+      () => new Promise<string[]>((resolve) => resolveurs.push(resolve))
+    );
+    const client = new QueryClient();
+    const { result } = renderHook(
+      () =>
+        useChansonItem('IC-14', {
+          ...paroles,
+          paroles_rang_a: MOTS_CLES,
+          paroles_rang_b: MOTS_CLES,
+        }),
+      {
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={client}>
+            <MemoryRouter>{children}</MemoryRouter>
+          </QueryClientProvider>
+        ),
+      }
+    );
+    await act(async () => {
+      void result.current.generer('A', 'lofi');
+      void result.current.generer('B', 'lofi');
+    });
+    expect(result.current.enCours).toBe(true);
+    expect(resolveurs).toHaveLength(1);
+    await act(async () =>
+      resolveurs.forEach((r) => r(['[Couplet 1]', 'Ligne rédigée.']))
+    );
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    expect(etat.generer.mock.calls[0][0]).toBe('A');
+    // Le verrou est levé à la fin : on peut relancer.
+    await waitFor(() => expect(result.current.enCours).toBe(false));
+  });
+
+  it('le résumé garde le style lancé quand on en choisit un autre pendant la génération', async () => {
+    etat.generer.mockReturnValue(new Promise(() => {}));
+    rendre();
+    const [premier, second] = STYLES_MUSICAUX;
+    fireEvent.click(screen.getAllByRole('radio')[0]);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    );
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getAllByRole('radio')[1]);
+    const resume = screen.getByText(/Rang A ·/, { selector: 'p' });
+    expect(resume).toHaveTextContent(`Rang A · ${premier.libelle}`);
+    expect(resume).not.toHaveTextContent(second.libelle);
+    expect(etat.generer.mock.calls[0][2]).toBe(premier.slug);
   });
 });

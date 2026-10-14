@@ -82,6 +82,13 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const [chanson, setChanson] = useState<ChansonGeneree | null>(null);
   /** Rang de la génération réellement lancée : ne suit pas l'onglet affiché pendant qu'elle tourne. */
   const [rangEnCours, setRangEnCours] = useState<RangChanson | null>(null);
+  /** Style de la génération réellement lancée (idem : le sélecteur peut bouger entre-temps). */
+  const [styleEnCours, setStyleEnCours] = useState<string | null>(null);
+  /** Dès le clic, avant toute requête (rédaction des paroles comprise) : verrou contre un second lancement. */
+  const [preparation, setPreparation] = useState(false);
+  const lancement = useRef(false);
+  /** Annulation demandée pendant la rédaction des paroles : aucune génération n'est alors lancée. */
+  const annulation = useRef(false);
   const [debutGeneration, setDebutGeneration] = useState<number | null>(null);
   const [bibliotheque, setBibliotheque] =
     useState<EtatBibliotheque>('inconnue');
@@ -111,15 +118,16 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     enabled: !!user,
   });
 
-  const enCours = Boolean(
-    musicGeneration.isGenerating?.rangA ||
-      musicGeneration.isGenerating?.rangB ||
-      musicGeneration.isGenerating?.rangAB
-  );
+  const enCours =
+    preparation ||
+    Boolean(
+      musicGeneration.isGenerating?.rangA ||
+        musicGeneration.isGenerating?.rangB ||
+        musicGeneration.isGenerating?.rangAB
+    );
   const quotaAtteint = Boolean(musicQuota && !musicQuota.can_generate);
 
-  /** Lance UNE génération payante : seule fonction de ce hook qui contacte le service. */
-  const generer = useCallback(
+  const genererInterne = useCallback(
     async (
       rang: RangChanson,
       style: string,
@@ -199,7 +207,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
           return;
         }
 
-        setRangEnCours(rang);
+        if (annulation.current) return;
         setDebutGeneration(Date.now());
         setChanson(null);
         setBibliotheque('inconnue');
@@ -216,7 +224,6 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         );
 
         setDebutGeneration(null);
-        setRangEnCours(null);
         const taskId = resultat.taskId;
         setChanson({
           id: Date.now(),
@@ -259,7 +266,6 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         // Le hook de génération a déjà affiché un message français, jamais technique.
         if (import.meta.env.DEV) console.error('Erreur génération:', error);
         setDebutGeneration(null);
-        setRangEnCours(null);
         rafraichirQuota();
       }
     },
@@ -280,6 +286,37 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     ]
   );
 
+  /**
+   * Lance UNE génération payante : seule fonction de ce hook qui contacte le service.
+   * Le verrou est posé de façon synchrone (référence) puis affiché (état) avant la
+   * première requête : la rédaction des paroles, attendue avant l'appel payant, ne
+   * laisse plus un second clic (autre rang, autre onglet) lancer une deuxième
+   * génération. Il est levé à la fin, en cas d'échec ou d'annulation.
+   */
+  const generer = useCallback(
+    async (
+      rang: RangChanson,
+      style: string,
+      advancedParams?: Partial<AdvancedSunoParams>
+    ) => {
+      if (lancement.current) return;
+      lancement.current = true;
+      annulation.current = false;
+      setPreparation(true);
+      setRangEnCours(rang);
+      setStyleEnCours(style);
+      try {
+        await genererInterne(rang, style, advancedParams);
+      } finally {
+        lancement.current = false;
+        setPreparation(false);
+        setRangEnCours(null);
+        setStyleEnCours(null);
+      }
+    },
+    [genererInterne]
+  );
+
   const annuler = useCallback(() => {
     const rang = musicGeneration.isGenerating?.rangA
       ? 'A'
@@ -288,9 +325,9 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         : musicGeneration.isGenerating?.rangAB
           ? 'AB'
           : undefined;
+    annulation.current = true;
     musicGeneration.cancelGeneration(rang);
     setDebutGeneration(null);
-    setRangEnCours(null);
   }, [musicGeneration]);
 
   const ouvrirBibliotheque = useCallback(async () => {
@@ -328,6 +365,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     etape: musicGeneration.etape,
     debutGeneration,
     rangEnCours,
+    styleEnCours,
     chanson,
     bibliotheque,
     generer,

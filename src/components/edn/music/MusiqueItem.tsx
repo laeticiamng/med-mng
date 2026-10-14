@@ -164,6 +164,11 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
 
   const { aAccesPremium, chargementAcces, connecte, enCours, quotaAtteint } =
     chanson;
+  // Pendant une génération, le résumé et le bouton décrivent ce qui a été lancé,
+  // pas l'onglet ou le style regardés entre-temps.
+  const rangAffiche = chanson.rangEnCours ?? rang;
+  const rangAffichee = RANGS.find((r) => r.valeur === rangAffiche) ?? rangMeta;
+  const styleAffiche = chanson.styleEnCours ?? style;
   const peutGenerer =
     Boolean(style) && ambianceValide && !enCours && !quotaAtteint;
 
@@ -330,16 +335,18 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{itemCode}</span>
               {' · '}
-              {rang === 'AB' ? 'Rangs A + B' : `Rang ${rang}`}
-              {style ? ` · ${libelleStyle(style)}` : ''}
-              {apercuEnvoi ? ` · ≈ ${apercuEnvoi.duree}` : ''}
+              {rangAffiche === 'AB' ? 'Rangs A + B' : `Rang ${rangAffiche}`}
+              {styleAffiche ? ` · ${libelleStyle(styleAffiche)}` : ''}
+              {apercuEnvoi && !chanson.rangEnCours
+                ? ` · ≈ ${apercuEnvoi.duree}`
+                : ''}
             </p>
             <PremiumButton
               variant="primary"
               size="lg"
               onClick={lancer}
               disabled={!peutGenerer}
-              aria-label={`Générer la chanson du rang ${rangMeta.court}`}
+              aria-label={`Générer la chanson du rang ${rangAffichee.court}`}
               aria-busy={enCours}
               className="min-h-[52px] w-full text-sm font-semibold sm:text-base"
             >
