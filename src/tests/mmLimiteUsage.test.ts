@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
@@ -30,13 +30,13 @@ function fausseBase(options: { erreur?: boolean; reponse?: unknown } = {}) {
     from: (table: string) => {
       throw new Error(`accès direct à la table ${table} interdit`);
     },
-    rpc: async (nom: string, args: { p_identifiant: string; p_max: number; p_maintenant: string }) => {
+    rpc: async (nom: string, args: { p_identifiant: string; p_max: number }) => {
       expect(nom).toBe('mm_reserver_usage_journalier');
       appels.push(args);
       await new Promise((ok) => setTimeout(ok, Math.random() * 5));
       if (options.erreur) return { data: null, error: { message: 'indisponible' } };
       if (options.reponse !== undefined) return { data: options.reponse, error: null };
-      const jour = new Date(args.p_maintenant).toISOString().slice(0, 10);
+      const jour = new Date().toISOString().slice(0, 10); // horloge de la base
       const cle = `${args.p_identifiant}|${jour}`;
       const actuel = compteurs.get(cle) ?? 0;
       if (actuel >= args.p_max) return { data: [{ autorise: false, utilise: actuel }], error: null };
@@ -48,6 +48,9 @@ function fausseBase(options: { erreur?: boolean; reponse?: unknown } = {}) {
 }
 
 const MIDI = new Date('2026-10-04T12:00:00Z');
+/** Fige l'horloge (Date seulement : les latences aléatoires du faux client restent réelles). */
+const a = (date: Date) => (vi.isFakeTimers() ? vi.setSystemTime(date) : vi.useFakeTimers({ toFake: ['Date'], now: date }));
+afterEach(() => vi.useRealTimers());
 
 describe('fenetreJourUtc', () => {
   it('borne le jour UTC', () => {
@@ -67,26 +70,28 @@ describe('tailleBase64Decodee', () => {
 describe('reserverUtilisationJournaliere', () => {
   it('autorise jusqu’au maximum puis refuse, par compte et par jour', async () => {
     const { client } = fausseBase();
+    a(MIDI);
     for (let i = 1; i <= 3; i++) {
-      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toEqual({ autorise: true, utilise: i });
+      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toEqual({ autorise: true, utilise: i });
     }
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toEqual({ autorise: false, utilise: 3 });
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toEqual({ autorise: false, utilise: 3 });
     // Autre compte : compteur distinct ; jour suivant : nouvelle fenêtre.
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u2', 3, MIDI)).toEqual({ autorise: true, utilise: 1 });
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, new Date('2026-10-05T00:00:01Z'))).toEqual({ autorise: true, utilise: 1 });
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u2', 3)).toEqual({ autorise: true, utilise: 1 });
+    a(new Date('2026-10-05T00:00:01Z'));
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toEqual({ autorise: true, utilise: 1 });
   });
 
-  it('transmet l’identifiant « action:utilisateur », le maximum et l’horloge à la fonction SQL', async () => {
+  it('transmet seulement l’identifiant « action:utilisateur » et le maximum : la date vient de la base', async () => {
     const { client, appels } = fausseBase();
-    await reserverUtilisationJournaliere(client, 'mm-bienvenue', 'abc', 2, MIDI);
-    expect(appels).toEqual([{ p_identifiant: 'mm-bienvenue:abc', p_max: 2, p_maintenant: '2026-10-04T12:00:00.000Z' }]);
+    await reserverUtilisationJournaliere(client, 'mm-bienvenue', 'abc', 2);
+    expect(appels).toEqual([{ p_identifiant: 'mm-bienvenue:abc', p_max: 2 }]);
   });
 
   it('CONCURRENCE : 6 appels simultanés pour une limite de 2 → exactement 2 réservations', async () => {
     for (let essai = 0; essai < 5; essai++) {
       const { client, compteurs } = fausseBase();
       const resultats = await Promise.all(
-        Array.from({ length: 6 }, () => reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 2, MIDI)),
+        Array.from({ length: 6 }, () => reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 2)),
       );
       expect(resultats.filter((r) => r?.autorise === true)).toHaveLength(2);
       expect(resultats.filter((r) => r?.autorise === false)).toHaveLength(4);
@@ -96,8 +101,8 @@ describe('reserverUtilisationJournaliere', () => {
 
   it('CONCURRENCE : un refus n’écrit rien et un compteur plein reste plein', async () => {
     const { client, compteurs } = fausseBase();
-    await Promise.all(Array.from({ length: 3 }, () => reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)));
-    const apres = await Promise.all(Array.from({ length: 10 }, () => reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)));
+    await Promise.all(Array.from({ length: 3 }, () => reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)));
+    const apres = await Promise.all(Array.from({ length: 10 }, () => reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)));
     expect(apres.every((r) => r?.autorise === false && r.utilise === 3)).toBe(true);
     expect([...compteurs.values()]).toEqual([3]);
   });
@@ -106,40 +111,50 @@ describe('reserverUtilisationJournaliere', () => {
     const { client, compteurs } = fausseBase();
     const utilisateurs = ['u1', 'u2', 'u3', 'u4'];
     const resultats = await Promise.all(
-      utilisateurs.flatMap((u) => Array.from({ length: 3 }, () => reserverUtilisationJournaliere(client, 'mm-bienvenue', u, 2, MIDI))),
+      utilisateurs.flatMap((u) => Array.from({ length: 3 }, () => reserverUtilisationJournaliere(client, 'mm-bienvenue', u, 2))),
     );
     expect(resultats.filter((r) => r?.autorise).length).toBe(8);
     expect([...compteurs.values()]).toEqual([2, 2, 2, 2]);
   });
 
-  it('fenêtres : le même utilisateur a un compteur par jour UTC, y compris en simultané', async () => {
+  it('fenêtres : un compteur par jour UTC, y compris après minuit', async () => {
     const { client } = fausseBase();
-    const veille = new Date('2026-10-04T23:59:59Z');
-    const lendemain = new Date('2026-10-05T00:00:01Z');
-    const resultats = await Promise.all([
-      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1, veille),
-      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1, lendemain),
-      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1, veille),
-      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1, lendemain),
+    a(new Date('2026-10-04T23:59:59Z'));
+    const avant = await Promise.all([
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
     ]);
-    expect(resultats.filter((r) => r?.autorise)).toHaveLength(2);
+    expect(avant.filter((r) => r?.autorise)).toHaveLength(1);
+    a(new Date('2026-10-05T00:00:01Z'));
+    const apres = await Promise.all([
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+    ]);
+    expect(apres.filter((r) => r?.autorise)).toHaveLength(1);
+  });
+
+  it('réponse avec utilise nul ou absent : null (échec fermé)', async () => {
+    for (const reponse of [[{ autorise: true, utilise: null }], [{ autorise: true, utilise: '1' }], [{ autorise: true, utilise: Number.NaN }]]) {
+      const { client } = fausseBase({ reponse });
+      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
+    }
   });
 
   it('erreur de la base : null (l’appel payant est refusé, échec fermé)', async () => {
     const { client } = fausseBase({ erreur: true });
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toBeNull();
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
   });
 
   it('réponse inattendue : null (jamais d’autorisation par défaut)', async () => {
     for (const reponse of [null, [], [{ autorise: true, utilise: 1 }, { autorise: false, utilise: 1 }], [{ autorise: 'oui', utilise: 1 }], [{ autorise: true }], 'x']) {
       const { client } = fausseBase({ reponse });
-      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toBeNull();
+      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
     }
   });
 
   it('exception de la base : null', async () => {
     const client = { rpc: async () => { throw new Error('réseau'); } };
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toBeNull();
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
   });
 });
 
@@ -166,8 +181,8 @@ describe('migration du compteur atomique', () => {
   it('accès réservé au service : RLS, aucun droit pour anon / authenticated', () => {
     expect(sql).toMatch(/enable row level security/);
     expect(sql).toMatch(/revoke all on table public\.mm_usage_compteurs from public, anon, authenticated/);
-    expect(sql).toMatch(/revoke all on function public\.mm_reserver_usage_journalier\(text, integer, timestamptz\) from public, anon, authenticated/);
-    expect(sql).toMatch(/grant execute on function public\.mm_reserver_usage_journalier\(text, integer, timestamptz\) to service_role/);
+    expect(sql).toMatch(/revoke all on function public\.mm_reserver_usage_journalier\(text, integer\) from public, anon, authenticated/);
+    expect(sql).toMatch(/grant execute on function public\.mm_reserver_usage_journalier\(text, integer\) to service_role/);
   });
 
   it('le module appelle bien la fonction créée par la migration', () => {

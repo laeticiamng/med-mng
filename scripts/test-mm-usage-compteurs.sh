@@ -14,7 +14,7 @@ if [ "$(id -u)" = 0 ]; then
 else
   RUN=(bash -c)
 fi
-"${RUN[@]}" "$PGBIN/initdb -D $DATA -A trust >/dev/null && $PGBIN/pg_ctl -D $DATA -o '-p $PORT -k $SOCK' -l $DATA/log -w start >/dev/null"
+"${RUN[@]}" "$PGBIN/initdb -D $DATA -U pgtest -A trust >/dev/null && $PGBIN/pg_ctl -D $DATA -o '-p $PORT -k $SOCK' -l $DATA/log -w start >/dev/null"
 trap '"${RUN[@]}" "$PGBIN/pg_ctl -D $DATA -m immediate stop >/dev/null" || true; rm -rf "$DATA"' EXIT
 
 P=(psql -h "$SOCK" -p "$PORT" -U pgtest -d postgres -tA -q -v ON_ERROR_STOP=1)
@@ -37,8 +37,8 @@ insert into public.rate_limit_counters (identifier, window_start, window_end, re
 SQL
 
 echo "# Migration et reprise des données"
-"${P[@]}" -f "$MIGRATION" >/dev/null 2>&1
-"${P[@]}" -f "$MIGRATION" >/dev/null 2>&1   # rejeu : idempotent
+"${P[@]}" -f "$MIGRATION" >/dev/null || { echo "ECHEC : la migration ne s'applique pas"; exit 1; }
+"${P[@]}" -f "$MIGRATION" >/dev/null 2>&1 || { echo "ECHEC : la migration n'est pas rejouable"; exit 1; }   # rejeu : idempotent
 verifie "doublons additionnés (3 lignes de 1)" 3 "$("${P[@]}" -c "select nombre from mm_usage_compteurs where identifiant='mm-bienvenue:u-dup'")"
 verifie "rejeu sans double comptage" 1 "$("${P[@]}" -c "select count(*) from mm_usage_compteurs where identifiant='mm-bienvenue:u-dup'")"
 verifie "autre application non reprise" 0 "$("${P[@]}" -c "select count(*) from mm_usage_compteurs where identifiant like 'ec-coach%'")"
@@ -63,15 +63,17 @@ echo "# Utilisateurs distincts : 6 utilisateurs x 3 appels simultanés, limite 2
 T="$(mktemp -d)"; for u in 1 2 3 4 5 6; do for i in 1 2 3; do appel "mm-bienvenue:usr-$u" 2 > "$T/${u}_$i" & done; done; wait
 verifie "12 autorisés (2 par utilisateur)" 12 "$(cat "$T"/* | grep -c '^true,')"
 verifie "6 refusés" 6 "$(cat "$T"/* | grep -c '^false,')"
-echo "# Fenêtres temporelles (jour UTC)"
-HIER="date_trunc('day', now() at time zone 'UTC') at time zone 'UTC' - interval '1 hour'"
-verifie "veille : fenêtre à part" "true,1" "$("${P[@]}" -c "select autorise::text||','||utilise from mm_reserver_usage_journalier('mm-bienvenue:fen',1,$HIER)")"
-verifie "aujourd'hui : compteur neuf" "true,1" "$(appel 'mm-bienvenue:fen' 1)"
+echo "# Fenêtres temporelles (jour UTC, horloge de la base)"
+JOUR="date_trunc('day', now() at time zone 'UTC') at time zone 'UTC'"
+"${P[@]}" -c "insert into mm_usage_compteurs values ('mm-bienvenue:fen', $JOUR - interval '1 day', 1)"
+verifie "veille pleine : compteur du jour indépendant" "true,1" "$(appel 'mm-bienvenue:fen' 1)"
+verifie "veille intacte" 1 "$("${P[@]}" -c "select nombre from mm_usage_compteurs where identifiant='mm-bienvenue:fen' and fenetre_debut = $JOUR - interval '1 day'")"
 verifie "aujourd'hui : limite atteinte" "false,1" "$(appel 'mm-bienvenue:fen' 1)"
-verifie "date éloignée refusée" "ERREUR" "$("${P[@]}" -c "select * from mm_reserver_usage_journalier('x',2, now() + interval '3 days')" >/dev/null 2>&1 && echo ACCEPTE || echo ERREUR)"
-verifie "limite invalide refusée" "ERREUR" "$("${P[@]}" -c "select * from mm_reserver_usage_journalier('x',0)" >/dev/null 2>&1 && echo ACCEPTE || echo ERREUR)"
+verifie "fenêtre du jour = jour UTC courant" 1 "$("${P[@]}" -c "select count(*) from mm_usage_compteurs where identifiant='mm-bienvenue:fen' and fenetre_debut = $JOUR")"
+verifie "l'appelant ne peut pas choisir la date" "ERREUR" "$("${P[@]}" -c "select * from mm_reserver_usage_journalier('x',2, now())" >/dev/null 2>&1 && echo ACCEPTE || echo ERREUR)"
+verifie "limite invalide refusée" "ERREUR" "$(appel 'x' 0 >/dev/null 2>&1 && echo ACCEPTE || echo ERREUR)"
 echo "# Droits"
-verifie "anon / authenticated / service_role (exécution)" "f|f|t" "$("${P[@]}" -c "select has_function_privilege('anon','mm_reserver_usage_journalier(text,integer,timestamptz)','execute')::text||'|'||has_function_privilege('authenticated','mm_reserver_usage_journalier(text,integer,timestamptz)','execute')::text||'|'||has_function_privilege('service_role','mm_reserver_usage_journalier(text,integer,timestamptz)','execute')::text" | sed 's/true/t/g;s/false/f/g')"
+verifie "anon / authenticated / service_role (exécution)" "f|f|t" "$("${P[@]}" -c "select has_function_privilege('anon','mm_reserver_usage_journalier(text,integer)','execute')::text||'|'||has_function_privilege('authenticated','mm_reserver_usage_journalier(text,integer)','execute')::text||'|'||has_function_privilege('service_role','mm_reserver_usage_journalier(text,integer)','execute')::text" | sed 's/true/t/g;s/false/f/g')"
 verifie "table fermée à authenticated" f "$("${P[@]}" -c "select has_table_privilege('authenticated','mm_usage_compteurs','select')::text" | sed 's/true/t/;s/false/f/')"
 
 [ "$ECHECS" = 0 ] && echo "TOUS LES CONTRÔLES PASSENT" || { echo "$ECHECS ÉCHEC(S)"; exit 1; }

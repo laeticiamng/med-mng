@@ -8,7 +8,8 @@
  * ne sont pas utilisées ici : sans unicité, elles ne permettent pas une
  * réservation atomique (voir reserverUtilisationJournaliere).
  *
- * Aucune dépendance Deno : testable avec vitest (src/tests/mmLimiteUsage.test.ts).
+ * Aucune dépendance Deno : testable avec vitest (src/tests/mmLimiteUsage.test.ts) ; la réservation
+ * elle-même est vérifiée sur un vrai Postgres (scripts/test-mm-usage-compteurs.sh).
  */
 
 // deno-lint-ignore no-explicit-any
@@ -52,20 +53,19 @@ export async function reserverUtilisationJournaliere(
   action: string,
   userId: string,
   maximum: number,
-  maintenant: Date = new Date(),
 ): Promise<ResultatReservation | null> {
   try {
+    // Le jour UTC est déterminé par l'horloge de la base, pas par l'appelant.
     const { data, error } = await supabase.rpc('mm_reserver_usage_journalier', {
       p_identifiant: `${action}:${userId}`,
       p_max: maximum,
-      p_maintenant: maintenant.toISOString(),
     });
     if (error) return null;
     const lignes = Array.isArray(data) ? data : data ? [data] : [];
     if (lignes.length !== 1) return null;
-    const { autorise, utilise } = lignes[0] ?? {};
-    if (typeof autorise !== 'boolean' || !Number.isFinite(Number(utilise))) return null;
-    return { autorise, utilise: Number(utilise) };
+    const { autorise, utilise } = lignes[0];
+    if (typeof autorise !== 'boolean' || typeof utilise !== 'number' || !Number.isFinite(utilise)) return null;
+    return { autorise, utilise };
   } catch {
     return null;
   }

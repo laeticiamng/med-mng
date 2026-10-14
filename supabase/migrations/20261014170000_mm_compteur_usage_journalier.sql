@@ -48,13 +48,13 @@ group by identifier, window_start
 on conflict (identifiant, fenetre_debut) do update
   set nombre = greatest(public.mm_usage_compteurs.nombre, excluded.nombre);
 
--- Réserve une utilisation pour p_identifiant dans le jour UTC de p_maintenant.
+-- Réserve une utilisation pour p_identifiant dans le jour UTC courant (horloge de la base : l'appelant
+-- ne peut ni choisir ni décaler la fenêtre).
 -- Rend (autorise, utilise) : autorise = faux quand la limite p_max est atteinte (aucune réservation
 -- supplémentaire n'est écrite) ; utilise = nombre d'utilisations du jour, celle-ci comprise si autorisée.
 create or replace function public.mm_reserver_usage_journalier(
   p_identifiant text,
-  p_max         integer,
-  p_maintenant  timestamptz default now()
+  p_max         integer
 )
 returns table (autorise boolean, utilise integer)
 language plpgsql
@@ -71,13 +71,8 @@ begin
   if p_max is null or p_max < 1 then
     raise exception 'limite invalide' using errcode = '22023';
   end if;
-  -- L'horloge de l'appelant ne peut pas ouvrir une fenêtre éloignée de plus d'un jour : pas de
-  -- contournement par une date arbitraire, pas de fenêtre fantôme.
-  if p_maintenant is null or abs(extract(epoch from (p_maintenant - now()))) > 86400 then
-    raise exception 'date invalide' using errcode = '22023';
-  end if;
 
-  v_debut := date_trunc('day', p_maintenant at time zone 'UTC') at time zone 'UTC';
+  v_debut := date_trunc('day', now() at time zone 'UTC') at time zone 'UTC';
 
   -- Nettoyage opportuniste : une fois sur cent, au plus 100 lignes de plus de 8 jours (borné, index
   -- sur fenetre_debut). Ne touche jamais la fenêtre courante.
@@ -111,5 +106,5 @@ begin
 end;
 $$;
 
-revoke all on function public.mm_reserver_usage_journalier(text, integer, timestamptz) from public, anon, authenticated;
-grant execute on function public.mm_reserver_usage_journalier(text, integer, timestamptz) to service_role;
+revoke all on function public.mm_reserver_usage_journalier(text, integer) from public, anon, authenticated;
+grant execute on function public.mm_reserver_usage_journalier(text, integer) to service_role;
