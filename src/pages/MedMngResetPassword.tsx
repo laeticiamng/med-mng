@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { Loader2, Music } from 'lucide-react';
 import { toast } from 'sonner';
 import { traduireErreurAuth } from '@/lib/erreursAuth';
+import { jetonPourLaPage } from '@/lib/jetonRecuperation';
 
 type EtatLien = 'verification' | 'formulaire' | 'invalide' | 'indisponible';
 type ResultatVerification = 'valide' | 'invalide' | 'transitoire';
@@ -52,12 +53,15 @@ const verifierJeton = (tokenHash: string): Promise<ResultatVerification> => {
 
 export const MedMngResetPassword = () => {
   const { updatePassword } = useAuth();
-  const [searchParams] = useSearchParams();
   const { hash } = useLocation();
-  // Lien actuel (e-mail de mm-password-reset) : ?token_hash=…&type=recovery. Repli : ancien parcours,
-  // où supabase-js lit la session dans le fragment (#access_token=…) et émet PASSWORD_RECOVERY.
-  const tokenHash = searchParams.get('token_hash');
-  const lienActuel = Boolean(tokenHash) && searchParams.get('type') === 'recovery';
+  // Lien actuel (e-mail de mm-password-reset) : …/reset-password#token_hash=…&type=recovery. Le jeton a
+  // été lu puis retiré de l'adresse au démarrage (src/main.tsx → src/lib/jetonRecuperation.ts) : il
+  // vient de la mémoire, jamais de l'adresse affichée, et « Réessayer » ne le remet pas dans l'adresse.
+  // Repli : ancien parcours, où supabase-js lit la session dans le fragment (#access_token=…) et émet
+  // PASSWORD_RECOVERY.
+  const jeton = jetonPourLaPage();
+  const tokenHash = jeton?.tokenHash ?? null;
+  const lienActuel = Boolean(tokenHash) && jeton?.type === 'recovery';
   const lienIncomplet = Boolean(tokenHash) && !lienActuel;
   // Fragment d'erreur renvoyé par l'ancien parcours (#error=access_denied&error_code=otp_expired).
   const erreurDansFragment  = /(^|[#&])error(_code)?=/.test(hash);
@@ -79,17 +83,11 @@ export const MedMngResetPassword = () => {
     verifierJeton(tokenHash).then((resultat) => {
       if (!actif) return;
       if (resultat === 'transitoire') {
-        // Le jeton est peut-être encore valable : il reste dans l'adresse pour pouvoir réessayer.
+        // Le jeton est peut-être encore valable : il reste en mémoire pour pouvoir réessayer.
         setEtatLien('indisponible');
         return;
       }
       setEtatLien(resultat === 'valide' ? 'formulaire' : 'invalide');
-      // Jeton consommé ou refusé : il n'a plus rien à faire dans l'adresse (historique, en-tête Referer).
-      try {
-        window.history.replaceState(window.history.state, '', window.location.pathname);
-      } catch {
-        // sans importance
-      }
     });
     return () => {
       actif = false;

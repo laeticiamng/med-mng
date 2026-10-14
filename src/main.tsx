@@ -4,6 +4,11 @@ import App from './App.tsx'
 import './index.css'
 import { supabase } from './integrations/supabase/client'
 import { installerPartageGetUser } from './lib/partageGetUser'
+import { capturerJetonRecuperation } from './lib/jetonRecuperation'
+
+// Jeton de réinitialisation du mot de passe : lu puis retiré de l'adresse AVANT toute initialisation
+// d'outil de suivi (Sentry enregistre l'URL des pages et des requêtes). Voir src/lib/jetonRecuperation.ts.
+capturerJetonRecuperation()
 
 // Un seul GET /auth/v1/user partagé entre composants (voir src/lib/partageGetUser.ts).
 installerPartageGetUser(supabase.auth)

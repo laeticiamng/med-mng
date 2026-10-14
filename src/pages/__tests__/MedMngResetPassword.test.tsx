@@ -5,9 +5,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * Recette du 14.10.2026 : le lien « Mot de passe oublié » menait à emotionscare.com. L'e-mail de
- * mm-password-reset pointe désormais vers /med-mng/reset-password?token_hash=…&type=recovery ; la page
- * échange le jeton (verifyOtp) puis affiche le formulaire. Lien expiré ou déjà utilisé : message
- * sobre et lien pour refaire une demande, sans détail technique.
+ * mm-password-reset pointe désormais vers /med-mng/reset-password#token_hash=…&type=recovery (fragment :
+ * jamais envoyé au serveur). Le jeton est lu puis retiré de l'adresse au démarrage (src/main.tsx), la page
+ * l'échange (verifyOtp) depuis la mémoire puis affiche le formulaire. Lien expiré ou déjà utilisé :
+ * message sobre et lien pour refaire une demande, sans détail technique.
  */
 const etat = vi.hoisted(() => ({
   verifyOtp: vi.fn(),
@@ -25,10 +26,21 @@ vi.mock('react-router-dom', async () => await vi.importActual('react-router-dom'
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 import { MedMngResetPassword } from '../MedMngResetPassword';
+import { capturerJetonRecuperation, reinitialiserJetonRecuperation } from '@/lib/jetonRecuperation';
 
 let compteur = 0;
 /** Jeton distinct par test : la page garde en mémoire les échanges déjà lancés (un jeton ne sert qu'une fois). */
 const jeton = () => `jeton-hache-${++compteur}`;
+
+/**
+ * Comme au démarrage de l'application : l'e-mail ouvre la page avec le jeton dans le fragment ; il est
+ * lu puis retiré de l'adresse (capturerJetonRecuperation) avant l'affichage de la page.
+ */
+const afficherAvecJeton = (t: string, type = 'recovery', strict = false) => {
+  window.history.replaceState(null, '', `/med-mng/reset-password#token_hash=${t}&type=${type}`);
+  capturerJetonRecuperation();
+  return afficher('/med-mng/reset-password', strict);
+};
 
 const afficher = (adresse: string, strict = false) => {
   const page = (
@@ -44,6 +56,8 @@ const afficher = (adresse: string, strict = false) => {
 
 describe('MedMngResetPassword', () => {
   beforeEach(() => {
+    reinitialiserJetonRecuperation();
+    window.history.replaceState(null, '', '/');
     etat.verifyOtp.mockReset();
     etat.updatePassword.mockReset();
     etat.updatePassword.mockResolvedValue({ error: null });
@@ -52,7 +66,7 @@ describe('MedMngResetPassword', () => {
   it('échange le token_hash avec verifyOtp puis affiche le formulaire de nouveau mot de passe', async () => {
     const t = jeton();
     etat.verifyOtp.mockResolvedValue({ data: {}, error: null });
-    afficher(`/med-mng/reset-password?token_hash=${t}&type=recovery`);
+    afficherAvecJeton(t, 'recovery');
 
     expect(screen.getByRole('status')).toHaveTextContent('Vérification en cours');
     expect(screen.queryByLabelText('Nouveau mot de passe')).not.toBeInTheDocument();
@@ -63,14 +77,14 @@ describe('MedMngResetPassword', () => {
 
   it("n'échange le jeton qu'une fois, même en double montage (React.StrictMode)", async () => {
     etat.verifyOtp.mockResolvedValue({ data: {}, error: null });
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`, true);
+    afficherAvecJeton(jeton(), 'recovery', true);
     expect(await screen.findByLabelText('Nouveau mot de passe')).toBeInTheDocument();
     expect(etat.verifyOtp).toHaveBeenCalledTimes(1);
   });
 
   it('enregistre le nouveau mot de passe après vérification, puis renvoie vers la connexion', async () => {
     etat.verifyOtp.mockResolvedValue({ data: {}, error: null });
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+    afficherAvecJeton(jeton(), 'recovery');
 
     fireEvent.change(await screen.findByLabelText('Nouveau mot de passe'), { target: { value: 'motdepasse-solide' } });
     fireEvent.change(screen.getByLabelText('Confirmer'), { target: { value: 'motdepasse-solide' } });
@@ -85,7 +99,7 @@ describe('MedMngResetPassword', () => {
       data: {},
       error: { name: 'AuthApiError', status: 403, code: 'otp_expired', message: 'Email link is invalid or has expired' },
     });
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+    afficherAvecJeton(jeton(), 'recovery');
 
     expect(await screen.findByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).toBeInTheDocument();
     const lien = screen.getByRole('link', { name: 'Demander un nouveau lien' });
@@ -100,24 +114,22 @@ describe('MedMngResetPassword', () => {
     ['erreur serveur 503', { name: 'AuthApiError', status: 503, message: 'unavailable' }],
     ['trop de requêtes 429', { name: 'AuthApiError', status: 429, code: 'over_request_rate_limit', message: 'Too many' }],
     ['erreur sans statut', { name: 'AuthUnknownError', message: 'Unexpected' }],
-  ])('échec transitoire (%s) : « Connexion impossible pour le moment », jeton conservé dans l’adresse, rien en cache', async (_nom, erreur) => {
+  ])('échec transitoire (%s) : « Connexion impossible pour le moment », jeton gardé en mémoire (pas dans l’adresse), rien en cache', async (_nom, erreur) => {
     const t = jeton();
-    const remplacer = vi.spyOn(window.history, 'replaceState');
     etat.verifyOtp.mockResolvedValueOnce({ data: {}, error: erreur });
-    afficher(`/med-mng/reset-password?token_hash=${t}&type=recovery`);
+    afficherAvecJeton(t, 'recovery');
 
     expect(await screen.findByRole('heading', { name: 'Connexion impossible pour le moment' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Réessayer' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Nouveau mot de passe')).not.toBeInTheDocument();
-    expect(remplacer).not.toHaveBeenCalled(); // token_hash conservé dans l'adresse
+    expect(window.location.href).not.toContain(t); // le jeton n'est jamais dans l'adresse
     expect(document.body.textContent).not.toMatch(/Failed to fetch|Database error|AuthRetryableFetchError/);
-    remplacer.mockRestore();
   });
 
   it('exception réseau pendant l’échange : même écran « Connexion impossible », pas de lien périmé', async () => {
     etat.verifyOtp.mockRejectedValueOnce(new TypeError('Failed to fetch'));
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+    afficherAvecJeton(jeton(), 'recovery');
     expect(await screen.findByRole('heading', { name: 'Connexion impossible pour le moment' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).not.toBeInTheDocument();
   });
@@ -127,13 +139,41 @@ describe('MedMngResetPassword', () => {
     etat.verifyOtp
       .mockResolvedValueOnce({ data: {}, error: { name: 'AuthRetryableFetchError', status: 0, message: 'Failed to fetch' } })
       .mockResolvedValueOnce({ data: {}, error: null });
-    afficher(`/med-mng/reset-password?token_hash=${t}&type=recovery`);
+    afficherAvecJeton(t, 'recovery');
 
     fireEvent.click(await screen.findByRole('button', { name: 'Réessayer' }));
     expect(await screen.findByLabelText('Nouveau mot de passe')).toBeInTheDocument();
     expect(etat.verifyOtp).toHaveBeenCalledTimes(2);
     expect(etat.verifyOtp).toHaveBeenNthCalledWith(1, { token_hash: t, type: 'recovery' });
     expect(etat.verifyOtp).toHaveBeenNthCalledWith(2, { token_hash: t, type: 'recovery' });
+    // « Réessayer » réutilise le jeton gardé en mémoire : il n'est pas remis dans l'adresse.
+    expect(window.location.href).not.toContain(t);
+    expect(window.location.hash).toBe('');
+  });
+
+  it('le jeton est lu dans le fragment puis retiré de l’adresse AVANT l’affichage de la page', async () => {
+    const t = jeton();
+    etat.verifyOtp.mockResolvedValue({ data: {}, error: null });
+    window.history.replaceState(null, '', `/med-mng/reset-password#token_hash=${t}&type=recovery`);
+    expect(window.location.hash).toContain(t);
+    capturerJetonRecuperation();
+    expect(window.location.hash).toBe('');
+    expect(window.location.href).not.toContain(t);
+    afficher('/med-mng/reset-password');
+    expect(await screen.findByLabelText('Nouveau mot de passe')).toBeInTheDocument();
+    expect(etat.verifyOtp).toHaveBeenCalledWith({ token_hash: t, type: 'recovery' });
+  });
+
+  it('transition : un ancien e-mail (?token_hash=… en query string) est lu et nettoyé de la même façon', async () => {
+    const t = jeton();
+    etat.verifyOtp.mockResolvedValue({ data: {}, error: null });
+    window.history.replaceState(null, '', `/med-mng/reset-password?token_hash=${t}&type=recovery&utm=x`);
+    capturerJetonRecuperation();
+    expect(window.location.href).not.toContain(t);
+    expect(window.location.search).toBe('?utm=x');
+    afficher('/med-mng/reset-password');
+    expect(await screen.findByLabelText('Nouveau mot de passe')).toBeInTheDocument();
+    expect(etat.verifyOtp).toHaveBeenCalledWith({ token_hash: t, type: 'recovery' });
   });
 
   it('« Réessayer » qui échoue encore de façon transitoire : on peut réessayer de nouveau ; refus définitif ensuite : lien expiré', async () => {
@@ -141,7 +181,7 @@ describe('MedMngResetPassword', () => {
       .mockResolvedValueOnce({ data: {}, error: { name: 'AuthRetryableFetchError', status: 0, message: 'x' } })
       .mockResolvedValueOnce({ data: {}, error: { name: 'AuthApiError', status: 500, message: 'x' } })
       .mockResolvedValueOnce({ data: {}, error: { name: 'AuthApiError', status: 403, code: 'otp_expired', message: 'x' } });
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+    afficherAvecJeton(jeton(), 'recovery');
 
     fireEvent.click(await screen.findByRole('button', { name: 'Réessayer' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Réessayer' }));
@@ -149,18 +189,16 @@ describe('MedMngResetPassword', () => {
     expect(etat.verifyOtp).toHaveBeenCalledTimes(3);
   });
 
-  it.each([400, 401, 403, 404, 422])('refus définitif (statut %i) : « Lien expiré ou déjà utilisé » et jeton retiré de l’adresse', async (statut) => {
-    const remplacer = vi.spyOn(window.history, 'replaceState');
+  it.each([400, 401, 403, 404, 422])('refus définitif (statut %i) : « Lien expiré ou déjà utilisé », aucun jeton dans l’adresse', async (statut) => {
     etat.verifyOtp.mockResolvedValueOnce({ data: {}, error: { name: 'AuthApiError', status: statut, message: 'invalid' } });
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=recovery`);
+    afficherAvecJeton(jeton(), 'recovery');
     expect(await screen.findByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument();
-    expect(remplacer).toHaveBeenCalled();
-    remplacer.mockRestore();
+    expect(window.location.hash).toBe('');
   });
 
   it("token_hash sans type=recovery : lien invalide, aucun appel à verifyOtp", async () => {
-    afficher(`/med-mng/reset-password?token_hash=${jeton()}&type=signup`);
+    afficherAvecJeton(jeton(), 'signup');
     expect(await screen.findByRole('heading', { name: 'Lien expiré ou déjà utilisé' })).toBeInTheDocument();
     expect(etat.verifyOtp).not.toHaveBeenCalled();
   });

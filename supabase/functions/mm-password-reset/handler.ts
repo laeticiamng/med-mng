@@ -14,7 +14,8 @@
  * - le lien est construit ici, sur une base FIXE (MEDMNG_SITE_URL, à défaut https://medmng.com),
  *   jamais d'après les en-têtes Origin ou Host de la requête (injection d'hôte) ;
  * - l'e-mail part par Resend (domaine medmng.com vérifié), en français, au nom de Med MNG ;
- * - la page /med-mng/reset-password échange le jeton avec supabase.auth.verifyOtp.
+ * - la page /med-mng/reset-password lit le jeton dans le fragment de l'adresse et l'échange avec
+ *   supabase.auth.verifyOtp.
  *
  * Sécurité :
  * - anti-énumération : 200 { ok: true } que le compte existe ou non, y compris en cas d'échec de
@@ -22,9 +23,11 @@
  *   limiteur ; generateLink et l'envoi Resend se font ensuite en tâche de fond (EdgeRuntime.waitUntil).
  *   Seuls diffèrent : 400 (adresse mal formée), 429 (limite), 503
  *   (limiteur indisponible) — aucun ne dépend de l'existence du compte ;
- * - limite durable (table rate_limit_counters, fenêtre = heure UTC pleine) : 3 demandes par heure
- *   par adresse et 10 par heure par IP, clés = SHA-256 (jamais l'adresse ni l'IP en clair) ;
- *   limiteur illisible → 503, échec fermé : aucun jeton n'est produit sans avoir compté ;
+ * - limite durable et ATOMIQUE (table dédiée mm_reinit_mdp_compteurs, fonction SQL
+ *   mm_reserver_reinit_mdp ; fenêtre = heure UTC pleine) : 3 demandes par heure par adresse et 10
+ *   par heure par IP, clés = SHA-256 (jamais l'adresse ni l'IP en clair). Le limiteur commun
+ *   (rate_limit_counters) lit puis écrit sans contrainte d'unicité : une rafale le dépassait.
+ *   Limiteur illisible → 503, échec fermé : aucun jeton n'est produit sans avoir compté ;
  * - aucune adresse e-mail dans les journaux.
  *
  * Aucune dépendance distante : le module est testable en local avec de faux clients
@@ -39,11 +42,11 @@ import {
   journaliserEchec,
   type ResultatEnvoi,
 } from '../_shared/mm-email.ts';
-import { fenetreHeureUtc, type ResultatReservation, reserverUtilisation } from '../_shared/mm-limite-usage.ts';
 
 export const DEMANDES_MAX_PAR_HEURE_ET_EMAIL = 3;
 export const DEMANDES_MAX_PAR_HEURE_ET_IP = 10;
 export const SITE_PAR_DEFAUT = 'https://medmng.com';
+const DUREE_FENETRE_MS = 60 * 60 * 1000;
 const LONGUEUR_MAX_CORPS = 2_000;
 const LONGUEUR_MAX_EMAIL = 254;
 
@@ -76,6 +79,16 @@ export function normaliserEmail(valeur: unknown): string | null {
   return email;
 }
 
+/**
+ * Réserve une demande pour `cle` : fonction SQL atomique (INSERT … ON CONFLICT DO UPDATE … WHERE
+ * nombre < max). Vrai = comptée, faux = limite atteinte, null = base illisible (échec fermé).
+ */
+async function reserver(admin: ClientSupabase, cle: string, maximum: number): Promise<boolean | null> {
+  const { data, error } = await admin.rpc('mm_reserver_reinit_mdp', { p_cle: cle, p_max: maximum, p_fenetre: '1 hour' });
+  if (error || typeof data !== 'boolean') return null;
+  return data;
+}
+
 /** Hachage SHA-256 en hexadécimal : seules ces empreintes sont stockées. */
 export async function empreinte(valeur: string): Promise<string> {
   const octets = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(valeur));
@@ -103,8 +116,13 @@ export function baseSite(lireEnv: (nom: string) => string | undefined): string {
   }
 }
 
+/**
+ * Le jeton est dans le FRAGMENT (#…), jamais dans la query string : un fragment n'est pas envoyé au
+ * serveur, donc absent des journaux du CDN et du serveur web ; la page le lit puis le retire de
+ * l'adresse avant tout outil de suivi (src/lib/jetonRecuperation.ts).
+ */
 export function lienReinitialisation(base: string, jetonHache: string): string {
-  return `${base}/med-mng/reset-password?token_hash=${encodeURIComponent(jetonHache)}&type=recovery`;
+  return `${base}/med-mng/reset-password#token_hash=${encodeURIComponent(jetonHache)}&type=recovery`;
 }
 
 const echapper = (texte: string) =>
@@ -173,36 +191,35 @@ export function creerHandler(deps: Dependances): (req: Request) => Promise<Respo
     }
 
     const maintenant = deps.maintenant();
-    const fenetre = fenetreHeureUtc(maintenant);
 
-    // 2. Limites durables, réservées AVANT toute production de jeton : IP puis adresse.
-    // Limiteur illisible (ou en exception) = 503, échec fermé.
+    // 2. Limites durables, réservées AVANT toute production de jeton : IP puis adresse (une demande
+    // refusée par l'IP ne consomme pas le compteur de l'adresse visée). Chaque réservation est UNE
+    // instruction atomique côté base (mm_reserver_reinit_mdp) : une rafale ne peut pas dépasser la
+    // limite. Erreur de la base (ou exception) = 503, échec fermé.
     let admin: ClientSupabase;
-    let reservationIp: ResultatReservation | null = null;
-    let reservationEmail: ResultatReservation | null = null;
+    let ipAutorisee: boolean | null = null;
+    let emailAutorise: boolean | null = null;
     try {
       admin = deps.creerClientService();
-      reservationIp = await reserverUtilisation(
-        admin, `mm-mdp-ip:${await empreinte(ipAppelant(req))}`, DEMANDES_MAX_PAR_HEURE_ET_IP, fenetre, maintenant,
-      );
-      if (reservationIp?.autorise) {
-        reservationEmail = await reserverUtilisation(
-          admin, `mm-mdp-email:${await empreinte(email)}`, DEMANDES_MAX_PAR_HEURE_ET_EMAIL, fenetre, maintenant,
-        );
+      ipAutorisee = await reserver(admin, `mm-mdp-ip:${await empreinte(ipAppelant(req))}`, DEMANDES_MAX_PAR_HEURE_ET_IP);
+      if (ipAutorisee) {
+        emailAutorise = await reserver(admin, `mm-mdp-email:${await empreinte(email)}`, DEMANDES_MAX_PAR_HEURE_ET_EMAIL);
       }
     } catch (e) {
       console.error('[mm-password-reset] limiteur en exception', e instanceof Error ? e.name : 'inconnue');
-      reservationIp = null;
+      ipAutorisee = null;
     }
-    if (!reservationIp || (reservationIp.autorise && !reservationEmail)) {
+    if (ipAutorisee === null || (ipAutorisee && emailAutorise === null)) {
       return repondre({
         ok: false,
         code: 'VERIFICATION_IMPOSSIBLE',
         message: 'Service momentanément indisponible. Réessayez dans quelques minutes.',
       }, 503);
     }
-    if (!reservationIp.autorise || !reservationEmail?.autorise) {
-      const attente = Math.max(1, Math.ceil((Date.parse(fenetre.fin) - maintenant.getTime()) / 1000));
+    if (!ipAutorisee || !emailAutorise) {
+      // Fenêtre = heure UTC pleine (celle de la fonction SQL, alignée sur l'époque).
+      const finFenetre = (Math.floor(maintenant.getTime() / DUREE_FENETRE_MS) + 1) * DUREE_FENETRE_MS;
+      const attente = Math.max(1, Math.ceil((finFenetre - maintenant.getTime()) / 1000));
       return repondre(
         { ok: false, code: 'TROP_DE_DEMANDES', message: messageAttente(attente), retry_after: attente },
         429,

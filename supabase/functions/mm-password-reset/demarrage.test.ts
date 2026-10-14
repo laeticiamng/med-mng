@@ -5,7 +5,7 @@
 //     supabase/functions/mm-password-reset/demarrage.test.ts
 //
 // Pour tester index.ts (point d'entrée réel, vrai client Supabase, vrai Deno.serve) : un faux
-// Supabase local (PostgREST minimal pour rate_limit_counters + GoTrue admin) répond ; la fonction est
+// Supabase local (PostgREST minimal : rpc mm_reserver_reinit_mdp + GoTrue admin) répond ; la fonction est
 // lancée seule, clés FACTICES, réseau limité au faux Supabase et au téléchargement des modules. Resend
 // n'est pas joignable : l'e-mail ne part pas, la réponse reste 200 (anti-énumération). Sondes :
 //   compte inexistant → 200 { ok: true } ; 4e demande avec la même adresse → 429 ; compteur illisible → 503.
@@ -18,7 +18,7 @@ const PORT_SUPABASE = 54397;
 const PORT_FONCTION = 8000; // port par défaut de Deno.serve
 
 let illisible = false;
-const compteurs = new Map<string, { id: string; request_count: number }>();
+const compteurs = new Map<string, number>();
 let generations = 0;
 
 const json = (corps: unknown, status = 200) =>
@@ -30,29 +30,13 @@ async function fauxSupabase(req: Request): Promise<Response> {
     generations++;
     return json({ code: 404, error_code: 'user_not_found', msg: 'User not found' }, 404);
   }
-  if (url.pathname === '/rest/v1/rate_limit_counters') {
+  if (url.pathname === '/rest/v1/rpc/mm_reserver_reinit_mdp' && req.method === 'POST') {
     if (illisible) return json({ message: 'erreur simulée' }, 500);
-    const cle = (url.searchParams.get('identifier') ?? '').replace(/^eq\./, '');
-    if (req.method === 'GET') {
-      const ligne = compteurs.get(cle);
-      return json(ligne ? [ligne] : []);
-    }
-    if (req.method === 'POST') {
-      const corps = await req.json();
-      compteurs.set(corps.identifier, { id: `id-${compteurs.size}`, request_count: corps.request_count });
-      return json([], 201);
-    }
-    if (req.method === 'PATCH') {
-      const id = (url.searchParams.get('id') ?? '').replace(/^eq\./, '');
-      const corps = await req.json();
-      for (const ligne of compteurs.values()) {
-        if (ligne.id === id) {
-          ligne.request_count = corps.request_count;
-          return json([{ request_count: ligne.request_count }]);
-        }
-      }
-      return json([]);
-    }
+    const { p_cle, p_max } = await req.json();
+    const nombre = compteurs.get(p_cle) ?? 0;
+    if (nombre >= p_max) return json(false);
+    compteurs.set(p_cle, nombre + 1);
+    return json(true);
   }
   return json({ message: 'non simulé' }, 404);
 }

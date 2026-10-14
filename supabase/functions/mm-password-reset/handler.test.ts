@@ -21,12 +21,10 @@ const MAINTENANT = new Date('2026-10-14T10:20:00Z');
 const JETON_HACHE = 'abc123HASHEDtoken-_xyz';
 const EXISTANT = 'camille.dupont@exemple.fr';
 
-interface Ligne {
-  id: string;
-  identifier: string;
-  window_start: string;
-  request_count: number;
-  [cle: string]: unknown;
+interface Reservation {
+  p_cle: string;
+  p_max: number;
+  p_fenetre: string;
 }
 
 interface Options {
@@ -42,49 +40,22 @@ interface Options {
 
 function monter(options: Options = {}) {
   const comptes = new Set(options.comptes ?? [EXISTANT]);
-  const lignes: Ligne[] = [];
+  const appels: Reservation[] = [];
   const liens: Array<{ type: string; email: string }> = [];
   const envois: Array<{ from: string; to: string[]; subject: string; html: string }> = [];
   const requetesResend: Array<{ authorization: string | null }> = [];
 
+  // Faux mm_reserver_reinit_mdp : atomique (un seul pas synchrone, comme l'instruction SQL), compteur par clé.
+  const compteurs = new Map<string, number>();
   const client = {
-    from: (table: string) => {
-      assertEquals(table, 'rate_limit_counters');
-      const filtres: Array<[string, unknown]> = [];
-      const correspond = (l: Ligne) => filtres.every(([c, v]) => l[c] === v);
-      let maj: Record<string, unknown> = {};
-      const chaine = {
-        select: () => chaine,
-        eq: (c: string, v: unknown) => {
-          filtres.push([c, v]);
-          return chaine;
-        },
-        order: () => chaine,
-        limit: async () =>
-          options.limiteurEnPanne ? { data: null, error: { message: 'panne simulée' } } : { data: lignes.filter(correspond), error: null },
-        insert: async (l: Record<string, unknown>) => {
-          lignes.push({ ...(l as Omit<Ligne, 'id'>), id: `l${lignes.length}` } as Ligne);
-          return { error: null };
-        },
-        update: (champs: Record<string, unknown>) => {
-          maj = champs;
-          const suite = {
-            eq: (c: string, v: unknown) => {
-              filtres.push([c, v]);
-              return {
-                ...suite,
-                select: async () => {
-                  const cibles = lignes.filter(correspond);
-                  cibles.forEach((l) => Object.assign(l, maj));
-                  return { data: cibles.map((l) => ({ request_count: l.request_count })), error: null };
-                },
-              };
-            },
-          };
-          return suite;
-        },
-      };
-      return chaine;
+    rpc: async (nom: string, args: Reservation) => {
+      assertEquals(nom, 'mm_reserver_reinit_mdp');
+      appels.push(args);
+      if (options.limiteurEnPanne) return { data: null, error: { message: 'panne simulée' } };
+      const nombre = compteurs.get(args.p_cle) ?? 0;
+      if (nombre >= args.p_max) return { data: false, error: null };
+      compteurs.set(args.p_cle, nombre + 1);
+      return { data: true, error: null };
     },
     auth: {
       admin: {
@@ -148,7 +119,7 @@ function monter(options: Options = {}) {
     return reponse;
   };
 
-  return { handler, brut, attendre, lignes, liens, envois, requetesResend, envoisTermines: () => envoisTermines };
+  return { handler, brut, attendre, appels, liens, envois, requetesResend, envoisTermines: () => envoisTermines };
 }
 
 function demande(email: unknown, entetes: Record<string, string> = {}, methode = 'POST'): Request {
@@ -213,7 +184,7 @@ Deno.test('le lien est construit sur la base fixe, jamais sur Origin, Host ni ac
   }));
   assertEquals(envois.length, 1);
   const html = envois[0].html;
-  const attendu = `https://medmng.com/med-mng/reset-password?token_hash=${JETON_HACHE}&amp;type=recovery`;
+  const attendu = `https://medmng.com/med-mng/reset-password#token_hash=${JETON_HACHE}&amp;type=recovery`;
   assert(html.includes(`href="${attendu}"`), 'bouton sur la base fixe');
   assert(!html.includes('evil.example'), 'aucune trace de l’hôte de la requête');
   assert(!html.includes('emotionscare.com'), 'aucune trace de la redirection fautive');
@@ -232,7 +203,7 @@ Deno.test('MEDMNG_SITE_URL : origine https retenue, valeur non https ou invalide
   for (const [valeur, base] of cas) {
     const { handler, envois } = monter({ env: { MEDMNG_SITE_URL: valeur } });
     await handler(demande(EXISTANT));
-    assert(envois[0].html.includes(`href="${base}/med-mng/reset-password?token_hash=`), `${valeur} → ${base}`);
+    assert(envois[0].html.includes(`href="${base}/med-mng/reset-password#token_hash=`), `${valeur} → ${base}`);
   }
 });
 
@@ -279,19 +250,49 @@ Deno.test('503 si le limiteur échoue : aucun jeton produit, aucun e-mail envoy�
   assertEquals(envois.length, 0);
 });
 
-Deno.test('compteurs : clés hachées, ni adresse ni IP en clair', async () => {
-  const { handler, lignes } = monter();
+Deno.test('compteurs : une réservation atomique par clé, clés hachées, ni adresse ni IP en clair', async () => {
+  const { handler, appels } = monter();
   await handler(demande(EXISTANT));
-  assertEquals(lignes.length, 2);
-  const [ip, email] = lignes;
-  assertEquals(ip.identifier, `mm-mdp-ip:${await empreinte('203.0.113.7')}`);
-  assertEquals(email.identifier, `mm-mdp-email:${await empreinte(EXISTANT)}`);
-  assertEquals(ip.max_requests, 10);
-  assertEquals(email.max_requests, 3);
-  assertEquals(email.window_start, '2026-10-14T10:00:00.000Z');
-  assertEquals(email.window_end, '2026-10-14T11:00:00.000Z');
-  const tout = JSON.stringify(lignes);
+  assertEquals(appels, [
+    { p_cle: `mm-mdp-ip:${await empreinte('203.0.113.7')}`, p_max: 10, p_fenetre: '1 hour' },
+    { p_cle: `mm-mdp-email:${await empreinte(EXISTANT)}`, p_max: 3, p_fenetre: '1 hour' },
+  ]);
+  const tout = JSON.stringify(appels);
   assert(!tout.includes('exemple.fr') && !tout.includes('203.0.113.7'));
+});
+
+Deno.test('rafale : 10 demandes simultanées pour une même adresse, exactement 3 passent (limite atomique)', async () => {
+  const { brut, attendre, envois } = monter();
+  const reponses = await Promise.all(
+    Array.from({ length: 10 }, (_, i) => brut(demande(EXISTANT, { 'x-forwarded-for': `198.51.100.${i + 1}` }))),
+  );
+  await attendre();
+  const statuts = reponses.map((r) => r.status).sort();
+  assertEquals(statuts, [200, 200, 200, 429, 429, 429, 429, 429, 429, 429]);
+  assertEquals(envois.length, 3);
+});
+
+Deno.test('rafale : 25 demandes simultanées depuis une même IP, exactement 10 passent', async () => {
+  const { brut, attendre } = monter();
+  const reponses = await Promise.all(
+    Array.from({ length: 25 }, (_, i) => brut(demande(`personne${i}@exemple.fr`, { 'x-forwarded-for': '192.0.2.77' }))),
+  );
+  await attendre();
+  assertEquals(reponses.filter((r) => r.status === 200).length, 10);
+  assertEquals(reponses.filter((r) => r.status === 429).length, 15);
+});
+
+Deno.test('limiteur en exception (rpc qui lève) : 503, aucun jeton', async () => {
+  const brutLeve = creerHandler({
+    creerClientService: () => ({ rpc: () => Promise.reject(new Error(`boom ${EXISTANT}`)) }),
+    envoyerEmail: () => Promise.reject(new Error('ne doit pas être appelé')),
+    lireEnv: () => undefined,
+    maintenant: () => MAINTENANT,
+    enArrierePlan: () => {},
+  });
+  const { journaux, resultat } = await avecJournaux(async () => await brutLeve(demande(EXISTANT)));
+  assertEquals(resultat.status, 503);
+  assert(!journaux.join('\n').includes('exemple.fr'));
 });
 
 Deno.test('aucune adresse ni jeton dans les journaux, même quand les erreurs amont les citent', async () => {
@@ -322,7 +323,7 @@ Deno.test('aucune adresse ni jeton dans les journaux, même quand les erreurs am
 });
 
 Deno.test('adresse mal formée : 400, rien n’est compté ni produit ; normalisation', async () => {
-  const { handler, lignes, liens } = monter();
+  const { handler, appels, liens } = monter();
   const invalides: unknown[] = [undefined, null, 42, '', '   ', 'sans-arobase', 'a@b', 'a b@exemple.fr', 'a@@exemple.fr', '@exemple.fr', 'a@exemple..fr', '.a@exemple.fr', `${'x'.repeat(250)}@exemple.fr`];
   for (const v of invalides) {
     const r = await handler(demande(v));
@@ -333,7 +334,7 @@ Deno.test('adresse mal formée : 400, rien n’est compté ni produit ; normalis
   assertEquals(corpsIllisible.status, 400);
   const corpsGeant = await handler(demande(`${'a'.repeat(5000)}@exemple.fr`));
   assertEquals(corpsGeant.status, 400);
-  assertEquals(lignes.length, 0);
+  assertEquals(appels.length, 0);
   assertEquals(liens.length, 0);
   assertEquals(normaliserEmail('  Camille.Dupont@Exemple.FR '), EXISTANT);
 });
