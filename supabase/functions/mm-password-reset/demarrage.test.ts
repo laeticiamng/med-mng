@@ -44,7 +44,7 @@ async function fauxSupabase(req: Request): Promise<Response> {
 async function appeler(email: string): Promise<{ statut: number; corps: string }> {
   const r = await fetch(`http://127.0.0.1:${PORT_FONCTION}/`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', origin: 'https://medmng.com', 'x-forwarded-for': '203.0.113.9' },
+    headers: { 'content-type': 'application/json', origin: 'https://medmng.com', 'cf-connecting-ip': '203.0.113.9' },
     body: JSON.stringify({ email }),
     signal: AbortSignal.timeout(15_000),
   });

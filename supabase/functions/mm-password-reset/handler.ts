@@ -27,8 +27,8 @@
  *   mm_reserver_reinit_mdp ; fenêtre = heure UTC pleine) : 3 demandes par heure par adresse et 10
  *   par heure par IP, clés = SHA-256 (jamais l'adresse ni l'IP en clair). Le limiteur commun
  *   (rate_limit_counters) lit puis écrit sans contrainte d'unicité : une rafale le dépassait.
- *   Plafond global de 300 par heure (clé « global ») en défense en profondeur. L'IP est la dernière
- *   valeur de x-forwarded-for (celle de la passerelle), jamais la première (falsifiable).
+ *   Plafond global de 300 par heure (clé « global ») en défense en profondeur. L'IP vient de
+ *   cf-connecting-ip puis x-real-ip, jamais de x-forwarded-for (falsifiable à toute position).
  *   Limiteur illisible → 503, échec fermé : aucun jeton n'est produit sans avoir compté ;
  * - aucune adresse e-mail dans les journaux.
  *
@@ -106,22 +106,19 @@ export async function empreinte(valeur: string): Promise<string> {
 }
 
 /**
- * IP de l'appelant pour la limite par IP : DERNIÈRE valeur non vide de x-forwarded-for.
+ * IP de l'appelant pour la limite par IP : `cf-connecting-ip`, puis `x-real-ip`. JAMAIS x-forwarded-for.
  *
- * L'appelant peut fournir lui-même X-Forwarded-For ; la passerelle Supabase AJOUTE l'adresse réelle
- * en fin de liste (« falsifiee,reelle »). Prendre la première valeur laisserait l'attaquant changer
- * de compartiment à chaque requête et contourner la limite. Voir la reproduction :
- * https://github.com/orgs/supabase/discussions/34647#discussioncomment-12704300
- * Repli (en-tête absent) : cf-connecting-ip puis x-real-ip, posés par la plateforme ; sinon une clé
- * commune « inconnue » (plus stricte, jamais plus permissive).
+ * x-forwarded-for est contrôlé par l'appelant : constaté en production le 14.10.2026 (appels pg_net,
+ * même origine, six valeurs falsifiées différentes : aucun 429 à la 11e demande), la passerelle
+ * Supabase n'y ajoute PAS l'adresse réelle sur ce chemin, ni en première ni en dernière position.
+ * Aucune position de cette liste n'est donc fiable (voir aussi la discussion Supabase :
+ * https://github.com/orgs/supabase/discussions/34647#discussioncomment-12704300).
+ * `cf-connecting-ip` est fixé par Cloudflare, qui l'écrase si le client l'envoie ; `x-real-ip` est posé
+ * par la plateforme. Les journaux function_edge_logs montrent les deux égaux à l'IP réelle.
+ * Sans aucun des deux : clé commune « inconnue » (plus stricte, jamais plus permissive).
  */
 export function ipAppelant(req: Request): string {
-  const valeurs = (req.headers.get('x-forwarded-for') ?? '')
-    .split(',')
-    .map((v) => v.trim())
-    .filter(Boolean);
-  const derniere = valeurs[valeurs.length - 1];
-  return derniere || req.headers.get('cf-connecting-ip')?.trim() || req.headers.get('x-real-ip')?.trim() || 'inconnue';
+  return req.headers.get('cf-connecting-ip')?.trim() || req.headers.get('x-real-ip')?.trim() || 'inconnue';
 }
 
 /**
