@@ -26,6 +26,7 @@ const SEGMENTS_PREMIUM: Record<string, string> = {
   planches: 'Les planches de cet item',
   recit: 'Le récit de cet item',
 };
+import { toucheReserveeALaCible } from '@/lib/touchesPage';
 import { ONGLETS_ITEM_EDN, SEGMENT_PAR_DEFAUT, cheminItemEdn } from './ednItemTabs';
 
 /**
@@ -84,11 +85,7 @@ export default function EdnItemLayout() {
   // quiz changeait d'onglet.
   useEffect(() => {
     const surTouche = (e: KeyboardEvent) => {
-      const cible = e.target as HTMLElement | null;
-      if (cible) {
-        const balise = cible.tagName;
-        if (balise === 'INPUT' || balise === 'TEXTAREA' || balise === 'SELECT' || cible.isContentEditable) return;
-      }
+      if (toucheReserveeALaCible(e)) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
 
       const index = ongletsVisibles.findIndex((o) => o.segment === segmentCourant);
