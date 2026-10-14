@@ -4,8 +4,8 @@
 //     --allow-net=127.0.0.1,0.0.0.0,localhost,deno.land,esm.sh \
 //     supabase/functions/_shared/limite_bienvenue_demarrage.test.ts
 //
-// Un faux Supabase local (GoTrue + PostgREST minimaux) répond à l'identification et à la table
-// `rate_limit_counters`. La fonction est lancée seule, clés FACTICES, réseau limité au faux Supabase
+// Un faux Supabase local (GoTrue + PostgREST minimaux) répond à l'identification et à la fonction
+// compteur atomique (RPC `mm_reserver_usage_journalier`). La fonction est lancée seule, clés FACTICES, réseau limité au faux Supabase
 // et au téléchargement des modules : un envoi Resend échouerait (permission refusée) et la réponse
 // serait 502/500. Sondes :
 //   compte créé à l'instant, compteur au maximum → 429 QUOTA_JOURNALIER, sans envoi ;
@@ -27,7 +27,7 @@ function json(corps: unknown, status = 200): Response {
   return new Response(JSON.stringify(corps), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
-function fauxSupabase(req: Request): Response {
+async function fauxSupabase(req: Request): Promise<Response> {
   const url = new URL(req.url);
   if (url.pathname === '/auth/v1/user') {
     if ((req.headers.get('authorization') ?? '') !== `Bearer ${JETON}`) return json({ message: 'invalid JWT' }, 401);
@@ -36,11 +36,12 @@ function fauxSupabase(req: Request): Response {
       email: 'personne@exemple.test', app_metadata: {}, user_metadata: {}, created_at: creeLe,
     });
   }
-  if (url.pathname === '/rest/v1/rate_limit_counters') {
-    consultations.push(`${req.method} ${url.searchParams.get('identifier') ?? ''}`);
+  if (url.pathname === '/rest/v1/rpc/mm_reserver_usage_journalier') {
+    const corps = await req.json().catch(() => ({})) as { p_identifiant?: string };
+    consultations.push(`${req.method} ${corps.p_identifiant ?? ''}`);
     if (mode === 'illisible') return json({ message: 'erreur simulée' }, 500);
-    if (req.method === 'GET') return json([{ id: 'compteur', request_count: 1_000_000 }]);
-    return json([], 201);
+    // Limite atteinte : la réservation est refusée (aucune écriture).
+    return json([{ autorise: false, utilise: 1_000_000 }]);
   }
   return json({ message: 'non simulé' }, 404);
 }

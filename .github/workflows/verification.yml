@@ -51,5 +51,9 @@ jobs:
       - name: Tests unitaires
         run: npx vitest run
 
+      - name: Concurrence SQL réelle (compteur d'usage journalier)
+        # Postgres est préinstallé sur ubuntu-latest (binaires dans /usr/lib/postgresql).
+        run: bash scripts/test-mm-usage-compteurs.sh
+
       - name: Build de production
         run: npx vite build

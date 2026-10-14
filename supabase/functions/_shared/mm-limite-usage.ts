@@ -1,12 +1,12 @@
 /**
  * Limites d'usage des fonctions Edge payantes ouvertes aux comptes connectés.
  *
- * Compteur par utilisateur et par jour (UTC) dans la table existante
- * `rate_limit_counters` (RLS : écriture réservée au service et aux
- * administrateurs, lecture de ses propres lignes seulement → un utilisateur
- * ne peut pas remettre son compteur à zéro). La fonction SQL
- * `increment_rate_limit_counter` n'est pas utilisée : son calcul de fenêtre
- * ouvre une nouvelle fenêtre chaque minute dès que la durée dépasse 60 s.
+ * Compteur par utilisateur et par jour (UTC) dans la table dédiée
+ * `mm_usage_compteurs` (RLS sans politique : lisible et modifiable par le seul
+ * service → un utilisateur ne peut pas remettre son compteur à zéro). La table
+ * partagée `rate_limit_counters` et sa fonction SQL `increment_rate_limit_counter`
+ * ne sont pas utilisées ici : sans unicité, elles ne permettent pas une
+ * réservation atomique (voir reserverUtilisationJournaliere).
  *
  * Aucune dépendance Deno : testable avec vitest (src/tests/mmLimiteUsage.test.ts).
  */
@@ -39,7 +39,13 @@ export interface ResultatReservation {
  * Réserve une utilisation pour (action, utilisateur) dans la fenêtre du jour.
  * Renvoie { autorise: false } si la limite est atteinte, null si le compteur est
  * illisible (l'appelant refuse alors l'appel : pas de dépense non comptée).
- * Incrément optimiste (mise à jour conditionnée à la valeur lue), 3 essais.
+ *
+ * La réservation est ATOMIQUE, faite en base par la fonction SQL mm_reserver_usage_journalier
+ * (table mm_usage_compteurs, clé primaire (identifiant, fenêtre), INSERT ... ON CONFLICT DO UPDATE
+ * ... WHERE nombre < max) : exactement `maximum` réservations réussissent, même en appels
+ * simultanés. L'ancienne version lisait puis écrivait dans rate_limit_counters sans unicité :
+ * 6 appels simultanés pour une limite de 2 en passaient 5 (mesuré en production le 14.10.2026).
+ * Migration : supabase/migrations/20261014170000_mm_compteur_usage_journalier.sql.
  */
 export async function reserverUtilisationJournaliere(
   supabase: ClientSupabase,
@@ -48,45 +54,21 @@ export async function reserverUtilisationJournaliere(
   maximum: number,
   maintenant: Date = new Date(),
 ): Promise<ResultatReservation | null> {
-  const identifiant = `${action}:${userId}`;
-  const { debut, fin } = fenetreJourUtc(maintenant);
-  for (let essai = 0; essai < 3; essai++) {
-    const { data, error } = await supabase
-      .from('rate_limit_counters')
-      .select('id, request_count')
-      .eq('identifier', identifiant)
-      .eq('window_start', debut)
-      .order('created_at', { ascending: true })
-      .limit(1);
+  try {
+    const { data, error } = await supabase.rpc('mm_reserver_usage_journalier', {
+      p_identifiant: `${action}:${userId}`,
+      p_max: maximum,
+      p_maintenant: maintenant.toISOString(),
+    });
     if (error) return null;
-    const ligne = Array.isArray(data) ? data[0] : null;
-
-    if (!ligne) {
-      const { error: errInsertion } = await supabase.from('rate_limit_counters').insert({
-        identifier: identifiant,
-        window_start: debut,
-        window_end: fin,
-        request_count: 1,
-        max_requests: maximum,
-      });
-      if (errInsertion) return null;
-      return { autorise: true, utilise: 1 };
-    }
-
-    const actuel = Number(ligne.request_count) || 0;
-    if (actuel >= maximum) return { autorise: false, utilise: actuel };
-
-    const { data: maj, error: errMaj } = await supabase
-      .from('rate_limit_counters')
-      .update({ request_count: actuel + 1, updated_at: maintenant.toISOString() })
-      .eq('id', ligne.id)
-      .eq('request_count', actuel)
-      .select('request_count');
-    if (errMaj) return null;
-    if (Array.isArray(maj) && maj.length > 0) return { autorise: true, utilise: actuel + 1 };
-    // Mise à jour concurrente : on relit.
+    const lignes = Array.isArray(data) ? data : data ? [data] : [];
+    if (lignes.length !== 1) return null;
+    const { autorise, utilise } = lignes[0] ?? {};
+    if (typeof autorise !== 'boolean' || !Number.isFinite(Number(utilise))) return null;
+    return { autorise, utilise: Number(utilise) };
+  } catch {
+    return null;
   }
-  return null;
 }
 
 const EN_TETES_JSON = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
