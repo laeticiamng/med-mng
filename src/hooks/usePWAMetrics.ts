@@ -178,6 +178,12 @@ export const usePWAMetrics = () => {
         install_date: data.install_date as string | undefined,
       };
 
+      // Déconnexion survenue pendant l'attente de getUser() : la requête partirait avec la clé
+      // publique (anon) et recevrait un 401 de la politique RLS. La session locale est relue
+      // juste avant l'envoi (sans appel réseau).
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
       try {
         const { error } = await supabase.from('pwa_metrics').upsert(
           metricPayload as any,

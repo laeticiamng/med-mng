@@ -45,6 +45,26 @@ describe('accès aux paroles : un seul énoncé, exact (D6)', () => {
     expect(texte).not.toMatch(/paroles restent disponibles/);
   });
 
+  it("page FAQ : la réponse « Qu'est-ce qui est gratuit, qu'est-ce qui est Premium ? » donne la même phrase (QA du 14.10.2026)", () => {
+    const { container, getByText } = render(
+      <MemoryRouter>
+        <FAQ />
+      </MemoryRouter>
+    );
+    fireEvent.click(getByText("Qu'est-ce qui est gratuit, qu'est-ce qui est Premium ?"));
+    expect((container.textContent ?? '').replace(/\s+/g, ' ')).toContain(PHRASE);
+  });
+
+  it("FAQ des tarifs : la réponse « Qu'est-ce qui est gratuit ? » donne la même phrase", () => {
+    const { container, getByText } = render(
+      <MemoryRouter>
+        <PricingFAQ />
+      </MemoryRouter>
+    );
+    fireEvent.click(getByText("Qu'est-ce qui est gratuit ?"));
+    expect((container.textContent ?? '').replace(/\s+/g, ' ')).toContain(PHRASE);
+  });
+
   it('FAQ des tarifs rendue : la réponse sur la musique IA donne la même phrase', () => {
     const { container, getByText } = render(
       <MemoryRouter>

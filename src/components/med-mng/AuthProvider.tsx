@@ -25,6 +25,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 /** Comptes pour lesquels l'e-mail de bienvenue a déjà été demandé dans cet onglet (SIGNED_IN peut arriver deux fois). */
 const bienvenueDemandee = new Set<string>();
 
+/**
+ * La mémoire de l'onglet ne suffit pas : chaque rechargement ou nouvel onglet dans la minute qui
+ * suit l'inscription redéclenchait la demande (le serveur répondait 429 dès la 3e, QA du
+ * 14.10.2026). Le navigateur garde donc aussi la trace (localStorage, partagé entre onglets) ;
+ * le serveur reste l'autorité (fonction send-welcome-email).
+ */
+const CLE_BIENVENUE = 'mm-bienvenue-demandee';
+const bienvenueDejaDemandee = (userId: string): boolean => {
+  if (bienvenueDemandee.has(userId)) return true;
+  try {
+    return localStorage.getItem(`${CLE_BIENVENUE}:${userId}`) !== null;
+  } catch {
+    return false;
+  }
+};
+const marquerBienvenueDemandee = (userId: string): void => {
+  bienvenueDemandee.add(userId);
+};
+/** Trace durable, seulement après un envoi réussi : un échec reste réessayable. */
+const memoriserBienvenueEnvoyee = (userId: string): void => {
+  try {
+    localStorage.setItem(`${CLE_BIENVENUE}:${userId}`, new Date().toISOString());
+  } catch {
+    // Stockage indisponible : le garde-fou serveur suffit.
+  }
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,14 +172,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const timeDiff = now.getTime() - userCreatedAt.getTime();
           const isNewUser = timeDiff < 60000;
           
-          if (isNewUser && !bienvenueDemandee.has(userId)) {
-            bienvenueDemandee.add(userId);
+          if (isNewUser && !bienvenueDejaDemandee(userId)) {
+            marquerBienvenueDemandee(userId);
             const name = userName || userEmail?.split('@')[0] || '';
             if (import.meta.env.DEV) console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
             
             setTimeout(async () => {
               try {
-                await sendWelcomeEmail(session.user.email!, name);
+                const resultat = await sendWelcomeEmail(session.user.email!, name);
+                if (resultat?.success) memoriserBienvenueEnvoyee(userId);
               } catch (e) {
                 if (import.meta.env.DEV) console.warn('Échec envoi email de bienvenue:', e);
               }

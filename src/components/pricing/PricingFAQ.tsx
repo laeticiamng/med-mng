@@ -6,7 +6,7 @@ import { ACCES_PAROLES, GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENER
 const faqs = [
   {
     question: "Qu'est-ce qui est gratuit ?",
-    answer: "Avec un compte gratuit : les fiches officielles des 367 items (compétences rang A et rang B, référentiel LiSA 2026), le contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai, et les situations ECOS."
+    answer: `Avec un compte gratuit : les fiches officielles des 367 items (compétences rang A et rang B, référentiel LiSA 2026), le contenu immersif complet (paroles, récit, planches, quiz) de 10 items d'essai, et les situations ECOS. ${ACCES_PAROLES}`
   },
   {
     question: "Que contient Med MNG Premium ?",

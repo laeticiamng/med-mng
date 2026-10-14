@@ -10,7 +10,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { BookOpen, Brain, HelpCircle, Music, Zap } from "lucide-react";
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PROMESSE_AUDIO } from '@/config/offre';
+import { ACCES_PAROLES, PROMESSE_AUDIO } from '@/config/offre';
 const faqItems = [
   {
     id: "rang-ab",
@@ -108,10 +108,11 @@ const faqItems = [
             Med MNG Premium (69 € par an ou 9,90 € par mois)
           </p>
           <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
-            <li>Le contenu immersif des 367 items</li>
+            <li>Le contenu immersif des 367 items, paroles comprises</li>
             <li>{PROMESSE_AUDIO.charAt(0).toUpperCase() + PROMESSE_AUDIO.slice(1)}</li>
           </ul>
         </div>
+        <p className="text-sm text-muted-foreground">{ACCES_PAROLES}</p>
       </div>
     ),
     category: "Tarifs",
