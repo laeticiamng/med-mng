@@ -66,12 +66,16 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     }
 
     try {
-      const { data } = await supabase
-        .from('user_music_preferences' as any)
+      const { data, error } = await supabase
+        .from('med_mng_player_preferences' as any)
         .select('favorites, history, shuffle_enabled, repeat_mode, volume')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
+      if (error) {
+        console.warn('Préférences de lecture indisponibles', error.message);
+        return;
+      }
       if (data) {
         const prefs = data as unknown as MusicPreferences;
         setFavorites(new Set(prefs.favorites || []));
@@ -109,7 +113,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     // supabase-js ne lève pas sur erreur PostgREST : le try/catch précédent ne
     // captait rien et l'échec d'écriture passait inaperçu.
     const { error } = await supabase
-      .from('user_music_preferences' as any)
+      .from('med_mng_player_preferences' as any)
       .upsert({
         user_id: user.id,
         favorites: [...favoritesToSave],
