@@ -29,7 +29,10 @@ import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { useSubscription } from '@/hooks/useSubscription';
-import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
+import {
+  assurerChansonEnBibliotheque,
+  type ResultatBibliotheque,
+} from '@/lib/bibliothequeGeneration';
 import { avecSuivant } from '@/lib/cheminSuivant';
 import {
   generateComprehensiveLyrics,
@@ -105,6 +108,29 @@ const avecDelai = <T>(promesse: Promise<T>, ms: number): Promise<T | null> =>
       }
     );
   });
+
+/**
+ * Relectures après un résultat « impossible » : le callback du serveur peut être en
+ * train d'enregistrer la chanson au même moment que le repli client (insertion unique
+ * sur suno_audio_id : le perdant reçoit 23505, que assurerChansonEnBibliotheque
+ * rapporte comme « impossible »). Relire laisse le temps au callback de finir : si la
+ * chanson est là, assurerChansonEnBibliotheque la retrouve et rend « deja ».
+ */
+const DELAIS_RELECTURE_BIBLIOTHEQUE_MS = [1500, 3000];
+
+/** Vérifie la bibliothèque, avec au plus deux relectures espacées après un « impossible ». */
+const assurerAvecRelecture = async (
+  userId: string,
+  taskId: string
+): Promise<ResultatBibliotheque> => {
+  let resultat = await assurerChansonEnBibliotheque(userId, taskId);
+  for (const delai of DELAIS_RELECTURE_BIBLIOTHEQUE_MS) {
+    if (resultat.etat !== 'impossible') break;
+    await new Promise((resolve) => setTimeout(resolve, delai));
+    resultat = await assurerChansonEnBibliotheque(userId, taskId);
+  }
+  return resultat;
+};
 
 /** Délai maximal de la vérification de bibliothèque (le serveur l'a déjà enregistrée en général). */
 const DELAI_BIBLIOTHEQUE_MS = 20_000;
@@ -200,7 +226,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
         try {
           if (toujoursCourante()) setBibliotheque('verification');
           const biblio = await avecDelai(
-            assurerChansonEnBibliotheque(userId, taskId),
+            assurerAvecRelecture(userId, taskId),
             DELAI_BIBLIOTHEQUE_MS
           );
           if (toujoursCourante()) {
@@ -504,10 +530,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     }
     if (chanson.taskId && bibliotheque !== 'enregistree') {
       try {
-        const resultat = await assurerChansonEnBibliotheque(
-          user.id,
-          chanson.taskId
-        );
+        const resultat = await assurerAvecRelecture(user.id, chanson.taskId);
         if (resultat.etat === 'impossible') {
           toast.error(
             `Impossible d'enregistrer la chanson dans votre bibliothèque : ${resultat.raison}`

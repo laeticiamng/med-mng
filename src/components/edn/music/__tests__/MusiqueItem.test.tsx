@@ -905,3 +905,67 @@ describe('Annulation après l’envoi de la requête payante', () => {
     ).toBeEnabled();
   });
 });
+
+describe('Bibliothèque : course entre le callback serveur et le repli client', () => {
+  const conflit = {
+    etat: 'impossible' as const,
+    raison: 'duplicate key value violates unique constraint (23505)',
+  };
+  const monterHook = () => {
+    const client = new QueryClient();
+    return renderHook(() => useChansonItem('IC-14', paroles), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={client}>
+          <MemoryRouter>{children}</MemoryRouter>
+        </QueryClientProvider>
+      ),
+    });
+  };
+
+  it('conflit 23505 puis relecture trouvée : « enregistrée », aucun message d’échec', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      vi.mocked(assurerChansonEnBibliotheque).mockResolvedValueOnce(conflit);
+      const { result } = monterHook();
+      await act(async () => {
+        await result.current.generer('A', 'lofi');
+      });
+      expect(result.current.bibliotheque).toBe('verification');
+      vi.mocked(toast.error).mockClear();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1600);
+      });
+      // La relecture trouve la chanson enregistrée par le callback (défaut du mock : « deja »).
+      expect(assurerChansonEnBibliotheque).toHaveBeenCalledTimes(2);
+      expect(result.current.bibliotheque).toBe('enregistree');
+      expect(toast.error).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('relectures toujours vides : « absente » après deux relectures espacées, pas davantage', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      vi.mocked(assurerChansonEnBibliotheque)
+        .mockResolvedValueOnce(conflit)
+        .mockResolvedValueOnce(conflit)
+        .mockResolvedValueOnce(conflit);
+      const { result } = monterHook();
+      await act(async () => {
+        await result.current.generer('A', 'lofi');
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+      expect(result.current.bibliotheque).toBe('verification');
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000);
+      });
+      expect(assurerChansonEnBibliotheque).toHaveBeenCalledTimes(3);
+      expect(result.current.bibliotheque).toBe('absente');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
