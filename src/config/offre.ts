@@ -58,6 +58,15 @@ export const PROMESSE_AUDIO_COURTE = AUDIO_OUVERT ? 'génération audio' : 'gén
 
 export const NOM_OFFRE_PREMIUM = 'Med MNG Premium';
 
+/**
+ * Accès aux paroles, formulé de façon unique pour la FAQ, la FAQ des tarifs et
+ * les données structurées (JSON-LD). Ne pas écrire « les paroles sont
+ * disponibles pour les 367 items » : un compte gratuit voit les paroles
+ * verrouillées hors des 10 items d'essai (défaut D6, QA du 14.10.2026).
+ */
+export const ACCES_PAROLES =
+  `Les paroles des ${NOMBRE_ITEMS_GRATUITS} items d'essai sont gratuites ; celles des ${NOMBRE_ITEMS_TOTAL} items sont incluses dans ${NOM_OFFRE_PREMIUM}.`;
+
 export type FormulePremium = 'annuel' | 'mensuel';
 
 export const FORMULES_PREMIUM: Record<FormulePremium, {

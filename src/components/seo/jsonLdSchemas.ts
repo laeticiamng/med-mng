@@ -7,7 +7,7 @@
  * - Organization : l'organisation Med MNG
  * - FAQPage : questions fréquentes
  */
-import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, PROMESSE_AUDIO_COURTE } from '@/config/offre';
+import { ACCES_PAROLES, GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, PROMESSE_AUDIO_COURTE } from '@/config/offre';
 
 const SITE_URL = 'https://medmng.com';
 
@@ -165,7 +165,7 @@ export const createFAQPageSchema = () => ({
       name: 'Qu\'est-ce que Med MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: `Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel LiSA 2026 (UNESS), ainsi qu'un contenu immersif (paroles de chanson, récit, planches, quiz)${GENERATION_AUDIO_DISPONIBLE ? ' que vous pouvez mettre en musique' : ''}.`,
+        text: `Med MNG est une plateforme de révision EDN. Pour chacun des 367 items, elle propose une fiche avec les compétences rang A et rang B du référentiel LiSA 2026 (UNESS), ainsi qu'un contenu immersif (paroles de chanson, récit, planches, quiz)${GENERATION_AUDIO_DISPONIBLE ? ' que vous pouvez mettre en musique' : ''}. ${ACCES_PAROLES}`,
       },
     },
     {
