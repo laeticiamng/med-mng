@@ -1,0 +1,163 @@
+{
+  "avertissement": "PRÉPARÉ, NON EXÉCUTÉ. Aucune génération n’a été lancée. Ne lancer qu’après autorisation explicite : chaque requête consomme des crédits sunoapi.org. callBackUrl est fictive. Aucune clé dans ce fichier.",
+  "modele": "V6",
+  "nombreDeRequetes": 6,
+  "requetes": [
+    {
+      "id": "pop-A",
+      "style": "pop",
+      "variante": "A",
+      "description": "Prompt actuel du catalogue (production aujourd’hui), négatifs actuels",
+      "chargeUtile": {
+        "customMode": true,
+        "instrumental": false,
+        "model": "V6",
+        "callBackUrl": "https://remplacer-au-lancement.invalid/mm-suno-callback",
+        "lyrics": "[Couplet 1]\nChaque matin je reprends mes fiches\nUn peu de calme, un café, un cap\nJe relis doucement ce que j’ai appris\nEt ma mémoire fait son chemin\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Couplet 2]\nQuand le doute vient frapper à ma porte\nJe respire, je reprends le fil\nChaque phrase que je dis à voix haute\nSe pose comme une pierre au fond de moi\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Pont]\nRépéter, c’est aimer ce qu’on apprend\nRépéter, c’est se donner le temps\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà",
+        "style": "french pop, upbeat, bright synths, catchy chorus, 112 bpm, radio friendly, clear female vocals, french lyrics",
+        "title": "Test de styles — Pop",
+        "negativeTags": "screaming, distorted vocals, mumbled vocals, off-key vocals, harsh noise, heavy metal, screamo",
+        "vocalGender": "f",
+        "styleWeight": 0.7,
+        "weirdnessConstraint": 0.3,
+        "variety": 1,
+        "duration": 139
+      },
+      "longueurs": {
+        "style": 109,
+        "negativeTags": 94,
+        "lyrics": 808
+      }
+    },
+    {
+      "id": "pop-B",
+      "style": "pop",
+      "variante": "B",
+      "description": "Prompt personnel riche (direction de référence), négatifs v2",
+      "chargeUtile": {
+        "customMode": true,
+        "instrumental": false,
+        "model": "V6",
+        "callBackUrl": "https://remplacer-au-lancement.invalid/mm-suno-callback",
+        "lyrics": "[Couplet 1]\nChaque matin je reprends mes fiches\nUn peu de calme, un café, un cap\nJe relis doucement ce que j’ai appris\nEt ma mémoire fait son chemin\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Couplet 2]\nQuand le doute vient frapper à ma porte\nJe respire, je reprends le fil\nChaque phrase que je dis à voix haute\nSe pose comme une pierre au fond de moi\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Pont]\nRépéter, c’est aimer ce qu’on apprend\nRépéter, c’est se donner le temps\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà",
+        "style": "Contemporary melodic pop, French pop, indie pop, sophisticated dance-pop influences, expressive acoustic grand piano, warm electric bass, live studio drums, shimmering electric guitars, subtle analog synthesizers, layered melodic harmonies, memorable choruses, dynamic instrumental transitions, natural expressive lead vocals, nuanced phrasing, rich stereo arrangements, polished contemporary studio production, clear female vocals, french lyrics",
+        "title": "Test de styles — Pop",
+        "negativeTags": "screaming, distorted vocals, mumbled vocals, off-key vocals, harsh noise, heavy metal, screamo, robotic vocals, metallic vocals",
+        "vocalGender": "f",
+        "styleWeight": 0.7,
+        "weirdnessConstraint": 0.3,
+        "variety": 1,
+        "duration": 139
+      },
+      "longueurs": {
+        "style": 446,
+        "negativeTags": 127,
+        "lyrics": 808
+      }
+    },
+    {
+      "id": "pop-C",
+      "style": "pop",
+      "variante": "C",
+      "description": "Prompt structuré du catalogue v2, négatifs v2",
+      "chargeUtile": {
+        "customMode": true,
+        "instrumental": false,
+        "model": "V6",
+        "callBackUrl": "https://remplacer-au-lancement.invalid/mm-suno-callback",
+        "lyrics": "[Couplet 1]\nChaque matin je reprends mes fiches\nUn peu de calme, un café, un cap\nJe relis doucement ce que j’ai appris\nEt ma mémoire fait son chemin\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Couplet 2]\nQuand le doute vient frapper à ma porte\nJe respire, je reprends le fil\nChaque phrase que je dis à voix haute\nSe pose comme une pierre au fond de moi\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Pont]\nRépéter, c’est aimer ce qu’on apprend\nRépéter, c’est se donner le temps\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà",
+        "style": "french melodic pop, indie pop, dance pop, acoustic grand piano, warm electric bass, live studio drums, shimmering electric guitars, subtle analog synths, layered harmonies, catchy chorus, upbeat groove, warm expressive lead vocals, 112 bpm, clear female vocals, french lyrics",
+        "title": "Test de styles — Pop",
+        "negativeTags": "screaming, distorted vocals, mumbled vocals, off-key vocals, harsh noise, heavy metal, screamo, robotic vocals, metallic vocals",
+        "vocalGender": "f",
+        "styleWeight": 0.7,
+        "weirdnessConstraint": 0.3,
+        "variety": 1,
+        "duration": 139
+      },
+      "longueurs": {
+        "style": 275,
+        "negativeTags": 127,
+        "lyrics": 808
+      }
+    },
+    {
+      "id": "afrobeat-A",
+      "style": "afrobeat",
+      "variante": "A",
+      "description": "Prompt actuel du catalogue (production aujourd’hui), négatifs actuels",
+      "chargeUtile": {
+        "customMode": true,
+        "instrumental": false,
+        "model": "V6",
+        "callBackUrl": "https://remplacer-au-lancement.invalid/mm-suno-callback",
+        "lyrics": "[Couplet 1]\nChaque matin je reprends mes fiches\nUn peu de calme, un café, un cap\nJe relis doucement ce que j’ai appris\nEt ma mémoire fait son chemin\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Couplet 2]\nQuand le doute vient frapper à ma porte\nJe respire, je reprends le fil\nChaque phrase que je dis à voix haute\nSe pose comme une pierre au fond de moi\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Pont]\nRépéter, c’est aimer ce qu’on apprend\nRépéter, c’est se donner le temps\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà",
+        "style": "afrobeats, groovy percussion, sunny guitar riffs, smooth, 104 bpm, danceable, uplifting, clear male vocals, french lyrics",
+        "title": "Test de styles — Afrofusion",
+        "negativeTags": "screaming, distorted vocals, mumbled vocals, off-key vocals, harsh noise, heavy metal, slow ballad",
+        "vocalGender": "m",
+        "styleWeight": 0.7,
+        "weirdnessConstraint": 0.3,
+        "variety": 1,
+        "duration": 139
+      },
+      "longueurs": {
+        "style": 121,
+        "negativeTags": 98,
+        "lyrics": 808
+      }
+    },
+    {
+      "id": "afrobeat-B",
+      "style": "afrobeat",
+      "variante": "B",
+      "description": "Prompt personnel riche (direction de référence), négatifs v2",
+      "chargeUtile": {
+        "customMode": true,
+        "instrumental": false,
+        "model": "V6",
+        "callBackUrl": "https://remplacer-au-lancement.invalid/mm-suno-callback",
+        "lyrics": "[Couplet 1]\nChaque matin je reprends mes fiches\nUn peu de calme, un café, un cap\nJe relis doucement ce que j’ai appris\nEt ma mémoire fait son chemin\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Couplet 2]\nQuand le doute vient frapper à ma porte\nJe respire, je reprends le fil\nChaque phrase que je dis à voix haute\nSe pose comme une pierre au fond de moi\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Pont]\nRépéter, c’est aimer ce qu’on apprend\nRépéter, c’est se donner le temps\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà",
+        "style": "Afrofusion, Amapiano, Afrokompa, Afrozouk, modern Makossa, Bikutsi, Afrosoul, Jazz Amapiano, Afro-Caribbean fusion, rhythmic Kompa electric guitars, expressive jazz piano, deep melodic electric bass, rolling Amapiano log drums, intricate African percussion, organic live drums, layered polyrhythms, soulful harmonies, vibrant instrumental breaks, warm analog textures, natural expressive lead vocals, immersive studio production, infectious dance groove, clear male vocals, french lyrics",
+        "title": "Test de styles — Afrofusion",
+        "negativeTags": "screaming, distorted vocals, mumbled vocals, off-key vocals, harsh noise, heavy metal, slow ballad, robotic vocals, metallic vocals",
+        "vocalGender": "m",
+        "styleWeight": 0.7,
+        "weirdnessConstraint": 0.3,
+        "variety": 1,
+        "duration": 139
+      },
+      "longueurs": {
+        "style": 487,
+        "negativeTags": 131,
+        "lyrics": 808
+      }
+    },
+    {
+      "id": "afrobeat-C",
+      "style": "afrobeat",
+      "variante": "C",
+      "description": "Prompt structuré du catalogue v2, négatifs v2",
+      "chargeUtile": {
+        "customMode": true,
+        "instrumental": false,
+        "model": "V6",
+        "callBackUrl": "https://remplacer-au-lancement.invalid/mm-suno-callback",
+        "lyrics": "[Couplet 1]\nChaque matin je reprends mes fiches\nUn peu de calme, un café, un cap\nJe relis doucement ce que j’ai appris\nEt ma mémoire fait son chemin\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Couplet 2]\nQuand le doute vient frapper à ma porte\nJe respire, je reprends le fil\nChaque phrase que je dis à voix haute\nSe pose comme une pierre au fond de moi\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà\n[Pont]\nRépéter, c’est aimer ce qu’on apprend\nRépéter, c’est se donner le temps\n[Refrain]\nUn peu chaque jour, jamais d’un coup\nLes petits pas nous mènent loin\nUn peu chaque jour, je tiens le cap\nEt demain je saurai déjà",
+        "style": "afrobeats, afro fusion, afro soul, intricate african percussion, deep melodic bass, sunny highlife guitar riffs, organic live drums, bright keys, layered polyrhythms, soulful harmonies, infectious dance groove, warm expressive lead vocals, 104 bpm, clear male vocals, french lyrics",
+        "title": "Test de styles — Afrofusion",
+        "negativeTags": "screaming, distorted vocals, mumbled vocals, off-key vocals, harsh noise, heavy metal, slow ballad, robotic vocals, metallic vocals",
+        "vocalGender": "m",
+        "styleWeight": 0.7,
+        "weirdnessConstraint": 0.3,
+        "variety": 1,
+        "duration": 139
+      },
+      "longueurs": {
+        "style": 281,
+        "negativeTags": 131,
+        "lyrics": 808
+      }
+    }
+  ]
+}
