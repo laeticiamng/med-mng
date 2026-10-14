@@ -36,7 +36,7 @@ import {
   generateMixedLyrics,
 } from '@/utils/generateComprehensiveLyrics';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -60,6 +60,39 @@ export interface ChansonGeneree {
   itemCode: string;
   lyrics: string;
 }
+
+/**
+ * Un lancement = un seul objet, posé de façon synchrone dès le clic et libéré en
+ * UN seul point (`liberer`). Il sert à la fois de verrou contre un second lancement
+ * et de jeton : toute continuation périmée (annulation, démontage) le voit et
+ * s'arrête avant d'appeler le service payant.
+ */
+interface Lancement {
+  rang: RangChanson;
+  /** Annulé par l'utilisatrice, ou page quittée pendant la rédaction des paroles. */
+  annule: boolean;
+  /** La requête payante est partie : le démontage ne l'interrompt plus. */
+  audioLance: boolean;
+}
+
+/** Borne une attente : au-delà, la promesse rend `null` (elle n'est pas annulée). */
+const avecDelai = <T>(promesse: Promise<T>, ms: number): Promise<T | null> =>
+  new Promise((resolve, reject) => {
+    const minuteur = setTimeout(() => resolve(null), ms);
+    promesse.then(
+      (valeur) => {
+        clearTimeout(minuteur);
+        resolve(valeur);
+      },
+      (erreur) => {
+        clearTimeout(minuteur);
+        reject(erreur);
+      }
+    );
+  });
+
+/** Délai maximal de la vérification de bibliothèque (le serveur l'a déjà enregistrée en général). */
+const DELAI_BIBLIOTHEQUE_MS = 20_000;
 
 type EtatBibliotheque = 'inconnue' | 'verification' | 'enregistree' | 'absente';
 
@@ -86,11 +119,9 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const [styleEnCours, setStyleEnCours] = useState<string | null>(null);
   /** Dès le clic, avant toute requête (rédaction des paroles comprise) : verrou contre un second lancement. */
   const [preparation, setPreparation] = useState(false);
-  const lancement = useRef<symbol | null>(null);
+  const lancement = useRef<Lancement | null>(null);
   /** Chanson dont le post-traitement (bibliothèque) peut encore mettre l'état à jour. */
   const chansonCourante = useRef<string | null>(null);
-  /** Annulation demandée pendant la rédaction des paroles : aucune génération n'est alors lancée. */
-  const annulation = useRef(false);
   const [debutGeneration, setDebutGeneration] = useState<number | null>(null);
   const [bibliotheque, setBibliotheque] =
     useState<EtatBibliotheque>('inconnue');
@@ -129,7 +160,12 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     );
   const quotaAtteint = Boolean(musicQuota && !musicQuota.can_generate);
 
-  /** Post-traitement d'une chanson prête : bibliothèque, activité, points. Jamais de rejet non traité. */
+  /**
+   * Post-traitement d'une chanson prête : bibliothèque, puis activité et points.
+   * Les deux chaînes sont indépendantes (une bibliothèque qui ne répond pas ne
+   * fait pas perdre l'activité ni les points d'une chanson réussie) ; la
+   * vérification de bibliothèque est bornée ; aucune erreur n'est remontée.
+   */
   const apresGeneration = useCallback(
     async (
       userId: string,
@@ -140,36 +176,47 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     ) => {
       const toujoursCourante = () =>
         chansonCourante.current === (taskId || null);
-      try {
-        if (taskId) {
+      const verifierBibliotheque = async () => {
+        if (!taskId) return;
+        try {
           if (toujoursCourante()) setBibliotheque('verification');
-          const biblio = await assurerChansonEnBibliotheque(userId, taskId);
+          const biblio = await avecDelai(
+            assurerChansonEnBibliotheque(userId, taskId),
+            DELAI_BIBLIOTHEQUE_MS
+          );
           if (toujoursCourante()) {
             setBibliotheque(
-              biblio.etat === 'impossible' ? 'absente' : 'enregistree'
+              biblio && biblio.etat !== 'impossible' ? 'enregistree' : 'absente'
             );
           }
+        } catch (erreur) {
+          if (toujoursCourante()) setBibliotheque('absente');
+          if (import.meta.env.DEV) console.warn('Bibliothèque :', erreur);
         }
-      } catch (erreur) {
-        if (toujoursCourante()) setBibliotheque('absente');
-        if (import.meta.env.DEV) console.warn('Bibliothèque :', erreur);
-      }
-      try {
-        await logActivity({
-          activity_type: 'music_generation',
-          count: 1,
-          metadata: {
-            itemCode,
-            style,
-            rang,
-            advancedParams: advancedParams ? Object.keys(advancedParams) : [],
-          },
-        });
-        await addPoints(userId, POINTS_CONFIG.itemReviewed, 'itemReviewed');
-        loadStats(userId);
-      } catch (erreur) {
-        if (import.meta.env.DEV) console.warn('Activité :', erreur);
-      }
+      };
+      const enregistrerActivite = async () => {
+        try {
+          await logActivity({
+            activity_type: 'music_generation',
+            count: 1,
+            metadata: {
+              itemCode,
+              style,
+              rang,
+              advancedParams: advancedParams ? Object.keys(advancedParams) : [],
+            },
+          });
+        } catch (erreur) {
+          if (import.meta.env.DEV) console.warn('Activité :', erreur);
+        }
+        try {
+          await addPoints(userId, POINTS_CONFIG.itemReviewed, 'itemReviewed');
+          loadStats(userId);
+        } catch (erreur) {
+          if (import.meta.env.DEV) console.warn('Points :', erreur);
+        }
+      };
+      await Promise.allSettled([verifierBibliotheque(), enregistrerActivite()]);
       rafraichirChansonsItem();
     },
     [itemCode, logActivity, addPoints, loadStats, rafraichirChansonsItem]
@@ -177,11 +224,12 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
 
   const genererInterne = useCallback(
     async (
-      rang: RangChanson,
+      l: Lancement,
       style: string,
       advancedParams: Partial<AdvancedSunoParams> | undefined,
       liberer: () => void
     ) => {
+      const rang = l.rang;
       if (!user) {
         toast.error(
           `Connectez-vous pour utiliser le générateur audio (inclus dans ${NOM_OFFRE_PREMIUM}).`,
@@ -239,6 +287,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
                 ? await generateMixedLyrics(itemCode)
                 : await generateComprehensiveLyrics(itemCode, rang);
           } catch (erreurParoles) {
+            if (l.annule) return;
             const message =
               erreurParoles instanceof Error
                 ? erreurParoles.message
@@ -249,6 +298,8 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
             return;
           }
         }
+        // Annulation (ou page quittée) pendant la rédaction : aucune génération payante.
+        if (l.annule) return;
         if (lignes.length === 0) {
           toast.error(
             `Aucune parole disponible pour le ${rang === 'AB' ? 'rang A+B' : `rang ${rang}`} de cet item.`
@@ -256,12 +307,12 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
           return;
         }
 
-        if (annulation.current) return;
         chansonCourante.current = null;
         setDebutGeneration(Date.now());
         setChanson(null);
         setBibliotheque('inconnue');
 
+        l.audioLance = true;
         const resultat = await musicGeneration.generateMusicInLanguage(
           rang,
           lignes,
@@ -273,7 +324,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
           }
         );
 
-        setDebutGeneration(null);
+        if (l.annule) return;
         const taskId = resultat.taskId;
         chansonCourante.current = taskId || null;
         setChanson({
@@ -301,7 +352,6 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
       } catch (error) {
         // Le hook de génération a déjà affiché un message français, jamais technique.
         if (import.meta.env.DEV) console.error('Erreur génération:', error);
-        setDebutGeneration(null);
         rafraichirQuota();
       }
     },
@@ -321,11 +371,25 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   );
 
   /**
+   * UNIQUE point de libération : lève le verrou et remet l'état local à zéro.
+   * Idempotent, et sans effet si un autre lancement a pris le verrou depuis.
+   */
+  const liberer = useCallback((l: Lancement) => {
+    if (lancement.current !== l) return;
+    lancement.current = null;
+    setPreparation(false);
+    setRangEnCours(null);
+    setStyleEnCours(null);
+    setDebutGeneration(null);
+  }, []);
+
+  /**
    * Lance UNE génération payante : seule fonction de ce hook qui contacte le service.
    * Le verrou est posé de façon synchrone (référence) puis affiché (état) avant la
    * première requête : la rédaction des paroles, attendue avant l'appel payant, ne
-   * laisse plus un second clic (autre rang, autre onglet) lancer une deuxième
-   * génération. Il est levé à la fin, en cas d'échec ou d'annulation.
+   * laisse pas un second clic (autre rang, autre onglet) lancer une deuxième
+   * génération. Il est levé par `liberer` : fin de la requête audio, échec,
+   * annulation.
    */
   const generer = useCallback(
     async (
@@ -334,41 +398,52 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
       advancedParams?: Partial<AdvancedSunoParams>
     ) => {
       if (lancement.current) return;
-      const jeton = Symbol('lancement');
-      lancement.current = jeton;
-      annulation.current = false;
+      const l: Lancement = { rang, annule: false, audioLance: false };
+      lancement.current = l;
       setPreparation(true);
       setRangEnCours(rang);
       setStyleEnCours(style);
-      // Idempotent, et sans effet si un autre lancement a pris le verrou depuis.
-      const liberer = () => {
-        if (lancement.current !== jeton) return;
-        lancement.current = null;
-        setPreparation(false);
-        setRangEnCours(null);
-        setStyleEnCours(null);
-      };
       try {
-        await genererInterne(rang, style, advancedParams, liberer);
+        await genererInterne(l, style, advancedParams, () => liberer(l));
       } finally {
-        liberer();
+        liberer(l);
       }
     },
-    [genererInterne]
+    [genererInterne, liberer]
   );
 
+  /**
+   * Annule le lancement courant, à n'importe quelle étape : le jeton est invalidé
+   * (la continuation périmée ne lancera pas la génération payante), l'attente de
+   * l'audio est interrompue et le verrou est libéré tout de suite.
+   */
   const annuler = useCallback(() => {
-    const rang = musicGeneration.isGenerating?.rangA
-      ? 'A'
-      : musicGeneration.isGenerating?.rangB
-        ? 'B'
-        : musicGeneration.isGenerating?.rangAB
-          ? 'AB'
-          : undefined;
-    annulation.current = true;
+    const l = lancement.current;
+    if (l) l.annule = true;
+    const rang =
+      l?.rang ??
+      (musicGeneration.isGenerating?.rangA
+        ? 'A'
+        : musicGeneration.isGenerating?.rangB
+          ? 'B'
+          : musicGeneration.isGenerating?.rangAB
+            ? 'AB'
+            : undefined);
     musicGeneration.cancelGeneration(rang);
-    setDebutGeneration(null);
-  }, [musicGeneration]);
+    if (l) liberer(l);
+    else setDebutGeneration(null);
+  }, [musicGeneration, liberer]);
+
+  // Page quittée pendant la rédaction des paroles : la génération payante ne part pas
+  // après coup. Une requête déjà partie n'est pas interrompue (son résultat arrive
+  // dans la bibliothèque par le callback du serveur).
+  useEffect(
+    () => () => {
+      const l = lancement.current;
+      if (l && !l.audioLance) l.annule = true;
+    },
+    []
+  );
 
   const ouvrirBibliotheque = useCallback(async () => {
     if (!chanson) return;
@@ -377,17 +452,24 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
       return;
     }
     if (chanson.taskId && bibliotheque !== 'enregistree') {
-      const resultat = await assurerChansonEnBibliotheque(
-        user.id,
-        chanson.taskId
-      );
-      if (resultat.etat === 'impossible') {
+      try {
+        const resultat = await assurerChansonEnBibliotheque(
+          user.id,
+          chanson.taskId
+        );
+        if (resultat.etat === 'impossible') {
+          toast.error(
+            `Impossible d'enregistrer la chanson dans votre bibliothèque : ${resultat.raison}`
+          );
+          return;
+        }
+        setBibliotheque('enregistree');
+      } catch {
         toast.error(
-          `Impossible d'enregistrer la chanson dans votre bibliothèque : ${resultat.raison}`
+          "Impossible d'enregistrer la chanson dans votre bibliothèque pour le moment. Réessayez dans un instant."
         );
         return;
       }
-      setBibliotheque('enregistree');
     }
     navigate(ROUTE_PATHS.medMngMusicLibrary);
   }, [chanson, user, bibliotheque, navigate]);

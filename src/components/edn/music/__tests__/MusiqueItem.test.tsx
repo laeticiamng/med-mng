@@ -35,6 +35,8 @@ const etat = vi.hoisted(() => ({
   generer: vi.fn(),
   chansons: [] as Array<Record<string, unknown>>,
   invoke: vi.fn(),
+  logActivity: vi.fn(),
+  addPoints: vi.fn(),
   generant: false,
   rappelsTemps: [] as unknown[],
 }));
@@ -66,10 +68,10 @@ vi.mock('@/hooks/useMusicGenerationWithTranslation', () => ({
   }),
 }));
 vi.mock('@/hooks/useActivityTracking', () => ({
-  useActivityTracking: () => ({ logActivity: vi.fn() }),
+  useActivityTracking: () => ({ logActivity: etat.logActivity }),
 }));
 vi.mock('@/hooks/useGamification', () => ({
-  useGamification: () => ({ addPoints: vi.fn(), loadStats: vi.fn() }),
+  useGamification: () => ({ addPoints: etat.addPoints, loadStats: vi.fn() }),
   POINTS_CONFIG: { itemReviewed: 5 },
 }));
 vi.mock('@/hooks/useRealtimeGeneration', () => ({
@@ -139,6 +141,7 @@ vi.mock('@/integrations/supabase/client', () => {
 });
 
 import { MusiqueItem } from '../MusiqueItem';
+import { toast } from 'sonner';
 import { useChansonItem } from '@/hooks/useChansonItem';
 import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
 import { generateComprehensiveLyrics } from '@/utils/generateComprehensiveLyrics';
@@ -586,5 +589,181 @@ describe('Musique d’un item — post-traitement après la génération', () =>
     expect(
       screen.getByRole('button', { name: 'Générer la chanson du rang A' })
     ).toBeEnabled();
+  });
+});
+
+describe('useChansonItem — machine d’état : tous les chemins', () => {
+  const MOTS_CLES = ['mot clé un', 'mot clé deux'];
+  const A_REDIGER = {
+    ...paroles,
+    paroles_rang_a: MOTS_CLES,
+    paroles_rang_b: MOTS_CLES,
+  };
+  const REDIGEES = ['[Couplet 1]', 'Ligne rédigée.'];
+
+  const monter = (p = A_REDIGER) => {
+    const client = new QueryClient();
+    return renderHook(() => useChansonItem('IC-14', p), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={client}>
+          <MemoryRouter>{children}</MemoryRouter>
+        </QueryClientProvider>
+      ),
+    });
+  };
+  const redactions = () => {
+    const resolveurs: Array<(lignes: string[]) => void> = [];
+    vi.mocked(generateComprehensiveLyrics).mockImplementation(
+      () => new Promise<string[]>((resolve) => resolveurs.push(resolve))
+    );
+    return resolveurs;
+  };
+
+  it('annuler pendant la rédaction : tout est libéré tout de suite, et la continuation périmée ne lance aucune génération payante', async () => {
+    const resolveurs = redactions();
+    const { result } = monter();
+    await act(async () => {
+      void result.current.generer('A', 'lofi');
+    });
+    expect(result.current.enCours).toBe(true);
+    expect(result.current.rangEnCours).toBe('A');
+    act(() => result.current.annuler());
+    expect(result.current.enCours).toBe(false);
+    expect(result.current.rangEnCours).toBeNull();
+    expect(result.current.styleEnCours).toBeNull();
+    expect(result.current.debutGeneration).toBeNull();
+    // La rédaction se règle après coup : rien ne part.
+    await act(async () => resolveurs.forEach((r) => r(REDIGEES)));
+    expect(etat.generer).not.toHaveBeenCalled();
+  });
+
+  it('annuler puis relancer : la continuation périmée ne touche ni au verrou ni à la génération du nouveau lancement', async () => {
+    const resolveurs = redactions();
+    const { result } = monter();
+    await act(async () => {
+      void result.current.generer('A', 'lofi');
+    });
+    act(() => result.current.annuler());
+    await act(async () => {
+      void result.current.generer('B', 'pop');
+    });
+    expect(result.current.rangEnCours).toBe('B');
+    expect(resolveurs).toHaveLength(2);
+    // Le premier lancement (annulé) se règle : le verrou du second reste posé.
+    await act(async () => resolveurs[0](REDIGEES));
+    expect(etat.generer).not.toHaveBeenCalled();
+    expect(result.current.enCours).toBe(true);
+    expect(result.current.rangEnCours).toBe('B');
+    await act(async () => resolveurs[1](REDIGEES));
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    expect(etat.generer.mock.calls[0][0]).toBe('B');
+    expect(etat.generer.mock.calls[0][2]).toBe('pop');
+  });
+
+  it('page quittée pendant la rédaction : la génération payante ne part pas', async () => {
+    const resolveurs = redactions();
+    const { result, unmount } = monter();
+    await act(async () => {
+      void result.current.generer('A', 'lofi');
+    });
+    unmount();
+    await act(async () => resolveurs.forEach((r) => r(REDIGEES)));
+    expect(etat.generer).not.toHaveBeenCalled();
+  });
+
+  it('rédaction qui échoue : verrou levé, nouveau lancement possible', async () => {
+    vi.mocked(generateComprehensiveLyrics).mockRejectedValueOnce(
+      new Error('indisponible')
+    );
+    const { result } = monter();
+    await act(async () => {
+      await result.current.generer('A', 'lofi');
+    });
+    expect(result.current.enCours).toBe(false);
+    expect(etat.generer).not.toHaveBeenCalled();
+    vi.mocked(generateComprehensiveLyrics).mockResolvedValueOnce(REDIGEES);
+    await act(async () => {
+      await result.current.generer('A', 'lofi');
+    });
+    expect(etat.generer).toHaveBeenCalledTimes(1);
+  });
+
+  it('génération payante en échec : verrou levé, rien n’est enregistré', async () => {
+    etat.generer.mockRejectedValueOnce(new Error('refus'));
+    const { result } = monter(paroles);
+    await act(async () => {
+      await result.current.generer('A', 'lofi');
+    });
+    expect(result.current.enCours).toBe(false);
+    expect(result.current.chanson).toBeNull();
+    expect(etat.logActivity).not.toHaveBeenCalled();
+  });
+
+  it('bibliothèque qui ne répond jamais : activité et points sont quand même enregistrés', async () => {
+    vi.mocked(assurerChansonEnBibliotheque).mockReturnValueOnce(
+      new Promise(() => {})
+    );
+    const { result } = monter(paroles);
+    await act(async () => {
+      await result.current.generer('A', 'lofi');
+    });
+    await waitFor(() => expect(etat.logActivity).toHaveBeenCalledTimes(1));
+    expect(etat.addPoints).toHaveBeenCalledTimes(1);
+    expect(result.current.enCours).toBe(false);
+  });
+
+  it('vérification de bibliothèque bornée : au bout du délai, « absente » (bouton de repli)', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      vi.mocked(assurerChansonEnBibliotheque).mockReturnValueOnce(
+        new Promise(() => {})
+      );
+      const { result } = monter(paroles);
+      await act(async () => {
+        await result.current.generer('A', 'lofi');
+      });
+      expect(result.current.bibliotheque).toBe('verification');
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(20_001);
+      });
+      expect(result.current.bibliotheque).toBe('absente');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('activité en erreur : les points sont tentés, aucun rejet non traité', async () => {
+    etat.logActivity.mockRejectedValueOnce(new Error('réseau'));
+    const rejets: unknown[] = [];
+    const surRejet = (e: unknown) => rejets.push(e);
+    process.on('unhandledRejection', surRejet);
+    const { result } = monter(paroles);
+    await act(async () => {
+      await result.current.generer('A', 'lofi');
+    });
+    await waitFor(() => expect(etat.addPoints).toHaveBeenCalledTimes(1));
+    await new Promise((r) => setTimeout(r, 20));
+    process.off('unhandledRejection', surRejet);
+    expect(rejets).toEqual([]);
+  });
+
+  it('« Ma bibliothèque » en erreur réseau : message, pas de rejet', async () => {
+    // 1re vérification (post-traitement) en erreur : la chanson reste « absente ».
+    vi.mocked(assurerChansonEnBibliotheque).mockRejectedValueOnce(
+      new Error('réseau')
+    );
+    const { result } = monter(paroles);
+    await act(async () => {
+      await result.current.generer('A', 'lofi');
+    });
+    await waitFor(() => expect(result.current.bibliotheque).toBe('absente'));
+    // Le bouton de repli échoue aussi : message à l'utilisatrice, aucune exception.
+    vi.mocked(assurerChansonEnBibliotheque).mockRejectedValueOnce(
+      new Error('réseau')
+    );
+    await act(async () => {
+      await result.current.ouvrirBibliotheque();
+    });
+    expect(toast.error).toHaveBeenCalled();
   });
 });
