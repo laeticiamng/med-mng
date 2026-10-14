@@ -73,19 +73,22 @@ interface Lancement {
   annule: boolean;
   /** La requête payante est partie : le démontage ne l'interrompt plus. */
   audioLance: boolean;
-  /** Plafond de sécurité d'une annulation dont la requête ne se règle pas (voir `annuler`). */
+  /** Minuteur du message « la demande met du temps » après une annulation (voir `annuler`). */
   minuteur?: ReturnType<typeof setTimeout>;
 }
 
 /**
  * Après une annulation, le verrou reste posé jusqu'à ce que la requête en cours se
  * règle réellement (succès, échec ou rejet) : le hook de génération ne peut pas
- * toujours l'interrompre (traduction, appel au service avant le suivi), et un autre
- * lancement consommerait un second slot payant. Plafond de sécurité, aligné sur
- * celui du suivi existant (useSunoMusicGeneration : 10 minutes) : au-delà, le verrou
- * est libéré pour ne jamais rester bloqué.
+ * toujours l'interrompre (traduction, appel au service avant le suivi), sa
+ * continuation peut reprendre plus tard (envoi, suivi) avec des références
+ * partagées, et un autre lancement consommerait un second slot payant. Le suivi
+ * existant a son propre plafond (10 minutes) et finit par régler la requête : le
+ * verrou n'est JAMAIS levé par un minuteur. Passé ce délai, on affiche seulement
+ * un message à l'utilisatrice (recharger la page remet tout à zéro, et le callback
+ * du serveur dépose la chanson en bibliothèque).
  */
-const PLAFOND_ANNULATION_MS = 10 * 60 * 1000;
+const DELAI_MESSAGE_ANNULATION_MS = 10 * 60 * 1000;
 
 /** Borne une attente : au-delà, la promesse rend `null` (elle n'est pas annulée). */
 const avecDelai = <T>(promesse: Promise<T>, ms: number): Promise<T | null> =>
@@ -133,6 +136,8 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const [preparation, setPreparation] = useState(false);
   /** Annulation demandée alors que la requête payante est partie : on attend qu'elle se règle. */
   const [annulationEnCours, setAnnulationEnCours] = useState(false);
+  /** L'annulation dure anormalement : message à l'utilisatrice, le verrou reste posé. */
+  const [annulationLongue, setAnnulationLongue] = useState(false);
   const lancement = useRef<Lancement | null>(null);
   /** Chanson dont le post-traitement (bibliothèque) peut encore mettre l'état à jour. */
   const chansonCourante = useRef<string | null>(null);
@@ -400,6 +405,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     if (l.minuteur) clearTimeout(l.minuteur);
     setPreparation(false);
     setAnnulationEnCours(false);
+    setAnnulationLongue(false);
     setRangEnCours(null);
     setStyleEnCours(null);
     setDebutGeneration(null);
@@ -441,7 +447,8 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
    *    tout de suite.
    *  - Après l'envoi : on demande l'interruption du suivi, mais le verrou RESTE posé
    *    (« annulation en cours ») jusqu'à ce que la requête se règle (libération dans
-   *    le `finally` de `generer`, jeton vérifié), avec un plafond de sécurité.
+   *    le `finally` de `generer`, jeton vérifié) ; jamais par un minuteur : au-delà
+   *    de 10 minutes, seul un message est affiché (`annulationLongue`).
    *    Aucun autre lancement n'est possible entre-temps. Si la requête aboutit malgré
    *    l'annulation, aucun faux échec n'est affiché : la chanson arrive en
    *    bibliothèque par le callback du serveur.
@@ -470,7 +477,10 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     setAnnulationEnCours(true);
     setDebutGeneration(null);
     if (!l.minuteur) {
-      l.minuteur = setTimeout(() => liberer(l), PLAFOND_ANNULATION_MS);
+      l.minuteur = setTimeout(
+        () => setAnnulationLongue(true),
+        DELAI_MESSAGE_ANNULATION_MS
+      );
     }
   }, [musicGeneration, liberer]);
 
@@ -525,6 +535,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     quotaAtteint,
     enCours,
     annulationEnCours,
+    annulationLongue,
     progression: musicGeneration.pollingProgress || 0,
     etape: musicGeneration.etape,
     debutGeneration,

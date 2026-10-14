@@ -845,10 +845,10 @@ describe('Annulation après l’envoi de la requête payante', () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
-  it('plafond de sécurité : une requête qui ne se règle jamais ne bloque pas le verrou indéfiniment', async () => {
+  it('annulation très longue : un message est affiché mais le verrou n’est JAMAIS levé par un minuteur (aucun second lancement)', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     try {
-      requetePendante();
+      const requete = requetePendante();
       const { result } = monterHook();
       await act(async () => {
         void result.current.generer('A', 'lofi');
@@ -858,11 +858,23 @@ describe('Annulation après l’envoi de la requête payante', () => {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(9 * 60 * 1000);
       });
-      expect(result.current.enCours).toBe(true);
+      expect(result.current.annulationLongue).toBe(false);
       await act(async () => {
         await vi.advanceTimersByTimeAsync(61 * 1000);
       });
+      // 10 minutes simulées : message, mais le verrou reste posé.
+      expect(result.current.annulationLongue).toBe(true);
+      expect(result.current.enCours).toBe(true);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+        await result.current.generer('B', 'pop');
+      });
+      expect(etat.generer).toHaveBeenCalledTimes(1);
+      expect(result.current.enCours).toBe(true);
+      // Seul le règlement réel de la requête lève le verrou.
+      await act(async () => requete.rejeter(new Error('Suivi interrompu')));
       expect(result.current.enCours).toBe(false);
+      expect(result.current.annulationLongue).toBe(false);
     } finally {
       vi.useRealTimers();
     }

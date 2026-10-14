@@ -386,6 +386,8 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
             Annulation en cours… Le bouton « Générer » se réactivera dès que la
             demande est réglée ; si la chanson aboutit malgré tout, elle sera
             dans votre bibliothèque.
+            {chanson.annulationLongue &&
+              ' La demande met du temps : rechargez la page si rien ne se passe ; votre chanson, si elle aboutit, sera dans votre bibliothèque.'}
           </p>
         )}
         <GenerationProgress
