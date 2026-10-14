@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
@@ -12,75 +12,45 @@ import {
 /**
  * D45 (vague 3, 04.10.2026) : whisper-transcribe (OpenAI, facturée à l'appel) était ouverte à
  * tout compte connecté sans limite de volume ni de taille. Compteur journalier par compte dans
- * rate_limit_counters (écriture réservée au service).
+ * mm_usage_compteurs (réservation atomique en base, écriture réservée au service).
  */
 
-interface Ligne {
-  id: string;
-  identifier: string;
-  window_start: string;
-  window_end: string;
-  request_count: number;
-  max_requests: number;
-  created_at: string;
-}
-
-/** Faux client Supabase : seule la table rate_limit_counters, avec les filtres utilisés. */
-function faussebase(options: { erreurLecture?: boolean; concurrence?: number } = {}) {
-  const lignes: Ligne[] = [];
-  let concurrence = options.concurrence ?? 0;
+/**
+ * Faux client Supabase : la seule opération permise est la RPC mm_reserver_usage_journalier. Elle
+ * reproduit la sémantique de la fonction SQL — réservation ATOMIQUE par (identifiant, jour UTC),
+ * jamais au-delà du maximum — avec une latence aléatoire AVANT la section atomique pour entrelacer
+ * les appels simultanés. Toute lecture/écriture directe d'une table fait échouer le test : le
+ * module ne doit plus passer par rate_limit_counters (sans unicité, donc non atomique).
+ * La même sémantique est vérifiée sur un vrai Postgres par scripts/test-mm-usage-compteurs.sh.
+ */
+function fausseBase(options: { erreur?: boolean; reponse?: unknown } = {}) {
+  const compteurs = new Map<string, number>();
+  const appels: Array<Record<string, unknown>> = [];
   const client = {
     from: (table: string) => {
-      expect(table).toBe('rate_limit_counters');
-      const filtres: Array<[string, unknown]> = [];
-      const correspond = (l: Ligne) => filtres.every(([c, v]) => (l as unknown as Record<string, unknown>)[c] === v);
-      let maj: Partial<Ligne> | null = null;
-      const chaine = {
-        select: () => chaine,
-        eq: (c: string, v: unknown) => {
-          filtres.push([c, v]);
-          return chaine;
-        },
-        order: () => chaine,
-        limit: async () => (options.erreurLecture ? { data: null, error: { message: 'lecture' } } : { data: lignes.filter(correspond), error: null }),
-        insert: async (l: Omit<Ligne, 'id' | 'created_at'>) => {
-          lignes.push({ ...l, id: `l${lignes.length}`, created_at: new Date().toISOString() });
-          return { error: null };
-        },
-        update: (champs: Partial<Ligne>) => {
-          maj = champs;
-          return {
-            eq: (c: string, v: unknown) => {
-              filtres.push([c, v]);
-              return {
-                eq: (c2: string, v2: unknown) => {
-                  filtres.push([c2, v2]);
-                  return {
-                    select: async () => {
-                      if (concurrence > 0) {
-                        // Une autre requête a incrémenté entre la lecture et l'écriture.
-                        concurrence--;
-                        lignes.forEach((l) => (l.request_count += 1));
-                        return { data: [], error: null };
-                      }
-                      const cibles = lignes.filter(correspond);
-                      cibles.forEach((l) => Object.assign(l, maj));
-                      return { data: cibles.map((l) => ({ request_count: l.request_count })), error: null };
-                    },
-                  };
-                },
-              };
-            },
-          };
-        },
-      };
-      return chaine;
+      throw new Error(`accès direct à la table ${table} interdit`);
+    },
+    rpc: async (nom: string, args: { p_identifiant: string; p_max: number }) => {
+      expect(nom).toBe('mm_reserver_usage_journalier');
+      appels.push(args);
+      await new Promise((ok) => setTimeout(ok, Math.random() * 5));
+      if (options.erreur) return { data: null, error: { message: 'indisponible' } };
+      if (options.reponse !== undefined) return { data: options.reponse, error: null };
+      const jour = new Date().toISOString().slice(0, 10); // horloge de la base
+      const cle = `${args.p_identifiant}|${jour}`;
+      const actuel = compteurs.get(cle) ?? 0;
+      if (actuel >= args.p_max) return { data: [{ autorise: false, utilise: actuel }], error: null };
+      compteurs.set(cle, actuel + 1);
+      return { data: [{ autorise: true, utilise: actuel + 1 }], error: null };
     },
   };
-  return { client, lignes };
+  return { client, compteurs, appels };
 }
 
 const MIDI = new Date('2026-10-04T12:00:00Z');
+/** Fige l'horloge (Date seulement : les latences aléatoires du faux client restent réelles). */
+const a = (date: Date) => (vi.isFakeTimers() ? vi.setSystemTime(date) : vi.useFakeTimers({ toFake: ['Date'], now: date }));
+afterEach(() => vi.useRealTimers());
 
 describe('fenetreJourUtc', () => {
   it('borne le jour UTC', () => {
@@ -99,27 +69,126 @@ describe('tailleBase64Decodee', () => {
 
 describe('reserverUtilisationJournaliere', () => {
   it('autorise jusqu’au maximum puis refuse, par compte et par jour', async () => {
-    const { client, lignes } = faussebase();
+    const { client } = fausseBase();
+    a(MIDI);
     for (let i = 1; i <= 3; i++) {
-      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toEqual({ autorise: true, utilise: i });
+      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toEqual({ autorise: true, utilise: i });
     }
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toEqual({ autorise: false, utilise: 3 });
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toEqual({ autorise: false, utilise: 3 });
     // Autre compte : compteur distinct ; jour suivant : nouvelle fenêtre.
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u2', 3, MIDI)).toEqual({ autorise: true, utilise: 1 });
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, new Date('2026-10-05T00:00:01Z'))).toEqual({ autorise: true, utilise: 1 });
-    expect(lignes.map((l) => l.identifier)).toEqual(['whisper-transcribe:u1', 'whisper-transcribe:u2', 'whisper-transcribe:u1']);
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u2', 3)).toEqual({ autorise: true, utilise: 1 });
+    a(new Date('2026-10-05T00:00:01Z'));
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toEqual({ autorise: true, utilise: 1 });
   });
 
-  it('compteur illisible : null (l’appel payant est refusé)', async () => {
-    const { client } = faussebase({ erreurLecture: true });
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3, MIDI)).toBeNull();
+  it('transmet seulement l’identifiant « action:utilisateur » et le maximum : la date vient de la base', async () => {
+    const { client, appels } = fausseBase();
+    await reserverUtilisationJournaliere(client, 'mm-bienvenue', 'abc', 2);
+    expect(appels).toEqual([{ p_identifiant: 'mm-bienvenue:abc', p_max: 2 }]);
   });
 
-  it('écriture concurrente : relit et ne dépasse pas la limite', async () => {
-    const { client } = faussebase({ concurrence: 1 });
-    await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 2, MIDI); // crée la ligne (1)
-    // L'incrément concurrent porte le compteur à 2 : la réservation suivante doit être refusée.
-    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 2, MIDI)).toEqual({ autorise: false, utilise: 2 });
+  it('CONCURRENCE : 6 appels simultanés pour une limite de 2 → exactement 2 réservations', async () => {
+    for (let essai = 0; essai < 5; essai++) {
+      const { client, compteurs } = fausseBase();
+      const resultats = await Promise.all(
+        Array.from({ length: 6 }, () => reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 2)),
+      );
+      expect(resultats.filter((r) => r?.autorise === true)).toHaveLength(2);
+      expect(resultats.filter((r) => r?.autorise === false)).toHaveLength(4);
+      expect([...compteurs.values()]).toEqual([2]); // aucune réservation supplémentaire
+    }
+  });
+
+  it('CONCURRENCE : un refus n’écrit rien et un compteur plein reste plein', async () => {
+    const { client, compteurs } = fausseBase();
+    await Promise.all(Array.from({ length: 3 }, () => reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)));
+    const apres = await Promise.all(Array.from({ length: 10 }, () => reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)));
+    expect(apres.every((r) => r?.autorise === false && r.utilise === 3)).toBe(true);
+    expect([...compteurs.values()]).toEqual([3]);
+  });
+
+  it('CONCURRENCE : utilisateurs distincts, 3 appels chacun pour une limite de 2 → 2 par utilisateur', async () => {
+    const { client, compteurs } = fausseBase();
+    const utilisateurs = ['u1', 'u2', 'u3', 'u4'];
+    const resultats = await Promise.all(
+      utilisateurs.flatMap((u) => Array.from({ length: 3 }, () => reserverUtilisationJournaliere(client, 'mm-bienvenue', u, 2))),
+    );
+    expect(resultats.filter((r) => r?.autorise).length).toBe(8);
+    expect([...compteurs.values()]).toEqual([2, 2, 2, 2]);
+  });
+
+  it('fenêtres : un compteur par jour UTC, y compris après minuit', async () => {
+    const { client } = fausseBase();
+    a(new Date('2026-10-04T23:59:59Z'));
+    const avant = await Promise.all([
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+    ]);
+    expect(avant.filter((r) => r?.autorise)).toHaveLength(1);
+    a(new Date('2026-10-05T00:00:01Z'));
+    const apres = await Promise.all([
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+      reserverUtilisationJournaliere(client, 'mm-bienvenue', 'u1', 1),
+    ]);
+    expect(apres.filter((r) => r?.autorise)).toHaveLength(1);
+  });
+
+  it('réponse avec utilise nul ou absent : null (échec fermé)', async () => {
+    for (const reponse of [[{ autorise: true, utilise: null }], [{ autorise: true, utilise: '1' }], [{ autorise: true, utilise: Number.NaN }]]) {
+      const { client } = fausseBase({ reponse });
+      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
+    }
+  });
+
+  it('erreur de la base : null (l’appel payant est refusé, échec fermé)', async () => {
+    const { client } = fausseBase({ erreur: true });
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
+  });
+
+  it('réponse inattendue : null (jamais d’autorisation par défaut)', async () => {
+    for (const reponse of [null, [], [{ autorise: true, utilise: 1 }, { autorise: false, utilise: 1 }], [{ autorise: 'oui', utilise: 1 }], [{ autorise: true }], 'x']) {
+      const { client } = fausseBase({ reponse });
+      expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
+    }
+  });
+
+  it('exception de la base : null', async () => {
+    const client = { rpc: async () => { throw new Error('réseau'); } };
+    expect(await reserverUtilisationJournaliere(client, 'whisper-transcribe', 'u1', 3)).toBeNull();
+  });
+});
+
+describe('migration du compteur atomique', () => {
+  const sql = readFileSync(resolve(__dirname, '../../supabase/migrations/20261014170000_mm_compteur_usage_journalier.sql'), 'utf8');
+
+  it('unicité en base et réservation en une instruction conditionnelle', () => {
+    expect(sql).toMatch(/primary key \(identifiant, fenetre_debut\)/);
+    expect(sql).toMatch(/on conflict \(identifiant, fenetre_debut\) do update\s+set nombre = c\.nombre \+ 1\s+where c\.nombre < p_max/);
+    expect(sql).toContain('create or replace function public.mm_reserver_usage_journalier');
+  });
+
+  it('idempotente : création conditionnelle, reprise sans double comptage', () => {
+    expect(sql).toMatch(/create table if not exists public\.mm_usage_compteurs/);
+    expect(sql).toMatch(/create index if not exists/);
+    expect(sql).toMatch(/set nombre = greatest\(/);
+    expect(sql).toMatch(/sum\(request_count\)/); // doublons existants additionnés
+  });
+
+  it('ne touche pas à la table partagée rate_limit_counters (lecture seule pour la reprise)', () => {
+    expect(sql).not.toMatch(/(alter|drop|delete from|update|truncate)\s+(table\s+)?public\.rate_limit_counters/i);
+  });
+
+  it('accès réservé au service : RLS, aucun droit pour anon / authenticated', () => {
+    expect(sql).toMatch(/enable row level security/);
+    expect(sql).toMatch(/revoke all on table public\.mm_usage_compteurs from public, anon, authenticated/);
+    expect(sql).toMatch(/revoke all on function public\.mm_reserver_usage_journalier\(text, integer\) from public, anon, authenticated/);
+    expect(sql).toMatch(/grant execute on function public\.mm_reserver_usage_journalier\(text, integer\) to service_role/);
+  });
+
+  it('le module appelle bien la fonction créée par la migration', () => {
+    const module = readFileSync(resolve(__dirname, '../../supabase/functions/_shared/mm-limite-usage.ts'), 'utf8');
+    expect(module).toContain("rpc('mm_reserver_usage_journalier'");
+    expect(module).not.toMatch(/\.from\('rate_limit_counters'\)/);
   });
 });
 
