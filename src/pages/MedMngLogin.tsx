@@ -22,11 +22,12 @@ export const MedMngLogin = () => {
   const [warning, setWarning] = useState('');
   const [loading, setLoading] = useState(false);
   const [blockTimeDisplay, setBlockTimeDisplay] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [searchParams] = useSearchParams();
+  // ?mdp=oublie : ouvre directement la demande de lien (depuis la page de réinitialisation, lien expiré).
+  const [showForgotPassword, setShowForgotPassword] = useState(searchParams.get('mdp') === 'oublie');
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const { logActivity } = useActivityTracking();
-  const [searchParams] = useSearchParams();
   // Chemin interne où revenir après connexion (ex. page d'abonnement).
   const suivant = cheminInterneSur(searchParams.get('next'));
   const contexte = contexteSuivant(suivant, 'connexion');
@@ -118,7 +119,10 @@ export const MedMngLogin = () => {
     if (error) {
       toast.error(traduireErreurAuth(error));
     } else {
-      toast.success('E-mail de réinitialisation envoyé', { description: 'Vérifiez votre boîte de réception.' });
+      // Même réponse que le compte existe ou non : la formulation ne promet pas l'existence du compte.
+      toast.success('Demande prise en compte', {
+        description: 'Si un compte existe avec cette adresse, vous allez recevoir un e-mail (pensez aux courriers indésirables).',
+      });
       setShowForgotPassword(false);
       setResetEmail('');
     }

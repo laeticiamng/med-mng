@@ -1,5 +1,6 @@
 // Sentry error tracking configuration
 import * as Sentry from '@sentry/react';
+import { masquerJetons } from './sentryMasquage';
 
 // Sentry DSN from environment or secrets
 const SENTRY_DSN: string | undefined = import.meta.env.VITE_SENTRY_DSN;
@@ -52,8 +53,13 @@ export function initSentry() {
       if (event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
         return null;
       }
-      return event;
+      // Jetons d'authentification (token_hash, access_token, refresh_token, code) dans les URL.
+      return masquerJetons(event);
     },
+    // Transactions de performance : leur nom et leurs données portent l'URL de la page.
+    beforeSendTransaction: (transaction) => masquerJetons(transaction),
+    // Fils d'Ariane (navigation, requêtes fetch/xhr) : from, to et url portent des adresses.
+    beforeBreadcrumb: (breadcrumb) => masquerJetons(breadcrumb),
   });
 }
 

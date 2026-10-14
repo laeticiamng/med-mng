@@ -75,6 +75,11 @@ verify_jwt = false
 [functions.resend-webhook]
 verify_jwt = false
 
+# Réinitialisation du mot de passe Med MNG : appelée sans session (l'utilisateur a oublié son mot de passe).
+# Limites par adresse et par IP, réponse identique que le compte existe ou non : voir mm-password-reset/handler.ts.
+[functions.mm-password-reset]
+verify_jwt = false
+
 # ============================================================================
 # FONCTIONS AUTHENTIFIÉES - verify_jwt = false, JWT validé en code
 # ============================================================================

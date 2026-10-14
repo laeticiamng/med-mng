@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-14] — « Mot de passe oublié » (P0, recette en production)
+### Corrigé
+- « Mot de passe oublié » : l'e-mail (gabarit Supabase anglais, expéditeur `noreply@mail.app.supabase.io`) menait à `emotionscare.com` sans formulaire, car le projet Supabase est partagé avec EmotionsCare (URL de site `emotionscare.com`, `medmng.com` absent des redirections autorisées). Nouvelle fonction publique `mm-password-reset` : jeton par `auth.admin.generateLink` (aucun e-mail Supabase), lien construit sur une base fixe (`MEDMNG_SITE_URL`, défaut `https://medmng.com`), e-mail français par Resend, limites durables et atomiques 3/h par adresse, 10/h par IP (dernière valeur de `x-forwarded-for`) et 300/h au total (table dédiée `mm_reinit_mdp_compteurs`, fonction SQL `mm_reserver_reinit_mdp`, migration `20261014140000` ; échec fermé), jeton dans le fragment de l'adresse (retiré avant Sentry, jetons masqués dans les évènements Sentry), réponse 200 identique que le compte existe ou non et sans écart de délai (réponse renvoyée avant `generateLink` et l'envoi, faits en tâche de fond). La page `/med-mng/reset-password` échange `token_hash` par `verifyOtp` ; lien expiré ou déjà utilisé : message et lien pour refaire une demande ; panne réseau : « Connexion impossible pour le moment » et « Réessayer » sans perdre le jeton. Aucun réglage auth modifié.
+
 ## [2026-10-10] — Sécurité `ai_generated_content`, recette en production, archives documentaires
 ### Sécurité
 - `ai_generated_content` : lecture réservée aux administrateurs (était lisible par tout compte connecté : contenus « premium » et un questionnaire de santé). Migration `20261010022829_mm_ai_generated_content_admin` appliquée le 10.10.2026, test `supabase/tests/securite_ai_generated_content.sql` (#240).

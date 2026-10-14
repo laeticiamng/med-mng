@@ -1,0 +1,314 @@
+/**
+ * Réinitialisation du mot de passe Med MNG — logique de la fonction `mm-password-reset`.
+ *
+ * CONSTAT (recette en production du 14.10.2026) : « Mot de passe oublié » appelait
+ * supabase.auth.resetPasswordForEmail avec redirectTo = medmng.com. Le projet Supabase est PARTAGÉ
+ * avec EmotionsCare : son URL de site est emotionscare.com et medmng.com n'est pas dans la liste
+ * des redirections autorisées (réglage auth que nous ne modifions pas). GoTrue retombait sur l'URL
+ * du site : le lien reçu (gabarit anglais par défaut, expéditeur noreply@mail.app.supabase.io)
+ * menait à emotionscare.com, sans formulaire. Le SMTP par défaut de Supabase est en outre très limité.
+ *
+ * Désormais, sans toucher à la configuration auth :
+ * - `auth.admin.generateLink({ type: 'recovery' })` produit un jeton SANS envoyer d'e-mail ; seul
+ *   `hashed_token` est retenu (jamais `action_link`, qui porte la redirection fautive) ;
+ * - le lien est construit ici, sur une base FIXE (MEDMNG_SITE_URL, à défaut https://medmng.com),
+ *   jamais d'après les en-têtes Origin ou Host de la requête (injection d'hôte) ;
+ * - l'e-mail part par Resend (domaine medmng.com vérifié), en français, au nom de Med MNG ;
+ * - la page /med-mng/reset-password lit le jeton dans le fragment de l'adresse et l'échange avec
+ *   supabase.auth.verifyOtp.
+ *
+ * Sécurité :
+ * - anti-énumération : 200 { ok: true } que le compte existe ou non, y compris en cas d'échec de
+ *   generateLink ou de Resend, et SANS écart de délai : la réponse part dès la validation et le
+ *   limiteur ; generateLink et l'envoi Resend se font ensuite en tâche de fond (EdgeRuntime.waitUntil).
+ *   Seuls diffèrent : 400 (adresse mal formée), 429 (limite), 503
+ *   (limiteur indisponible) — aucun ne dépend de l'existence du compte ;
+ * - limite durable et ATOMIQUE (table dédiée mm_reinit_mdp_compteurs, fonction SQL
+ *   mm_reserver_reinit_mdp ; fenêtre = heure UTC pleine) : 3 demandes par heure par adresse et 10
+ *   par heure par IP, clés = SHA-256 (jamais l'adresse ni l'IP en clair). Le limiteur commun
+ *   (rate_limit_counters) lit puis écrit sans contrainte d'unicité : une rafale le dépassait.
+ *   Plafond global de 300 par heure (clé « global ») en défense en profondeur. L'IP est la dernière
+ *   valeur de x-forwarded-for (celle de la passerelle), jamais la première (falsifiable).
+ *   Limiteur illisible → 503, échec fermé : aucun jeton n'est produit sans avoir compté ;
+ * - aucune adresse e-mail dans les journaux.
+ *
+ * Aucune dépendance distante : le module est testable en local avec de faux clients
+ * (handler.test.ts). Le point d'entrée (index.ts) branche les vraies dépendances.
+ */
+import { getCorsHeaders } from '../_shared/cors.ts';
+import {
+  type EmailAEnvoyer,
+  adresseNonLivrable,
+  envoyerEmail as envoyerEmailResend,
+  expediteur,
+  journaliserEchec,
+  type ResultatEnvoi,
+} from '../_shared/mm-email.ts';
+
+export const DEMANDES_MAX_PAR_HEURE_ET_EMAIL = 3;
+export const DEMANDES_MAX_PAR_HEURE_ET_IP = 10;
+/**
+ * Plafond global (tous appelants confondus), défense en profondeur : borne le coût des e-mails même si
+ * la limite par IP était contournée. 300 par heure = 30 fois le plafond d'une IP et bien au-delà de
+ * l'usage légitime (une réinitialisation par utilisateur oublieux : quelques dizaines par heure au
+ * pic du lancement) ; au pire, 7 200 e-mails par jour. Atteint, il bloque aussi les demandes
+ * légitimes jusqu'à l'heure suivante : c'est un dernier recours, pas le contrôle courant.
+ */
+export const DEMANDES_MAX_PAR_HEURE_GLOBAL = 300;
+export const SITE_PAR_DEFAUT = 'https://medmng.com';
+const DUREE_FENETRE_MS = 60 * 60 * 1000;
+const LONGUEUR_MAX_CORPS = 2_000;
+const LONGUEUR_MAX_EMAIL = 254;
+
+// deno-lint-ignore no-explicit-any
+type ClientSupabase = any;
+
+export interface Dependances {
+  /** Client Supabase avec la clé de service (limiteur et génération du jeton). */
+  creerClientService: () => ClientSupabase;
+  envoyerEmail: (email: EmailAEnvoyer) => Promise<ResultatEnvoi>;
+  lireEnv: (nom: string) => string | undefined;
+  maintenant: () => Date;
+  /**
+   * Poursuit `tache` après l'envoi de la réponse (EdgeRuntime.waitUntil en production : l'instance
+   * reste en vie jusqu'à la fin). La tâche ne rejette jamais.
+   */
+  enArrierePlan: (tache: Promise<void>) => void;
+}
+
+/** Adresse normalisée (minuscules, sans espaces autour), ou null si elle n'est pas plausible. */
+export function normaliserEmail(valeur: unknown): string | null {
+  if (typeof valeur !== 'string') return null;
+  const email = valeur.trim().toLowerCase();
+  if (!email || email.length > LONGUEUR_MAX_EMAIL) return null;
+  const [local, domaine, ...reste] = email.split('@');
+  if (reste.length > 0 || !local || !domaine || local.length > 64) return null;
+  if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+$/.test(local)) return null;
+  if (local.startsWith('.') || local.endsWith('.') || local.includes('..')) return null;
+  if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(domaine)) return null;
+  return email;
+}
+
+/**
+ * Réserve une demande pour `cle` : fonction SQL atomique (INSERT … ON CONFLICT DO UPDATE … WHERE
+ * nombre < max). Vrai = comptée, faux = limite atteinte, null = base illisible (échec fermé).
+ */
+async function reserver(admin: ClientSupabase, cle: string, maximum: number): Promise<boolean | null> {
+  const { data, error } = await admin.rpc('mm_reserver_reinit_mdp', { p_cle: cle, p_max: maximum, p_fenetre: '1 hour' });
+  if (error || typeof data !== 'boolean') return null;
+  return data;
+}
+
+/** Hachage SHA-256 en hexadécimal : seules ces empreintes sont stockées. */
+export async function empreinte(valeur: string): Promise<string> {
+  const octets = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(valeur));
+  return Array.from(new Uint8Array(octets), (o) => o.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * IP de l'appelant pour la limite par IP : DERNIÈRE valeur non vide de x-forwarded-for.
+ *
+ * L'appelant peut fournir lui-même X-Forwarded-For ; la passerelle Supabase AJOUTE l'adresse réelle
+ * en fin de liste (« falsifiee,reelle »). Prendre la première valeur laisserait l'attaquant changer
+ * de compartiment à chaque requête et contourner la limite. Voir la reproduction :
+ * https://github.com/orgs/supabase/discussions/34647#discussioncomment-12704300
+ * Repli (en-tête absent) : cf-connecting-ip puis x-real-ip, posés par la plateforme ; sinon une clé
+ * commune « inconnue » (plus stricte, jamais plus permissive).
+ */
+export function ipAppelant(req: Request): string {
+  const valeurs = (req.headers.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+  const derniere = valeurs[valeurs.length - 1];
+  return derniere || req.headers.get('cf-connecting-ip')?.trim() || req.headers.get('x-real-ip')?.trim() || 'inconnue';
+}
+
+/**
+ * Base du site pour le lien : MEDMNG_SITE_URL si c'est une URL https valide (seule son origine est
+ * retenue), sinon https://medmng.com. Jamais dérivée de la requête.
+ */
+export function baseSite(lireEnv: (nom: string) => string | undefined): string {
+  const brut = (lireEnv('MEDMNG_SITE_URL') ?? '').trim();
+  if (!brut) return SITE_PAR_DEFAUT;
+  try {
+    const url = new URL(brut);
+    return url.protocol === 'https:' ? url.origin : SITE_PAR_DEFAUT;
+  } catch {
+    return SITE_PAR_DEFAUT;
+  }
+}
+
+/**
+ * Le jeton est dans le FRAGMENT (#…), jamais dans la query string : un fragment n'est pas envoyé au
+ * serveur, donc absent des journaux du CDN et du serveur web ; la page le lit puis le retire de
+ * l'adresse avant tout outil de suivi (src/lib/jetonRecuperation.ts).
+ */
+export function lienReinitialisation(base: string, jetonHache: string): string {
+  return `${base}/med-mng/reset-password#token_hash=${encodeURIComponent(jetonHache)}&type=recovery`;
+}
+
+const echapper = (texte: string) =>
+  texte.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+
+export function contenuEmail(lien: string): { sujet: string; html: string } {
+  const href = echapper(lien);
+  return {
+    sujet: 'Réinitialisation de votre mot de passe Med MNG',
+    html: `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Réinitialisation de votre mot de passe Med MNG</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h1 style="font-size: 22px;">Réinitialisation de votre mot de passe</h1>
+  <p>Bonjour,</p>
+  <p>Vous avez demandé à choisir un nouveau mot de passe pour votre compte Med MNG.</p>
+  <p style="text-align: center; margin: 28px 0;">
+    <a href="${href}" style="display: inline-block; background: #3B82F6; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Choisir un nouveau mot de passe</a>
+  </p>
+  <p>Ce lien est valable 1 heure et ne peut servir qu'une fois.</p>
+  <p>Si vous n'êtes pas à l'origine de cette demande, ignorez ce message : votre mot de passe actuel reste inchangé.</p>
+  <p style="font-size: 13px; color: #6b7280;">Le bouton ne fonctionne pas ? Copiez cette adresse dans votre navigateur :<br><span style="word-break: break-all;">${href}</span></p>
+  <p style="font-size: 13px; color: #6b7280;">Med MNG — EmotionsCare SASU — <a href="${SITE_PAR_DEFAUT}" style="color: #3B82F6;">medmng.com</a></p>
+</body>
+</html>`,
+  };
+}
+
+/** Message lisible tel quel : « Trop de demandes, réessayez dans 12 minutes. » */
+export function messageAttente(secondes: number): string {
+  const minutes = Math.max(1, Math.ceil(secondes / 60));
+  return `Trop de demandes, réessayez dans ${minutes} ${minutes > 1 ? 'minutes' : 'minute'}.`;
+}
+
+export function creerHandler(deps: Dependances): (req: Request) => Promise<Response> {
+  return async (req: Request): Promise<Response> => {
+    const cors = {
+      ...getCorsHeaders(req),
+      // Retry-After n'est lisible par le navigateur (appel entre origines) que s'il est exposé.
+      'Access-Control-Expose-Headers': 'Retry-After',
+    };
+    const repondre = (corps: unknown, status = 200, extra: Record<string, string> = {}) =>
+      new Response(JSON.stringify(corps), {
+        status,
+        headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...extra },
+      });
+    // Réponse unique, identique que le compte existe ou non.
+    const accepte = () => repondre({ ok: true });
+
+    if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
+    if (req.method !== 'POST') return repondre({ ok: false, code: 'METHODE_NON_AUTORISEE' }, 405, { Allow: 'POST, OPTIONS' });
+
+    // 1. Validation de l'adresse.
+    let email: string | null = null;
+    try {
+      const texte = await req.text();
+      if (texte.length <= LONGUEUR_MAX_CORPS) email = normaliserEmail((JSON.parse(texte) as { email?: unknown })?.email);
+    } catch {
+      email = null;
+    }
+    if (!email) {
+      return repondre({ ok: false, code: 'EMAIL_INVALIDE', message: "Saisissez une adresse e-mail valide." }, 400);
+    }
+
+    const maintenant = deps.maintenant();
+
+    // 2. Limites durables, réservées AVANT toute production de jeton : IP puis adresse (une demande
+    // refusée par l'IP ne consomme pas le compteur de l'adresse visée). Chaque réservation est UNE
+    // instruction atomique côté base (mm_reserver_reinit_mdp) : une rafale ne peut pas dépasser la
+    // limite. Erreur de la base (ou exception) = 503, échec fermé.
+    let admin: ClientSupabase;
+    let ipAutorisee: boolean | null = null;
+    let emailAutorise: boolean | null = null;
+    let globalAutorise: boolean | null = null;
+    try {
+      admin = deps.creerClientService();
+      ipAutorisee = await reserver(admin, `mm-mdp-ip:${await empreinte(ipAppelant(req))}`, DEMANDES_MAX_PAR_HEURE_ET_IP);
+      if (ipAutorisee) {
+        emailAutorise = await reserver(admin, `mm-mdp-email:${await empreinte(email)}`, DEMANDES_MAX_PAR_HEURE_ET_EMAIL);
+        // Plafond global en dernier : une demande déjà refusée ne le consomme pas.
+        if (emailAutorise) globalAutorise = await reserver(admin, 'global', DEMANDES_MAX_PAR_HEURE_GLOBAL);
+      }
+    } catch (e) {
+      console.error('[mm-password-reset] limiteur en exception', e instanceof Error ? e.name : 'inconnue');
+      ipAutorisee = null;
+    }
+    if (
+      ipAutorisee === null || (ipAutorisee && emailAutorise === null) || (emailAutorise && globalAutorise === null)
+    ) {
+      return repondre({
+        ok: false,
+        code: 'VERIFICATION_IMPOSSIBLE',
+        message: 'Service momentanément indisponible. Réessayez dans quelques minutes.',
+      }, 503);
+    }
+    if (!ipAutorisee || !emailAutorise || !globalAutorise) {
+      // Fenêtre = heure UTC pleine (celle de la fonction SQL, alignée sur l'époque).
+      const finFenetre = (Math.floor(maintenant.getTime() / DUREE_FENETRE_MS) + 1) * DUREE_FENETRE_MS;
+      const attente = Math.max(1, Math.ceil((finFenetre - maintenant.getTime()) / 1000));
+      return repondre(
+        { ok: false, code: 'TROP_DE_DEMANDES', message: messageAttente(attente), retry_after: attente },
+        429,
+        { 'Retry-After': String(attente) },
+      );
+    }
+
+    // 3. Jeton et e-mail EN TÂCHE DE FOND : la réponse part tout de suite, identique pour tous. Sinon
+    // son délai révélerait l'existence du compte (un compte existant attend l'appel HTTP à Resend,
+    // une adresse inconnue rend la main dès l'échec de generateLink). Le travail synchrone est le
+    // même sur les deux chemins : validation et limiteur.
+    deps.enArrierePlan(produireEtEnvoyer(deps, admin, email));
+    return accepte();
+  };
+}
+
+/**
+ * Jeton de récupération puis e-mail. Ne rejette jamais : tout échec est journalisé SANS adresse
+ * (la réponse HTTP est déjà partie, identique que le compte existe ou non).
+ */
+async function produireEtEnvoyer(deps: Dependances, admin: ClientSupabase, email: string): Promise<void> {
+  try {
+    // Adresse sans boîte possible (domaine réservé) : rien à envoyer.
+    if (adresseNonLivrable(email)) return;
+
+    const { data, error } = await admin.auth.admin.generateLink({ type: 'recovery', email });
+    const jetonHache = data?.properties?.hashed_token;
+    if (error || typeof jetonHache !== 'string' || !jetonHache) {
+      // Compte inexistant (cas normal) ou panne. Code d'erreur seulement.
+      console.log('[mm-password-reset] aucun lien produit', error?.code ?? error?.status ?? 'sans_jeton');
+      return;
+    }
+
+    const { sujet, html } = contenuEmail(lienReinitialisation(baseSite(deps.lireEnv), jetonHache));
+    const envoi = await deps.envoyerEmail({ from: expediteur('Med MNG'), to: [email], subject: sujet, html });
+    if (!envoi.ok) journaliserEchec('mm-password-reset', envoi);
+    else console.log('[mm-password-reset] e-mail envoyé', envoi.id ?? 'sans identifiant');
+  } catch (e) {
+    console.error('[mm-password-reset] échec inattendu', e instanceof Error ? e.name : 'inconnue');
+  }
+}
+
+/** Dépendances de production, pour index.ts. */
+export function dependancesReelles(creerClientService: () => ClientSupabase): Dependances {
+  return {
+    creerClientService,
+    envoyerEmail: (email) => envoyerEmailResend(email),
+    lireEnv: (nom) => {
+      try {
+        // deno-lint-ignore no-explicit-any
+        return (globalThis as any).Deno?.env?.get(nom);
+      } catch {
+        return undefined;
+      }
+    },
+    maintenant: () => new Date(),
+    enArrierePlan: (tache) => {
+      // deno-lint-ignore no-explicit-any
+      const runtime = (globalThis as any).EdgeRuntime;
+      // Repli hors runtime Supabase (Deno local, tests) : la tâche se poursuit seule, sans attente.
+      if (typeof runtime?.waitUntil === 'function') runtime.waitUntil(tache);
+    },
+  };
+}
