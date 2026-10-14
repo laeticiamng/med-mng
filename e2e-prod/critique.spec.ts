@@ -53,22 +53,24 @@ test.describe('Critique finale — musique d’un item sans rang A', () => {
   test.skip(!dispo(PREMIUM), 'E2E_PREMIUM_* absents');
   test.use({ storageState: session('premium') });
 
-  // IC-30 et IC-142 n'ont aucune compétence de rang A au référentiel (onglet « Rang A » déjà masqué).
-  // L'onglet Musique affichait pourtant « Musique Rang A — Pas encore de paroles rédigées », les
-  // mots-clés bruts et « Générer la chanson Rang A », refusé ensuite par le serveur.
-  test('IC-30 : pas de chanson « Rang A » ; IC-150 garde ses deux rangs @attend-deploiement', async ({ page }) => {
+  // IC-30 et IC-142 n'ont aucune compétence de rang A au référentiel (onglet « Rang A » de l'item déjà masqué).
+  // Sous-page Musique (onglets Rang A | Rang B | Rang A+B, comme Create) : « Rang A » et « Rang A+B » sont
+  // désactivés, le rang B est présélectionné et seul « Générer la chanson du rang B » existe.
+  test('IC-30 : pas de chanson « Rang A » ; IC-150 garde ses trois rangs @attend-deploiement', async ({ page }) => {
     const erreurs = surveillerErreurs(page);
     await page.goto('/edn-complete/ic-30/musique');
     await fermerCookies(page);
-    const t = await texte(page, 'Musique Rang B');
-    expect(t).not.toContain('Musique Rang A');
-    expect(t).not.toContain('Pas encore de paroles rédigées pour ce rang');
+    const rangs = page.getByRole('tablist', { name: /Niveau de connaissances/ });
+    await expect(rangs.getByRole('tab', { name: 'Rang A', exact: true })).toBeDisabled();
+    await expect(rangs.getByRole('tab', { name: 'Rang B' })).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByRole('button', { name: /^Générer la chanson du rang A$/ })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /^Générer la chanson du rang B$/ }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Générer la chanson du rang B$/ })).toBeVisible();
 
     await page.goto('/edn-complete/ic-150/musique');
-    const t150 = await texte(page, 'Musique Rang B');
-    expect(t150).toContain('Musique Rang A');
+    const rangs150 = page.getByRole('tablist', { name: /Niveau de connaissances/ });
+    for (const nom of ['Rang A', 'Rang B', 'Rang A+B']) {
+      await expect(rangs150.getByRole('tab', { name: nom, exact: true })).toBeEnabled();
+    }
     expect(erreurs).toEqual([]);
   });
 });

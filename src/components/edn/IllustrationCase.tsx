@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ImageAgrandissable } from '@/components/edn/ImageAgrandissable';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -6,6 +7,11 @@ import { supabase } from '@/integrations/supabase/client';
  * de stock tirée au hasard). Dessinée une seule fois, à la première lecture,
  * puis conservée : l'adresse dépend du texte de la description, donc une case
  * réécrite reçoit une nouvelle image.
+ *
+ * Affichage : l'image (1536 × 1024, générée par illustrer-case sans texte ni
+ * bulle) est montrée EN ENTIER, proportions conservées (`object-contain`), et
+ * s'agrandit au clic dans une visionneuse. Le rognage constaté venait de
+ * l'affichage (hauteur fixe + `object-cover`), pas du fichier.
  */
 const BUCKET = 'bd-illustrations';
 
@@ -24,12 +30,15 @@ export function IllustrationCase({
   titre,
   className = '',
   miniature = false,
+  surAgrandissement,
 }: {
   itemCode: string;
   illustration?: string | null;
   titre: string;
   className?: string;
   miniature?: boolean;
+  /** Appelé à l'ouverture de la visionneuse (ex. arrêter un diaporama). */
+  surAgrandissement?: () => void;
 }) {
   const [url, setUrl] = useState<string | null>(null);
   const [etat, setEtat] = useState<'attente' | 'pret' | 'dessin' | 'echec'>('attente');
@@ -68,11 +77,14 @@ export function IllustrationCase({
     };
   }, [itemCode, illustration, miniature]);
 
-  if (url) return <img src={url} alt={illustration ?? titre} loading="lazy" className={`${className} object-cover bg-muted`} />;
+  if (url && miniature) {
+    return <img src={url} alt={illustration ?? titre} loading="lazy" className={`${className} object-contain bg-muted`} />;
+  }
+  if (url) return <ImageAgrandissable src={url} alt={illustration ?? titre} titre={titre} className={className} surAgrandissement={surAgrandissement} />;
 
   // En attendant (ou sans image) : la scène décrite, pour que la case reste lisible.
   return (
-    <div className={`${className} flex items-center justify-center bg-gradient-to-br from-amber-50 to-sky-50 dark:from-slate-800 dark:to-slate-900 p-4 text-center`}>
+    <div className={`${className} ${miniature ? '' : 'aspect-[3/2]'} flex items-center justify-center bg-gradient-to-br from-amber-50 to-sky-50 dark:from-slate-800 dark:to-slate-900 p-4 text-center`}>
       {miniature ? (
         <span className="text-[10px] leading-tight text-muted-foreground line-clamp-4">{titre}</span>
       ) : (

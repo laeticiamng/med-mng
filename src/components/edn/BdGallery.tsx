@@ -8,7 +8,9 @@ import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 import { IllustrationCase } from '@/components/edn/IllustrationCase';
+import { ImageAgrandissable } from '@/components/edn/ImageAgrandissable';
 import { MentionContenuIA } from '@/components/edn/MentionContenuIA';
+import { toucheReserveeAuControle } from '@/lib/touchesPage';
 import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import {
     BookOpen,
@@ -204,6 +206,9 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // La visionneuse d'image (zoom, défilement aux flèches, boutons à la barre
+      // d'espace) et les boutons focalisés gardent leurs propres touches.
+      if (toucheReserveeAuControle(e)) return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault();
         setCurrentVignette((prev) => (prev + 1) % vignettes.length);
@@ -233,6 +238,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
   }, []);
+
+  const arreterDiaporama = () => {
+    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    setIsAutoPlay(false);
+  };
 
   const nextVignette = () => {
     setCurrentVignette((prev) => (prev + 1) % vignettes.length);
@@ -316,23 +326,26 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
 
   const currentVig = vignettes[currentVignette];
 
-  // Fullscreen vignette content
-  const VignetteContent = ({ fullscreen = false }: { fullscreen?: boolean }) => (
+  // Contenu d'une vignette (appelé comme une fonction, pas monté comme un composant :
+  // un composant défini ici serait remonté à chaque rendu et fermerait la visionneuse).
+  const renderVignette = (fullscreen = false) => (
     <div className={`${fullscreen ? 'h-full flex flex-col' : ''}`}>
       <div className="relative">
         {currentVig.image ? (
-          <img
+          <ImageAgrandissable
             src={currentVig.image}
             alt={currentVig.title}
-            loading="lazy"
-            className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} object-cover ${fullscreen ? '' : 'rounded-t-lg'}`}
+            titre={currentVig.title}
+            className={fullscreen ? '' : 'rounded-t-lg'}
+            surAgrandissement={arreterDiaporama}
           />
         ) : (
           <IllustrationCase
             itemCode={itemCode}
             illustration={currentVig.illustration}
             titre={currentVig.title}
-            className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} ${fullscreen ? '' : 'rounded-t-lg'}`}
+            className={`w-full ${fullscreen ? '' : 'rounded-t-lg'}`}
+            surAgrandissement={arreterDiaporama}
           />
         )}
         <div className="absolute top-4 left-4">
@@ -347,6 +360,7 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
               size="sm" 
               variant="secondary"
               onClick={() => setIsFullscreen(true)}
+              aria-label="Plein écran : lire les planches en diaporama"
             >
               <Maximize2 className="h-4 w-4" />
             </Button>
@@ -427,7 +441,11 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
     <div className="space-y-6">
       {/* Fullscreen Dialog */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0">
+        <DialogContent
+          className="max-w-[95vw] max-h-[95vh] w-full h-full p-0"
+          // Échap ferme le plein écran seulement : la page de l'item écoute aussi Échap (retour à la liste).
+          onEscapeKeyDown={(e) => e.stopPropagation()}
+        >
           <DialogHeader className="p-4 border-b bg-gradient-to-r from-accent to-primary">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-primary-foreground flex items-center gap-2">
@@ -443,6 +461,7 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
                   size="sm"
                   onClick={() => setIsFullscreen(false)}
                   className="text-primary-foreground hover:bg-primary-foreground/20"
+                  aria-label="Quitter le plein écran"
                 >
                   <Minimize2 className="h-4 w-4" />
                 </Button>
@@ -451,7 +470,7 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
           </DialogHeader>
           
           <div className="flex-1 overflow-hidden">
-            <VignetteContent fullscreen />
+            {renderVignette(true)}
           </div>
           
           {/* Fullscreen navigation */}
@@ -547,7 +566,7 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
       {/* Vignette principale */}
       <Card className={`border-2 ${getVignetteColor(currentVig.type)}`}>
         <CardContent className="p-0">
-          <VignetteContent />
+          {renderVignette()}
         </CardContent>
       </Card>
 
@@ -558,15 +577,18 @@ Les autres onglets (fiche, rangs A et B, chanson, récit) restent disponibles.
             {vignettes.map((vignette, index) => (
               <button
                 key={vignette.id}
+                type="button"
                 onClick={() => setCurrentVignette(index)}
-                className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all
+                aria-label={`Planche ${index + 1} sur ${vignettes.length} : ${vignette.title}`}
+                aria-current={index === currentVignette ? 'true' : undefined}
+                className={`relative aspect-[3/2] rounded-lg overflow-hidden border-2 transition-all
                   ${index === currentVignette 
                     ? 'border-accent ring-2 ring-accent/20' 
                     : 'border-border hover:border-muted-foreground'
                   }`}
               >
                 {vignette.image ? (
-                  <img src={vignette.image} alt={vignette.title} className="w-full h-full object-cover" />
+                  <img src={vignette.image} alt={vignette.title} className="w-full h-full object-contain bg-muted" />
                 ) : (
                   <IllustrationCase itemCode={itemCode} illustration={vignette.illustration} titre={vignette.title} className="w-full h-full" miniature />
                 )}

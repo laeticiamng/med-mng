@@ -527,9 +527,9 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
       {/* Contenu du chapitre */}
       <Card className={`border-2 ${getChapterColor(currentChap.type)}`}>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">{currentChap.title}</CardTitle>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="min-w-0 break-words text-xl">{currentChap.title}</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
               {currentChap.competences && currentChap.competences.length > 0 && (
                 <Badge variant="outline">
                   {currentChap.competences.length} {currentChap.competences.length > 1 ? 'compétences' : 'compétence'}
@@ -564,7 +564,7 @@ Les autres onglets (fiche, rangs A et B, chanson) restent disponibles.
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <span className="text-xs font-bold text-primary">{index + 1}</span>
                   </div>
-                  <p className="text-foreground leading-relaxed font-medium">
+                  <p className="min-w-0 break-words text-foreground leading-relaxed font-medium">
                     {paragraph}
                   </p>
                 </div>
