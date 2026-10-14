@@ -12,7 +12,7 @@
 //   - aucune adresse (ni jeton) dans les journaux, même quand Resend ou GoTrue la citent dans leurs erreurs.
 import { assert, assertEquals, assertNotEquals } from 'https://deno.land/std@0.208.0/assert/mod.ts';
 import { envoyerEmail } from '../_shared/mm-email.ts';
-import { creerHandler, empreinte, normaliserEmail } from './handler.ts';
+import { creerHandler, empreinte, ipAppelant, normaliserEmail } from './handler.ts';
 
 // Expéditeur fixé (sinon repli journalisé sur l'adresse de test de Resend).
 Deno.env.set('RESEND_FROM', 'contact@medmng.com');
@@ -125,7 +125,7 @@ function monter(options: Options = {}) {
 function demande(email: unknown, entetes: Record<string, string> = {}, methode = 'POST'): Request {
   return new Request('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/mm-password-reset', {
     method: methode,
-    headers: { 'content-type': 'application/json', origin: 'https://medmng.com', 'x-forwarded-for': '203.0.113.7, 10.0.0.1', ...entetes },
+    headers: { 'content-type': 'application/json', origin: 'https://medmng.com', 'x-forwarded-for': '1.2.3.4, 203.0.113.7', ...entetes },
     body: methode === 'POST' ? JSON.stringify({ email }) : undefined,
   });
 }
@@ -228,17 +228,75 @@ Deno.test('429 avec Retry-After à la 4e demande pour une même adresse (casse e
   assertEquals((await handler(demande('autre@exemple.fr', { 'x-forwarded-for': '198.51.100.20' }))).status, 200);
 });
 
-Deno.test('429 à la 11e demande depuis une même IP (première valeur de x-forwarded-for)', async () => {
+Deno.test('429 à la 11e demande depuis une même IP (dernière valeur de x-forwarded-for, celle de la passerelle)', async () => {
   const { handler } = monter();
   for (let i = 1; i <= 10; i++) {
-    const r = await handler(demande(`personne${i}@exemple.fr`, { 'x-forwarded-for': '192.0.2.50, 10.9.9.9' }));
+    const r = await handler(demande(`personne${i}@exemple.fr`, { 'x-forwarded-for': `falsifiee-${i}, 192.0.2.50` }));
     assertEquals(r.status, 200, `demande ${i}`);
   }
-  const onzieme = await handler(demande('personne11@exemple.fr', { 'x-forwarded-for': '192.0.2.50, 10.1.1.1' }));
+  const onzieme = await handler(demande('personne11@exemple.fr', { 'x-forwarded-for': 'falsifiee-11, 192.0.2.50' }));
   assertEquals(onzieme.status, 429);
   assertEquals((await onzieme.json()).code, 'TROP_DE_DEMANDES');
-  // Même adresse « de proxy » en 2e position, première valeur différente : autre IP, autre compteur.
-  assertEquals((await handler(demande('personne12@exemple.fr', { 'x-forwarded-for': '192.0.2.51, 10.9.9.9' }))).status, 200);
+  // Autre IP réelle (dernière valeur) : autre compteur.
+  assertEquals((await handler(demande('personne12@exemple.fr', { 'x-forwarded-for': 'falsifiee-12, 192.0.2.51' }))).status, 200);
+});
+
+Deno.test('X-Forwarded-For falsifié en tête : changer la valeur falsifiée ne change pas de compartiment', async () => {
+  const { handler, appels } = monter();
+  for (let i = 1; i <= 11; i++) {
+    const r = await handler(demande(`spray${i}@exemple.fr`, { 'x-forwarded-for': `1.2.3.${i},,  198.51.100.9 ` }));
+    assertEquals(r.status, i <= 10 ? 200 : 429, `demande ${i}`);
+  }
+  const cleIp = `mm-mdp-ip:${await empreinte('198.51.100.9')}`;
+  const ips = appels.filter((a) => a.p_cle.startsWith('mm-mdp-ip:'));
+  assertEquals(ips.length, 11);
+  assert(ips.every((a) => a.p_cle === cleIp), 'toutes les demandes comptées sur l’adresse réelle');
+  assert(!JSON.stringify(appels).includes(await empreinte('1.2.3.1')), 'la valeur falsifiée n’est jamais une clé');
+});
+
+Deno.test('IP : en-tête absent, repli sur cf-connecting-ip puis x-real-ip ; sinon clé commune « inconnue »', () => {
+  const avec = (entetes: Record<string, string>) => ipAppelant(new Request('https://x.test/', { headers: entetes }));
+  assertEquals(avec({ 'x-forwarded-for': '1.1.1.1, 2.2.2.2, 3.3.3.3' }), '3.3.3.3');
+  assertEquals(avec({ 'x-forwarded-for': '1.1.1.1' }), '1.1.1.1');
+  assertEquals(avec({ 'cf-connecting-ip': '4.4.4.4' }), '4.4.4.4');
+  assertEquals(avec({ 'x-real-ip': '5.5.5.5' }), '5.5.5.5');
+  assertEquals(avec({ 'x-forwarded-for': ' , ' }), 'inconnue');
+  assertEquals(avec({}), 'inconnue');
+});
+
+Deno.test('plafond global : 300 demandes par heure tous appelants confondus, la 301e reçoit 429', async () => {
+  const { brut, appels, attendre } = monter();
+  const statuts: number[] = [];
+  for (let i = 1; i <= 301; i++) {
+    // IP et adresse distinctes à chaque demande : seules les limites par IP / adresse seraient inopérantes.
+    const r = await brut(demande(`anonyme${i}@exemple.fr`, { 'x-forwarded-for': `x, 10.${Math.floor(i / 250)}.${i % 250}.1` }));
+    statuts.push(r.status);
+  }
+  await attendre();
+  assertEquals(statuts.slice(0, 300).every((c) => c === 200), true);
+  assertEquals(statuts[300], 429);
+  assertEquals(appels.filter((a) => a.p_cle === 'global').every((a) => a.p_max === 300 && a.p_fenetre === '1 hour'), true);
+  // Une demande déjà refusée (ici par l'adresse) ne consomme pas le plafond global.
+  const m = monter();
+  for (let i = 0; i < 4; i++) await m.handler(demande(EXISTANT, { 'x-forwarded-for': `x, 192.0.2.${i + 1}` }));
+  assertEquals(m.appels.filter((a) => a.p_cle === 'global').length, 3);
+});
+
+Deno.test('plafond global : erreur du compteur global = 503, aucun jeton', async () => {
+  const liens: unknown[] = [];
+  const h = creerHandler({
+    creerClientService: () => ({
+      rpc: async (_n: string, a: { p_cle: string }) => (a.p_cle === 'global' ? { data: null, error: { message: 'x' } } : { data: true, error: null }),
+      auth: { admin: { generateLink: async (p: unknown) => (liens.push(p), { data: null, error: null }) } },
+    }),
+    envoyerEmail: () => Promise.reject(new Error('ne doit pas être appelé')),
+    lireEnv: () => undefined,
+    maintenant: () => MAINTENANT,
+    enArrierePlan: () => {},
+  });
+  const r = await h(demande(EXISTANT));
+  assertEquals(r.status, 503);
+  assertEquals(liens.length, 0);
 });
 
 Deno.test('503 si le limiteur échoue : aucun jeton produit, aucun e-mail envoyé (échec fermé)', async () => {
@@ -256,9 +314,10 @@ Deno.test('compteurs : une réservation atomique par clé, clés hachées, ni ad
   assertEquals(appels, [
     { p_cle: `mm-mdp-ip:${await empreinte('203.0.113.7')}`, p_max: 10, p_fenetre: '1 hour' },
     { p_cle: `mm-mdp-email:${await empreinte(EXISTANT)}`, p_max: 3, p_fenetre: '1 hour' },
+    { p_cle: 'global', p_max: 300, p_fenetre: '1 hour' },
   ]);
   const tout = JSON.stringify(appels);
-  assert(!tout.includes('exemple.fr') && !tout.includes('203.0.113.7'));
+  assert(!tout.includes('exemple.fr') && !tout.includes('203.0.113.7') && !tout.includes('1.2.3.4'));
 });
 
 Deno.test('rafale : 10 demandes simultanées pour une même adresse, exactement 3 passent (limite atomique)', async () => {

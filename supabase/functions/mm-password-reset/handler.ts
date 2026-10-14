@@ -27,6 +27,8 @@
  *   mm_reserver_reinit_mdp ; fenêtre = heure UTC pleine) : 3 demandes par heure par adresse et 10
  *   par heure par IP, clés = SHA-256 (jamais l'adresse ni l'IP en clair). Le limiteur commun
  *   (rate_limit_counters) lit puis écrit sans contrainte d'unicité : une rafale le dépassait.
+ *   Plafond global de 300 par heure (clé « global ») en défense en profondeur. L'IP est la dernière
+ *   valeur de x-forwarded-for (celle de la passerelle), jamais la première (falsifiable).
  *   Limiteur illisible → 503, échec fermé : aucun jeton n'est produit sans avoir compté ;
  * - aucune adresse e-mail dans les journaux.
  *
@@ -45,6 +47,14 @@ import {
 
 export const DEMANDES_MAX_PAR_HEURE_ET_EMAIL = 3;
 export const DEMANDES_MAX_PAR_HEURE_ET_IP = 10;
+/**
+ * Plafond global (tous appelants confondus), défense en profondeur : borne le coût des e-mails même si
+ * la limite par IP était contournée. 300 par heure = 30 fois le plafond d'une IP et bien au-delà de
+ * l'usage légitime (une réinitialisation par utilisateur oublieux : quelques dizaines par heure au
+ * pic du lancement) ; au pire, 7 200 e-mails par jour. Atteint, il bloque aussi les demandes
+ * légitimes jusqu'à l'heure suivante : c'est un dernier recours, pas le contrôle courant.
+ */
+export const DEMANDES_MAX_PAR_HEURE_GLOBAL = 300;
 export const SITE_PAR_DEFAUT = 'https://medmng.com';
 const DUREE_FENETRE_MS = 60 * 60 * 1000;
 const LONGUEUR_MAX_CORPS = 2_000;
@@ -95,10 +105,23 @@ export async function empreinte(valeur: string): Promise<string> {
   return Array.from(new Uint8Array(octets), (o) => o.toString(16).padStart(2, '0')).join('');
 }
 
-/** IP de l'appelant : première valeur de x-forwarded-for (posé par la passerelle Supabase). */
+/**
+ * IP de l'appelant pour la limite par IP : DERNIÈRE valeur non vide de x-forwarded-for.
+ *
+ * L'appelant peut fournir lui-même X-Forwarded-For ; la passerelle Supabase AJOUTE l'adresse réelle
+ * en fin de liste (« falsifiee,reelle »). Prendre la première valeur laisserait l'attaquant changer
+ * de compartiment à chaque requête et contourner la limite. Voir la reproduction :
+ * https://github.com/orgs/supabase/discussions/34647#discussioncomment-12704300
+ * Repli (en-tête absent) : cf-connecting-ip puis x-real-ip, posés par la plateforme ; sinon une clé
+ * commune « inconnue » (plus stricte, jamais plus permissive).
+ */
 export function ipAppelant(req: Request): string {
-  const premiere = (req.headers.get('x-forwarded-for') ?? '').split(',')[0]?.trim();
-  return premiere || 'inconnue';
+  const valeurs = (req.headers.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+  const derniere = valeurs[valeurs.length - 1];
+  return derniere || req.headers.get('cf-connecting-ip')?.trim() || req.headers.get('x-real-ip')?.trim() || 'inconnue';
 }
 
 /**
@@ -199,24 +222,29 @@ export function creerHandler(deps: Dependances): (req: Request) => Promise<Respo
     let admin: ClientSupabase;
     let ipAutorisee: boolean | null = null;
     let emailAutorise: boolean | null = null;
+    let globalAutorise: boolean | null = null;
     try {
       admin = deps.creerClientService();
       ipAutorisee = await reserver(admin, `mm-mdp-ip:${await empreinte(ipAppelant(req))}`, DEMANDES_MAX_PAR_HEURE_ET_IP);
       if (ipAutorisee) {
         emailAutorise = await reserver(admin, `mm-mdp-email:${await empreinte(email)}`, DEMANDES_MAX_PAR_HEURE_ET_EMAIL);
+        // Plafond global en dernier : une demande déjà refusée ne le consomme pas.
+        if (emailAutorise) globalAutorise = await reserver(admin, 'global', DEMANDES_MAX_PAR_HEURE_GLOBAL);
       }
     } catch (e) {
       console.error('[mm-password-reset] limiteur en exception', e instanceof Error ? e.name : 'inconnue');
       ipAutorisee = null;
     }
-    if (ipAutorisee === null || (ipAutorisee && emailAutorise === null)) {
+    if (
+      ipAutorisee === null || (ipAutorisee && emailAutorise === null) || (emailAutorise && globalAutorise === null)
+    ) {
       return repondre({
         ok: false,
         code: 'VERIFICATION_IMPOSSIBLE',
         message: 'Service momentanément indisponible. Réessayez dans quelques minutes.',
       }, 503);
     }
-    if (!ipAutorisee || !emailAutorise) {
+    if (!ipAutorisee || !emailAutorise || !globalAutorise) {
       // Fenêtre = heure UTC pleine (celle de la fonction SQL, alignée sur l'époque).
       const finFenetre = (Math.floor(maintenant.getTime() / DUREE_FENETRE_MS) + 1) * DUREE_FENETRE_MS;
       const attente = Math.max(1, Math.ceil((finFenetre - maintenant.getTime()) / 1000));
