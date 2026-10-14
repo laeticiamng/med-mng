@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,9 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
   const [activeTab, setActiveTab] = useState<'all' | 'favorites' | 'history'>('all');
   const [shuffleEnabled, setShuffleEnabled] = useState(false);
   const [repeatMode, setRepeatMode] = useState<'none' | 'one' | 'all'>('none');
+  // Vrai seulement une fois les préférences lues sans erreur : évite qu'une
+  // sauvegarde écrase la ligne enregistrée par des valeurs vides si la lecture a échoué.
+  const prefsLoadedRef = useRef(false);
 
   // Load user preferences from Supabase
   const loadUserPreferences = useCallback(async (musicTracks: MusicTrack[]) => {
@@ -76,6 +79,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
         console.warn('Préférences de lecture indisponibles', error.message);
         return;
       }
+      prefsLoadedRef.current = true;
       if (data) {
         const prefs = data as unknown as MusicPreferences;
         setFavorites(new Set(prefs.favorites || []));
@@ -107,6 +111,10 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
       // Fallback to localStorage
       localStorage.setItem('music-favorites', JSON.stringify([...favoritesToSave]));
       localStorage.setItem('music-history', JSON.stringify(historyToSave));
+      return;
+    }
+
+    if (!prefsLoadedRef.current) {
       return;
     }
 
