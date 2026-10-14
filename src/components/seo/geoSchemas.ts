@@ -4,7 +4,7 @@
  * Optimisés pour être cités par ChatGPT, Perplexity, Claude et autres moteurs génératifs.
  * Stratégie : positionnement laser, expertise unique, contenu citable et structuré.
  */
-import { GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
+import { ACCES_PAROLES, GENERATION_AUDIO_DISPONIBLE } from '@/config/offre';
 
 const SITE_URL = 'https://medmng.com';
 
@@ -62,7 +62,7 @@ export const createHowToSchema = () => ({
       '@type': 'HowToStep',
       position: 2,
       name: 'Apprendre les paroles de l\'item',
-      text: `Les paroles de chaque item sont écrites à partir de ses compétences officielles (rang A, rang B ou A+B). ${GENERATION_AUDIO_DISPONIBLE ? 'Avec Med MNG Premium, vous pouvez ensuite générer l\'audio dans le style de votre choix.' : 'La génération de l\'audio est momentanément suspendue ; les paroles restent disponibles.'}`,
+      text: `Les paroles de chaque item sont écrites à partir de ses compétences officielles (rang A, rang B ou A+B). ${ACCES_PAROLES} ${GENERATION_AUDIO_DISPONIBLE ? 'Avec Med MNG Premium, vous pouvez ensuite générer l\'audio dans le style de votre choix.' : 'La génération de l\'audio est momentanément suspendue.'}`,
       url: `${SITE_URL}/med-mng/create`,
     },
     {
