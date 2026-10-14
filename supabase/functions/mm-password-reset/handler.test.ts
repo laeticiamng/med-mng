@@ -125,7 +125,7 @@ function monter(options: Options = {}) {
 function demande(email: unknown, entetes: Record<string, string> = {}, methode = 'POST'): Request {
   return new Request('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/mm-password-reset', {
     method: methode,
-    headers: { 'content-type': 'application/json', origin: 'https://medmng.com', 'x-forwarded-for': '1.2.3.4, 203.0.113.7', ...entetes },
+    headers: { 'content-type': 'application/json', origin: 'https://medmng.com', 'cf-connecting-ip': '203.0.113.7', 'x-forwarded-for': '1.2.3.4, 9.9.9.9', ...entetes },
     body: methode === 'POST' ? JSON.stringify({ email }) : undefined,
   });
 }
@@ -212,10 +212,10 @@ Deno.test('429 avec Retry-After à la 4e demande pour une même adresse (casse e
   const variantes = [EXISTANT, EXISTANT.toUpperCase(), `  ${EXISTANT}  `];
   for (const [i, v] of variantes.entries()) {
     // IP différente à chaque appel : seule la limite par adresse est en jeu.
-    const r = await handler(demande(v, { 'x-forwarded-for': `198.51.100.${i + 1}` }));
+    const r = await handler(demande(v, { 'cf-connecting-ip': `198.51.100.${i + 1}` }));
     assertEquals(r.status, 200);
   }
-  const quatrieme = await handler(demande(EXISTANT, { 'x-forwarded-for': '198.51.100.9' }));
+  const quatrieme = await handler(demande(EXISTANT, { 'cf-connecting-ip': '198.51.100.9' }));
   assertEquals(quatrieme.status, 429);
   // Fenêtre = heure UTC pleine : 10:20 → 40 minutes restantes.
   assertEquals(quatrieme.headers.get('retry-after'), String(40 * 60));
@@ -225,42 +225,43 @@ Deno.test('429 avec Retry-After à la 4e demande pour une même adresse (casse e
   assertEquals(envois.length, 3, 'la 4e demande n’envoie rien');
   assertEquals(liens.length, 3, 'la 4e demande ne produit aucun jeton');
   // Une autre adresse n'est pas touchée ; l'heure suivante repart de zéro (autre fenêtre).
-  assertEquals((await handler(demande('autre@exemple.fr', { 'x-forwarded-for': '198.51.100.20' }))).status, 200);
+  assertEquals((await handler(demande('autre@exemple.fr', { 'cf-connecting-ip': '198.51.100.20' }))).status, 200);
 });
 
-Deno.test('429 à la 11e demande depuis une même IP (dernière valeur de x-forwarded-for, celle de la passerelle)', async () => {
+Deno.test('429 à la 11e demande depuis une même IP (cf-connecting-ip)', async () => {
   const { handler } = monter();
   for (let i = 1; i <= 10; i++) {
-    const r = await handler(demande(`personne${i}@exemple.fr`, { 'x-forwarded-for': `falsifiee-${i}, 192.0.2.50` }));
+    const r = await handler(demande(`personne${i}@exemple.fr`, { 'cf-connecting-ip': '192.0.2.50' }));
     assertEquals(r.status, 200, `demande ${i}`);
   }
-  const onzieme = await handler(demande('personne11@exemple.fr', { 'x-forwarded-for': 'falsifiee-11, 192.0.2.50' }));
+  const onzieme = await handler(demande('personne11@exemple.fr', { 'cf-connecting-ip': '192.0.2.50' }));
   assertEquals(onzieme.status, 429);
   assertEquals((await onzieme.json()).code, 'TROP_DE_DEMANDES');
-  // Autre IP réelle (dernière valeur) : autre compteur.
-  assertEquals((await handler(demande('personne12@exemple.fr', { 'x-forwarded-for': 'falsifiee-12, 192.0.2.51' }))).status, 200);
+  // Autre IP : autre compteur.
+  assertEquals((await handler(demande('personne12@exemple.fr', { 'cf-connecting-ip': '192.0.2.51' }))).status, 200);
 });
 
-Deno.test('X-Forwarded-For falsifié en tête : changer la valeur falsifiée ne change pas de compartiment', async () => {
+Deno.test('X-Forwarded-For falsifié (première, dernière ou toute position) : ignoré, compté sur l\'IP réelle', async () => {
   const { handler, appels } = monter();
+  const falsifies = (i: number) => [`1.2.3.${i}`, `9.9.9.${i}, 1.2.3.${i}`, `1.2.3.${i},,  8.8.8.${i} `];
   for (let i = 1; i <= 11; i++) {
-    const r = await handler(demande(`spray${i}@exemple.fr`, { 'x-forwarded-for': `1.2.3.${i},,  198.51.100.9 ` }));
+    const r = await handler(demande(`spray${i}@exemple.fr`, { 'cf-connecting-ip': '198.51.100.9', 'x-forwarded-for': falsifies(i)[i % 3] }));
     assertEquals(r.status, i <= 10 ? 200 : 429, `demande ${i}`);
   }
   const cleIp = `mm-mdp-ip:${await empreinte('198.51.100.9')}`;
   const ips = appels.filter((a) => a.p_cle.startsWith('mm-mdp-ip:'));
   assertEquals(ips.length, 11);
-  assert(ips.every((a) => a.p_cle === cleIp), 'toutes les demandes comptées sur l’adresse réelle');
-  assert(!JSON.stringify(appels).includes(await empreinte('1.2.3.1')), 'la valeur falsifiée n’est jamais une clé');
+  assert(ips.every((a) => a.p_cle === cleIp), 'toutes les demandes comptées sur l\'adresse réelle');
+  assert(!JSON.stringify(appels).includes(await empreinte('1.2.3.1')), 'la valeur falsifiée n\'est jamais une clé');
 });
 
-Deno.test('IP : en-tête absent, repli sur cf-connecting-ip puis x-real-ip ; sinon clé commune « inconnue »', () => {
+Deno.test('IP : cf-connecting-ip prioritaire, repli sur x-real-ip, jamais x-forwarded-for ; sinon clé commune « inconnue »', () => {
   const avec = (entetes: Record<string, string>) => ipAppelant(new Request('https://x.test/', { headers: entetes }));
-  assertEquals(avec({ 'x-forwarded-for': '1.1.1.1, 2.2.2.2, 3.3.3.3' }), '3.3.3.3');
-  assertEquals(avec({ 'x-forwarded-for': '1.1.1.1' }), '1.1.1.1');
-  assertEquals(avec({ 'cf-connecting-ip': '4.4.4.4' }), '4.4.4.4');
-  assertEquals(avec({ 'x-real-ip': '5.5.5.5' }), '5.5.5.5');
-  assertEquals(avec({ 'x-forwarded-for': ' , ' }), 'inconnue');
+  assertEquals(avec({ 'cf-connecting-ip': '4.4.4.4', 'x-real-ip': '5.5.5.5', 'x-forwarded-for': '1.1.1.1' }), '4.4.4.4');
+  assertEquals(avec({ 'cf-connecting-ip': ' 4.4.4.4 ' }), '4.4.4.4');
+  assertEquals(avec({ 'x-real-ip': '5.5.5.5', 'x-forwarded-for': '1.1.1.1, 2.2.2.2' }), '5.5.5.5');
+  assertEquals(avec({ 'cf-connecting-ip': ' ', 'x-real-ip': '5.5.5.5' }), '5.5.5.5');
+  assertEquals(avec({ 'x-forwarded-for': '1.1.1.1, 2.2.2.2, 3.3.3.3' }), 'inconnue');
   assertEquals(avec({}), 'inconnue');
 });
 
@@ -269,7 +270,7 @@ Deno.test('plafond global : 300 demandes par heure tous appelants confondus, la 
   const statuts: number[] = [];
   for (let i = 1; i <= 301; i++) {
     // IP et adresse distinctes à chaque demande : seules les limites par IP / adresse seraient inopérantes.
-    const r = await brut(demande(`anonyme${i}@exemple.fr`, { 'x-forwarded-for': `x, 10.${Math.floor(i / 250)}.${i % 250}.1` }));
+    const r = await brut(demande(`anonyme${i}@exemple.fr`, { 'cf-connecting-ip': `10.${Math.floor(i / 250)}.${i % 250}.1` }));
     statuts.push(r.status);
   }
   await attendre();
@@ -278,7 +279,7 @@ Deno.test('plafond global : 300 demandes par heure tous appelants confondus, la 
   assertEquals(appels.filter((a) => a.p_cle === 'global').every((a) => a.p_max === 300 && a.p_fenetre === '1 hour'), true);
   // Une demande déjà refusée (ici par l'adresse) ne consomme pas le plafond global.
   const m = monter();
-  for (let i = 0; i < 4; i++) await m.handler(demande(EXISTANT, { 'x-forwarded-for': `x, 192.0.2.${i + 1}` }));
+  for (let i = 0; i < 4; i++) await m.handler(demande(EXISTANT, { 'cf-connecting-ip': `192.0.2.${i + 1}` }));
   assertEquals(m.appels.filter((a) => a.p_cle === 'global').length, 3);
 });
 
@@ -323,7 +324,7 @@ Deno.test('compteurs : une réservation atomique par clé, clés hachées, ni ad
 Deno.test('rafale : 10 demandes simultanées pour une même adresse, exactement 3 passent (limite atomique)', async () => {
   const { brut, attendre, envois } = monter();
   const reponses = await Promise.all(
-    Array.from({ length: 10 }, (_, i) => brut(demande(EXISTANT, { 'x-forwarded-for': `198.51.100.${i + 1}` }))),
+    Array.from({ length: 10 }, (_, i) => brut(demande(EXISTANT, { 'cf-connecting-ip': `198.51.100.${i + 1}` }))),
   );
   await attendre();
   const statuts = reponses.map((r) => r.status).sort();
@@ -334,7 +335,7 @@ Deno.test('rafale : 10 demandes simultanées pour une même adresse, exactement 
 Deno.test('rafale : 25 demandes simultanées depuis une même IP, exactement 10 passent', async () => {
   const { brut, attendre } = monter();
   const reponses = await Promise.all(
-    Array.from({ length: 25 }, (_, i) => brut(demande(`personne${i}@exemple.fr`, { 'x-forwarded-for': '192.0.2.77' }))),
+    Array.from({ length: 25 }, (_, i) => brut(demande(`personne${i}@exemple.fr`, { 'cf-connecting-ip': '192.0.2.77' }))),
   );
   await attendre();
   assertEquals(reponses.filter((r) => r.status === 200).length, 10);
@@ -402,10 +403,10 @@ Deno.test('adresse à domaine réservé : comptée, 200, aucun jeton ni e-mail ;
   const { handler, liens, envois } = monter();
   const adresse = 'qa-inexistant-1@medmng-qa.invalid';
   for (let i = 1; i <= 3; i++) {
-    const r = await handler(demande(adresse, { 'x-forwarded-for': `198.51.100.${i}` }));
+    const r = await handler(demande(adresse, { 'cf-connecting-ip': `198.51.100.${i}` }));
     assertEquals(await lire(r), { statut: 200, corps: '{"ok":true}' });
   }
-  assertEquals((await handler(demande(adresse, { 'x-forwarded-for': '198.51.100.99' }))).status, 429);
+  assertEquals((await handler(demande(adresse, { 'cf-connecting-ip': '198.51.100.99' }))).status, 429);
   assertEquals(liens.length + envois.length, 0);
 });
 
