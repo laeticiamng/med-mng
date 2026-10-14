@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { toast } from 'sonner';
-import { lirePreferencesLecteur, ecrirePreferencesLecteur } from '@/components/edn/music/utils/preferencesLecteur';
+import { cleStockageLecteur, lirePreferencesLecteur, ecrirePreferencesLecteur } from '@/components/edn/music/utils/preferencesLecteur';
 
 interface MusicTrack {
   id: string;
@@ -32,7 +32,9 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
   const { play: playAudio, pause: pauseAudio, resume: resumeAudio, isPlaying: audioIsPlaying, currentTrack: audioCurrentTrack } = useGlobalAudio();
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [history, setHistory] = useState<MusicTrack[]>([]);
+  const [historyCodes, setHistoryCodes] = useState<string[]>([]);
+  // Clé de stockage dont les préférences sont actuellement chargées en mémoire.
+  const [cleChargee, setCleChargee] = useState<string | null>(null);
   const [currentTrack, setCurrentTrack] = useState<MusicTrack | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,16 +48,24 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
   // Préférences du lecteur : locales, par utilisateur (localStorage). La table
   // `user_music_preferences` appartient à EmotionsCare : Med MNG ne la lit ni
   // ne l'écrit (voir utils/preferencesLecteur.ts).
-  const loadUserPreferences = useCallback((musicTracks: MusicTrack[]) => {
+  //
+  // Chargement synchrone, dans un effet lié à l'identifiant de l'utilisateur :
+  // quand la session est restaurée après le montage (user passe de null à un
+  // compte), les préférences de CE compte remplacent celles de l'anonyme, et
+  // rien n'est écrit sous une clé avant d'avoir chargé les préférences de cette
+  // même clé (`cleChargee`).
+  const cleCourante = cleStockageLecteur(user?.id);
+
+  useEffect(() => {
+    const cle = cleStockageLecteur(user?.id);
     const prefs = lirePreferencesLecteur(user?.id);
     setFavorites(new Set(prefs.favorites));
+    setHistoryCodes(prefs.history);
     setShuffleEnabled(prefs.shuffle_enabled);
     setRepeatMode(prefs.repeat_mode);
     volumeRef.current = prefs.volume;
-
-    const historyTracks = musicTracks.filter(t => prefs.history.includes(t.item_code));
-    setHistory(historyTracks.slice(0, 20));
-  }, [user]);
+    setCleChargee(cle);
+  }, [user?.id]);
 
   const savePreferences = useCallback((
     newFavorites?: Set<string>,
@@ -63,57 +73,74 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     newShuffle?: boolean,
     newRepeat?: 'none' | 'one' | 'all'
   ) => {
+    // Jamais d'écriture tant que les préférences de cette clé ne sont pas chargées
+    // (sinon l'état de l'utilisateur précédent, ou anonyme, écraserait celui du compte).
+    if (cleChargee !== cleCourante) return;
     ecrirePreferencesLecteur(user?.id, {
       favorites: [...(newFavorites || favorites)],
-      history: newHistory || history.map(t => t.item_code),
+      history: newHistory || historyCodes,
       shuffle_enabled: newShuffle !== undefined ? newShuffle : shuffleEnabled,
       repeat_mode: newRepeat !== undefined ? newRepeat : repeatMode,
       volume: volumeRef.current,
     });
-  }, [user, favorites, history, shuffleEnabled, repeatMode]);
+  }, [user?.id, cleChargee, cleCourante, favorites, historyCodes, shuffleEnabled, repeatMode]);
 
-  const loadMusicData = useCallback(async () => {
-    setLoading(true);
-
-    // Cette playlist listait les 367 items dès qu'ils avaient un champ TEXTE
-    // `paroles_musicales`, avec une durée calculée arithmétiquement
-    // (60 + 3 × nb_lignes + index) : elle annonçait « 367 titres disponibles »
-    // sans qu'aucun fichier audio n'existe, et les boutons Lecture ne
-    // produisaient aucun son. On ne liste désormais que les pistes réellement
-    // générées, celles que la chaîne Suno écrit dans `generated_music_tracks`.
-    const { data, error } = await supabase
-      .from('generated_music_tracks')
-      .select('id, title, audio_url, duration, metadata, created_at')
-      .eq('generation_status', 'completed')
-      .not('audio_url', 'is', null)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      setTracks([]);
-      setLoading(false);
-      toast.error(`Playlist indisponible : ${error.message}`);
-      return;
-    }
-
-    const musicTracks: MusicTrack[] = (data || []).map((row) => {
-      const meta = (row.metadata ?? {}) as { itemCode?: string; rang?: string };
-      return {
-        id: row.id,
-        item_code: meta.itemCode || row.title,
-        title: row.title,
-        audio_url: row.audio_url ?? undefined,
-        duration: row.duration ?? undefined,
-      };
-    });
-
-    setTracks(musicTracks);
-    loadUserPreferences(musicTracks);
-    setLoading(false);
-  }, [loadUserPreferences]);
+  // Historique affiché : pistes connues, dans l'ordre de la playlist (20 au plus).
+  const history = useMemo(
+    () => tracks.filter(t => historyCodes.includes(t.item_code)).slice(0, 20),
+    [tracks, historyCodes],
+  );
 
   useEffect(() => {
+    // Rechargé à chaque changement de compte ; une réponse arrivée après un
+    // changement d'utilisateur est ignorée.
+    let annule = false;
+
+    const loadMusicData = async () => {
+      setLoading(true);
+
+      // Cette playlist listait les 367 items dès qu'ils avaient un champ TEXTE
+      // `paroles_musicales`, avec une durée calculée arithmétiquement
+      // (60 + 3 × nb_lignes + index) : elle annonçait « 367 titres disponibles »
+      // sans qu'aucun fichier audio n'existe, et les boutons Lecture ne
+      // produisaient aucun son. On ne liste désormais que les pistes réellement
+      // générées, celles que la chaîne Suno écrit dans `generated_music_tracks`.
+      const { data, error } = await supabase
+        .from('generated_music_tracks')
+        .select('id, title, audio_url, duration, metadata, created_at')
+        .eq('generation_status', 'completed')
+        .not('audio_url', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (annule) return;
+
+      if (error) {
+        setTracks([]);
+        setLoading(false);
+        toast.error(`Playlist indisponible : ${error.message}`);
+        return;
+      }
+
+      const musicTracks: MusicTrack[] = (data || []).map((row) => {
+        const meta = (row.metadata ?? {}) as { itemCode?: string; rang?: string };
+        return {
+          id: row.id,
+          item_code: meta.itemCode || row.title,
+          title: row.title,
+          audio_url: row.audio_url ?? undefined,
+          duration: row.duration ?? undefined,
+        };
+      });
+
+      setTracks(musicTracks);
+      setLoading(false);
+    };
+
     loadMusicData();
-  }, [loadMusicData]);
+    return () => {
+      annule = true;
+    };
+  }, [user?.id]);
 
   const toggleFavorite = useCallback((itemCode: string) => {
     const newFavorites = new Set(favorites);
@@ -127,15 +154,13 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
   }, [favorites, savePreferences]);
 
   const addToHistory = useCallback((track: MusicTrack) => {
-    let historyItems = history.map(t => t.item_code);
-    historyItems = historyItems.filter(code => code !== track.item_code);
+    let historyItems = historyCodes.filter(code => code !== track.item_code);
     historyItems.unshift(track.item_code);
     historyItems = historyItems.slice(0, 50);
-    
-    const newHistoryTracks = tracks.filter(t => historyItems.includes(t.item_code)).slice(0, 20);
-    setHistory(newHistoryTracks);
+
+    setHistoryCodes(historyItems);
     savePreferences(undefined, historyItems);
-  }, [history, tracks, savePreferences]);
+  }, [historyCodes, savePreferences]);
 
   const playTrack = useCallback((track: MusicTrack) => {
     const displayList = activeTab === 'favorites' 

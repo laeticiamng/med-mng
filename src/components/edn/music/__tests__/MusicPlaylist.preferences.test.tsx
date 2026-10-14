@@ -116,6 +116,60 @@ describe('MusicPlaylist — aucune lecture ni écriture de user_music_preference
     expect(tablesInterrogees).not.toContain('user_music_preferences');
   });
 
+  it('session restaurée après le montage (anonyme puis compte) : les préférences du compte ne sont pas écrasées', async () => {
+    ecrirePreferencesLecteur('user-a', {
+      favorites: ['IC-66'], history: ['IC-150'], shuffle_enabled: true, repeat_mode: 'all', volume: 0.4,
+    });
+    utilisateur.current = null;
+    const { rerender } = render(<MusicPlaylist />);
+    await waitFor(() => expect(screen.getByText('Playlist Mnémotechnique')).toBeInTheDocument());
+    expect(screen.getByText('Favoris (0)')).toBeInTheDocument();
+
+    // La session est restaurée : l'identifiant passe de null à user-a.
+    utilisateur.current = { id: 'user-a' };
+    rerender(<MusicPlaylist />);
+    await waitFor(() => expect(screen.getByText('Favoris (1)')).toBeInTheDocument());
+
+    // Rien n'a été écrit par l'état anonyme, ni sous la clé du compte ni sous la sienne.
+    expect(lireStocke('user-a')).toEqual({
+      favorites: ['IC-66'], history: ['IC-150'], shuffle_enabled: true, repeat_mode: 'all', volume: 0.4,
+    });
+    expect(lireStocke(null)).toBeNull();
+
+    // L'interaction suivante enregistre les valeurs du compte, pas celles de l'anonyme.
+    fireEvent.click(screen.getByText('IC-66'));
+    fireEvent.click(screen.getByTitle(/Répéter/));
+    const stocke = lireStocke('user-a');
+    expect(stocke.favorites).toEqual(['IC-66']);
+    expect(stocke.shuffle_enabled).toBe(true);
+    expect(stocke.repeat_mode).toBe('none'); // all -> none
+    expect(stocke.history[0]).toBe('IC-66');
+    expect(lireStocke(null)).toBeNull();
+    expect(tablesInterrogees).not.toContain('user_music_preferences');
+  });
+
+  it('changement de compte : les préférences de l’un ne sont jamais écrites sous la clé de l’autre', async () => {
+    ecrirePreferencesLecteur('user-a', {
+      favorites: ['IC-66'], history: [], shuffle_enabled: true, repeat_mode: 'none', volume: 1,
+    });
+    ecrirePreferencesLecteur('user-b', {
+      favorites: ['IC-150'], history: [], shuffle_enabled: false, repeat_mode: 'one', volume: 1,
+    });
+    const { rerender } = render(<MusicPlaylist />);
+    await waitFor(() => expect(screen.getByText('Favoris (1)')).toBeInTheDocument());
+
+    utilisateur.current = { id: 'user-b' };
+    rerender(<MusicPlaylist />);
+    fireEvent.click(await screen.findByText('Favoris (1)'));
+    await waitFor(() => expect(screen.getByText('IC-150')).toBeInTheDocument());
+    expect(screen.queryByText('IC-66')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('IC-150')); // écrit sous la clé de user-b uniquement
+    expect(lireStocke('user-b')?.repeat_mode).toBe('one');
+    expect(lireStocke('user-b')?.shuffle_enabled).toBe(false);
+    expect(lireStocke('user-a')?.favorites).toEqual(['IC-66']);
+    expect(lireStocke('user-b')?.favorites).toEqual(['IC-150']);
+  });
+
   it('hors connexion : même comportement local, sans table', async () => {
     utilisateur.current = null;
     render(<MusicPlaylist />);
