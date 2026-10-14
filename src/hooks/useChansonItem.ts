@@ -73,7 +73,19 @@ interface Lancement {
   annule: boolean;
   /** La requête payante est partie : le démontage ne l'interrompt plus. */
   audioLance: boolean;
+  /** Plafond de sécurité d'une annulation dont la requête ne se règle pas (voir `annuler`). */
+  minuteur?: ReturnType<typeof setTimeout>;
 }
+
+/**
+ * Après une annulation, le verrou reste posé jusqu'à ce que la requête en cours se
+ * règle réellement (succès, échec ou rejet) : le hook de génération ne peut pas
+ * toujours l'interrompre (traduction, appel au service avant le suivi), et un autre
+ * lancement consommerait un second slot payant. Plafond de sécurité, aligné sur
+ * celui du suivi existant (useSunoMusicGeneration : 10 minutes) : au-delà, le verrou
+ * est libéré pour ne jamais rester bloqué.
+ */
+const PLAFOND_ANNULATION_MS = 10 * 60 * 1000;
 
 /** Borne une attente : au-delà, la promesse rend `null` (elle n'est pas annulée). */
 const avecDelai = <T>(promesse: Promise<T>, ms: number): Promise<T | null> =>
@@ -119,6 +131,8 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const [styleEnCours, setStyleEnCours] = useState<string | null>(null);
   /** Dès le clic, avant toute requête (rédaction des paroles comprise) : verrou contre un second lancement. */
   const [preparation, setPreparation] = useState(false);
+  /** Annulation demandée alors que la requête payante est partie : on attend qu'elle se règle. */
+  const [annulationEnCours, setAnnulationEnCours] = useState(false);
   const lancement = useRef<Lancement | null>(null);
   /** Chanson dont le post-traitement (bibliothèque) peut encore mettre l'état à jour. */
   const chansonCourante = useRef<string | null>(null);
@@ -324,7 +338,13 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
           }
         );
 
-        if (l.annule) return;
+        if (l.annule) {
+          // Aboutie malgré l'annulation : pas de faux échec ; la chanson arrive en
+          // bibliothèque par le callback du serveur, le décompte est à jour.
+          rafraichirQuota();
+          rafraichirChansonsItem();
+          return;
+        }
         const taskId = resultat.taskId;
         chansonCourante.current = taskId || null;
         setChanson({
@@ -377,7 +397,9 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   const liberer = useCallback((l: Lancement) => {
     if (lancement.current !== l) return;
     lancement.current = null;
+    if (l.minuteur) clearTimeout(l.minuteur);
     setPreparation(false);
+    setAnnulationEnCours(false);
     setRangEnCours(null);
     setStyleEnCours(null);
     setDebutGeneration(null);
@@ -413,9 +435,16 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   );
 
   /**
-   * Annule le lancement courant, à n'importe quelle étape : le jeton est invalidé
-   * (la continuation périmée ne lancera pas la génération payante), l'attente de
-   * l'audio est interrompue et le verrou est libéré tout de suite.
+   * Annule le lancement courant, à n'importe quelle étape. Le jeton est invalidé :
+   * la continuation périmée ne lancera pas la génération payante.
+   *  - Avant l'envoi (rédaction des paroles) : rien n'est parti, le verrou est libéré
+   *    tout de suite.
+   *  - Après l'envoi : on demande l'interruption du suivi, mais le verrou RESTE posé
+   *    (« annulation en cours ») jusqu'à ce que la requête se règle (libération dans
+   *    le `finally` de `generer`, jeton vérifié), avec un plafond de sécurité.
+   *    Aucun autre lancement n'est possible entre-temps. Si la requête aboutit malgré
+   *    l'annulation, aucun faux échec n'est affiché : la chanson arrive en
+   *    bibliothèque par le callback du serveur.
    */
   const annuler = useCallback(() => {
     const l = lancement.current;
@@ -430,8 +459,19 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
             ? 'AB'
             : undefined);
     musicGeneration.cancelGeneration(rang);
-    if (l) liberer(l);
-    else setDebutGeneration(null);
+    if (!l) {
+      setDebutGeneration(null);
+      return;
+    }
+    if (!l.audioLance) {
+      liberer(l);
+      return;
+    }
+    setAnnulationEnCours(true);
+    setDebutGeneration(null);
+    if (!l.minuteur) {
+      l.minuteur = setTimeout(() => liberer(l), PLAFOND_ANNULATION_MS);
+    }
   }, [musicGeneration, liberer]);
 
   // Page quittée pendant la rédaction des paroles : la génération payante ne part pas
@@ -440,6 +480,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
   useEffect(
     () => () => {
       const l = lancement.current;
+      if (l && l.minuteur) clearTimeout(l.minuteur);
       if (l && !l.audioLance) l.annule = true;
     },
     []
@@ -483,6 +524,7 @@ export function useChansonItem(itemCode: string, paroles: ParolesItem) {
     musicQuota,
     quotaAtteint,
     enCours,
+    annulationEnCours,
     progression: musicGeneration.pollingProgress || 0,
     etape: musicGeneration.etape,
     debutGeneration,

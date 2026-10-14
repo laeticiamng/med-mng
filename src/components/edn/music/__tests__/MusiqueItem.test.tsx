@@ -35,6 +35,7 @@ const etat = vi.hoisted(() => ({
   generer: vi.fn(),
   chansons: [] as Array<Record<string, unknown>>,
   invoke: vi.fn(),
+  annulerSuivi: vi.fn(),
   logActivity: vi.fn(),
   addPoints: vi.fn(),
   generant: false,
@@ -62,7 +63,7 @@ vi.mock('@/hooks/useMusicGenerationWithTranslation', () => ({
   useMusicGenerationWithTranslation: () => ({
     isGenerating: { rangA: etat.generant, rangB: false, rangAB: false },
     generateMusicInLanguage: etat.generer,
-    cancelGeneration: vi.fn(),
+    cancelGeneration: etat.annulerSuivi,
     pollingProgress: 0,
     etape: null,
   }),
@@ -105,14 +106,19 @@ vi.mock('@/components/generator/GenerationProgress', () => ({
   GenerationProgress: ({
     isGenerating,
     rang,
+    onCancel,
   }: {
     isGenerating: boolean;
     rang?: string;
+    onCancel?: () => void;
   }) =>
     isGenerating ? (
-      <div data-testid="progression" data-rang={rang ?? ''} />
+      <div data-testid="progression" data-rang={rang ?? ''}>
+        <button onClick={onCancel}>Annuler la génération</button>
+      </div>
     ) : null,
 }));
+
 vi.mock('@/components/music/GeneratorMusicPlayer', () => ({
   GeneratorMusicPlayer: ({
     generatedSong,
@@ -765,5 +771,125 @@ describe('useChansonItem — machine d’état : tous les chemins', () => {
       await result.current.ouvrirBibliotheque();
     });
     expect(toast.error).toHaveBeenCalled();
+  });
+});
+
+describe('Annulation après l’envoi de la requête payante', () => {
+  const MOTS = { ...paroles };
+  const monterHook = () => {
+    const client = new QueryClient();
+    return renderHook(() => useChansonItem('IC-14', MOTS), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={client}>
+          <MemoryRouter>{children}</MemoryRouter>
+        </QueryClientProvider>
+      ),
+    });
+  };
+  const requetePendante = () => {
+    const sorties: {
+      resoudre: (v: unknown) => void;
+      rejeter: (e: Error) => void;
+    } = { resoudre: () => {}, rejeter: () => {} };
+    etat.generer.mockImplementationOnce(
+      () =>
+        new Promise((resolve, reject) => {
+          sorties.resoudre = resolve;
+          sorties.rejeter = reject;
+        })
+    );
+    return sorties;
+  };
+
+  it('annulation avant le suivi : le verrou reste posé jusqu’au règlement de la requête, puis un nouveau lancement est accepté', async () => {
+    const requete = requetePendante();
+    const { result } = monterHook();
+    await act(async () => {
+      void result.current.generer('A', 'lofi');
+    });
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    act(() => result.current.annuler());
+    expect(etat.annulerSuivi).toHaveBeenCalledWith('A');
+    // Annulation en cours : verrou conservé, aucun autre lancement.
+    expect(result.current.enCours).toBe(true);
+    expect(result.current.annulationEnCours).toBe(true);
+    await act(async () => {
+      await result.current.generer('B', 'pop');
+    });
+    expect(etat.generer).toHaveBeenCalledTimes(1);
+    // La requête se règle (rejet de l'attente) : le verrou est levé.
+    await act(async () => requete.rejeter(new Error('Suivi interrompu')));
+    await waitFor(() => expect(result.current.enCours).toBe(false));
+    expect(result.current.annulationEnCours).toBe(false);
+    await act(async () => {
+      await result.current.generer('B', 'pop');
+    });
+    expect(etat.generer).toHaveBeenCalledTimes(2);
+    expect(etat.generer.mock.calls[1][0]).toBe('B');
+  });
+
+  it('requête aboutie malgré l’annulation : pas de faux échec, pas de chanson affichée, verrou levé', async () => {
+    const requete = requetePendante();
+    const { result } = monterHook();
+    await act(async () => {
+      void result.current.generer('A', 'lofi');
+    });
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    act(() => result.current.annuler());
+    vi.mocked(toast.error).mockClear();
+    await act(async () =>
+      requete.resoudre({ audioUrl: 'https://x/a.mp3', taskId: 't9' })
+    );
+    await waitFor(() => expect(result.current.enCours).toBe(false));
+    expect(result.current.chanson).toBeNull();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('plafond de sécurité : une requête qui ne se règle jamais ne bloque pas le verrou indéfiniment', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      requetePendante();
+      const { result } = monterHook();
+      await act(async () => {
+        void result.current.generer('A', 'lofi');
+      });
+      expect(etat.generer).toHaveBeenCalledTimes(1);
+      act(() => result.current.annuler());
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(9 * 60 * 1000);
+      });
+      expect(result.current.enCours).toBe(true);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(61 * 1000);
+      });
+      expect(result.current.enCours).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('page : « Annulation en cours », bouton inactif, pas de progression ambiguë ; réactivé au règlement', async () => {
+    const requete = requetePendante();
+    rendre();
+    choisirStyle();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Générer la chanson du rang A' })
+    );
+    await waitFor(() => expect(etat.generer).toHaveBeenCalledTimes(1));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Annuler la génération' })
+    );
+    expect(screen.getByText(/Annulation en cours/)).toBeInTheDocument();
+    expect(screen.queryByTestId('progression')).toBeNull();
+    expect(
+      screen.getByRole('button', { name: /Générer la chanson du rang A/ })
+    ).toBeDisabled();
+    await act(async () => requete.rejeter(new Error('Suivi interrompu')));
+    await waitFor(() =>
+      expect(screen.queryByText(/Annulation en cours/)).toBeNull()
+    );
+    expect(
+      screen.getByRole('button', { name: /Générer la chanson du rang A/ })
+    ).toBeEnabled();
   });
 });

@@ -378,9 +378,19 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
           </div>
         )}
 
+        {chanson.annulationEnCours && (
+          <p
+            role="status"
+            className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground"
+          >
+            Annulation en cours… Le bouton « Générer » se réactivera dès que la
+            demande est réglée ; si la chanson aboutit malgré tout, elle sera
+            dans votre bibliothèque.
+          </p>
+        )}
         <GenerationProgress
           progress={chanson.progression}
-          isGenerating={enCours}
+          isGenerating={enCours && !chanson.annulationEnCours}
           message={
             chanson.etape?.etape === 'envoi'
               ? 'Envoi de la demande au service de génération…'
