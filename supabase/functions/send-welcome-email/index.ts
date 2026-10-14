@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { jetonAppelant } from '../_shared/mm-garde.ts';
+import { avecMarqueBienvenue, bienvenueDejaEnvoyee } from '../_shared/mm-bienvenue.ts';
 import { adresseNonLivrable, envoyerEmail, expediteur, journaliserEchec, refusDefinitif } from '../_shared/mm-email.ts';
 import {
   reponseQuotaJournalier,
@@ -42,6 +43,17 @@ const SITE = 'https://medmng.com';
 const echapper = (texte: string) =>
   texte.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
 
+/** Marque « envoyé » dans app_metadata. Au mieux : un échec ici ne doit pas faire échouer la réponse. */
+// deno-lint-ignore no-explicit-any
+const marquerEnvoyee = async (admin: any, userId: string, appMetadata: Record<string, unknown> | undefined) => {
+  try {
+    const { error } = await admin.auth.admin.updateUserById(userId, { app_metadata: avecMarqueBienvenue(appMetadata) });
+    if (error) console.error('[send-welcome-email] marque non enregistrée', error.status ?? 'sans statut');
+  } catch {
+    console.error('[send-welcome-email] marque non enregistrée');
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
   const corsHeaders = getCorsHeaders(req);
   const repondre = (corps: unknown, status = 200) =>
@@ -72,6 +84,13 @@ const handler = async (req: Request): Promise<Response> => {
     // rien à envoyer, ce n'est pas une erreur (auparavant : refus 422 de Resend → 502).
     if (adresseNonLivrable(utilisateur.email)) {
       return repondre({ success: true, envoye: false, raison: 'adresse_non_livrable' });
+    }
+
+    // Déjà envoyé (marque durable) : réponse 200 sans consommer le compteur journalier. Sans elle,
+    // chaque rechargement de page dans les 15 minutes suivant l'inscription comptait, et la 3e
+    // demande recevait un 429 alors que l'e-mail était déjà parti (QA du 14.10.2026).
+    if (bienvenueDejaEnvoyee(utilisateur.app_metadata)) {
+      return repondre({ success: true, envoye: false, raison: 'deja_envoye' });
     }
 
     // Limite journalière par compte, réservée AVANT l'envoi (un envoi en échec compte aussi).
@@ -115,6 +134,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // 409 Resend = même clé déjà utilisée (avec un contenu différent) : l'e-mail est déjà parti.
     if (!envoi.ok && envoi.status === 409) {
+      await marquerEnvoyee(admin, utilisateur.id, utilisateur.app_metadata);
       return repondre({ success: true, envoye: false });
     }
 
@@ -129,6 +149,7 @@ const handler = async (req: Request): Promise<Response> => {
       return repondre({ success: false, envoye: false, error: "L'e-mail de bienvenue n'a pas pu être envoyé." }, 502);
     }
 
+    await marquerEnvoyee(admin, utilisateur.id, utilisateur.app_metadata);
     console.log('[send-welcome-email] e-mail envoyé', envoi.id ?? 'sans identifiant');
     return repondre({ success: true, envoye: true, messageId: envoi.id });
   } catch (error: unknown) {

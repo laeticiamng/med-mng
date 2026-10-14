@@ -63,6 +63,25 @@ describe('MedMngResetPassword', () => {
     etat.updatePassword.mockResolvedValue({ error: null });
   });
 
+  const MOBILE = ['items-start', 'sm:items-center', 'pb-44']; // 11 rem = 176 px > bandeau cookies de ~161 px à 390 px
+
+  it('mobile : formulaire en haut de page, marge basse > bandeau cookies (QA du 14.10.2026)', async () => {
+    etat.verifyOtp.mockResolvedValue({ data: {}, error: null });
+    const { container } = afficherAvecJeton(jeton(), 'recovery');
+    await screen.findByLabelText('Nouveau mot de passe');
+    for (const c of MOBILE) expect((container.firstElementChild as HTMLElement).className).toContain(c);
+  });
+
+  it('mobile : « lien expiré » en haut de page, marge basse > bandeau cookies (QA du 14.10.2026)', async () => {
+    etat.verifyOtp.mockResolvedValue({
+      data: {},
+      error: { name: 'AuthApiError', status: 403, code: 'otp_expired', message: 'Email link is invalid or has expired' },
+    });
+    const { container } = afficherAvecJeton(jeton(), 'recovery');
+    await screen.findByRole('heading', { name: 'Lien expiré ou déjà utilisé' });
+    for (const c of MOBILE) expect((container.firstElementChild as HTMLElement).className).toContain(c);
+  });
+
   it('échange le token_hash avec verifyOtp puis affiche le formulaire de nouveau mot de passe', async () => {
     const t = jeton();
     etat.verifyOtp.mockResolvedValue({ data: {}, error: null });

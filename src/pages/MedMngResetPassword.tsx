@@ -17,6 +17,14 @@ type EtatLien = 'verification' | 'formulaire' | 'invalide' | 'indisponible';
 type ResultatVerification = 'valide' | 'invalide' | 'transitoire';
 
 /**
+ * Mobile : carte en haut de page et marge basse de 11 rem (> bandeau cookies, ~161 px à 390 px),
+ * pour que champs et boutons restent au-dessus du bandeau fixe (QA du 14.10.2026). À partir de sm :
+ * carte centrée comme avant.
+ */
+const CONTENEUR_PAGE =
+  'min-h-screen flex items-start sm:items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 px-4 pt-6 pb-44 sm:py-0';
+
+/**
  * Refus définitif du jeton (expiré, déjà utilisé, inconnu) : réponse 4xx d'authentification, hors 429.
  * Tout le reste est transitoire : AuthRetryableFetchError, statut 0 ou absent, 5xx, 429, exception
  * réseau. Un lien encore valable ne doit jamais être déclaré périmé à cause d'une coupure.
@@ -133,7 +141,7 @@ export const MedMngResetPassword = () => {
     const invalide = etatLien === 'invalide';
     const indisponible = etatLien === 'indisponible';
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 px-4">
+      <div className={CONTENEUR_PAGE}>
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -175,7 +183,7 @@ export const MedMngResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 px-4">
+    <div className={CONTENEUR_PAGE}>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">

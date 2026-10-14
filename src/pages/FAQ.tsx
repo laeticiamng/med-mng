@@ -175,7 +175,7 @@ const FAQ = () => {
                   (compétences rang A et rang B, référentiel LiSA 2026), au contenu immersif complet (paroles,
                   récit, planches, quiz) de 10 items d'essai et aux situations ECOS. Med MNG Premium ouvre le
                   contenu immersif des 367 items et {PROMESSE_AUDIO}, pour 69 € par an (environ
-                  5,75 € par mois) ou 9,90 € par mois. Consultez nos{' '}
+                  5,75 € par mois) ou 9,90 € par mois. {ACCES_PAROLES} Consultez nos{' '}
                   <Link to={ROUTE_PATHS.medMngPricing} className="text-primary underline underline-offset-2 hover:decoration-2">tarifs</Link>.
                 </AccordionContent>
               </AccordionItem>
