@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { toast } from 'sonner';
+import { lirePreferencesLecteur, ecrirePreferencesLecteur } from '@/components/edn/music/utils/preferencesLecteur';
 
 interface MusicTrack {
   id: string;
@@ -20,14 +21,6 @@ interface MusicTrack {
   duration?: number;
   listened_at?: string;
   is_favorite?: boolean;
-}
-
-interface MusicPreferences {
-  favorites: string[];
-  history: string[];
-  shuffle_enabled: boolean;
-  repeat_mode: 'none' | 'one' | 'all';
-  volume: number;
 }
 
 interface MusicPlaylistProps {
@@ -47,81 +40,36 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
   const [activeTab, setActiveTab] = useState<'all' | 'favorites' | 'history'>('all');
   const [shuffleEnabled, setShuffleEnabled] = useState(false);
   const [repeatMode, setRepeatMode] = useState<'none' | 'one' | 'all'>('none');
+  // Volume mémorisé avec les préférences ; le volume effectif est géré par GlobalAudioContext.
+  const volumeRef = useRef(1);
 
-  // Load user preferences from Supabase
-  const loadUserPreferences = useCallback(async (musicTracks: MusicTrack[]) => {
-    if (!user) {
-      // Fallback to localStorage for non-authenticated users
-      const savedFavorites = localStorage.getItem('music-favorites');
-      if (savedFavorites) {
-        setFavorites(new Set(JSON.parse(savedFavorites)));
-      }
-      const savedHistory = localStorage.getItem('music-history');
-      if (savedHistory) {
-        const historyItems = JSON.parse(savedHistory) as string[];
-        const historyTracks = musicTracks.filter(t => historyItems.includes(t.item_code));
-        setHistory(historyTracks.slice(0, 20));
-      }
-      return;
-    }
+  // Préférences du lecteur : locales, par utilisateur (localStorage). La table
+  // `user_music_preferences` appartient à EmotionsCare : Med MNG ne la lit ni
+  // ne l'écrit (voir utils/preferencesLecteur.ts).
+  const loadUserPreferences = useCallback((musicTracks: MusicTrack[]) => {
+    const prefs = lirePreferencesLecteur(user?.id);
+    setFavorites(new Set(prefs.favorites));
+    setShuffleEnabled(prefs.shuffle_enabled);
+    setRepeatMode(prefs.repeat_mode);
+    volumeRef.current = prefs.volume;
 
-    try {
-      const { data } = await supabase
-        .from('user_music_preferences' as any)
-        .select('favorites, history, shuffle_enabled, repeat_mode, volume')
-        .eq('user_id', user.id)
-        .single();
-
-      if (data) {
-        const prefs = data as unknown as MusicPreferences;
-        setFavorites(new Set(prefs.favorites || []));
-        setShuffleEnabled(prefs.shuffle_enabled || false);
-        setRepeatMode(prefs.repeat_mode || 'none');
-        
-        const historyItems = prefs.history || [];
-        const historyTracks = musicTracks.filter(t => historyItems.includes(t.item_code));
-        setHistory(historyTracks.slice(0, 20));
-      }
-    } catch {
-      // First time user, no preferences yet
-    }
+    const historyTracks = musicTracks.filter(t => prefs.history.includes(t.item_code));
+    setHistory(historyTracks.slice(0, 20));
   }, [user]);
 
-  // Save preferences to Supabase
-  const savePreferences = useCallback(async (
+  const savePreferences = useCallback((
     newFavorites?: Set<string>,
     newHistory?: string[],
     newShuffle?: boolean,
     newRepeat?: 'none' | 'one' | 'all'
   ) => {
-    const favoritesToSave = newFavorites || favorites;
-    const historyToSave = newHistory || history.map(t => t.item_code);
-    const shuffleToSave = newShuffle !== undefined ? newShuffle : shuffleEnabled;
-    const repeatToSave = newRepeat !== undefined ? newRepeat : repeatMode;
-
-    if (!user) {
-      // Fallback to localStorage
-      localStorage.setItem('music-favorites', JSON.stringify([...favoritesToSave]));
-      localStorage.setItem('music-history', JSON.stringify(historyToSave));
-      return;
-    }
-
-    // supabase-js ne lève pas sur erreur PostgREST : le try/catch précédent ne
-    // captait rien et l'échec d'écriture passait inaperçu.
-    const { error } = await supabase
-      .from('user_music_preferences' as any)
-      .upsert({
-        user_id: user.id,
-        favorites: [...favoritesToSave],
-        history: historyToSave,
-        shuffle_enabled: shuffleToSave,
-        repeat_mode: repeatToSave,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-
-    if (error) {
-      toast.error(`Préférences non enregistrées : ${error.message}`);
-    }
+    ecrirePreferencesLecteur(user?.id, {
+      favorites: [...(newFavorites || favorites)],
+      history: newHistory || history.map(t => t.item_code),
+      shuffle_enabled: newShuffle !== undefined ? newShuffle : shuffleEnabled,
+      repeat_mode: newRepeat !== undefined ? newRepeat : repeatMode,
+      volume: volumeRef.current,
+    });
   }, [user, favorites, history, shuffleEnabled, repeatMode]);
 
   const loadMusicData = useCallback(async () => {
@@ -159,7 +107,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     });
 
     setTracks(musicTracks);
-    await loadUserPreferences(musicTracks);
+    loadUserPreferences(musicTracks);
     setLoading(false);
   }, [loadUserPreferences]);
 

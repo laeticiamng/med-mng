@@ -8,7 +8,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { ACCES_PAROLES, GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 
 const FAQ = () => {
   const { logActivity } = useActivityTracking();
@@ -77,9 +77,9 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   En deux étapes. D'abord, une IA rédige des paroles à partir des compétences
-                  rang A, rang B ou A+B de l'item : ces paroles sont disponibles pour les 367 items. Ensuite,
+                  rang A, rang B ou A+B de l'item. {ACCES_PAROLES} Ensuite,
                   si vous le souhaitez, vous générez l'audio depuis votre compte avec un générateur
-                  de musique par IA ; {GENERATION_AUDIO_DISPONIBLE ? `cette étape est incluse dans Med MNG Premium (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "cette étape est momentanément suspendue (les paroles restent disponibles)."} Aucune piste audio n'est pré-enregistrée.
+                  de musique par IA ; {GENERATION_AUDIO_DISPONIBLE ? `cette étape est incluse dans Med MNG Premium (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "cette étape est momentanément suspendue (cela ne concerne pas les paroles)."} Aucune piste audio n'est pré-enregistrée.
                 </AccordionContent>
               </AccordionItem>
 
@@ -136,7 +136,8 @@ const FAQ = () => {
                   des planches illustrées.{' '}
                   {GENERATION_AUDIO_DISPONIBLE
                     ? "L'audio se génère à la demande avec Med MNG Premium."
-                    : "La génération de l'audio est momentanément suspendue ; les paroles restent disponibles."}{' '}
+                    : "La génération de l'audio est momentanément suspendue."}{' '}
+                  {ACCES_PAROLES}{' '}
                   Vous pouvez consulter
                   la liste complète dans la section{' '}
                   <Link to={ROUTE_PATHS.ednComplete} className="text-primary underline underline-offset-2 hover:decoration-2">Items EDN</Link>.

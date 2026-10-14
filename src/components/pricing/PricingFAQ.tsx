@@ -1,7 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
-import { GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
+import { ACCES_PAROLES, GENERATION_AUDIO_DISPONIBLE, PROMESSE_AUDIO, QUOTA_GENERATIONS_AUDIO_PREMIUM } from '@/config/offre';
 
 const faqs = [
   {
@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     question: "Comment fonctionne la musique IA pour réviser ?",
-    answer: `Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. ${GENERATION_AUDIO_DISPONIBLE ? `Avec Med MNG Premium, vous pouvez ensuite générer l'audio de la chanson (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "La génération de l'audio est momentanément suspendue ; les paroles restent disponibles."}`
+    answer: `Pour chaque item, l'IA rédige des paroles à partir des compétences rang A, rang B ou A+B. ${ACCES_PAROLES} ${GENERATION_AUDIO_DISPONIBLE ? `Avec Med MNG Premium, vous pouvez ensuite générer l'audio de la chanson (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "La génération de l'audio est momentanément suspendue."}`
   },
   {
     question: "Mes données sont-elles sécurisées ?",
