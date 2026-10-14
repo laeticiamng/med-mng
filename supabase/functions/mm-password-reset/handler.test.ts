@@ -35,6 +35,9 @@ interface Options {
   erreurGenerateLink?: boolean;
   resend?: 'ok' | 'refus' | 'panne';
   env?: Record<string, string>;
+  /** Retarde volontairement generateLink / l'envoi Resend jusqu'à la résolution de ces promesses. */
+  retardGenerateLink?: Promise<void>;
+  retardResend?: Promise<void>;
 }
 
 function monter(options: Options = {}) {
@@ -87,6 +90,7 @@ function monter(options: Options = {}) {
       admin: {
         generateLink: async (params: { type: string; email: string }) => {
           liens.push(params);
+          await options.retardGenerateLink;
           if (options.erreurGenerateLink) {
             return { data: { properties: null, user: null }, error: { status: 500, message: `échec pour ${params.email}` } };
           }
@@ -111,24 +115,40 @@ function monter(options: Options = {}) {
   };
 
   // Faux Resend : le vrai module d'envoi, avec un fetch simulé.
-  const fauxResend = (_url: string | URL | Request, init?: RequestInit): Promise<Response> => {
+  const fauxResend = async (_url: string | URL | Request, init?: RequestInit): Promise<Response> => {
     requetesResend.push({ authorization: new Headers(init?.headers).get('authorization') });
     envois.push(JSON.parse(String(init?.body)));
+    await options.retardResend;
+    envoisTermines++;
     if (options.resend === 'refus') {
-      return Promise.resolve(new Response(JSON.stringify({ name: 'validation_error', message: `adresse ${EXISTANT} refusée` }), { status: 422 }));
+      return new Response(JSON.stringify({ name: 'validation_error', message: `adresse ${EXISTANT} refusée` }), { status: 422 });
     }
-    if (options.resend === 'panne') return Promise.reject(new TypeError('réseau simulé'));
-    return Promise.resolve(new Response(JSON.stringify({ id: 'email-1' }), { status: 200 }));
+    if (options.resend === 'panne') throw new TypeError('réseau simulé');
+    return new Response(JSON.stringify({ id: 'email-1' }), { status: 200 });
   };
 
-  const handler = creerHandler({
+  // Tâches de fond (en production : EdgeRuntime.waitUntil). `attendre()` les laisse se terminer.
+  const taches: Array<Promise<void>> = [];
+  let envoisTermines = 0;
+  const brut = creerHandler({
     creerClientService: () => client,
     envoyerEmail: (email) => envoyerEmail(email, { cle: 're_factice', fetchImpl: fauxResend as typeof fetch }),
     lireEnv: (nom) => options.env?.[nom],
     maintenant: () => MAINTENANT,
+    enArrierePlan: (tache) => void taches.push(tache),
   });
+  const attendre = async () => {
+    await Promise.all(taches);
+  };
+  // Par défaut, la réponse n'est rendue qu'une fois la tâche de fond terminée (assertions simples) ;
+  // `brut` donne la réponse dès qu'elle part, pour mesurer ce qui est fait avant elle.
+  const handler = async (req: Request): Promise<Response> => {
+    const reponse = await brut(req);
+    await attendre();
+    return reponse;
+  };
 
-  return { handler, lignes, liens, envois, requetesResend };
+  return { handler, brut, attendre, lignes, liens, envois, requetesResend, envoisTermines: () => envoisTermines };
 }
 
 function demande(email: unknown, entetes: Record<string, string> = {}, methode = 'POST'): Request {
@@ -340,4 +360,44 @@ Deno.test('CORS : préflight depuis medmng.com, méthode autre que POST refusée
   assertNotEquals(evil.headers.get('access-control-allow-origin'), 'https://evil.example');
   const get = await handler(demande(null, {}, 'GET'));
   assertEquals(get.status, 405);
+});
+
+Deno.test("la réponse part AVANT generateLink et l'envoi Resend : aucun écart de délai selon le compte", async () => {
+  let debloquerLien!: () => void;
+  let debloquerEnvoi!: () => void;
+  const retardGenerateLink = new Promise<void>((ok) => (debloquerLien = ok));
+  const retardResend = new Promise<void>((ok) => (debloquerEnvoi = ok));
+
+  // Compte existant : generateLink et Resend sont volontairement bloqués.
+  const existant = monter({ retardGenerateLink, retardResend });
+  const reponse = await existant.brut(demande(EXISTANT));
+  assertEquals(await lire(reponse), { statut: 200, corps: '{"ok":true}' });
+  assertEquals(existant.envois.length, 0, 'la réponse est partie sans attendre generateLink ni Resend');
+  assertEquals(existant.envoisTermines(), 0);
+
+  // Compte inexistant : même réponse, sans attendre non plus (même travail synchrone).
+  const inexistant = monter({ comptes: [], retardGenerateLink });
+  assertEquals(await lire(await inexistant.brut(demande('inconnu@exemple.fr'))), { statut: 200, corps: '{"ok":true}' });
+
+  // Déblocage : l'e-mail est bien envoyé ensuite, à la bonne adresse, avec le lien.
+  debloquerLien();
+  debloquerEnvoi();
+  await existant.attendre();
+  await inexistant.attendre();
+  assertEquals(existant.envois.length, 1);
+  assertEquals(existant.envoisTermines(), 1);
+  assertEquals(existant.envois[0].to, [EXISTANT]);
+  assert(existant.envois[0].html.includes(JETON_HACHE));
+  assertEquals(inexistant.envois.length, 0);
+});
+
+Deno.test('échec en tâche de fond : journalisé sans adresse, la tâche ne rejette jamais', async () => {
+  const { brut, attendre } = monter({ resend: 'panne' });
+  const { journaux } = await avecJournaux(async () => {
+    const r = await brut(demande(EXISTANT));
+    assertEquals(r.status, 200);
+    await attendre();
+  });
+  assert(journaux.some((l) => l.includes('Resend injoignable')), journaux.join('\n'));
+  assert(!journaux.join('\n').includes('exemple.fr'));
 });

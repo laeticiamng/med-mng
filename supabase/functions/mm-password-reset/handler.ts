@@ -18,7 +18,9 @@
  *
  * Sécurité :
  * - anti-énumération : 200 { ok: true } que le compte existe ou non, y compris en cas d'échec de
- *   generateLink ou de Resend. Seuls diffèrent : 400 (adresse mal formée), 429 (limite), 503
+ *   generateLink ou de Resend, et SANS écart de délai : la réponse part dès la validation et le
+ *   limiteur ; generateLink et l'envoi Resend se font ensuite en tâche de fond (EdgeRuntime.waitUntil).
+ *   Seuls diffèrent : 400 (adresse mal formée), 429 (limite), 503
  *   (limiteur indisponible) — aucun ne dépend de l'existence du compte ;
  * - limite durable (table rate_limit_counters, fenêtre = heure UTC pleine) : 3 demandes par heure
  *   par adresse et 10 par heure par IP, clés = SHA-256 (jamais l'adresse ni l'IP en clair) ;
@@ -54,6 +56,11 @@ export interface Dependances {
   envoyerEmail: (email: EmailAEnvoyer) => Promise<ResultatEnvoi>;
   lireEnv: (nom: string) => string | undefined;
   maintenant: () => Date;
+  /**
+   * Poursuit `tache` après l'envoi de la réponse (EdgeRuntime.waitUntil en production : l'instance
+   * reste en vie jusqu'à la fin). La tâche ne rejette jamais.
+   */
+  enArrierePlan: (tache: Promise<void>) => void;
 }
 
 /** Adresse normalisée (minuscules, sans espaces autour), ou null si elle n'est pas plausible. */
@@ -203,28 +210,39 @@ export function creerHandler(deps: Dependances): (req: Request) => Promise<Respo
       );
     }
 
-    // 3. Jeton et e-mail. Tout échec est journalisé SANS adresse et répond comme un succès.
-    try {
-      // Adresse sans boîte possible (domaine réservé) : rien à envoyer.
-      if (adresseNonLivrable(email)) return accepte();
-
-      const { data, error } = await admin.auth.admin.generateLink({ type: 'recovery', email });
-      const jetonHache = data?.properties?.hashed_token;
-      if (error || typeof jetonHache !== 'string' || !jetonHache) {
-        // Compte inexistant (cas normal) ou panne : même réponse. Code d'erreur seulement.
-        console.log('[mm-password-reset] aucun lien produit', error?.code ?? error?.status ?? 'sans_jeton');
-        return accepte();
-      }
-
-      const { sujet, html } = contenuEmail(lienReinitialisation(baseSite(deps.lireEnv), jetonHache));
-      const envoi = await deps.envoyerEmail({ from: expediteur('Med MNG'), to: [email], subject: sujet, html });
-      if (!envoi.ok) journaliserEchec('mm-password-reset', envoi);
-      else console.log('[mm-password-reset] e-mail envoyé', envoi.id ?? 'sans identifiant');
-    } catch (e) {
-      console.error('[mm-password-reset] échec inattendu', e instanceof Error ? e.name : 'inconnue');
-    }
+    // 3. Jeton et e-mail EN TÂCHE DE FOND : la réponse part tout de suite, identique pour tous. Sinon
+    // son délai révélerait l'existence du compte (un compte existant attend l'appel HTTP à Resend,
+    // une adresse inconnue rend la main dès l'échec de generateLink). Le travail synchrone est le
+    // même sur les deux chemins : validation et limiteur.
+    deps.enArrierePlan(produireEtEnvoyer(deps, admin, email));
     return accepte();
   };
+}
+
+/**
+ * Jeton de récupération puis e-mail. Ne rejette jamais : tout échec est journalisé SANS adresse
+ * (la réponse HTTP est déjà partie, identique que le compte existe ou non).
+ */
+async function produireEtEnvoyer(deps: Dependances, admin: ClientSupabase, email: string): Promise<void> {
+  try {
+    // Adresse sans boîte possible (domaine réservé) : rien à envoyer.
+    if (adresseNonLivrable(email)) return;
+
+    const { data, error } = await admin.auth.admin.generateLink({ type: 'recovery', email });
+    const jetonHache = data?.properties?.hashed_token;
+    if (error || typeof jetonHache !== 'string' || !jetonHache) {
+      // Compte inexistant (cas normal) ou panne. Code d'erreur seulement.
+      console.log('[mm-password-reset] aucun lien produit', error?.code ?? error?.status ?? 'sans_jeton');
+      return;
+    }
+
+    const { sujet, html } = contenuEmail(lienReinitialisation(baseSite(deps.lireEnv), jetonHache));
+    const envoi = await deps.envoyerEmail({ from: expediteur('Med MNG'), to: [email], subject: sujet, html });
+    if (!envoi.ok) journaliserEchec('mm-password-reset', envoi);
+    else console.log('[mm-password-reset] e-mail envoyé', envoi.id ?? 'sans identifiant');
+  } catch (e) {
+    console.error('[mm-password-reset] échec inattendu', e instanceof Error ? e.name : 'inconnue');
+  }
 }
 
 /** Dépendances de production, pour index.ts. */
@@ -241,5 +259,11 @@ export function dependancesReelles(creerClientService: () => ClientSupabase): De
       }
     },
     maintenant: () => new Date(),
+    enArrierePlan: (tache) => {
+      // deno-lint-ignore no-explicit-any
+      const runtime = (globalThis as any).EdgeRuntime;
+      // Repli hors runtime Supabase (Deno local, tests) : la tâche se poursuit seule, sans attente.
+      if (typeof runtime?.waitUntil === 'function') runtime.waitUntil(tache);
+    },
   };
 }

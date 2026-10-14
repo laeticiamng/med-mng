@@ -109,10 +109,13 @@ Deno.test({
         const r = await appeler(adresse);
         assertEquals(r, { statut: 200, corps: '{"ok":true}' }, `demande ${i}`);
       }
+      // generateLink se fait en tâche de fond, après la réponse : on attend qu'il ait eu lieu 3 fois.
+      for (let i = 0; i < 50 && generations < 3; i++) await new Promise((ok) => setTimeout(ok, 100));
       assertEquals(generations, 3);
       const quatrieme = await appeler(adresse);
       assertEquals(quatrieme.statut, 429, quatrieme.corps);
       assertEquals(JSON.parse(quatrieme.corps).code, 'TROP_DE_DEMANDES');
+      await new Promise((ok) => setTimeout(ok, 500));
       assertEquals(generations, 3, 'la 4e demande ne produit aucun jeton');
 
       illisible = true;
