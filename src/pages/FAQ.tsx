@@ -77,7 +77,7 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   En deux étapes. D'abord, une IA rédige des paroles à partir des compétences
-                  rang A, rang B ou A+B de l'item : ces paroles sont disponibles pour les 367 items. Ensuite,
+                  rang A, rang B ou A+B de l'item : les paroles des 10 items d'essai sont accessibles gratuitement ; celles des autres items sont réservées à Med MNG Premium. Ensuite,
                   si vous le souhaitez, vous générez l'audio depuis votre compte avec un générateur
                   de musique par IA ; {GENERATION_AUDIO_DISPONIBLE ? `cette étape est incluse dans Med MNG Premium (${QUOTA_GENERATIONS_AUDIO_PREMIUM} générations par mois).` : "cette étape est momentanément suspendue (les paroles restent disponibles)."} Aucune piste audio n'est pré-enregistrée.
                 </AccordionContent>
