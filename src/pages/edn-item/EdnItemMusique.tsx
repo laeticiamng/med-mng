@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { MusiqueItem } from '@/components/edn/music/MusiqueItem';
+import { LienQuizItem } from '@/components/edn/quiz/LienQuizItem';
 import type { ParolesItem } from '@/components/generator/GeneratorForm';
 import { useFicheItemEdn } from './EdnItemContext';
 import { EdnItemSeo } from './EdnItemSeo';
@@ -10,7 +11,7 @@ import { EdnItemSeo } from './EdnItemSeo';
  * style, paroles du seul rang choisi, génération et chansons déjà créées.
  */
 export default function EdnItemMusique() {
-  const { item, contenu, rangAVide, rangBVide, numeroItem } = useFicheItemEdn();
+  const { item, contenu, rangAVide, rangBVide, numeroItem, slugUrl } = useFicheItemEdn();
 
   // Les quatre jeux de paroles viennent de la RPC `mm_contenu_immersif_item`
   // (contenu réservé aux items d'essai et à Premium) ; la route parente
@@ -46,6 +47,7 @@ export default function EdnItemMusique() {
         rangAVide={rangAVide}
         rangBVide={rangBVide}
       />
+      <LienQuizItem itemCode={item.item_code} slugUrl={slugUrl} accroche="Vous venez d’écouter cet item : fixez-le en quelques questions." />
     </>
   );
 }

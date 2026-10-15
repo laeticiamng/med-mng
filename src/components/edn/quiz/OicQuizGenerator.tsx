@@ -151,7 +151,8 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
             Quiz de l'item {itemCode}
           </CardTitle>
           <CardDescription>
-            Pour chaque compétence officielle, retrouvez l'énoncé qui lui correspond
+            Pour chaque compétence officielle, retrouvez l'énoncé qui lui correspond. Cet exercice
+            entraîne la reconnaissance du référentiel ; il ne vérifie pas vos connaissances médicales.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
