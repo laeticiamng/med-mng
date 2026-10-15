@@ -118,6 +118,19 @@ BEGIN
         to_jsonb('Contenu modifié après validation : nouvelle relecture médicale requise.'::TEXT));
     END IF;
   END IF;
+  -- Sortie de « bloque » : uniquement par mm_quiz_memorisation_lever_blocage() (décision journalisée
+  -- pour ce hash exact). Un UPDATE direct, même du service_role, est refusé.
+  IF TG_OP = 'UPDATE' AND OLD.statut = 'bloque' AND NEW.statut IS DISTINCT FROM 'bloque' THEN
+    IF current_user IS DISTINCT FROM (
+         SELECT pg_get_userbyid(p.proowner) FROM pg_proc p
+          WHERE p.oid = 'public.mm_quiz_memorisation_lever_blocage(text, text, text, text, text, text, text)'::regprocedure)
+       OR NOT EXISTS (
+         SELECT 1 FROM public.mm_quiz_memorisation_validations v
+          WHERE v.question_id = NEW.id AND v.decision = 'blocage_leve' AND v.contenu_hash = NEW.contenu_hash) THEN
+      RAISE EXCEPTION 'Un blocage ne se lève que par mm_quiz_memorisation_lever_blocage()'
+        USING ERRCODE = '42501';
+    END IF;
+  END IF;
   RETURN NEW;
 END;
 $$;
