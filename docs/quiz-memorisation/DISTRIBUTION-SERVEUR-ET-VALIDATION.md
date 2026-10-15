@@ -57,7 +57,7 @@ Pour une question bloquée : lever d'abord le blocage avec `mm_quiz_memorisation
 
 ## Tests
 
-- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 62 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
+- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 64 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
 - `src/lib/__tests__/quizMemorisationServeur.test.ts`, `QuizItemModes.test.tsx`, `export.test.ts`, `test/quizMemorisationBundle.test.ts`.
 
 ## Limites connues

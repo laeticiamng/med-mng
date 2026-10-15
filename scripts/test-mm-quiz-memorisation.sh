@@ -173,6 +173,13 @@ echo "# Modification du contenu d'une question validée"
 verifie "contenu modifié : validation annulée (bloquée)" "bloque" "$("${P[@]}" -c "select statut from mm_quiz_memorisation_questions where id='M217-A1'")"
 verifie "contenu modifié : n'est plus servie" "0" "$(nb "$(rpc authenticated "$PREMIUM" authenticated 'IC-217')")"
 "${P[@]}" -c "update mm_quiz_memorisation_questions set ordre = 5 where id='M247-A1'" >/dev/null
+Hn="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS','x','$Hn');" >/dev/null
+Hn="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+sous service_role '' service_role "select mm_quiz_memorisation_enregistrer_validation('M247-A1','valide','Dr Test','médecin','HAS','','$Hn');" >/dev/null
+verifie "avant retouche simultanée : validée" "valide_expert" "$("${P[@]}" -c "select statut from mm_quiz_memorisation_questions where id='M247-A1'")"
+"${P[@]}" -c "update mm_quiz_memorisation_questions set explication='Retouche simultanée', statut='conforme_referentiel' where id='M247-A1'" >/dev/null
+verifie "contenu + statut modifiés ensemble : reste bloquée" "bloque" "$("${P[@]}" -c "select statut from mm_quiz_memorisation_questions where id='M247-A1'")"
 verifie "hash recalculé côté serveur" "Explication retouchée" "$("${P[@]}" -c "select explication from mm_quiz_memorisation_questions where id='M217-A1'")"
 
 if [ -n "${SEMIS:-}" ]; then

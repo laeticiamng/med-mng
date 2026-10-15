@@ -102,6 +102,14 @@ BEGIN
     RAISE EXCEPTION 'Identifiant de question immuable' USING ERRCODE = '42501';
   END IF;
 
+  -- Question validée dont le contenu change : validation annulée, QUEL QUE SOIT le statut demandé
+  -- par la même requête (sinon un UPDATE contenu + statut la ferait resservir sans relecture).
+  IF TG_OP = 'UPDATE' AND OLD.statut = 'valide_expert' AND NEW.contenu_hash IS DISTINCT FROM v_ancien THEN
+    NEW.statut := 'bloque';
+    NEW.tracabilite := jsonb_set(coalesce(NEW.tracabilite, '{}'::JSONB), '{motifBlocage}',
+      to_jsonb('Contenu modifié après validation : nouvelle relecture médicale requise.'::TEXT));
+  END IF;
+
   -- « valide_expert » : seulement par la fonction d'enregistrement d'une validation. Contrôle
   -- structurel, sans paramètre de session falsifiable :
   --  (a) le trigger s'exécute avec les droits du propriétaire de la fonction (SECURITY DEFINER) ;
@@ -117,11 +125,6 @@ BEGIN
         RAISE EXCEPTION 'valide_expert ne peut être attribué que par mm_quiz_memorisation_enregistrer_validation()'
           USING ERRCODE = '42501';
       END IF;
-    ELSIF NEW.contenu_hash IS DISTINCT FROM v_ancien THEN
-      -- Déjà validée : toute modification du contenu annule la validation.
-      NEW.statut := 'bloque';
-      NEW.tracabilite := jsonb_set(coalesce(NEW.tracabilite, '{}'::JSONB), '{motifBlocage}',
-        to_jsonb('Contenu modifié après validation : nouvelle relecture médicale requise.'::TEXT));
     END IF;
   END IF;
   -- Sortie de « bloque » : uniquement par mm_quiz_memorisation_lever_blocage() (décision journalisée
