@@ -111,6 +111,9 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     const q = parId('M217-A5');
     expect(texteAffiche(q)).not.toMatch(/certitude/i);
     expect(q.verification.reponseCorrecte).toBe('Une sérologie EBV');
+    expect(q.question).toMatch(/hétérophile/);
+    expect(q.explication).toMatch(/non spécifiques de l’EBV/);
+    expect(q.explication).toMatch(/IgM anti-VCA/);
     expect(q.verification.reponseCorrecte).not.toMatch(/MNI/);
     expect(q.explication).toMatch(/ne confirme pas/);
     expect(q.explication).toMatch(/faux négatifs/);
@@ -130,6 +133,22 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(reponse).toMatch(/non allégé/);
     expect(reponse).not.toMatch(/bonbons/);
     expect(q.explication).toMatch(/light/);
+  });
+
+  it('M247-A3 : le seuil est donné en g/L et en mmol/L exacts (11,1)', () => {
+    const q = parId('M247-A3');
+    expect(q.type === 'rappel' && q.reponse).toMatch(/11,1 mmol\/L/);
+  });
+
+  it('M247-B3 : NaCl 0,9 % et cristalloïdes équilibrés sont reconnus comme réhydratation initiale', () => {
+    const q = parId('M247-B3');
+    expect(q.type === 'qcm' && q.options[q.indexCorrect]).toMatch(/NaCl 0,9 %.*cristalloïde équilibré.*contexte/);
+    expect(q.explication).toMatch(/cristalloïde équilibré/);
+  });
+
+  it('M160-B2 : le trajet neurotoxique reste inchangé (retour rétrograde par les motoneurones)', () => {
+    const q = parId('M160-B2');
+    expect(q.type === 'rappel' && q.reponse).toMatch(/transport rétrograde.*motoneurones.*interneurones inhibiteurs/);
   });
 
   it('M160-A2 : l’apyrexie n’est affirmée que pour le début', () => {

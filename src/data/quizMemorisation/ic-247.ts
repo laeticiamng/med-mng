@@ -87,14 +87,14 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     objectifId: 'OIC-247-03-A',
     type: 'rappel',
     question: 'Lors d’une HGPO, à partir de quelle glycémie à 2 heures le diagnostic de diabète est-il posé ?',
-    reponse: '≥ 2 g/L (11 mmol/L) deux heures après la charge orale.',
-    explication: 'HGPO : glycémie à 2 heures ≥ 2 g/L (11 mmol/L). Même seuil devant un patient symptomatique en urgence.',
+    reponse: '≥ 2 g/L (11,1 mmol/L) deux heures après la charge orale.',
+    explication: 'HGPO : glycémie à 2 heures ≥ 2 g/L, soit 11,1 mmol/L (le référentiel arrondit à 11). Même seuil devant un patient symptomatique en urgence.',
     verification: {
       statut: 'conforme_referentiel',
       extraitReferentiel:
         'la glycémie 2 heures après charge orale est supérieure ou égale à 2 g/l [11 mmol/l]',
       sourcesExternes: [],
-      reponseCorrecte: '≥ 2 g/L (11 mmol/L)',
+      reponseCorrecte: '≥ 2 g/L (11,1 mmol/L)',
       justification: 'Texte officiel ; la phrase « même seuil en urgence » vient du point 4/ de la même compétence.',
       notes:
         'Seuil international (OMS) repris par le référentiel. La HAS ne recommande pas l’HGPO pour le diagnostic hors grossesse : la question porte sur la valeur du seuil, pas sur l’indication (voir M247-A2, bloquée). Aucun document primaire ouvert.',
@@ -293,22 +293,28 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     question: 'Quel soluté utilise-t-on pour la réhydratation initiale d’une acidocétose diabétique ?',
     options: [
       'Du glucosé à 5 %',
-      'Du sérum salé isotonique (NaCl 0,9 %)',
+      'NaCl 0,9 % ou cristalloïde équilibré, selon le contexte',
       'Des bicarbonates de sodium systématiques',
       'De l’eau par voie orale uniquement',
     ],
     indexCorrect: 1,
     explication:
-      'Premiers gestes : voie veineuse périphérique et réhydratation par sérum salé isotonique 0,9 %, avec recherche d’un facteur déclenchant (ECG, foyer infectieux).',
+      'Premiers gestes : voie veineuse périphérique et réhydratation par sérum salé isotonique 0,9 % ou par un cristalloïde équilibré selon le contexte, avec recherche d’un facteur déclenchant (ECG, foyer infectieux).',
     verification: {
       statut: 'conforme_referentiel',
       extraitReferentiel: 'Réhydratation sérum sale 0.9%',
-      sourcesExternes: [],
-      reponseCorrecte: 'Du sérum salé isotonique (NaCl 0,9 %)',
+      sourcesExternes: [
+        {
+          reference:
+            'Umpierrez et al., « Hyperglycemic Crises in Adults With Diabetes: A Consensus Report » (ADA/EASD/JBDS/AACE/DTS), Diabetes Care 2024 (PubMed 39052901) — rapport cité pour le choix du soluté (NaCl 0,9 % ou cristalloïde équilibré) ; seul le résumé a été lu, le détail du chapitre « fluides » est à confirmer sur le texte complet',
+          lien: 'https://doi.org/10.2337/dci24-0032',
+        },
+      ],
+      reponseCorrecte: 'NaCl 0,9 % ou cristalloïde équilibré, selon le contexte',
       justification:
         'Texte officiel. Le glucosé 5 % n’est pas le soluté de réhydratation initial (le glucosé 10 % n’est ajouté que lorsque la glycémie est < 2,5 g/L avec cétonémie positive). Bicarbonates et voie orale seule ne sont pas des premiers gestes du référentiel.',
       notes:
-        'Le reste de la compétence (débit d’insuline, seuil de kaliémie) n’est volontairement pas interrogé : à recouper avant tout usage.',
+        'Le reste de la compétence (débit d’insuline, seuil de kaliémie) n’est volontairement pas interrogé : à recouper avant tout usage. Clôture technique : le référentiel ne cite que le sérum salé 0,9 % ; la réponse reconnaît aussi les cristalloïdes équilibrés (consensus ADA/EASD 2024, indiqué par la revue documentaire ; texte complet non ouvert). Statut maintenu à conforme_referentiel faute de lecture du chapitre.',
       verifiePar: PAR,
       dateVerification: DATE,
     },

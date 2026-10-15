@@ -222,6 +222,8 @@ export const QUESTIONS_IC_160: QuestionMemo[] = [
       reponseCorrecte: 'Sang → transport rétrograde (motoneurones) → relais synaptique médullaire → interneurones inhibiteurs',
       justification:
         'Trajet identique dans le référentiel et dans les revues PubMed 28879524 et 29031941.',
+      notes:
+        'Revérifié à la clôture technique, aucune erreur établie, réponse inchangée : la toxine est captée par les motoneurones (jonction neuromusculaire), transportée de façon rétrograde jusqu’aux motoneurones médullaires ou du tronc cérébral, puis transcytosée vers les interneurones inhibiteurs où elle bloque la libération de neurotransmetteurs (PubMed 29031941 et 28879524). Le passage sanguin vient du référentiel ; il est compatible (la toxine gagne la jonction neuromusculaire par voie lymphatique ou sanguine).',
       verifiePar: PAR,
       dateVerification: DATE,
     },
