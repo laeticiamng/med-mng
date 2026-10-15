@@ -31,9 +31,9 @@ describe('chargerQuestionsMemorisation — drapeau du pilote', () => {
   it('drapeau « true » : charge les questions des items pilotes, quel que soit le format du code', async () => {
     vi.stubEnv('VITE_QUIZ_MEMORISATION_PILOTE', 'true');
     expect(pilote()).toBe(true);
-    // Questions bloquées (jamais servies) : IC-160 → M160-A2 ; IC-217 → M217-A4.
+    // Questions bloquées (jamais servies) : IC-160 → M160-A2 ; IC-217 → M217-A4, M217-B3.
     expect((await chargerQuestionsMemorisation('IC-160')).length).toBe(7);
-    expect((await chargerQuestionsMemorisation('ic-217')).length).toBe(8);
+    expect((await chargerQuestionsMemorisation('ic-217')).length).toBe(7);
     // IC-247 : 11 questions dont 3 bloquées (M247-A2, M247-A7, M247-B3), jamais servies.
     const ic247 = await chargerQuestionsMemorisation('IC-0247');
     expect(ic247.length).toBe(8);

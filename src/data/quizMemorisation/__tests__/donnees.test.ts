@@ -95,9 +95,9 @@ describe('données du pilote de mémorisation — structure et traçabilité', (
 
   it('bloque toute question dont le texte affiché dépasse le référentiel sans source externe lue', () => {
     const idsBloques = toutes.filter((q) => q.verification.statut === 'bloque').map((q) => q.id).sort();
-    expect(idsBloques).toEqual(['M160-A2', 'M217-A4', 'M247-A2', 'M247-A7', 'M247-B3']);
-    // Aucune question « conforme_referentiel » ne peut citer une correction externe dans ses notes.
-    for (const q of toutes.filter((x) => x.verification.statut === 'conforme_referentiel')) {
+    expect(idsBloques).toEqual(['M160-A2', 'M217-A4', 'M217-B3', 'M247-A2', 'M247-A7', 'M247-B3']);
+    // Aucune question non bloquée ne peut dépendre d'une correction issue d'une source non lue (« Revue Codex »).
+    for (const q of toutes.filter((x) => x.verification.statut !== 'bloque')) {
       expect(q.verification.notes ?? '', q.id).not.toMatch(/Revue Codex/);
     }
   });
@@ -123,7 +123,7 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(q.question).toMatch(/hétérophile/);
     expect(q.explication).toMatch(/non spécifiques de l’EBV/);
     expect(q.explication).toMatch(/IgM anti-VCA positives et des anti-EBNA négatifs/);
-    expect(q.explication).toMatch(/IgG anti-VCA persistent/);
+    expect(q.explication).not.toMatch(/IgG anti-VCA/);
     expect(q.verification.reponseCorrecte).not.toMatch(/MNI/);
     expect(q.explication).toMatch(/ne confirme pas/);
     expect(q.explication).toMatch(/faux négatifs/);
