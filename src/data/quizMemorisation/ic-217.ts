@@ -157,7 +157,7 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
     ],
     indexCorrect: 3,
     explication:
-      'Le MNI test détecte des anticorps hétérophiles, non spécifiques de l’EBV : il ne confirme pas à lui seul (faux négatifs chez le jeune enfant ou la première semaine, faux positifs). La sérologie EBV spécifique (IgM anti-VCA, anti-EBNA) est plus sensible et plus spécifique.',
+      'Anticorps hétérophiles non spécifiques de l’EBV : le MNI test ne confirme pas (faux négatifs chez l’enfant). Primo-infection : des IgM anti-VCA positives et des anti-EBNA négatifs (tardifs, 2 à 4 mois). Les IgG anti-VCA persistent à vie.',
     verification: {
       statut: 'verifie_source_externe',
       extraitReferentiel: 'MNI test ± sérologies EBV',
@@ -166,7 +166,7 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
       justification:
         'Le référentiel associe MNI test et sérologies EBV. Les sources PubMed montrent que le test hétérophile (MNI test) est un test d’orientation (sensibilité 87 %, spécificité 91 %, faux négatifs chez le jeune enfant et la première semaine) et que la sérologie EBV (VCA) est plus sensible et plus spécifique. Les trois distracteurs sont des examens invasifs non indiqués pour une suspicion de MNI.',
       notes:
-        'Précisée une 3ᵉ fois (clôture technique) : la question distingue test hétérophile (non spécifique) et sérologie EBV spécifique, et vise le cas typique du MNI test négatif chez l’enfant (source CDC ajoutée). CORRIGÉ deux fois le 15.10.2026 : (1) revue scientifique — la version initiale reprenait « diagnostic de certitude : MNI test », formulation du référentiel qui surestime un test de dépistage ; (2) revue Codex — « MNI test » restait dans la réponse « confirmatoire » : la question porte désormais sur la sérologie EBV après un MNI test négatif ou douteux. Le point « PCR EBV sans indication chez l’immunocompétent » n’est toujours pas utilisé (non retrouvé en source externe).',
+        'Revue Codex (bf15a33) : profil de primo-infection explicité (IgM anti-VCA positives, anti-EBNA négatifs en phase aiguë) ; rôle des IgG anti-VCA indiqué d’après les connaissances générales (page CDC non ouverte, à confirmer). Précisée une 3ᵉ fois (clôture technique) : la question distingue test hétérophile (non spécifique) et sérologie EBV spécifique, et vise le cas typique du MNI test négatif chez l’enfant (source CDC ajoutée). CORRIGÉ deux fois le 15.10.2026 : (1) revue scientifique — la version initiale reprenait « diagnostic de certitude : MNI test », formulation du référentiel qui surestime un test de dépistage ; (2) revue Codex — « MNI test » restait dans la réponse « confirmatoire » : la question porte désormais sur la sérologie EBV après un MNI test négatif ou douteux. Le point « PCR EBV sans indication chez l’immunocompétent » n’est toujours pas utilisé (non retrouvé en source externe).',
       verifiePar: PAR,
       dateVerification: DATE,
     },

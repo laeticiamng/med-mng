@@ -113,7 +113,8 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(q.verification.reponseCorrecte).toBe('Une sérologie EBV');
     expect(q.question).toMatch(/hétérophile/);
     expect(q.explication).toMatch(/non spécifiques de l’EBV/);
-    expect(q.explication).toMatch(/IgM anti-VCA/);
+    expect(q.explication).toMatch(/IgM anti-VCA positives et des anti-EBNA négatifs/);
+    expect(q.explication).toMatch(/IgG anti-VCA persistent/);
     expect(q.verification.reponseCorrecte).not.toMatch(/MNI/);
     expect(q.explication).toMatch(/ne confirme pas/);
     expect(q.explication).toMatch(/faux négatifs/);
@@ -140,8 +141,9 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(q.type === 'rappel' && q.reponse).toMatch(/11,1 mmol\/L/);
   });
 
-  it('M247-B3 : NaCl 0,9 % et cristalloïdes équilibrés sont reconnus comme réhydratation initiale', () => {
+  it('M247-B3 : NaCl 0,9 % et cristalloïdes équilibrés reconnus, mais question bloquée tant que le consensus n’est pas lu', () => {
     const q = parId('M247-B3');
+    expect(q.verification.statut).toBe('bloque');
     expect(q.type === 'qcm' && q.options[q.indexCorrect]).toMatch(/NaCl 0,9 %.*cristalloïde équilibré.*contexte/);
     expect(q.explication).toMatch(/cristalloïde équilibré/);
   });

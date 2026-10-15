@@ -301,7 +301,9 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     explication:
       'Premiers gestes : voie veineuse périphérique et réhydratation par sérum salé isotonique 0,9 % ou par un cristalloïde équilibré selon le contexte, avec recherche d’un facteur déclenchant (ECG, foyer infectieux).',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'bloque',
+      motifBlocage:
+        'La réponse « NaCl 0,9 % ou cristalloïde équilibré » repose sur le consensus ADA/EASD 2024 (fourni par la revue documentaire et confirmé par la revue Codex, avec une réserve cardiaque ou rénale), mais le chapitre sur les fluides n’a pas pu être lu : seul le résumé PubMed est accessible, le texte complet (PMC11272983) est bloqué depuis l’environnement. À vérifier sur le texte complet, puis reclasser en verifie_source_externe (en précisant la condition) ou revenir à une réponse limitée au NaCl 0,9 % du référentiel.',
       extraitReferentiel: 'Réhydratation sérum sale 0.9%',
       sourcesExternes: [
         {
@@ -314,7 +316,7 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
       justification:
         'Texte officiel. Le glucosé 5 % n’est pas le soluté de réhydratation initial (le glucosé 10 % n’est ajouté que lorsque la glycémie est < 2,5 g/L avec cétonémie positive). Bicarbonates et voie orale seule ne sont pas des premiers gestes du référentiel.',
       notes:
-        'Le reste de la compétence (débit d’insuline, seuil de kaliémie) n’est volontairement pas interrogé : à recouper avant tout usage. Clôture technique : le référentiel ne cite que le sérum salé 0,9 % ; la réponse reconnaît aussi les cristalloïdes équilibrés (consensus ADA/EASD 2024, indiqué par la revue documentaire ; texte complet non ouvert). Statut maintenu à conforme_referentiel faute de lecture du chapitre.',
+        'Le reste de la compétence (débit d’insuline, seuil de kaliémie) n’est volontairement pas interrogé : à recouper avant tout usage. Clôture technique : le référentiel ne cite que le sérum salé 0,9 % ; la réponse reconnaît aussi les cristalloïdes équilibrés (consensus ADA/EASD 2024, indiqué par la revue documentaire ; texte complet non ouvert). Revue Codex (bf15a33) : la nouvelle alternative ne vient pas du référentiel, donc le statut conforme_referentiel ne la couvrait pas ; question bloquée tant que le passage n’est pas lu.',
       verifiePar: PAR,
       dateVerification: DATE,
     },
