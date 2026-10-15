@@ -142,6 +142,12 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(q.explication).toMatch(/cholestatique/);
   });
 
+  it('M217-A4 : l’absence de cholestase dans l’EBV est qualifiée, pas absolue', () => {
+    const q = parId('M217-A4');
+    expect(q.type === 'rappel' && q.reponse).toMatch(/habituellement/);
+    expect(q.explication).toMatch(/cholestase reste possible/);
+  });
+
   it('M247-A3 : le seuil est donné en g/L et en mmol/L exacts (11,1)', () => {
     const q = parId('M247-A3');
     expect(q.type === 'rappel' && q.reponse).toMatch(/11,1 mmol\/L/);

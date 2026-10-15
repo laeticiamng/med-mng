@@ -5,6 +5,7 @@ import type { QuestionMemo } from '@/data/quizMemorisation/types';
 import { cleStockageNotions } from '@/utils/quizMemorisation';
 
 const m = vi.hoisted(() => ({
+  toastErreur: vi.fn(),
   insert: vi.fn(),
   getSession: vi.fn(),
   enregistrer: vi.fn(),
@@ -14,6 +15,8 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: { auth: { getSession: m.getSession }, from: vi.fn(() => ({ insert: m.insert })) },
 }));
 vi.mock('@/lib/progressionQuiz', () => ({ enregistrerProgressionQuiz: m.enregistrer }));
+
+vi.mock('sonner', () => ({ toast: { error: m.toastErreur } }));
 
 import { QuizMemorisation } from './QuizMemorisation';
 
@@ -55,6 +58,7 @@ beforeEach(() => {
   memoire.clear();
   vi.mocked(window.localStorage.getItem).mockImplementation((cle) => memoire.get(cle) ?? null);
   vi.mocked(window.localStorage.setItem).mockImplementation((cle, valeur) => void memoire.set(cle, String(valeur)));
+  m.toastErreur.mockReset();
   m.insert.mockReset().mockResolvedValue({ error: null });
   m.enregistrer.mockReset().mockResolvedValue({ historique: true, carte: true });
   m.getSession.mockReset().mockResolvedValue({ data: { session: { user: { id: 'u1' } } } });
@@ -178,7 +182,27 @@ describe('QuizMemorisation — parcours', () => {
     expect(screen.getByTestId('memo-bilan')).toHaveTextContent('2 notions retenues sur 2');
     await waitFor(() => expect(m.insert).toHaveBeenCalled());
     expect(m.enregistrer).not.toHaveBeenCalled();
+    // L'étudiant est prévenu : le résultat n'est pas enregistré.
+    expect(m.toastErreur).toHaveBeenCalledWith(expect.stringMatching(/non enregistré/));
     erreur.mockRestore();
+  });
+
+  it('prévient aussi quand le suivi de révision (historique ou carte) n’est pas mis à jour', async () => {
+    m.enregistrer.mockResolvedValue({ historique: true, carte: false });
+    await rendre();
+    fireEvent.click(screen.getByRole('button', { name: /Pour aller plus loin/ }));
+    repondre(true);
+    repondre(true);
+    await waitFor(() => expect(m.toastErreur).toHaveBeenCalledWith(expect.stringMatching(/suivi de révision/)));
+  });
+
+  it('ne prévient pas quand tout est enregistré', async () => {
+    await rendre();
+    fireEvent.click(screen.getByRole('button', { name: /Pour aller plus loin/ }));
+    repondre(true);
+    repondre(true);
+    await waitFor(() => expect(m.enregistrer).toHaveBeenCalled());
+    expect(m.toastErreur).not.toHaveBeenCalled();
   });
 
   it('ne plante pas sans aucune question', async () => {

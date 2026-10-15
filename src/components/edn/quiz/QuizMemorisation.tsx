@@ -22,6 +22,7 @@ import {
 } from '@/utils/quizMemorisation';
 import { Brain, CheckCircle2, ChevronRight, Eye, RotateCcw, XCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface QuizMemorisationProps {
   itemCode: string;
@@ -103,13 +104,21 @@ export const QuizMemorisation: React.FC<QuizMemorisationProps> = ({ itemCode, it
       });
       if (error) {
         console.error('Résultat de mémorisation non enregistré :', error);
+        toast.error(
+          typeof navigator !== 'undefined' && !navigator.onLine
+            ? 'Résultat non enregistré : connexion interrompue. Refaites une série une fois reconnecté.'
+            : 'Résultat non enregistré. Réessayez plus tard.',
+        );
         return;
       }
-      await enregistrerProgressionQuiz(supabase as unknown as ClientProgression, recordReview, {
+      const progression = await enregistrerProgressionQuiz(supabase as unknown as ClientProgression, recordReview, {
         userId: utilisateurId,
         itemCode,
         pourcentage,
       });
+      if (!progression.historique || progression.carte === false) {
+        toast.error('Résultat enregistré, mais votre suivi de révision n’a pas pu être mis à jour.');
+      }
     },
     [itemCode, itemTitle, notions, recordReview, stockage, utilisateurId],
   );
