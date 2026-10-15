@@ -27,7 +27,7 @@ sous() { # role sub (peut être vide) role_jwt sql
   local out
   out="$(printf '%s\n' "set role $1;" '\o /dev/null' "select set_config('request.jwt.claim.sub','$2',false);" \
         "select set_config('request.jwt.claim.role','$3',false);" '\o' "$4" | "${P[@]}" 2>&1)" || true
-  if echo "$out" | grep -q "ERROR"; then echo "ERREUR:$(echo "$out" | grep -o 'permission denied\|42501\|Accès refusé\|valide_expert ne peut\|hash différent\|Question bloquée\|en ajout seul\|violates check\|Question inconnue\|Statut de sortie\|Question non bloquée\|Décision inconnue\|Un blocage ne se lève' | head -1)"; else echo "$out"; fi
+  if echo "$out" | grep -q "ERROR"; then echo "ERREUR:$(echo "$out" | grep -o 'permission denied\|42501\|Accès refusé\|valide_expert ne peut\|hash différent\|Question bloquée\|en ajout seul\|violates check\|Question inconnue\|Statut de sortie\|Question non bloquée\|Décision inconnue\|Un blocage ne se lève\|Identifiant de question' | head -1)"; else echo "$out"; fi
 }
 
 PREMIUM=11111111-1111-1111-1111-111111111111; ECHU=22222222-2222-2222-2222-222222222222
@@ -152,6 +152,7 @@ verifie "levée : mauvais hash refusé" "ERREUR:hash différent" "$(sous service
 verifie "levée : UPDATE direct du statut bloqué refusé (service_role)" "ERREUR:Un blocage ne se lève" "$(sous service_role '' service_role "update mm_quiz_memorisation_questions set statut='conforme_referentiel' where id='M247-A1';")"
 verifie "service_role : DELETE refusé sur les questions" "ERREUR:permission denied" "$(sous service_role '' service_role "delete from mm_quiz_memorisation_questions where id='M247-A1';")"
 verifie "service_role : TRUNCATE refusé sur les questions" "ERREUR:permission denied" "$(sous service_role '' service_role "truncate mm_quiz_memorisation_questions cascade;")"
+verifie "service_role : renommer une question (id) refusé" "ERREUR:Identifiant de question" "$(sous service_role '' service_role "update mm_quiz_memorisation_questions set id='M247-A99' where id='M247-A1';")"
 verifie "UPDATE ordinaire ne lève pas le blocage (statut inchangé)" "bloque" "$("${P[@]}" -c "update mm_quiz_memorisation_questions set ordre = 9 where id='M247-A1'; select statut from mm_quiz_memorisation_questions where id='M247-A1'" | tail -1)"
 verifie "levée explicite vers conforme_referentiel" "conforme_referentiel" "$(sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS 2025 lu','Texte repris','$H2') ->> 'statut';")"
 verifie "levée tracée dans le registre" "1" "$("${P[@]}" -c "select count(*) from mm_quiz_memorisation_validations where question_id='M247-A1' and decision='blocage_leve'")"

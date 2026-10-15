@@ -97,6 +97,11 @@ BEGIN
   );
   NEW.updated_at := now();
 
+  -- L'identifiant est immuable : renommer puis réinsérer l'ancien id contournerait la levée de blocage.
+  IF TG_OP = 'UPDATE' AND NEW.id IS DISTINCT FROM OLD.id THEN
+    RAISE EXCEPTION 'Identifiant de question immuable' USING ERRCODE = '42501';
+  END IF;
+
   -- « valide_expert » : seulement par la fonction d'enregistrement d'une validation. Contrôle
   -- structurel, sans paramètre de session falsifiable :
   --  (a) le trigger s'exécute avec les droits du propriétaire de la fonction (SECURITY DEFINER) ;

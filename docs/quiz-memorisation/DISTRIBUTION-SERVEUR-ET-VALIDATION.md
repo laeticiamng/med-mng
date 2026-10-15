@@ -23,7 +23,7 @@ drapeaux sont éteints. Rien de ce qui suit n'attribue `valide_expert`.
 6. **`valide_expert` uniquement par le registre** : un `UPDATE` ou un `INSERT` direct est refusé par trigger, y compris pour `service_role`. Le contrôle est structurel, sans paramètre de session falsifiable : la promotion n'est acceptée que si elle s'exécute avec les droits du propriétaire de la fonction d'enregistrement **et** si le registre contient une décision `valide` pour le hash courant ; `service_role` n'a qu'un droit de lecture sur le registre (testé, y compris un `set_config` forgé). Le semis n'attribue jamais ce statut et refuse de l'exporter.
 7. **Validation liée au contenu lu** : l'enregistrement exige le hash exact du contenu (calculé par le serveur), l'identité et la qualité du relecteur, les sources vérifiées ; une question `bloque` ne peut pas être validée ; une question validée dont le contenu change repasse en `bloque`. Le hash couvre tout ce qui détermine l'affichage : item, rang, compétence, type, énoncé, options, bonne réponse, explication (modifier l'un d'eux annule la validation).
 8. **Décisions `a_corriger` et `refuse`** : la question passe en `bloque` (motif écrit) et cesse d'être servie, même si elle était validée ; l'historique des décisions est conservé.
-9. **Le semis ne lève jamais un blocage** : le rejeu du semis conserve `bloque` (et son motif) et ne rétrograde pas une validation ; seul `mm_quiz_memorisation_lever_blocage` (un `UPDATE` direct du statut, même service_role, est refusé par trigger ; `service_role` n’a ni `DELETE` ni `TRUNCATE` sur les questions ; admin/service_role, décision `blocage_leve` journalisée, statut cible `conforme_referentiel` ou `verifie_source_externe`, hash exigé) rend une question non bloquée.
+9. **Le semis ne lève jamais un blocage** : le rejeu du semis conserve `bloque` (et son motif) et ne rétrograde pas une validation ; seul `mm_quiz_memorisation_lever_blocage` (un `UPDATE` direct du statut, même service_role, est refusé par trigger ; `service_role` n’a ni `DELETE` ni `TRUNCATE` sur les questions, dont l’identifiant est immuable ; admin/service_role, décision `blocage_leve` journalisée, statut cible `conforme_referentiel` ou `verifie_source_externe`, hash exigé) rend une question non bloquée.
 10. **Registre en ajout seul** : ni `UPDATE` ni `DELETE`, même pour le propriétaire (trigger).
 11. **Seuls un administrateur ou le service_role** peuvent enregistrer une validation ; `anon` n'a pas le droit d'exécution.
 
@@ -57,7 +57,7 @@ Pour une question bloquée : lever d'abord le blocage avec `mm_quiz_memorisation
 
 ## Tests
 
-- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 61 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
+- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 62 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
 - `src/lib/__tests__/quizMemorisationServeur.test.ts`, `QuizItemModes.test.tsx`, `export.test.ts`, `test/quizMemorisationBundle.test.ts`.
 
 ## Limites connues
