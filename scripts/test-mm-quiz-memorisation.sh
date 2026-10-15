@@ -27,7 +27,7 @@ sous() { # role sub (peut être vide) role_jwt sql
   local out
   out="$(printf '%s\n' "set role $1;" '\o /dev/null' "select set_config('request.jwt.claim.sub','$2',false);" \
         "select set_config('request.jwt.claim.role','$3',false);" '\o' "$4" | "${P[@]}" 2>&1)" || true
-  if echo "$out" | grep -q "ERROR"; then echo "ERREUR:$(echo "$out" | grep -o 'permission denied\|42501\|Accès refusé\|valide_expert ne peut\|hash différent\|Question bloquée\|en ajout seul\|violates check\|Question inconnue' | head -1)"; else echo "$out"; fi
+  if echo "$out" | grep -q "ERROR"; then echo "ERREUR:$(echo "$out" | grep -o 'permission denied\|42501\|Accès refusé\|valide_expert ne peut\|hash différent\|Question bloquée\|en ajout seul\|violates check\|Question inconnue\|Statut de sortie\|Question non bloquée\|Décision inconnue' | head -1)"; else echo "$out"; fi
 }
 
 PREMIUM=11111111-1111-1111-1111-111111111111; ECHU=22222222-2222-2222-2222-222222222222
@@ -143,6 +143,27 @@ verifie "a_corriger : la question validée repasse en bloque" "bloque" "$(sous s
 verifie "a_corriger : n'est plus servie" "0" "$(nb "$(rpc anon '' anon 'IC-247')")"
 verifie "a_corriger : motif écrit" "À corriger selon le relecteur : Reformuler" "$("${P[@]}" -c "select tracabilite->>'motifBlocage' from mm_quiz_memorisation_questions where id='M247-A1'")"
 verifie "registre : 2 décisions pour M247-A1 (historique conservé)" "2" "$("${P[@]}" -c "select count(*) from mm_quiz_memorisation_validations where question_id='M247-A1'")"
+echo "# Levée de blocage explicite, puis déplacement d'une question validée (item / rang / compétence)"
+verifie "levée : valide_expert interdit comme statut de sortie" "ERREUR:Statut de sortie" "$(sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M247-A1','valide_expert','Dr Test','médecin','HAS','x','$H2');")"
+verifie "levée : question non bloquée refusée" "ERREUR:Question non bloquée" "$(sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M217-A2','conforme_referentiel','Dr Test','médecin','HAS','x', (select contenu_hash from mm_quiz_memorisation_questions where id='M217-A2'));")"
+verifie "levée : non-admin refusé" "ERREUR:Accès refusé" "$(sous authenticated "$PREMIUM" authenticated "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS','x','$H2');")"
+verifie "levée : anon sans droit d'exécution" "ERREUR:permission denied" "$(sous anon '' anon "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS','x','$H2');")"
+verifie "levée : mauvais hash refusé" "ERREUR:hash différent" "$(sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS','x','pas-le-bon');")"
+verifie "UPDATE ordinaire ne lève pas le blocage (statut inchangé)" "bloque" "$("${P[@]}" -c "update mm_quiz_memorisation_questions set ordre = 9 where id='M247-A1'; select statut from mm_quiz_memorisation_questions where id='M247-A1'" | tail -1)"
+verifie "levée explicite vers conforme_referentiel" "conforme_referentiel" "$(sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS 2025 lu','Texte repris','$H2') ->> 'statut';")"
+verifie "levée tracée dans le registre" "1" "$("${P[@]}" -c "select count(*) from mm_quiz_memorisation_validations where question_id='M247-A1' and decision='blocage_leve'")"
+H3="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+verifie "re-validation après levée" "valide_expert" "$(sous service_role '' service_role "select mm_quiz_memorisation_enregistrer_validation('M247-A1','valide','Dr Test','médecin','HAS 2025','','$H3') ->> 'statut';")"
+for champ in "rang='B'" "item_code='IC-217'" "objectif_id='OIC-247-04-A'"; do
+  "${P[@]}" -c "update mm_quiz_memorisation_questions set statut='valide_expert' where false" >/dev/null
+  verifie "validée puis $champ : repasse en bloque" "bloque" "$("${P[@]}" -c "update mm_quiz_memorisation_questions set $champ where id='M247-A1'; select statut from mm_quiz_memorisation_questions where id='M247-A1'" | tail -1)"
+  # remet la question dans l'état validé pour le champ suivant : levée + validation
+  Hn="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+  sous service_role '' service_role "select mm_quiz_memorisation_lever_blocage('M247-A1','conforme_referentiel','Dr Test','médecin','HAS','x','$Hn');" >/dev/null
+  Hn="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+  sous service_role '' service_role "select mm_quiz_memorisation_enregistrer_validation('M247-A1','valide','Dr Test','médecin','HAS','','$Hn');" >/dev/null
+done
+"${P[@]}" -c "update mm_quiz_memorisation_questions set item_code='IC-247', rang='A', objectif_id='OIC-247-03-A' where id='M247-A1'" >/dev/null
 echo "# Modification du contenu d'une question validée"
 "${P[@]}" -c "update mm_quiz_memorisation_questions set explication = 'Explication retouchée' where id='M217-A1'" >/dev/null
 verifie "contenu modifié : validation annulée (bloquée)" "bloque" "$("${P[@]}" -c "select statut from mm_quiz_memorisation_questions where id='M217-A1'")"
@@ -166,6 +187,12 @@ if [ -n "${SEMIS:-}" ]; then
   verifie "pilote : IC-217 (Premium), visiteur : verrouillé" true "$("${P[@]}" -c "select (('$(rpc anon '' anon IC-217)'::jsonb)->>'verrouille')")"
   verifie "pilote : IC-217, abonné : 7 questions" 7 "$(nb "$(rpc authenticated "$PREMIUM" authenticated IC-217)")"
   verifie "pilote : IC-160, abonné : 7 questions" 7 "$(nb "$(rpc authenticated "$PREMIUM" authenticated IC-160)")"
+ verifie "rejeu du semis : un blocage posé par le registre est conservé" "bloque|À corriger" "$(
+    H="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+    sous service_role '' service_role "select mm_quiz_memorisation_enregistrer_validation('M247-A1','a_corriger','Dr Test','médecin','HAS','À corriger : seuil','$H');" >/dev/null
+    "${P[@]}" -f "$SEMIS" >/dev/null
+    "${P[@]}" -c "select statut||'|'||rtrim(left(tracabilite->>'motifBlocage', 10)) from mm_quiz_memorisation_questions where id='M247-A1'")"
+  verifie "rejeu du semis : la question reste non servie en mode pilote" 0 "$("${P[@]}" -c "select count(*) from (select jsonb_array_elements(('$(rpc anon '' anon IC-247)'::jsonb)->'questions')->>'id' id) q where id = 'M247-A1'")"
   verifie "pilote : jamais une question bloquée" 0 "$("${P[@]}" -c "select count(*) from (select jsonb_array_elements(('$(rpc authenticated "$PREMIUM" authenticated IC-247)'::jsonb)->'questions')->>'id' id) q where id in ('M247-A2','M247-A7','M247-B3')")"
 fi
 

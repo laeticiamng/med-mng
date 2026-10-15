@@ -14,7 +14,8 @@ describe('exports du pilote : semis SQL et feuille de relecture', () => {
     expect(sql.match(/^ {2}\('M\d+-[AB]\d+'/gm)).toHaveLength(28);
     expect(sql).not.toMatch(/'valide_expert', '\{/);
     expect(sql).toContain("'bloque'");
-    expect(sql).toContain("WHEN public.mm_quiz_memorisation_questions.statut = 'valide_expert'");
+    expect(sql).toContain("statut IN ('valide_expert', 'bloque')");
+    expect(sql).toContain("'motifBlocage', public.mm_quiz_memorisation_questions.tracabilite -> 'motifBlocage'");
   });
 
   it('refuse d’exporter une question marquée valide_expert', () => {

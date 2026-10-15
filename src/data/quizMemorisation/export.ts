@@ -10,8 +10,9 @@ const sqlTexte = (v: string) => `'${v.replace(/'/g, "''")}'`;
 
 /**
  * Semis idempotent de `mm_quiz_memorisation_questions`. N'attribue JAMAIS `valide_expert`
- * (refusé ici et par le trigger) ; ne rétrograde pas une question déjà validée dont le
- * contenu n'a pas changé (le trigger l'annule si le contenu change).
+ * (refusé ici et par le trigger) ; ne touche jamais au statut d'une question `valide_expert` ou
+ * `bloque` déjà en base (le trigger annule une validation si le contenu change ; un blocage ne se
+ * lève que par mm_quiz_memorisation_lever_blocage).
  */
 export function genererSqlSemis(questions: readonly QuestionMemo[]): string {
   const lignes: string[] = [];
@@ -52,10 +53,16 @@ export function genererSqlSemis(questions: readonly QuestionMemo[]): string {
     'ON CONFLICT (id) DO UPDATE SET',
     '  item_code = EXCLUDED.item_code, rang = EXCLUDED.rang, objectif_id = EXCLUDED.objectif_id, type = EXCLUDED.type,',
     '  question = EXCLUDED.question, options = EXCLUDED.options, index_correct = EXCLUDED.index_correct,',
-    '  reponse = EXCLUDED.reponse, explication = EXCLUDED.explication, tracabilite = EXCLUDED.tracabilite,',
+    '  reponse = EXCLUDED.reponse, explication = EXCLUDED.explication,',
     '  ordre = EXCLUDED.ordre,',
-    "  statut = CASE WHEN public.mm_quiz_memorisation_questions.statut = 'valide_expert'",
-    '               THEN public.mm_quiz_memorisation_questions.statut ELSE EXCLUDED.statut END;',
+    // Le semis ne lève jamais un blocage ni ne rétrograde une validation : une décision humaine
+    // (valide, a_corriger, refuse) ou un blocage s'efface seulement par mm_quiz_memorisation_lever_blocage().
+    "  statut = CASE WHEN public.mm_quiz_memorisation_questions.statut IN ('valide_expert', 'bloque')",
+    '               THEN public.mm_quiz_memorisation_questions.statut ELSE EXCLUDED.statut END,',
+    // Le motif de blocage en base (par ex. « À corriger selon le relecteur ») n'est pas écrasé.
+    "  tracabilite = CASE WHEN public.mm_quiz_memorisation_questions.statut = 'bloque'",
+    "                THEN EXCLUDED.tracabilite || jsonb_build_object('motifBlocage', public.mm_quiz_memorisation_questions.tracabilite -> 'motifBlocage')",
+    '                ELSE EXCLUDED.tracabilite END;',
     '',
   ].join('\n');
 }

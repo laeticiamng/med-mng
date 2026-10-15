@@ -30,6 +30,7 @@
 -- RETOUR ARRIÈRE :
 --   DROP FUNCTION public.mm_quiz_memorisation_item(text);
 --   DROP FUNCTION public.mm_quiz_memorisation_enregistrer_validation(text, text, text, text, text, text, text);
+--   DROP FUNCTION public.mm_quiz_memorisation_lever_blocage(text, text, text, text, text, text, text);
 --   DROP FUNCTION public.mm_quiz_memorisation_statuts();
 --   DROP TABLE public.mm_quiz_memorisation_validations, public.mm_quiz_memorisation_config,
 --              public.mm_quiz_memorisation_questions;
@@ -84,7 +85,11 @@ AS $$
 DECLARE
   v_ancien TEXT := CASE WHEN TG_OP = 'UPDATE' THEN OLD.contenu_hash END;
 BEGIN
+  -- Contenu AFFICHÉ et contexte médical : item, rang, compétence et type font partie de ce que le
+  -- relecteur valide (déplacer une question change son périmètre Gratuit/Premium et son sens).
   NEW.contenu_hash := md5(
+    coalesce(NEW.item_code, '') || E'\x1f' || coalesce(NEW.rang, '') || E'\x1f' ||
+    coalesce(NEW.objectif_id, '') || E'\x1f' || coalesce(NEW.type, '') || E'\x1f' ||
     coalesce(NEW.question, '') || E'\x1f' || coalesce(NEW.options::TEXT, '') || E'\x1f' ||
     coalesce(NEW.index_correct::TEXT, '') || E'\x1f' || coalesce(NEW.reponse, '') || E'\x1f' ||
     coalesce(NEW.explication, '')
@@ -156,7 +161,7 @@ CREATE TABLE IF NOT EXISTS public.mm_quiz_memorisation_validations (
   id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   question_id        TEXT NOT NULL REFERENCES public.mm_quiz_memorisation_questions (id),
   contenu_hash       TEXT NOT NULL,
-  decision           TEXT NOT NULL CHECK (decision IN ('valide', 'a_corriger', 'refuse')),
+  decision           TEXT NOT NULL CHECK (decision IN ('valide', 'a_corriger', 'refuse', 'blocage_leve')),
   relecteur_nom      TEXT NOT NULL CHECK (length(btrim(relecteur_nom)) > 1),
   relecteur_qualite  TEXT NOT NULL CHECK (length(btrim(relecteur_qualite)) > 1),
   sources_verifiees  TEXT NOT NULL CHECK (length(btrim(sources_verifiees)) > 1),
@@ -208,6 +213,10 @@ BEGIN
     RAISE EXCEPTION 'Accès refusé' USING ERRCODE = '42501';
   END IF;
 
+  IF p_decision NOT IN ('valide', 'a_corriger', 'refuse') THEN
+    RAISE EXCEPTION 'Décision inconnue : %', p_decision USING ERRCODE = '22023';
+  END IF;
+
   SELECT * INTO v_q FROM public.mm_quiz_memorisation_questions WHERE id = p_question_id FOR UPDATE;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Question inconnue : %', p_question_id USING ERRCODE = 'P0002';
@@ -243,6 +252,57 @@ END;
 $$;
 REVOKE ALL ON FUNCTION public.mm_quiz_memorisation_enregistrer_validation(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.mm_quiz_memorisation_enregistrer_validation(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) TO authenticated, service_role;
+
+-- Levée EXPLICITE et tracée d'un blocage (source lue, texte repris) : la seule façon de sortir de
+-- « bloque ». Ni le semis ni un UPDATE ordinaire ne lèvent un blocage ; jamais vers valide_expert.
+CREATE OR REPLACE FUNCTION public.mm_quiz_memorisation_lever_blocage(
+  p_question_id       TEXT,
+  p_nouveau_statut    TEXT,
+  p_relecteur_nom     TEXT,
+  p_relecteur_qualite TEXT,
+  p_sources_verifiees TEXT,
+  p_commentaire       TEXT,
+  p_contenu_hash      TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_q public.mm_quiz_memorisation_questions%ROWTYPE;
+BEGIN
+  IF auth.role() IS DISTINCT FROM 'service_role'
+     AND NOT EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = auth.uid() AND ur.role::TEXT = 'admin') THEN
+    RAISE EXCEPTION 'Accès refusé' USING ERRCODE = '42501';
+  END IF;
+  IF p_nouveau_statut NOT IN ('conforme_referentiel', 'verifie_source_externe') THEN
+    RAISE EXCEPTION 'Statut de sortie de blocage invalide (jamais valide_expert) : %', p_nouveau_statut USING ERRCODE = '22023';
+  END IF;
+  SELECT * INTO v_q FROM public.mm_quiz_memorisation_questions WHERE id = p_question_id FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Question inconnue : %', p_question_id USING ERRCODE = 'P0002';
+  END IF;
+  IF v_q.statut IS DISTINCT FROM 'bloque' THEN
+    RAISE EXCEPTION 'Question non bloquée : rien à lever' USING ERRCODE = '22023';
+  END IF;
+  IF p_contenu_hash IS DISTINCT FROM v_q.contenu_hash THEN
+    RAISE EXCEPTION 'Le contenu a changé depuis la relecture (hash différent) : relire la version actuelle' USING ERRCODE = '22023';
+  END IF;
+
+  INSERT INTO public.mm_quiz_memorisation_validations
+    (question_id, contenu_hash, decision, relecteur_nom, relecteur_qualite, sources_verifiees, commentaire, enregistre_par)
+  VALUES
+    (p_question_id, v_q.contenu_hash, 'blocage_leve', p_relecteur_nom, p_relecteur_qualite, p_sources_verifiees, p_commentaire, auth.uid());
+
+  UPDATE public.mm_quiz_memorisation_questions
+     SET statut = p_nouveau_statut, tracabilite = tracabilite - 'motifBlocage'
+   WHERE id = p_question_id;
+  RETURN jsonb_build_object('question_id', p_question_id, 'statut', p_nouveau_statut);
+END;
+$$;
+REVOKE ALL ON FUNCTION public.mm_quiz_memorisation_lever_blocage(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.mm_quiz_memorisation_lever_blocage(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) TO authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
 -- 4. RPC de distribution : même règle d'accès que mm_contenu_immersif_item

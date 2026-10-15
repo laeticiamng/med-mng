@@ -21,10 +21,11 @@ drapeaux sont éteints. Rien de ce qui suit n'attribue `valide_expert`.
 4. **Statuts servis fixés côté serveur** : par défaut `valide_expert` seul. `mm_quiz_memorisation_config.pilote = true` (service_role) ajoute `conforme_referentiel` et `verifie_source_externe`, pour une préproduction. `bloque` et `brouillon` ne sont **jamais** servis.
 5. **Aucune donnée interne renvoyée** : ni extrait du référentiel, ni sources, ni justification, ni motif de blocage.
 6. **`valide_expert` uniquement par le registre** : un `UPDATE` ou un `INSERT` direct est refusé par trigger, y compris pour `service_role`. Le contrôle est structurel, sans paramètre de session falsifiable : la promotion n'est acceptée que si elle s'exécute avec les droits du propriétaire de la fonction d'enregistrement **et** si le registre contient une décision `valide` pour le hash courant ; `service_role` n'a qu'un droit de lecture sur le registre (testé, y compris un `set_config` forgé). Le semis n'attribue jamais ce statut et refuse de l'exporter.
-7. **Validation liée au contenu lu** : l'enregistrement exige le hash exact du contenu (calculé par le serveur), l'identité et la qualité du relecteur, les sources vérifiées ; une question `bloque` ne peut pas être validée ; une question validée dont le contenu change repasse en `bloque`.
+7. **Validation liée au contenu lu** : l'enregistrement exige le hash exact du contenu (calculé par le serveur), l'identité et la qualité du relecteur, les sources vérifiées ; une question `bloque` ne peut pas être validée ; une question validée dont le contenu change repasse en `bloque`. Le hash couvre tout ce qui détermine l'affichage : item, rang, compétence, type, énoncé, options, bonne réponse, explication (modifier l'un d'eux annule la validation).
 8. **Décisions `a_corriger` et `refuse`** : la question passe en `bloque` (motif écrit) et cesse d'être servie, même si elle était validée ; l'historique des décisions est conservé.
-9. **Registre en ajout seul** : ni `UPDATE` ni `DELETE`, même pour le propriétaire (trigger).
-10. **Seuls un administrateur ou le service_role** peuvent enregistrer une validation ; `anon` n'a pas le droit d'exécution.
+9. **Le semis ne lève jamais un blocage** : le rejeu du semis conserve `bloque` (et son motif) et ne rétrograde pas une validation ; seul `mm_quiz_memorisation_lever_blocage` (admin/service_role, décision `blocage_leve` journalisée, statut cible `conforme_referentiel` ou `verifie_source_externe`, hash exigé) rend une question non bloquée.
+10. **Registre en ajout seul** : ni `UPDATE` ni `DELETE`, même pour le propriétaire (trigger).
+11. **Seuls un administrateur ou le service_role** peuvent enregistrer une validation ; `anon` n'a pas le droit d'exécution.
 
 ## Registre de validation médicale
 
@@ -43,7 +44,7 @@ select mm_quiz_memorisation_enregistrer_validation(
   'HAS parcours DT2 2025 (document complet lu)', 'RAS', '<contenu_hash lu dans la table>');
 ```
 
-Pour une question bloquée : lever d'abord le blocage (lire la source, la citer, reclasser en
+Pour une question bloquée : lever d'abord le blocage avec `mm_quiz_memorisation_lever_blocage(question_id, nouveau_statut, relecteur, motif, sources, hash)` (lire la source, la citer, reclasser en
 `verifie_source_externe` ou revenir au texte du référentiel), puis soumettre à la validation.
 
 ## Activation contrôlée (dans cet ordre, une décision à chaque étape)
@@ -56,7 +57,7 @@ Pour une question bloquée : lever d'abord le blocage (lire la source, la citer,
 
 ## Tests
 
-- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 57 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
+- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 58 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
 - `src/lib/__tests__/quizMemorisationServeur.test.ts`, `QuizItemModes.test.tsx`, `export.test.ts`, `test/quizMemorisationBundle.test.ts`.
 
 ## Limites connues
