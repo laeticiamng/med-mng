@@ -66,9 +66,9 @@ export const raisonRangIndisponible = (
   if (rang === 'B' && nbB === 0)
     return 'Pas de rang B au programme officiel de cet item';
   if (rang === 'AB' && nbB === 0 && nbA > 0)
-    return 'Identique à Essentiel : cet item n’a que du rang A';
+    return 'Même contenu qu’Essentiel : cet item n’a que du rang A au programme officiel';
   if (rang === 'AB' && nbA === 0 && nbB > 0)
-    return 'Identique à Approfondissement : cet item n’a que du rang B';
+    return 'Même contenu qu’Approfondissement : cet item n’a que du rang B au programme officiel';
   if (rang === 'AB' && nbA === 0 && nbB === 0)
     return 'Aucune connaissance officielle pour cet item';
   return null;

@@ -363,7 +363,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {(oicCompetencesA.length > 0 || oicCompetencesB.length > 0) && (
           <div className="bg-gradient-to-r from-primary/5 to-accent/5 p-4 rounded-lg border">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-medium text-sm">Votre progression sur cet item</span>
+              <span className="font-medium text-sm">Votre progression personnelle sur cet item</span>
               <span className="text-sm font-bold text-primary">
                 {Array.from(masteryData.values()).filter(m => m.is_mastered).length} / {oicCompetencesA.length + oicCompetencesB.length} maîtrisées
               </span>
@@ -407,7 +407,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             <div className="text-2xl font-bold text-success">
               {validation.complete ? "100%" : Math.max(0, Math.round((validation.controles - validation.issues.length) / validation.controles * 100)) + "%"}
             </div>
-            <div className="text-sm text-muted-foreground">Complétude</div>
+            <div className="text-sm text-muted-foreground">Complétude du contenu</div>
+            <div className="text-xs text-muted-foreground">Contenu de l’item, indépendant de votre progression</div>
             {validation.complete ? (
               <CheckCircle className="h-4 w-4 text-success mx-auto mt-1" />
             ) : (

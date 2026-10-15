@@ -95,7 +95,7 @@ describe('Create — niveaux', () => {
       'Pas de rang B au programme officiel de cet item'
     );
     expect(raisonRangIndisponible('AB', 15, 0)).toMatch(
-      /Identique à Essentiel/
+      /Même contenu qu’Essentiel/
     );
     expect(raisonRangIndisponible('A', 0, 4)).toBe(
       'Pas de rang A au programme officiel de cet item'
