@@ -6,6 +6,7 @@ import {
   X, ChevronUp, ChevronDown, Music2, Repeat, Gauge 
 } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { BAS_MINI_LECTEUR, usePublierHauteur, VAR_MINI_LECTEUR } from '@/hooks/usePublierHauteur';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,6 +33,9 @@ export const PersistentMiniPlayer = () => {
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isLooping, setIsLooping] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
+  const lecteurRef = useRef<HTMLDivElement>(null);
+  // Hauteur publiée pour que l'application réserve la place en bas de page (voir usePublierHauteur).
+  usePublierHauteur(lecteurRef, VAR_MINI_LECTEUR, Boolean(currentTrack));
 
   // Sync loop state with audio element
   useEffect(() => {
@@ -105,12 +109,15 @@ export const PersistentMiniPlayer = () => {
   return (
     <AnimatePresence>
       <motion.div
+        ref={lecteurRef}
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        // Posé au-dessus de la barre de navigation mobile (0 sans barre, et à partir de md).
+        style={{ bottom: BAS_MINI_LECTEUR }}
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-[60] border-t border-border/50",
+          "fixed left-0 right-0 z-[60] border-t border-border/50",
           "bg-card/95 backdrop-blur-xl shadow-[0_-4px_30px_-10px_hsl(var(--primary)/0.15)]"
         )}
       >

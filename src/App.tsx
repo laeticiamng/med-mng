@@ -9,6 +9,7 @@ import { MainNavigation } from '@/components/layout/MainNavigation';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { MobileBottomNav } from "@/components/med-mng/MobileBottomNav";
 import { PersistentMiniPlayer } from "@/components/player/PersistentMiniPlayer";
 import { PWAPrompt } from "@/components/pwa/PWAPrompt";
 // ViewportProvider removed — using CSS media queries
@@ -23,12 +24,13 @@ import { AutoSEO } from '@/components/seo/AutoSEO';
 import { ChargementPageBoundary } from '@/components/error/ChargementPageBoundary';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 // GlobalAudioProvider, LanguageProvider, TooltipProvider, AccessibilityProvider → ComposedProviders
+import { MARGE_BASSE_APP } from '@/hooks/usePublierHauteur';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Suspense, lazy } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useParams } from "react-router-dom";
 import { AdminRoute } from "./components/auth/AdminRoute";
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -169,6 +171,16 @@ const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </ChargementPageBoundary>
 );
 
+// 📱 Pages d'entrée EDN (/edn-complete et fiches d'item) : barre de navigation mobile basse (< md),
+// comme les pages qui passent par MedMngLayout. Route de mise en page sans chemin : la barre reste
+// montée quand on passe de la liste à une fiche.
+const AvecBarreMobile = () => (
+  <>
+    <Outlet />
+    <MobileBottomNav />
+  </>
+);
+
 // 🔄 Redirect /edn/:slug → /edn-complete/:slug with param forwarding
 const EdnSlugRedirect = () => {
   const { slug } = useParams();
@@ -223,7 +235,9 @@ const App = () => {
                               <CookieBanner />
                               <AutoSEO />
                               <GlobalJsonLd />
-                              <div id="app-root" className="min-h-screen bg-background">
+                              {/* Marge basse = hauteur de la barre mobile + du mini-lecteur quand ils sont affichés
+                                  (0 sinon) : le pied de page et la fin du contenu ne passent pas dessous. */}
+                              <div id="app-root" className="min-h-screen bg-background" style={{ paddingBottom: MARGE_BASSE_APP }}>
                                 <MainNavigation />
                                 {/* Sélecteur de langue retiré (D42, 04.10.2026) : le produit est en français ;
                                     le drapeau flottant ne traduisait que quelques libellés de navigation
@@ -248,18 +262,20 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.generator} element={<ProtectedRoute><S><Generator /></S></ProtectedRoute>} />
 
                                     {/* EDN */}
-                                    <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
-                                    <Route path={ROUTE_PATHS.ednCompleteDetail} element={<S><EdnItemLayout /></S>}>
-                                      <Route index element={<EdnItemApercuRedirect />} />
-                                      <Route path="apercu" element={<S><EdnItemApercu /></S>} />
-                                      <Route path="rang-a" element={<S><EdnItemRangA /></S>} />
-                                      <Route path="rang-b" element={<S><EdnItemRangB /></S>} />
-                                      <Route path="quiz" element={<S><EdnItemQuiz /></S>} />
-                                      <Route path="stats" element={<S><EdnItemStats /></S>} />
-                                      <Route path="musique" element={<S><EdnItemMusique /></S>} />
-                                      <Route path="planches" element={<S><EdnItemPlanches /></S>} />
-                                      <Route path="recit" element={<S><EdnItemRecit /></S>} />
-                                      <Route path="*" element={<EdnItemApercuRedirect />} />
+                                    <Route element={<AvecBarreMobile />}>
+                                      <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
+                                      <Route path={ROUTE_PATHS.ednCompleteDetail} element={<S><EdnItemLayout /></S>}>
+                                        <Route index element={<EdnItemApercuRedirect />} />
+                                        <Route path="apercu" element={<S><EdnItemApercu /></S>} />
+                                        <Route path="rang-a" element={<S><EdnItemRangA /></S>} />
+                                        <Route path="rang-b" element={<S><EdnItemRangB /></S>} />
+                                        <Route path="quiz" element={<S><EdnItemQuiz /></S>} />
+                                        <Route path="stats" element={<S><EdnItemStats /></S>} />
+                                        <Route path="musique" element={<S><EdnItemMusique /></S>} />
+                                        <Route path="planches" element={<S><EdnItemPlanches /></S>} />
+                                        <Route path="recit" element={<S><EdnItemRecit /></S>} />
+                                        <Route path="*" element={<EdnItemApercuRedirect />} />
+                                      </Route>
                                     </Route>
                                     <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<EdnSlugRedirect />} />

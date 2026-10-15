@@ -30,7 +30,10 @@ export const MedMngLayout: React.FC<MedMngLayoutProps> = ({
       {/* Main Content */}
       {/* div et non <main id="main-content"> : la page est déjà dans le <main
           id="main-content"> de App.tsx (deux landmarks imbriqués, id dupliqué). */}
-      <div className={`flex-1 pb-20 md:pb-0 ${className}`}>
+      {/* La place de la barre mobile et du mini-lecteur est réservée une seule fois, en bas de
+          l'application (App.tsx, MARGE_BASSE_APP) : plus de marge basse en dur ici, qui laissait le pied de
+          page sous la barre et doublait la marge. */}
+      <div className={`flex-1 ${className}`}>
         {children}
       </div>
       
