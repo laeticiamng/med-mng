@@ -81,8 +81,8 @@ UI existants, `useFicheItemEdn`, `cheminItemEdn`. Non repris volontairement : po
 | IC-217 Syndrome mononucléosique | **Premium**, moyen | 6 | 9 (6 A, 3 B) |
 | IC-160 Tétanos | **peu de compétences** (Premium) | 4 (3 A, 1 B) | 8 (6 A, 2 B) |
 
-Statuts après la revue scientifique du 15.10.2026 (2ᵉ passe) : 12 `verifie_source_externe`, 14 `conforme_referentiel`,
-2 `bloque` (M247-A2 et M247-B3, jamais affichées), **0 `valide_expert`**. Corrections : M217-A5, M247-A7, M160-A2, précisées après la revue Codex (détail dans le registre).
+Statuts après la revue scientifique du 15.10.2026 (2ᵉ passe) : 12 `verifie_source_externe`, 11 `conforme_referentiel`,
+5 `bloque` (M160-A2, M217-A4, M247-A2, M247-A7, M247-B3 : jamais affichées), **0 `valide_expert`**. Corrections : M217-A5, M247-A7, M160-A2, précisées après la revue Codex (détail dans le registre).
 
 ### Activation (aucune en production)
 
@@ -144,7 +144,7 @@ d'essai ou abonnement.
 
 ## 6. Conditions d'une activation contrôlée (préproduction uniquement)
 
-1. Relecture par un médecin des 26 questions affichables en pilote, et décision sur M247-A2 et M247-B3 (bloquées).
+1. Relecture par un médecin des 23 questions affichables en pilote, et décision sur les 5 questions bloquées.
 2. Confirmation de M160-A3/A4 sur le calendrier vaccinal 2025 complet, et de M247-A1 sur le document HAS complet.
 3. Build de préproduction séparé : `VITE_QUIZ_MEMORISATION_PILOTE=true npx vite build` (jamais `npm run build`, qui
    refuse le drapeau), accès restreint aux testeurs (les questions Premium y sont lisibles dans le JavaScript).

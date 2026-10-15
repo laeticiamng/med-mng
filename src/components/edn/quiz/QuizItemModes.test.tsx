@@ -34,7 +34,7 @@ describe('QuizItemModes', () => {
   it('pilote actif sur un item pilote : « Mémoriser » par défaut, « Reconnaître les compétences » en second mode', async () => {
     vi.stubEnv('VITE_QUIZ_MEMORISATION_PILOTE', 'true');
     await rendre(<QuizItemModes itemCode="IC-160" itemTitle="Tétanos" />);
-    expect(await screen.findByTestId('memo')).toHaveTextContent('8 questions (pilote)');
+    expect(await screen.findByTestId('memo')).toHaveTextContent('7 questions (pilote)');
     expect(screen.getByRole('tab', { name: 'Mémoriser' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'Reconnaître les compétences' })).toBeInTheDocument();
     expect(screen.queryByTestId('oic')).not.toBeInTheDocument();

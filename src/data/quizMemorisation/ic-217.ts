@@ -133,7 +133,9 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
     reponse: 'Le plus souvent une cytolyse (transaminases élevées), habituellement sans cholestase.',
     explication: 'Cytolyse hépatique fréquente : élévation des transaminases, habituellement sans cholestase. Une cholestase reste possible, plus rarement.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'bloque',
+      motifBlocage:
+        'La réponse « habituellement sans cholestase » qualifie le référentiel (« sans cholestase associée ») d’après une revue externe (PMC3660095) non ouverte depuis l’environnement. À recouper sur cette source puis reclasser en verifie_source_externe, ou revenir au texte du référentiel.',
       extraitReferentiel: 'Cytolyse hépatique fréquente (élévation des transaminases sans cholestase associée)',
       sourcesExternes: [],
       reponseCorrecte: 'Cytolyse hépatique, habituellement sans cholestase',

@@ -61,7 +61,9 @@ export const QUESTIONS_IC_160: QuestionMemo[] = [
     explication:
       'Le trismus ouvre le tableau, puis la contraction gagne tout le corps de haut en bas. Pas de fièvre au début ; elle peut apparaître ensuite, notamment avec la dysautonomie.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'bloque',
+      motifBlocage:
+        'La réponse et l’explication s’écartent du référentiel (« sans fièvre » sur toute l’évolution) : apyrexie limitée au début et « spasmes douloureux » repris de OIC-160-01-B, d’après des sources externes (CDC Pink Book, revue PMC7617864) non ouvertes depuis l’environnement. À recouper sur ces sources puis reclasser en verifie_source_externe, ou revenir au texte du référentiel.',
       extraitReferentiel:
         'Le tétanos évolue ensuite le plus souvent vers une forme de contraction généralisée, d\'évolution descendante, avec des signes de dysautonomie, sans fièvre.',
       sourcesExternes: [],

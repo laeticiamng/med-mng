@@ -93,6 +93,15 @@ describe('données du pilote de mémorisation — structure et traçabilité', (
     expect(statutAffichable('bloque', false)).toBe(false);
   });
 
+  it('bloque toute question dont le texte affiché dépasse le référentiel sans source externe lue', () => {
+    const idsBloques = toutes.filter((q) => q.verification.statut === 'bloque').map((q) => q.id).sort();
+    expect(idsBloques).toEqual(['M160-A2', 'M217-A4', 'M247-A2', 'M247-A7', 'M247-B3']);
+    // Aucune question « conforme_referentiel » ne peut citer une correction externe dans ses notes.
+    for (const q of toutes.filter((x) => x.verification.statut === 'conforme_referentiel')) {
+      expect(q.verification.notes ?? '', q.id).not.toMatch(/Revue Codex/);
+    }
+  });
+
   it('documente la raison de chaque blocage', () => {
     for (const q of toutes) {
       if (q.verification.statut === 'bloque') expect(q.verification.motifBlocage?.length, q.id).toBeGreaterThan(40);

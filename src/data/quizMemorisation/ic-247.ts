@@ -191,7 +191,9 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     reponse: '15 g de sucre : environ 3 morceaux, ou un demi-verre (≈ 150 mL) de soda ou de jus non allégé.',
     explication: 'Patient conscient : environ 15 g de sucre rapide, soit 3 morceaux ou un demi-verre de soda ou de jus non allégé. Un soda « light » ne contient pas de sucre et ne resucre pas.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'bloque',
+      motifBlocage:
+        'La réponse « demi-verre (≈ 150 mL) de soda ou de jus non allégé » et le retrait des bonbons viennent d’une synthèse HAS 2025 (citée par la revue Codex) et d’une fiche suisse, non ouvertes depuis l’environnement, et non du référentiel (« 15 g = 3 morceaux, ou soda ou bonbons »). À recouper sur la synthèse HAS puis reclasser en verifie_source_externe, ou revenir au texte du référentiel.',
       extraitReferentiel: 'Ingestion de sucre (15 g= 3 morceaux), ou soda ou bonbons',
       sourcesExternes: [],
       reponseCorrecte: '15 g de sucre : environ 3 morceaux, ou un demi-verre de soda ou de jus non allégé',
