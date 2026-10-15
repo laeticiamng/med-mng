@@ -2,6 +2,7 @@ import type { QuestionMemo, StatutVerification } from './types';
 
 /** Statuts qu’une question doit avoir au minimum pour être affichée. */
 const RANG_STATUT: Record<StatutVerification, number> = {
+  bloque: -1,
   brouillon: 0,
   conforme_referentiel: 1,
   verifie_source_externe: 2,
@@ -12,7 +13,7 @@ const RANG_STATUT: Record<StatutVerification, number> = {
  * Statuts affichables selon l’environnement.
  *  - production : uniquement `valide_expert` (relecture médicale humaine) ;
  *  - pilote : `conforme_referentiel` et au-dessus, avec la mention « pilote ».
- * `brouillon` n’est jamais affichable.
+ * `brouillon` et `bloque` ne sont jamais affichables.
  */
 export function statutAffichable(statut: StatutVerification, pilote: boolean): boolean {
   return RANG_STATUT[statut] >= (pilote ? RANG_STATUT.conforme_referentiel : RANG_STATUT.valide_expert);

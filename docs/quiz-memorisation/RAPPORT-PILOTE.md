@@ -81,7 +81,9 @@ UI existants, `useFicheItemEdn`, `cheminItemEdn`. Non repris volontairement : po
 | IC-217 Syndrome mononucléosique | **Premium**, moyen | 6 | 9 (6 A, 3 B) |
 | IC-160 Tétanos | **peu de compétences** (Premium) | 4 (3 A, 1 B) | 8 (6 A, 2 B) |
 
-Statuts : 8 `verifie_source_externe`, 20 `conforme_referentiel`, **0 `valide_expert`**.
+Statuts après la revue scientifique du 15.10.2026 (2ᵉ passe) : 12 `verifie_source_externe`, 15 `conforme_referentiel`,
+1 `bloque` (M247-A2, jamais affichée), **0 `valide_expert`**. Corrections : M217-A5, M247-A7, M160-A2 (détail dans le
+registre).
 
 ### Activation (aucune en production)
 
@@ -94,10 +96,11 @@ en cours de relecture médicale ». Hors pilote, seul `valide_expert` serait aff
 | Contrôle | Résultat |
 |---|---|
 | `tsc --noEmit` | 0 erreur |
-| Suite complète `vitest run` | **1873 tests, 148 fichiers : tous passent** (dont 60 nouveaux) |
+| Suite complète `vitest run` | **1881 tests, 149 fichiers : tous passent** (dont 68 nouveaux, avec la non-régression de la revue scientifique) |
 | ESLint sur les fichiers touchés, hors `prettier/prettier` | 0 erreur nouvelle (4 `any` et les erreurs de formatage existent déjà dans des fichiers non touchés, p. ex. `ednItemTabs.ts`) |
-| `vite build` sans drapeau | OK ; **les 28 questions sont absentes du bundle** (`grep` négatif sur « conforme_referentiel », « Tout trismus », « M160-A1 ») |
-| `vite build` avec drapeau | OK ; questions présentes |
+| `vite build` sans drapeau | OK ; **aucune question dans le bundle** : garde-fou `scripts/quiz-memorisation/verifier-bundle.mjs` vert |
+| `vite build` avec drapeau | OK ; le garde-fou **échoue** comme attendu (questions détectées) |
+| CI | nouvelle étape « Garde-fou du pilote « Mémoriser » » après le build de production : échoue si le drapeau est actif ou si une question est dans `dist` |
 | Extraits du référentiel | 31/31 retrouvés mot pour mot dans `oic_competences` |
 | Mobile (Chromium, 375 × 667, tactile) | aucun débordement horizontal, cibles ≥ 44 px, 0 erreur JS, parcours complet accueil → QCM → rappel → bilan |
 
@@ -109,7 +112,9 @@ pilote, droits (lien absent si contenu verrouillé ou chargement en cours).
 
 ### Ce qui n'est PAS vérifié
 
-- **Aucune relecture médicale humaine.** C'est le principal verrou.
+- **Aucune relecture médicale humaine.** C'est le principal verrou. La revue du 15.10.2026 est une revue IA.
+- Documents officiels complets (HAS, calendrier vaccinal 2025) non ouverts : domaines refusés par la politique
+  réseau de l'environnement ; passages issus de moteurs de recherche.
 - Aucun test avec de vrais étudiants : la pertinence pédagogique et le plaisir d'usage restent à mesurer.
 - Pas d'E2E en production ni sur le vrai écran `/edn-complete/:slug/quiz` (le serveur de préproduction n'a pas accès
   à Supabase depuis l'environnement d'exécution) : la composition page + droits est testée par composants.
@@ -137,7 +142,16 @@ Préalable technique : les questions des items Premium ne doivent **pas** voyage
 (lisibles par tous). Même schéma que `mm_contenu_immersif_item` : RPC qui renvoie `{verrouille:true}` hors item
 d'essai ou abonnement.
 
-## 6. Recommandation
+## 6. Conditions d'une activation contrôlée (préproduction uniquement)
+
+1. Relecture par un médecin des 27 questions affichables en pilote, et décision sur M247-A2 (bloquée).
+2. Confirmation de M160-A3/A4 sur le calendrier vaccinal 2025 complet, et de M247-A1 sur le document HAS complet.
+3. Build de préproduction séparé avec `VITE_QUIZ_MEMORISATION_PILOTE=true`, accès restreint aux testeurs (les
+   questions Premium y sont lisibles dans le JavaScript).
+4. Production : drapeau absent (le garde-fou de CI l'impose) ; seules des questions `valide_expert` servies par une
+   RPC serveur pourront y être affichées.
+
+## 7. Recommandation
 
 **GO conditionnel — poursuivre en préproduction, pas de publication.**
 

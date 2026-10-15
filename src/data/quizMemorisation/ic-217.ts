@@ -16,6 +16,18 @@ const PUBMED_AMINOPENICILLINES = [
     lien: 'https://doi.org/10.1542/peds.2012-1575',
   },
 ];
+const SOURCES_MNI_TEST = [
+  {
+    reference:
+      'Sylvester et al., « Infectious Mononucleosis: Rapid Evidence Review », Am Fam Physician 2023 (PubMed 36689975) — test hétérophile : sensibilité 87 %, spécificité 91 %, faux négatifs chez l’enfant de moins de 5 ans et chez l’adulte la première semaine ; sérologie VCA plus sensible et plus spécifique',
+    lien: 'https://pubmed.ncbi.nlm.nih.gov/36689975/',
+  },
+  {
+    reference:
+      'Field & Dwyer, Pathology 1996 (PubMed 8912361) — les tests hétérophiles ne doivent servir qu’au dépistage (sensibilité < 50 % chez l’enfant, 80–90 % chez l’adulte) ; la détection des IgM anti-EBV est le test le plus utile',
+    lien: 'https://doi.org/10.1080/00313029600169144',
+  },
+];
 const PUBMED_DRESS = [
   {
     reference:
@@ -131,24 +143,25 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
     rang: 'A',
     objectifId: 'OIC-217-05-A',
     type: 'qcm',
-    question: 'Quel examen établit le diagnostic de certitude d’une mononucléose infectieuse ?',
+    question: 'Quels examens confirment une mononucléose infectieuse ?',
     options: [
       'Une biopsie ganglionnaire systématique',
       'Un myélogramme avec étude cytogénétique',
       'Une ponction lombaire avec analyse du LCR',
-      'Le MNI test, avec ou sans sérologies EBV',
+      'MNI test, puis sérologie EBV si besoin',
     ],
     indexCorrect: 3,
-    explication: 'Diagnostic de certitude : MNI test, avec ou sans sérologies EBV.',
+    explication:
+      'Le MNI test oriente vite mais peut être faussement négatif chez le jeune enfant ou la première semaine : la sérologie EBV, plus sensible, tranche alors.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'verifie_source_externe',
       extraitReferentiel: 'MNI test ± sérologies EBV',
-      sourcesExternes: [],
-      reponseCorrecte: 'Le MNI test, avec ou sans sérologies EBV',
+      sourcesExternes: SOURCES_MNI_TEST,
+      reponseCorrecte: 'MNI test, puis sérologie EBV si besoin',
       justification:
-        'Texte officiel. Les trois distracteurs sont des examens invasifs non indiqués pour confirmer une MNI.',
+        'Le référentiel associe MNI test et sérologies EBV. Les sources PubMed montrent que le test hétérophile (MNI test) a des faux négatifs (jeune enfant, première semaine) et doit être complété par la sérologie EBV. Les trois distracteurs sont des examens invasifs non indiqués pour confirmer une MNI.',
       notes:
-        'Le point « PCR EBV sans indication chez l’immunocompétent » du même passage n’a PAS été retrouvé dans les sources externes (recherche du 15.10.2026) : volontairement non utilisé.',
+        'CORRIGÉ le 15.10.2026 (revue scientifique) : la version précédente reprenait « diagnostic de certitude : MNI test », formulation du référentiel qui surestime un test de dépistage (sensibilité 87 %, < 50 % chez l’enfant). Le point « PCR EBV sans indication chez l’immunocompétent » n’est toujours pas utilisé (non retrouvé en source externe).',
       verifiePar: PAR,
       dateVerification: DATE,
     },

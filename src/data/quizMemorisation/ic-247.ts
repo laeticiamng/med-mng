@@ -17,6 +17,11 @@ import {
 const HAS_DT2_2025 = [
   {
     reference:
+      'HAS, « Principes de dépistage du diabète de type 2 » : diabète défini par une glycémie à jeun ≥ 1,26 g/L (7 mmol/L) vérifiée à 2 reprises ; test recommandé : glycémie veineuse à jeun (extrait restitué par moteur de recherche, le domaine has-sante.fr est inaccessible depuis l’environnement de travail)',
+    lien: 'https://www.has-sante.fr/jcms/c_464100/fr/principes-de-depistage-du-diabete-de-type-2',
+  },
+  {
+    reference:
       'HAS, « Parcours de soins du patient adulte vivant avec un diabète de type 2 — 14 messages clés » (07/2025) : diagnostic sur une glycémie veineuse à jeun ≥ 1,26 g/L confirmée par un second dosage (extrait restitué par moteur de recherche, document à rouvrir lors de la relecture)',
     lien: 'https://www.has-sante.fr/upload/docs/application/pdf/2025-07/parcours_de_soins_du_patient_adulte_vivant_avec_un_diabete_de_type_2_-_14_messages_cles_pour_ameliorer_votre_pratique.pdf',
   },
@@ -62,13 +67,15 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     indexCorrect: 3,
     explication: 'L’HGPO est indiquée lorsque la glycémie à jeun est entre 1,10 et 1,26 g/L (6 à 7 mmol/L), et pendant la grossesse.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'bloque',
+      motifBlocage:
+        'Conflit de sources non tranché : le référentiel indique l’HGPO pour une glycémie à jeun entre 1,10 et 1,26 g/L, alors que la HAS (« Principes de dépistage du diabète de type 2 ») indique que l’HGPO n’est pas recommandée pour poser le diagnostic de diabète, le test recommandé étant la glycémie veineuse à jeun. À trancher par le relecteur médical (reformuler, ou retirer).',
       extraitReferentiel: 'glycémie à jeun, entre 1,10 et 1,26 g/l [6 à 7 mmol/l]',
       sourcesExternes: [],
       reponseCorrecte: 'Glycémie à jeun entre 1,10 et 1,26 g/L',
       justification:
         'Texte officiel (indications : grossesse, glycémie à jeun entre 1,10 et 1,26 g/L). Les options ≥ 1,40 g/L et ≥ 1,26 g/L confirmée posent déjà le diagnostic sans HGPO ; < 0,90 g/L est normal.',
-      notes: 'Non recoupé par une source externe : la recherche du 15.10.2026 n’a pas restitué le passage HAS sur l’HGPO.',
+      notes: 'Bloquée le 15.10.2026 (revue scientifique) ; voir motifBlocage.',
       verifiePar: PAR,
       dateVerification: DATE,
     },
@@ -89,7 +96,8 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
       sourcesExternes: [],
       reponseCorrecte: '≥ 2 g/L (11 mmol/L)',
       justification: 'Texte officiel ; la phrase « même seuil en urgence » vient du point 4/ de la même compétence.',
-      notes: 'Des supports secondaires (extraits de recherche) donnent le même seuil ; aucun document primaire ouvert.',
+      notes:
+        'Seuil international (OMS) repris par le référentiel. La HAS ne recommande pas l’HGPO pour le diagnostic hors grossesse : la question porte sur la valeur du seuil, pas sur l’indication (voir M247-A2, bloquée). Aucun document primaire ouvert.',
       verifiePar: PAR,
       dateVerification: DATE,
     },
@@ -157,9 +165,15 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     indexCorrect: 0,
     explication: 'Chez un patient inconscient, pas d’ingestion orale : risque de fausse route. Le resucrage passe par une voie injectable ou nasale.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'verifie_source_externe',
       extraitReferentiel: 'pas d\'ingestion orale: risque de fausse route+++',
-      sourcesExternes: [],
+      sourcesExternes: [
+        {
+          reference:
+            'HAS, Commission de la transparence, avis BAQSIMI (glucagon nasal), CT-18963 : les recommandations internationales (ADA, AACE, ISPAD) préconisent le glucagon chez le patient ayant perdu connaissance ou incapable d’ingérer du glucose par voie orale (extrait restitué par moteur de recherche)',
+          lien: 'https://www.has-sante.fr/upload/docs/evamed/CT-18963_BAQSIMI_PIC_INS_AvisDef_CT18963.pdf',
+        },
+      ],
       reponseCorrecte: 'Le resucrage par la bouche',
       justification:
         'Texte officiel. Les trois autres voies sont celles que le référentiel propose. L’explication reste volontairement générale : la réserve « glucagon et sulfamide hypoglycémiant » n’a pas été retrouvée en source primaire (voir registre).',
@@ -174,14 +188,16 @@ export const QUESTIONS_IC_247: QuestionMemo[] = [
     objectifId: 'OIC-247-25-A',
     type: 'rappel',
     question: 'Patient conscient en hypoglycémie : quel resucrage ?',
-    reponse: '15 g de sucre (3 morceaux), un soda ou des bonbons.',
-    explication: 'Patient conscient : ingestion de 15 g de sucre (3 morceaux), de soda ou de bonbons.',
+    reponse: '15 g de sucre (environ 3 morceaux), un soda non light ou des bonbons.',
+    explication: 'Patient conscient : 15 g de sucre (environ 3 morceaux), un soda non light ou des bonbons. Un soda « light » ne contient pas de sucre et ne resucre pas.',
     verification: {
       statut: 'conforme_referentiel',
       extraitReferentiel: 'Ingestion de sucre (15 g= 3 morceaux), ou soda ou bonbons',
       sourcesExternes: [],
-      reponseCorrecte: '15 g de sucre (3 morceaux), soda ou bonbons',
-      justification: 'Recopie le texte officiel.',
+      reponseCorrecte: '15 g de sucre (environ 3 morceaux), soda non light ou bonbons',
+      justification: 'Texte officiel, précisé sur deux points de sécurité (voir notes).',
+      notes:
+        'CORRIGÉ le 15.10.2026 (revue scientifique) : « soda » sans précision laissait passer un soda light, sans sucre ; « 3 morceaux » devient « environ 3 morceaux » (le nombre de morceaux pour 15 g dépend de leur taille : une fiche suisse indique 4 morceaux). Le repère de 15 g est concordant dans les fiches consultées (règle « 15-15 »).',
       verifiePar: PAR,
       dateVerification: DATE,
     },

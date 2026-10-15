@@ -76,16 +76,66 @@ describe('données du pilote de mémorisation — structure et traçabilité', (
         expect(v.sourcesExternes.length, `${q.id} sans source externe`).toBeGreaterThan(0);
         v.sourcesExternes.forEach((s) => expect(s.lien, q.id).toMatch(/^https:\/\//));
       }
-      // Invariant du pilote : aucune relecture médicale humaine n'a eu lieu.
+      // Invariant du pilote : aucune relecture médicale humaine n'a eu lieu. Une revue IA,
+      // même indépendante, ne donne jamais ce statut.
       expect(v.statut, q.id).not.toBe('valide_expert');
+      expect(v.verifiePar, q.id).not.toMatch(/médecin|Dr /i);
       expect(v.statut, q.id).not.toBe('brouillon');
     }
   });
 
   it('n’affiche rien en production tant qu’aucune question n’est validée par un expert', () => {
     expect(toutes.some((q) => statutAffichable(q.verification.statut, false))).toBe(false);
-    expect(toutes.every((q) => statutAffichable(q.verification.statut, true))).toBe(true);
+    const nonBloquees = toutes.filter((q) => q.verification.statut !== 'bloque');
+    expect(nonBloquees.every((q) => statutAffichable(q.verification.statut, true))).toBe(true);
     expect(statutAffichable('brouillon', true)).toBe(false);
+    expect(statutAffichable('bloque', true)).toBe(false);
+    expect(statutAffichable('bloque', false)).toBe(false);
+  });
+
+  it('documente la raison de chaque blocage', () => {
+    for (const q of toutes) {
+      if (q.verification.statut === 'bloque') expect(q.verification.motifBlocage?.length, q.id).toBeGreaterThan(40);
+      else expect(q.verification.motifBlocage, q.id).toBeUndefined();
+    }
+  });
+});
+
+/** Non-régression de la revue scientifique du 15.10.2026. */
+describe('revue scientifique — corrections à ne pas perdre', () => {
+  const parId = (id: string) => toutes.find((q) => q.id === id)!;
+  const texteAffiche = (q: QuestionMemo) =>
+    [q.question, q.explication, q.type === 'qcm' ? q.options.join(' ') : q.reponse].join(' ');
+
+  it('M217-A5 : le MNI test n’est jamais présenté comme un diagnostic de certitude', () => {
+    const q = parId('M217-A5');
+    expect(texteAffiche(q)).not.toMatch(/certitude/i);
+    expect(q.verification.reponseCorrecte).toMatch(/sérologie EBV/);
+    expect(q.explication).toMatch(/faussement négatif/);
+    for (const autre of toutes) expect(texteAffiche(autre), autre.id).not.toMatch(/diagnostic de certitude/i);
+  });
+
+  it('M247-A2 (indication de l’HGPO) reste bloquée tant que le conflit référentiel / HAS n’est pas tranché', () => {
+    expect(parId('M247-A2').verification.statut).toBe('bloque');
+    expect(parId('M247-A2').verification.motifBlocage).toMatch(/HAS/);
+  });
+
+  it('M247-A7 : le resucrage exclut le soda light', () => {
+    const q = parId('M247-A7');
+    expect(q.type === 'rappel' && q.reponse).toMatch(/non light/);
+    expect(q.explication).toMatch(/light/);
+  });
+
+  it('M160-A2 : pas de formulation absolue sur la fièvre', () => {
+    expect(texteAffiche(parId('M160-A2'))).not.toMatch(/(^|[^t]) sans fièvre/);
+    expect(parId('M160-A2').explication).toMatch(/classiquement/);
+  });
+
+  it('IC-160 : immunoglobulines réservées à la plaie majeure non à jour, dose de 250 UI', () => {
+    const a3 = parId('M160-A3');
+    const a4 = parId('M160-A4');
+    expect(a3.verification.reponseCorrecte).toMatch(/250 UI/);
+    expect(a4.verification.reponseCorrecte).not.toMatch(/immunoglobuline/i);
   });
 
   it('génère la requête de contrôle des extraits (voir docs/quiz-memorisation)', () => {

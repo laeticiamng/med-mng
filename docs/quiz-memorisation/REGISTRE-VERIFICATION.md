@@ -1,6 +1,6 @@
 # Registre de vérification — questions de mémorisation (pilote)
 
-Mis à jour le 15.10.2026. Source de vérité des données : `src/data/quizMemorisation/ic-*.ts`
+Mis à jour le 15.10.2026 (revue scientifique ciblée, 2ᵉ passe). Source de vérité des données : `src/data/quizMemorisation/ic-*.ts`
 (le tableau ci-dessous en est extrait ; en cas d'écart, les fichiers de données font foi).
 
 ## Ce que « vérifié » veut dire ici
@@ -11,8 +11,10 @@ Mis à jour le 15.10.2026. Source de vérité des données : `src/data/quizMemor
 | `conforme_referentiel` | Fidèle au texte officiel : l'extrait cité est retrouvé **mot pour mot** dans `oic_competences`. Pas recoupée par une source externe. | pilote seulement |
 | `verifie_source_externe` | Idem, **et** recoupée par au moins une source externe citée (PubMed, HAS). | pilote seulement |
 | `valide_expert` | Relue et validée par un médecin. | **production** |
+| `bloque` | Point scientifique non tranché ; raison dans `motifBlocage`. | **jamais** |
 
-**Aucune des 28 questions n'est `valide_expert`.** Les 8 questions `verifie_source_externe` ont été
+**Aucune des 28 questions n'est `valide_expert`.** Répartition : 12 `verifie_source_externe`,
+15 `conforme_referentiel`, 1 `bloque`. Les questions `verifie_source_externe` ont été
 recoupées par une IA (Claude) sur les résumés PubMed, ou sur un extrait de recherche web pour la HAS
 (document non rouvert) : c'est un recoupement documentaire, pas une validation médicale. Un test
 (`donnees.test.ts`) interdit qu'une question porte `valide_expert` ou `brouillon` dans le pilote, et
@@ -30,12 +32,12 @@ QMEMO_SQL_OUT=/tmp/verif.sql npx vitest run src/data/quizMemorisation   # écrit
 
 ## Les 28 questions
 
-| ID | Type | Compétence | Statut | Réponse correcte | Sources externes | Réserves |
+| ID | Type | Compétence | Statut | Réponse correcte | Sources externes | Réserves / blocage |
 |---|---|---|---|---|---|---|
 | M160-A1 | QCM | OIC-160-04-A | `conforme_referentiel` | Un trismus | — | — |
-| M160-A2 | Rappel | OIC-160-04-A | `conforme_referentiel` | Contraction généralisée, descendante, dysautonomie, sans fièvre | — | Pas de source externe retrouvée dans la recherche du 15.10.2026 (requête PubMed sans résultat) : à recouper lors de la relecture médicale. |
-| M160-A3 | QCM | OIC-160-03-A | `conforme_referentiel` | Immunoglobulines tétaniques 250 UI dans un bras, vaccin dans l’autre | — | Recoupement partiel : la recherche web du 15.10.2026 a restitué le même tableau (vaccination-info-service.fr, mesvaccins.net) mais le document n’a pas pu être ouvert. À confronter au calendrier vaccinal en vigueur lors de la relecture médicale. |
-| M160-A4 | QCM | OIC-160-03-A | `conforme_referentiel` | Une dose de vaccin contenant la valence tétanique | — | Même réserve que M160-A3 (tableau non ouvert à la source). |
+| M160-A2 | Rappel | OIC-160-04-A | `conforme_referentiel` | Contraction généralisée, descendante, dysautonomie, classiquement sans fièvre | — | Formulation absolue « sans fièvre » adoucie en « classiquement » le 15.10.2026 (la dysautonomie peut s’accompagner de troubles de la thermorégulation). Pas de source externe retrouvée dans la recherche du 15.10.2026 (requête PubMed sans résultat) : à recouper lors de la relecture médicale. |
+| M160-A3 | QCM | OIC-160-03-A | `verifie_source_externe` | Immunoglobulines tétaniques 250 UI dans un bras, vaccin dans l’autre | [Avis du HCSP (mai 2013), tableau « Conduite à tenir immédiate en cas de plaie », repris par Vaccination Info Service et mesvaccins.net](https://vaccination-info-service.fr/content/download/1343/14681/version/1/file/TABLEAU_tetanos_Conduite+a%CC%80+tenir.pdf) | Concordant entre le référentiel et l’avis HCSP 2013, toujours cité comme référence par les sources récentes consultées. Le calendrier vaccinal 2025 complet n’a pas pu être ouvert (domaine bloqué) : à confirmer sur le document officiel lors de la relecture médicale. |
+| M160-A4 | QCM | OIC-160-03-A | `verifie_source_externe` | Une dose de vaccin contenant la valence tétanique | [Avis du HCSP (mai 2013), tableau « Conduite à tenir immédiate en cas de plaie », repris par Vaccination Info Service et mesvaccins.net](https://vaccination-info-service.fr/content/download/1343/14681/version/1/file/TABLEAU_tetanos_Conduite+a%CC%80+tenir.pdf) | Même réserve que M160-A3 (calendrier vaccinal 2025 complet non ouvert). |
 | M160-A5 | QCM | OIC-160-03-A | `conforme_referentiel` | Un ulcère de jambe d’origine vasculaire | — | — |
 | M160-A6 | Rappel | OIC-160-03-A | `conforme_referentiel` | Bactérie ubiquitaire des sols | — | — |
 | M160-B1 | QCM | OIC-160-01-B | `verifie_source_externe` | Les interneurones inhibiteurs | [Connan & Popoff, Curr Top Microbiol Immunol 2017 (PubMed 28879524)](https://doi.org/10.1007/82_2017_50)<br>[Surana et al., Toxicon 2017 (PubMed 29031941)](https://doi.org/10.1016/j.toxicon.2017.10.008) | — |
@@ -44,22 +46,45 @@ QMEMO_SQL_OUT=/tmp/verif.sql npx vitest run src/data/quizMemorisation   # écrit
 | M217-A2 | QCM | OIC-217-05-A | `conforme_referentiel` | La primo-infection à EBV | — | Pourcentages (80 % / 10 %) non recoupés par une source externe. |
 | M217-A3 | QCM | OIC-217-05-A | `verifie_source_externe` | Les aminopénicillines | [Chovel-Sella et al., Pediatrics 2013 (PubMed 23589810)](https://doi.org/10.1542/peds.2012-1575) | — |
 | M217-A4 | Rappel | OIC-217-05-A | `conforme_referentiel` | Cytolyse hépatique sans cholestase | — | — |
-| M217-A5 | QCM | OIC-217-05-A | `conforme_referentiel` | Le MNI test, avec ou sans sérologies EBV | — | Le point « PCR EBV sans indication chez l’immunocompétent » du même passage n’a PAS été retrouvé dans les sources externes (recherche du 15.10.2026) : volontairement non utilisé. |
+| M217-A5 | QCM | OIC-217-05-A | `verifie_source_externe` | MNI test, puis sérologie EBV si besoin | [Sylvester et al., « Infectious Mononucleosis: Rapid Evidence Review », Am Fam Physician 2023 (PubMed 36689975)](https://pubmed.ncbi.nlm.nih.gov/36689975/)<br>[Field & Dwyer, Pathology 1996 (PubMed 8912361)](https://doi.org/10.1080/00313029600169144) | CORRIGÉ le 15.10.2026 (revue scientifique) : la version précédente reprenait « diagnostic de certitude : MNI test », formulation du référentiel qui surestime un test de dépistage (sensibilité 87 %, < 50 % chez l’enfant). Le point « PCR EBV sans indication chez l’immunocompétent » n’est toujours pas utilisé (non retrouvé en source externe). |
 | M217-A6 | QCM | OIC-217-04-A | `conforme_referentiel` | Un contact avec un chat ou de la viande crue | — | — |
 | M217-B1 | QCM | OIC-217-02-B | `conforme_referentiel` | De grands lymphocytes T activés hyperbasophiles, sans blaste | — | — |
 | M217-B2 | Rappel | OIC-217-06-B | `verifie_source_externe` | Antibiotiques (sulfamides, bêta-lactamines), anticonvulsivants, allopurinol | [Ramirez et al., Microorganisms 2023 (PubMed 36838310)](https://doi.org/10.3390/microorganisms11020346) | Les bêta-lactamines ne figurent pas dans le résumé de la source externe : à recouper. |
 | M217-B3 | QCM | OIC-217-06-B | `verifie_source_externe` | Une hyperéosinophilie | [Ramirez et al., Microorganisms 2023 (PubMed 36838310)](https://doi.org/10.3390/microorganisms11020346) | — |
-| M247-A1 | QCM | OIC-247-03-A | `verifie_source_externe` | ≥ 1,26 g/L | [HAS, « Parcours de soins du patient adulte vivant avec un diabète de type 2](https://www.has-sante.fr/upload/docs/application/pdf/2025-07/parcours_de_soins_du_patient_adulte_vivant_avec_un_diabete_de_type_2_-_14_messages_cles_pour_ameliorer_votre_pratique.pdf) | La compétence 247-04-A écrit « > 1.26 » alors que 247-03-A écrit « ≥ 1,26 » : la question suit 247-03-A et 247-01-A (« supérieure à 1,26 g/l »). Divergence à signaler aux éditeurs du référentiel. |
-| M247-A2 | QCM | OIC-247-03-A | `conforme_referentiel` | Glycémie à jeun entre 1,10 et 1,26 g/L | — | Non recoupé par une source externe : la recherche du 15.10.2026 n’a pas restitué le passage HAS sur l’HGPO. |
-| M247-A3 | Rappel | OIC-247-03-A | `conforme_referentiel` | ≥ 2 g/L (11 mmol/L) | — | Des supports secondaires (extraits de recherche) donnent le même seuil ; aucun document primaire ouvert. |
+| M247-A1 | QCM | OIC-247-03-A | `verifie_source_externe` | ≥ 1,26 g/L | [HAS, « Principes de dépistage du diabète de type 2 »](https://www.has-sante.fr/jcms/c_464100/fr/principes-de-depistage-du-diabete-de-type-2)<br>[HAS, « Parcours de soins du patient adulte vivant avec un diabète de type 2](https://www.has-sante.fr/upload/docs/application/pdf/2025-07/parcours_de_soins_du_patient_adulte_vivant_avec_un_diabete_de_type_2_-_14_messages_cles_pour_ameliorer_votre_pratique.pdf) | La compétence 247-04-A écrit « > 1.26 » alors que 247-03-A écrit « ≥ 1,26 » : la question suit 247-03-A et 247-01-A (« supérieure à 1,26 g/l »). Divergence à signaler aux éditeurs du référentiel. |
+| M247-A2 | QCM | OIC-247-03-A | `bloque` | Glycémie à jeun entre 1,10 et 1,26 g/L | — | **BLOQUÉE** : Conflit de sources non tranché : le référentiel indique l’HGPO pour une glycémie à jeun entre 1,10 et 1,26 g/L, alors que la HAS (« Principes de dépistage du diabète de type 2 ») indique que l’HGPO n’est pas recommandée pour poser le diagnostic de diabète, le test recommandé étant la glycémie veineuse à jeun. À trancher par le relecteur médical (reformuler, ou retirer).<br>Bloquée le 15.10.2026 (revue scientifique) ; voir motifBlocage. |
+| M247-A3 | Rappel | OIC-247-03-A | `conforme_referentiel` | ≥ 2 g/L (11 mmol/L) | — | Seuil international (OMS) repris par le référentiel. La HAS ne recommande pas l’HGPO pour le diagnostic hors grossesse : la question porte sur la valeur du seuil, pas sur l’indication (voir M247-A2, bloquée). Aucun document primaire ouvert. |
 | M247-A4 | QCM | OIC-247-02-A | `conforme_referentiel` | Début rapide, hyperglycémie > 3 g/L, cétose souvent présente | — | Profil « typique » : des formes atypiques existent (la HAS demande un avis spécialisé si présentation inhabituelle). |
 | M247-A5 | Rappel | OIC-247-02-A | `conforme_referentiel` | Les maladies cardiovasculaires | — | Aucune source externe fiable retrouvée par la requête PubMed du 15.10.2026 (un résultat non pertinent a été écarté). |
-| M247-A6 | QCM | OIC-247-25-A | `conforme_referentiel` | Le resucrage par la bouche | — | — |
-| M247-A7 | Rappel | OIC-247-25-A | `conforme_referentiel` | 15 g de sucre (3 morceaux), soda ou bonbons | — | — |
+| M247-A6 | QCM | OIC-247-25-A | `verifie_source_externe` | Le resucrage par la bouche | [HAS, Commission de la transparence, avis BAQSIMI (glucagon nasal), CT-18963](https://www.has-sante.fr/upload/docs/evamed/CT-18963_BAQSIMI_PIC_INS_AvisDef_CT18963.pdf) | — |
+| M247-A7 | Rappel | OIC-247-25-A | `conforme_referentiel` | 15 g de sucre (environ 3 morceaux), soda non light ou bonbons | — | CORRIGÉ le 15.10.2026 (revue scientifique) : « soda » sans précision laissait passer un soda light, sans sucre ; « 3 morceaux » devient « environ 3 morceaux » (le nombre de morceaux pour 15 g dépend de leur taille : une fiche suisse indique 4 morceaux). Le repère de 15 g est concordant dans les fiches consultées (règle « 15-15 »). |
 | M247-A8 | QCM | OIC-247-25-A | `conforme_referentiel` | Un sulfamide hypoglycémiant | — | Formulation « source classique » choisie pour ne pas affirmer qu’aucun autre traitement ne peut contribuer à une hypoglycémie. |
 | M247-B1 | QCM | OIC-247-08-B | `verifie_source_externe` | Anti-GAD | [Thomas et al., Diabetes Care 2023 (PubMed 36802355)](https://doi.org/10.2337/dc22-2159) | — |
 | M247-B2 | Rappel | OIC-247-09-B | `verifie_source_externe` | Insulinorésistance + altération de l’insulinosécrétion | [Galicia-Garcia et al., Int J Mol Sci 2020 (PubMed 32872570)](https://doi.org/10.3390/ijms21176275) | — |
 | M247-B3 | QCM | OIC-247-29-B | `conforme_referentiel` | Du sérum salé isotonique (NaCl 0,9 %) | — | Le reste de la compétence (débit d’insuline, seuil de kaliémie) n’est volontairement pas interrogé : à recouper avant tout usage. |
+
+## Revue scientifique ciblée du 15.10.2026 (2ᵉ passe)
+
+Revue IA (Claude), indépendante de la rédaction initiale, sur les 28 questions : réponses, distracteurs,
+explications, chiffres, seuils, posologies, formulations absolues. **Ce n'est pas une validation médicale.**
+
+Limite d'accès : la politique réseau de l'environnement refuse `has-sante.fr`, `sante.gouv.fr`,
+`vaccination-info-service.fr`, `infectiologie.com`, `sfdiabete.org`. Les documents officiels complets n'ont
+pas pu être ouverts ; les passages cités viennent de moteurs de recherche, et les sources scientifiques
+de PubMed. Chaque note le précise.
+
+| Question | Constat | Décision |
+|---|---|---|
+| **M217-A5** | « Diagnostic de certitude : MNI test » surestime un test de dépistage : sensibilité 87 %, faux négatifs chez l'enfant de moins de 5 ans et la première semaine (Am Fam Physician 2023, PubMed 36689975) ; « à n'utiliser que pour le dépistage », sensibilité < 50 % chez l'enfant (Pathology 1996, PubMed 8912361). | **Corrigée** : « Quels examens confirment… ? » → « MNI test, puis sérologie EBV si besoin », explication sur les faux négatifs. |
+| **M247-A2** | Le référentiel indique l'HGPO pour une glycémie à jeun de 1,10 à 1,26 g/L ; la HAS indique que l'HGPO n'est pas recommandée pour diagnostiquer un diabète (test recommandé : glycémie veineuse à jeun). | **Bloquée** : conflit à trancher par le relecteur médical. |
+| **M247-A7** | « soda » sans précision : un soda light ne resucre pas. « 3 morceaux » dépend de la taille du morceau (4 selon une fiche suisse). | **Corrigée** : « soda non light », « environ 3 morceaux ». |
+| **M160-A2** | « sans fièvre » : formulation absolue (la dysautonomie peut perturber la thermorégulation). | **Corrigée** : « classiquement sans fièvre ». |
+| M247-A1 | Seuil ≥ 1,26 g/L à deux reprises : concordant HAS. | Confirmée (`verifie_source_externe`). |
+| M247-A3 | Seuil HGPO 2 h ≥ 2 g/L : seuil exact ; l'indication est traitée par M247-A2. | Confirmée sur le seuil (`conforme_referentiel`). |
+| M247-A6 | Pas de voie orale chez le patient inconscient ; glucagon recommandé (HAS, avis BAQSIMI, reprenant ADA/AACE/ISPAD). | Confirmée (`verifie_source_externe`). |
+| M247-A8 | Sulfamides, glinides, insuline : sources classiques d'hypoglycémie. | Confirmée sur le référentiel. |
+| M160-A3, M160-A4 | Tableau plaie × statut vaccinal (HCSP 2013), immunoglobuline 250 UI réservée à la plaie majeure ou tellurique chez le non-à-jour : concordant. Calendrier 2025 complet non ouvert. | Confirmées (`verifie_source_externe`), confirmation sur le calendrier 2025 à faire en relecture. |
+| Les 20 autres | Aucune erreur établie relevée. | Inchangées. |
 
 ## Points écartés volontairement (non transformés en questions)
 

@@ -19,6 +19,14 @@ const PUBMED_TETANOS = [
   },
 ];
 
+const TABLEAU_PLAIE = [
+  {
+    reference:
+      'Avis du HCSP (mai 2013), tableau « Conduite à tenir immédiate en cas de plaie », repris par Vaccination Info Service et mesvaccins.net : plaie mineure propre, non à jour → une dose de vaccin ; plaie majeure ou tellurique, non à jour → immunoglobuline tétanique humaine 250 UI dans un bras et vaccin dans l’autre ; « à jour » = dose depuis moins de 20 ans avant 65 ans, moins de 10 ans après (extraits restitués par moteur de recherche ; documents officiels inaccessibles depuis l’environnement de travail)',
+    lien: 'https://vaccination-info-service.fr/content/download/1343/14681/version/1/file/TABLEAU_tetanos_Conduite+a%CC%80+tenir.pdf',
+  },
+];
+
 export const QUESTIONS_IC_160: QuestionMemo[] = [
   {
     id: 'M160-A1',
@@ -49,17 +57,17 @@ export const QUESTIONS_IC_160: QuestionMemo[] = [
     objectifId: 'OIC-160-04-A',
     type: 'rappel',
     question: 'Comment évolue typiquement un tétanos généralisé ?',
-    reponse: 'Contraction généralisée d’évolution descendante, avec dysautonomie, sans fièvre.',
+    reponse: 'Contraction généralisée d’évolution descendante, avec dysautonomie, classiquement sans fièvre.',
     explication:
-      'Le trismus ouvre le tableau, puis la contraction gagne tout le corps de haut en bas. La dysautonomie est fréquente ; la fièvre, absente.',
+      'Le trismus ouvre le tableau, puis la contraction gagne tout le corps de haut en bas. La dysautonomie est fréquente ; la fièvre est classiquement absente.',
     verification: {
       statut: 'conforme_referentiel',
       extraitReferentiel:
         'Le tétanos évolue ensuite le plus souvent vers une forme de contraction généralisée, d\'évolution descendante, avec des signes de dysautonomie, sans fièvre.',
       sourcesExternes: [],
-      reponseCorrecte: 'Contraction généralisée, descendante, dysautonomie, sans fièvre',
+      reponseCorrecte: 'Contraction généralisée, descendante, dysautonomie, classiquement sans fièvre',
       justification: 'Recopie le texte officiel ; aucune extrapolation clinique.',
-      notes: 'Pas de source externe retrouvée dans la recherche du 15.10.2026 (requête PubMed sans résultat) : à recouper lors de la relecture médicale.',
+      notes: 'Formulation absolue « sans fièvre » adoucie en « classiquement » le 15.10.2026 (la dysautonomie peut s’accompagner de troubles de la thermorégulation). Pas de source externe retrouvée dans la recherche du 15.10.2026 (requête PubMed sans résultat) : à recouper lors de la relecture médicale.',
       verifiePar: PAR,
       dateVerification: DATE,
     },
@@ -81,15 +89,15 @@ export const QUESTIONS_IC_160: QuestionMemo[] = [
     explication:
       'Plaie majeure et sujet non à jour : immunoglobulines tétaniques humaines 250 UI dans un bras, vaccin dans l’autre, puis mise à jour du programme vaccinal.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'verifie_source_externe',
       extraitReferentiel:
         'Dans un bras, immunoglobuline tétanique humaine 250 UI. Dans l’autre bras, administration d’une dose de vaccin contenant la valence tétanique.',
-      sourcesExternes: [],
+      sourcesExternes: TABLEAU_PLAIE,
       reponseCorrecte: 'Immunoglobulines tétaniques 250 UI dans un bras, vaccin dans l’autre',
       justification:
         'Tableau de conduite à tenir du référentiel (plaie majeure × non à jour). Vaccin seul : conduite de la plaie mineure. Immunoglobulines seules : omettent la vaccination. Aucune injection : conduite du sujet à jour.',
       notes:
-        'Recoupement partiel : la recherche web du 15.10.2026 a restitué le même tableau (vaccination-info-service.fr, mesvaccins.net) mais le document n’a pas pu être ouvert. À confronter au calendrier vaccinal en vigueur lors de la relecture médicale.',
+        'Concordant entre le référentiel et l’avis HCSP 2013, toujours cité comme référence par les sources récentes consultées. Le calendrier vaccinal 2025 complet n’a pas pu être ouvert (domaine bloqué) : à confirmer sur le document officiel lors de la relecture médicale.',
       verifiePar: PAR,
       dateVerification: DATE,
     },
@@ -111,13 +119,13 @@ export const QUESTIONS_IC_160: QuestionMemo[] = [
     explication:
       'Plaie mineure et propre, sujet non à jour : une dose de vaccin contenant la valence tétanique suffit, sans immunoglobulines. Les immunoglobulines sont réservées aux plaies majeures.',
     verification: {
-      statut: 'conforme_referentiel',
+      statut: 'verifie_source_externe',
       extraitReferentiel: 'Administration immédiate d’une dose de vaccin contenant la valence tétanique.',
-      sourcesExternes: [],
+      sourcesExternes: TABLEAU_PLAIE,
       reponseCorrecte: 'Une dose de vaccin contenant la valence tétanique',
       justification:
         'Tableau du référentiel (plaie mineure et propre × non à jour). Immunoglobulines : réservées à la plaie majeure ou susceptible d’être tellurique. Aucune injection : conduite du sujet à jour.',
-      notes: 'Même réserve que M160-A3 (tableau non ouvert à la source).',
+      notes: 'Même réserve que M160-A3 (calendrier vaccinal 2025 complet non ouvert).',
       verifiePar: PAR,
       dateVerification: DATE,
     },

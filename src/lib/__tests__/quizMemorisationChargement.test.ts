@@ -33,7 +33,10 @@ describe('chargerQuestionsMemorisation — drapeau du pilote', () => {
     expect(pilote()).toBe(true);
     expect((await chargerQuestionsMemorisation('IC-160')).length).toBe(8);
     expect((await chargerQuestionsMemorisation('ic-217')).length).toBe(9);
-    expect((await chargerQuestionsMemorisation('IC-0247')).length).toBe(11);
+    // IC-247 : 11 questions dont 1 bloquée (M247-A2), jamais servie.
+    const ic247 = await chargerQuestionsMemorisation('IC-0247');
+    expect(ic247.length).toBe(10);
+    expect(ic247.map((q) => q.id)).not.toContain('M247-A2');
     expect(donnees.charge).toHaveBeenCalled();
   });
 

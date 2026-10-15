@@ -18,12 +18,16 @@
  *   citée dans `sourcesExternes` ;
  * - `valide_expert` : relue et validée par un médecin. SEUL statut affichable en
  *   production ; aucune question n'a ce statut à ce jour.
+ * - `bloque` : un point scientifique n'est pas tranché (conflit de sources,
+ *   formulation à reprendre). Jamais affichée, même en pilote ; la raison est
+ *   dans `motifBlocage`.
  */
 export type StatutVerification =
   | 'brouillon'
   | 'conforme_referentiel'
   | 'verifie_source_externe'
-  | 'valide_expert';
+  | 'valide_expert'
+  | 'bloque';
 
 export interface SourceExterne {
   reference: string;
@@ -44,6 +48,8 @@ export interface VerificationQuestion {
   justification: string;
   /** Limites connues, divergences entre sources, points à faire relire. */
   notes?: string;
+  /** Obligatoire si `statut === 'bloque'` : ce qui empêche l'affichage. */
+  motifBlocage?: string;
   verifiePar: string;
   dateVerification: string;
 }
