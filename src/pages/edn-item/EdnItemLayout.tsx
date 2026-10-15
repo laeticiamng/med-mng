@@ -180,7 +180,8 @@ export default function EdnItemLayout() {
             teinte que --accent, luminosité abaissée) au lieu de --accent, qui ne donnait que 2,59:1
             au blanc. Thème sombre : --accent-text = --accent, rendu inchangé. Contrastes calculés
             (WCAG 2.x, pire cas sur tout le dégradé) : titre et boutons 5,59:1, sous-titre 4,82:1,
-            pastille du numéro 7,19:1, bouton au survol 7,19:1 (clair) ; ≥ 6,27:1 (sombre). */}
+            pastille du numéro 7,19:1, bouton au survol 7,19:1 (clair) ; titre 7,25:1, sous-titre
+            6,27:1, pastille et survol 5,05:1 (sombre, voile inchangé). */}
         <header className={`bg-gradient-to-r from-[hsl(var(--accent-text))] to-primary text-primary-foreground ${isMobile ? 'p-4' : 'p-6'}`}>
           <div className="container mx-auto">
             <Button

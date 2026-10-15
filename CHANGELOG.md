@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 - Paroles chantées : les sigles non prononçables sont épelés dans la version envoyée au moteur (« HTA » → « H-T-A », « AVC », « IRM », « BPCO », « ECG », « OAP », « IDM » ; « HbA1c » → « H-B-A-un-C »). Intacts : codes d'item (`IC-66`, `OIC-001-01-A`), sigles lus comme un mot (SAMU, SIDA, AINS, GEU…), mots et lignes en capitales d'insistance, balises `[Refrain]`. Logique de Memo MNG (`phonetiqueChantee.ts`), partie « sigles » seule, adaptée au français médical (PAS, TV, CV épelés). Modèle, styles, poids, durée et catalogue v2 (désactivé) inchangés. Les paroles affichées gardent « HTA ».
 ### Corrigé
 - Barre de navigation mobile basse : vrais liens avec `aria-current` (et non `role="tablist"`/`role="tab"` sur des boutons qui naviguent) ; présente aussi sur `/edn-complete` et les fiches d'item ; le mini-lecteur se pose au-dessus d'elle (il la recouvrait tant qu'un titre jouait) ; marge basse réservée une seule fois pour la barre et le mini-lecteur (le pied de page restait sous la barre).
-- En-tête des fiches d'item : texte blanc sur dégradé vert-bleu à 2,59:1 (départ `--accent`) → départ `--accent-text`, 4,82:1 au pire en thème clair ; thème sombre inchangé.
+- En-tête des fiches d'item : texte blanc sur dégradé vert-bleu à 2,59:1 (départ `--accent`) → départ `--accent-text`, 4,82:1 au pire en thème clair ; thème sombre inchangé (5,05:1 au pire).
 ### Tests
 - `parolesChanteesSigles.test.ts` (60 cas : sigles médicaux, codes d'item, sigles lus comme un mot, lignes criées, balises, IV, idempotence, requête Suno), `barreBasseMobile.test.tsx` (15 cas). `parolesChantees.test.ts` : trois attentes mises à jour (« IM », « PAS », « OMA, HTA » désormais épelés).
 ### Déploiement
