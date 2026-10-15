@@ -96,10 +96,13 @@ describe('données du pilote de mémorisation — structure et traçabilité', (
   it('bloque toute question dont le texte affiché dépasse le référentiel sans source externe lue', () => {
     const idsBloques = toutes.filter((q) => q.verification.statut === 'bloque').map((q) => q.id).sort();
     expect(idsBloques).toEqual(['M160-A2', 'M217-A4', 'M217-B3', 'M247-A2', 'M247-A7', 'M247-B3']);
-    // Aucune question non bloquée ne peut dépendre d'une correction issue d'une source non lue (« Revue Codex »).
-    for (const q of toutes.filter((x) => x.verification.statut !== 'bloque')) {
-      expect(q.verification.notes ?? '', q.id).not.toMatch(/Revue Codex/);
-    }
+    // Aucune question non bloquée ne peut dépendre d'une correction issue d'une source non lue.
+    // Les notes de revue (« Revue Codex » / « Relecture Codex ») ne sont admises que si la correction
+    // a été ramenée à ce que couvrent les sources lues : la liste ci-dessous est exhaustive et relue à la main.
+    const avecNoteDeRevue = toutes
+      .filter((x) => x.verification.statut !== 'bloque' && /Codex/.test(x.verification.notes ?? ''))
+      .map((x) => x.id);
+    expect(avecNoteDeRevue).toEqual(['M217-A5']);
   });
 
   it('documente la raison de chaque blocage', () => {
@@ -122,8 +125,8 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(q.verification.reponseCorrecte).toBe('Une sérologie EBV');
     expect(q.question).toMatch(/hétérophile/);
     expect(q.explication).toMatch(/non spécifiques de l’EBV/);
-    expect(q.explication).toMatch(/IgM anti-VCA positives et des anti-EBNA négatifs/);
-    expect(q.explication).not.toMatch(/IgG anti-VCA/);
+    // Aucun profil sérologique ni délai non couverts par les sources PubMed lues.
+    expect(q.explication).not.toMatch(/EBNA|IgG|IgM|mois/);
     expect(q.verification.reponseCorrecte).not.toMatch(/MNI/);
     expect(q.explication).toMatch(/ne confirme pas/);
     expect(q.explication).toMatch(/faux négatifs/);

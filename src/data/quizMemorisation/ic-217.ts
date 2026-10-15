@@ -24,7 +24,7 @@ const SOURCES_MNI_TEST = [
   },
   {
     reference:
-      'CDC, « Laboratory Testing for Epstein-Barr Virus (EBV) » (2024) : le Monospot (anticorps hétérophiles) donne des faux positifs et des faux négatifs, souvent négatif chez le jeune enfant ; une primo-infection se définit par des IgM anti-VCA sans anticorps anti-EBNA (extrait restitué par moteur de recherche, page non ouverte)',
+      'CDC, « Laboratory Testing for Epstein-Barr Virus (EBV) » (2024) : le Monospot (anticorps hétérophiles) donne des faux positifs et des faux négatifs, souvent négatif chez le jeune enfant (extrait restitué par moteur de recherche, page non ouverte)',
     lien: 'https://www.cdc.gov/epstein-barr/php/laboratories/',
   },
   {
@@ -161,7 +161,7 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
     ],
     indexCorrect: 3,
     explication:
-      'Anticorps hétérophiles non spécifiques de l’EBV : le MNI test ne confirme pas (faux négatifs chez l’enfant). Primo-infection : des IgM anti-VCA positives et des anti-EBNA négatifs (tardifs, 2 à 4 mois).',
+      'Anticorps hétérophiles non spécifiques de l’EBV : le MNI test ne confirme pas (faux négatifs chez le jeune enfant et la première semaine). La sérologie EBV spécifique est plus sensible et plus spécifique.',
     verification: {
       statut: 'verifie_source_externe',
       extraitReferentiel: 'MNI test ± sérologies EBV',
@@ -170,7 +170,7 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
       justification:
         'Le référentiel associe MNI test et sérologies EBV. Les sources PubMed montrent que le test hétérophile (MNI test) est un test d’orientation (sensibilité 87 %, spécificité 91 %, faux négatifs chez le jeune enfant et la première semaine) et que la sérologie EBV (VCA) est plus sensible et plus spécifique. Les trois distracteurs sont des examens invasifs non indiqués pour une suspicion de MNI.',
       notes:
-        'Précisée après relecture : profil de primo-infection explicité (IgM anti-VCA positives, anti-EBNA négatifs en phase aiguë), d’après l’extrait CDC restitué par moteur de recherche (page non ouverte) ; la phrase sur les IgG anti-VCA, qui relevait de connaissances générales non sourcées, a été retirée. Précisée une 3ᵉ fois (clôture technique) : la question distingue test hétérophile (non spécifique) et sérologie EBV spécifique, et vise le cas typique du MNI test négatif chez l’enfant (source CDC ajoutée). CORRIGÉ deux fois le 15.10.2026 : (1) revue scientifique — la version initiale reprenait « diagnostic de certitude : MNI test », formulation du référentiel qui surestime un test de dépistage ; (2) revue Codex — « MNI test » restait dans la réponse « confirmatoire » : la question porte désormais sur la sérologie EBV après un MNI test négatif ou douteux. Le point « PCR EBV sans indication chez l’immunocompétent » n’est toujours pas utilisé (non retrouvé en source externe).',
+        'Relecture Codex (a00f3fe) : le profil sérologique (IgM anti-VCA positives, anti-EBNA négatifs, délai de 2 à 4 mois) et la phrase sur les IgG anti-VCA ont été retirés, faute de source lue (page CDC non ouverte) ; l’explication ne contient plus que ce que couvrent les sources PubMed 36689975 et 8912361. Précisée une 3ᵉ fois (clôture technique) : la question distingue test hétérophile (non spécifique) et sérologie EBV spécifique, et vise le cas typique du MNI test négatif chez l’enfant (source CDC ajoutée). CORRIGÉ deux fois le 15.10.2026 : (1) revue scientifique — la version initiale reprenait « diagnostic de certitude : MNI test », formulation du référentiel qui surestime un test de dépistage ; (2) revue Codex — « MNI test » restait dans la réponse « confirmatoire » : la question porte désormais sur la sérologie EBV après un MNI test négatif ou douteux. Le point « PCR EBV sans indication chez l’immunocompétent » n’est toujours pas utilisé (non retrouvé en source externe).',
       verifiePar: PAR,
       dateVerification: DATE,
     },
