@@ -607,6 +607,9 @@ html.high-contrast {
   --card-foreground: 0 0% 100%;
   --primary: 60 100% 50%;
   --primary-foreground: 0 0% 0%;
+  /* Fond noir et texte noir sur le dégradé d'en-tête d'item : le vert foncé du thème clair
+     (24 %) ne donnait que 3,47:1 dans les deux cas ; 50 % donne 13,4:1. */
+  --accent-text: 160 84% 50%;
   --border: 0 0% 30%;
   --input: 0 0% 10%;
   --ring: 60 100% 50%;
