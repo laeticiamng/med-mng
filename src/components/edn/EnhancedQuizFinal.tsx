@@ -9,7 +9,7 @@ import { BookOpen, RotateCcw, Settings, Trophy, XCircle } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { estQuestionQuizGenerique } from '@/utils/tableauTransformations';
 import { QuizFinal } from './QuizFinal';
-import { OicQuizGenerator } from './quiz/OicQuizGenerator';
+import { QuizItemModes } from './quiz/QuizItemModes';
 import { QuizConfig, QuizSelector } from './quiz/QuizSelector';
 
 interface EnhancedQuizFinalProps {
@@ -160,7 +160,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     if (totalAvailableQuestions === 0) {
       return (
         <div className="space-y-6">
-          <OicQuizGenerator itemCode={itemCode} itemTitle={itemTitle} />
+          <QuizItemModes itemCode={itemCode} itemTitle={itemTitle} />
         </div>
       );
     }

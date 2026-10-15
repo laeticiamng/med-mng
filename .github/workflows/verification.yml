@@ -59,3 +59,8 @@ jobs:
 
       - name: Build de production
         run: npx vite build
+
+      # Pilote « Mémoriser » (docs/quiz-memorisation) : le drapeau doit rester éteint et
+      # aucune question (dont celles des items Premium) ne doit se trouver dans le build.
+      - name: Garde-fou du pilote « Mémoriser »
+        run: node scripts/quiz-memorisation/verifier-bundle.mjs dist

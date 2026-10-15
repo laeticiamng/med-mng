@@ -1,4 +1,5 @@
 import { BdGallery } from '@/components/edn/BdGallery';
+import { LienQuizItem } from '@/components/edn/quiz/LienQuizItem';
 import { useFicheItemEdn } from './EdnItemContext';
 import { EdnItemSeo } from './EdnItemSeo';
 
@@ -8,7 +9,7 @@ import { EdnItemSeo } from './EdnItemSeo';
  * chacune dessinée d'après sa description (illustrer-case).
  */
 export default function EdnItemPlanches() {
-  const { item, contenu } = useFicheItemEdn();
+  const { item, contenu, slugUrl } = useFicheItemEdn();
 
   return (
     <>
@@ -20,6 +21,7 @@ export default function EdnItemPlanches() {
         tableauRangB={contenu.tableau_rang_b}
         bdPanels={contenu.bd_panels}
       />
+      <LienQuizItem itemCode={item.item_code} slugUrl={slugUrl} accroche="Vous venez de parcourir ces planches : fixez l’essentiel en quelques questions." />
     </>
   );
 }

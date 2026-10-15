@@ -189,6 +189,11 @@ const GABARITS_QUIZ_GENERIQUE = [
   /^Quelle est la compétence principale de rang [AB] pour l'item \d+\s*\?$/,
   /^Dans le contexte de l'item \d+, quelle approche thérapeutique est privilégiée\s*\?$/,
   /^Quel est l'objectif principal de rang [AB] pour l'item \d+\s*\?$/,
+  // Les 734 questions de `edn_items_immersive.quiz_questions` (2 par item), même nature :
+  // « Compétence générique item N » en distracteur. Aucun écran ne les lit ; on les
+  // déclare ici pour qu'un futur consommateur ne les affiche jamais.
+  /^Quelle est la compétence fondamentale principale de l'item \d+\s*\?$/,
+  /^En niveau avancé \(Rang B\), que devez-vous maîtriser pour l'item \d+\s*\?$/,
 ];
 
 export const estQuestionQuizGenerique = (question?: string | null): boolean => {
