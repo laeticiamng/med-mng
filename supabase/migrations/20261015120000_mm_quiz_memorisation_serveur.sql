@@ -18,8 +18,12 @@
 --     ne sont jamais servis.
 --  3. « valide_expert » ne s'obtient QUE par mm_quiz_memorisation_enregistrer_validation()
 --     (administrateur ou service_role), qui exige l'identité et la qualité du relecteur, les
---     sources vérifiées, et le hash EXACT du contenu relu. Un UPDATE direct est refusé par
---     trigger. Toute modification du contenu d'une question validée la repasse en « bloque ».
+--     sources vérifiées, et le hash EXACT du contenu relu. Le trigger n'accepte la promotion que
+--     (a) exécutée avec les droits du PROPRIÉTAIRE de cette fonction (current_user, non
+--     falsifiable par une session service_role : pas de paramètre de session) ET (b) si le
+--     registre contient une décision « valide » portant le hash courant. Le registre n'est
+--     inscriptible que par cette fonction (aucun INSERT direct pour service_role).
+--     Toute modification du contenu d'une question validée la repasse en « bloque ».
 --  4. Registre de validation : table append-only (ni UPDATE ni DELETE).
 --  5. Aucune justification ni source interne n'est renvoyée par la RPC.
 --
@@ -87,15 +91,23 @@ BEGIN
   );
   NEW.updated_at := now();
 
-  -- « valide_expert » uniquement par la fonction d'enregistrement d'une validation.
-  IF NEW.statut = 'valide_expert'
-     AND current_setting('mm.validation_en_cours', TRUE) IS DISTINCT FROM 'on' THEN
+  -- « valide_expert » : seulement par la fonction d'enregistrement d'une validation. Contrôle
+  -- structurel, sans paramètre de session falsifiable :
+  --  (a) le trigger s'exécute avec les droits du propriétaire de la fonction (SECURITY DEFINER) ;
+  --  (b) le registre contient une décision « valide » pour ce hash exact.
+  IF NEW.statut = 'valide_expert' THEN
     IF TG_OP = 'INSERT' OR OLD.statut IS DISTINCT FROM 'valide_expert' THEN
-      RAISE EXCEPTION 'valide_expert ne peut être attribué que par mm_quiz_memorisation_enregistrer_validation()'
-        USING ERRCODE = '42501';
-    END IF;
-    -- Déjà validée : toute modification du contenu annule la validation.
-    IF NEW.contenu_hash IS DISTINCT FROM v_ancien THEN
+      IF current_user IS DISTINCT FROM (
+           SELECT pg_get_userbyid(p.proowner) FROM pg_proc p
+            WHERE p.oid = 'public.mm_quiz_memorisation_enregistrer_validation(text, text, text, text, text, text, text)'::regprocedure)
+         OR NOT EXISTS (
+           SELECT 1 FROM public.mm_quiz_memorisation_validations v
+            WHERE v.question_id = NEW.id AND v.decision = 'valide' AND v.contenu_hash = NEW.contenu_hash) THEN
+        RAISE EXCEPTION 'valide_expert ne peut être attribué que par mm_quiz_memorisation_enregistrer_validation()'
+          USING ERRCODE = '42501';
+      END IF;
+    ELSIF NEW.contenu_hash IS DISTINCT FROM v_ancien THEN
+      -- Déjà validée : toute modification du contenu annule la validation.
       NEW.statut := 'bloque';
       NEW.tracabilite := jsonb_set(coalesce(NEW.tracabilite, '{}'::JSONB), '{motifBlocage}',
         to_jsonb('Contenu modifié après validation : nouvelle relecture médicale requise.'::TEXT));
@@ -157,7 +169,8 @@ CREATE INDEX IF NOT EXISTS mm_qm_validations_question_idx
 
 ALTER TABLE public.mm_quiz_memorisation_validations ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.mm_quiz_memorisation_validations FROM PUBLIC, anon, authenticated;
-GRANT SELECT, INSERT ON public.mm_quiz_memorisation_validations TO service_role;
+-- Lecture seule : seule mm_quiz_memorisation_enregistrer_validation() (propriétaire) y écrit.
+GRANT SELECT ON public.mm_quiz_memorisation_validations TO service_role;
 
 CREATE OR REPLACE FUNCTION public.mm_qm_validations_append_only()
 RETURNS TRIGGER
@@ -212,16 +225,17 @@ BEGIN
   VALUES
     (p_question_id, v_q.contenu_hash, p_decision, p_relecteur_nom, p_relecteur_qualite, p_sources_verifiees, p_commentaire, auth.uid());
 
-  PERFORM set_config('mm.validation_en_cours', 'on', TRUE);
   IF p_decision = 'valide' THEN
     UPDATE public.mm_quiz_memorisation_questions SET statut = 'valide_expert' WHERE id = p_question_id;
-  ELSIF p_decision = 'refuse' THEN
+  ELSE
+    -- « a_corriger » et « refuse » : la question cesse d'être servie, même si elle était validée.
     UPDATE public.mm_quiz_memorisation_questions
        SET statut = 'bloque',
-           tracabilite = jsonb_set(tracabilite, '{motifBlocage}', to_jsonb('Refusée par le relecteur : ' || coalesce(p_commentaire, 'voir le registre')))
+           tracabilite = jsonb_set(tracabilite, '{motifBlocage}', to_jsonb(
+             CASE WHEN p_decision = 'refuse' THEN 'Refusée par le relecteur : ' ELSE 'À corriger selon le relecteur : ' END
+             || coalesce(nullif(btrim(p_commentaire), ''), 'voir le registre')))
      WHERE id = p_question_id;
   END IF;
-  PERFORM set_config('mm.validation_en_cours', 'off', TRUE);
 
   RETURN jsonb_build_object('question_id', p_question_id, 'decision', p_decision,
                             'statut', (SELECT statut FROM public.mm_quiz_memorisation_questions WHERE id = p_question_id));

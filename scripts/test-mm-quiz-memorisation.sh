@@ -117,6 +117,8 @@ verifie "pilote : administrateur accède" "false" "$("${P[@]}" -c "select (('$R'
 
 echo "# valide_expert : uniquement par le registre de validation"
 verifie "UPDATE direct vers valide_expert refusé (même service_role)" "ERREUR:valide_expert ne peut" "$(sous service_role '' service_role "update mm_quiz_memorisation_questions set statut='valide_expert' where id='M217-A1';")"
+ verifie "GUC forgé (set_config) puis UPDATE direct : refusé" "ERREUR:valide_expert ne peut" "$(sous service_role '' service_role "select set_config('mm.validation_en_cours','on',true); update mm_quiz_memorisation_questions set statut='valide_expert' where id='M217-A1';")"
+verifie "registre : INSERT direct refusé pour service_role" "ERREUR:permission denied" "$(sous service_role '' service_role "insert into mm_quiz_memorisation_validations (question_id,contenu_hash,decision,relecteur_nom,relecteur_qualite,sources_verifiees) select id, contenu_hash, 'valide', 'Faux Relecteur', 'médecin', 'faux' from mm_quiz_memorisation_questions where id='M217-A1';")"
 verifie "INSERT direct valide_expert refusé" "ERREUR:valide_expert ne peut" "$(sous service_role '' service_role "insert into mm_quiz_memorisation_questions (id,item_code,rang,objectif_id,type,question,reponse,explication,statut) values ('M9-A1','IC-9','A','OIC-009-01-A','rappel','q','r','e','valide_expert');")"
 H="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M217-A1'")"
 V() { sous "$1" "$2" "$3" "select mm_quiz_memorisation_enregistrer_validation('M217-A1','valide','$4','$5','$6','ok','$7') ->> 'statut';"; }
@@ -133,6 +135,14 @@ verifie "mode par défaut : la question validée est servie" "M217-A1" "$("${P[@
 verifie "registre : UPDATE refusé (service_role n'a pas le droit)" "ERREUR:permission denied" "$(sous service_role '' service_role "update mm_quiz_memorisation_validations set commentaire='x';")"
 verifie "registre : DELETE refusé (service_role n'a pas le droit)" "ERREUR:permission denied" "$(sous service_role '' service_role "delete from mm_quiz_memorisation_validations;")"
 verifie "registre : UPDATE refusé même pour le propriétaire (trigger)" "ERREUR:en ajout seul" "$("${P[@]}" -c "update mm_quiz_memorisation_validations set commentaire='x';" 2>&1 | grep -o 'en ajout seul' | sed 's/^/ERREUR:/' | head -1)"
+echo "# Décision « a_corriger » sur une question validée (M247-A1, item d'essai)"
+H2="$("${P[@]}" -c "select contenu_hash from mm_quiz_memorisation_questions where id='M247-A1'")"
+sous service_role '' service_role "select mm_quiz_memorisation_enregistrer_validation('M247-A1','valide','Dr Test','médecin','HAS 2025','','$H2');" >/dev/null
+verifie "M247-A1 validée puis servie (mode par défaut)" "1" "$(nb "$(rpc anon '' anon 'IC-247')")"
+verifie "a_corriger : la question validée repasse en bloque" "bloque" "$(sous service_role '' service_role "select mm_quiz_memorisation_enregistrer_validation('M247-A1','a_corriger','Dr Test','médecin','HAS 2025','Reformuler','$H2') ->> 'statut';")"
+verifie "a_corriger : n'est plus servie" "0" "$(nb "$(rpc anon '' anon 'IC-247')")"
+verifie "a_corriger : motif écrit" "À corriger selon le relecteur : Reformuler" "$("${P[@]}" -c "select tracabilite->>'motifBlocage' from mm_quiz_memorisation_questions where id='M247-A1'")"
+verifie "registre : 2 décisions pour M247-A1 (historique conservé)" "2" "$("${P[@]}" -c "select count(*) from mm_quiz_memorisation_validations where question_id='M247-A1'")"
 echo "# Modification du contenu d'une question validée"
 "${P[@]}" -c "update mm_quiz_memorisation_questions set explication = 'Explication retouchée' where id='M217-A1'" >/dev/null
 verifie "contenu modifié : validation annulée (bloquée)" "bloque" "$("${P[@]}" -c "select statut from mm_quiz_memorisation_questions where id='M217-A1'")"

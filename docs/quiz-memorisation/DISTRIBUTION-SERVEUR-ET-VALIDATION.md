@@ -20,10 +20,11 @@ drapeaux sont éteints. Rien de ce qui suit n'attribue `valide_expert`.
 3. **Droits Gratuit/Premium côté serveur** : visiteur ou compte gratuit sur un item Premium, ou abonnement échu → verrouillé ; abonné, administrateur, item d'essai → servi (Postgres réel).
 4. **Statuts servis fixés côté serveur** : par défaut `valide_expert` seul. `mm_quiz_memorisation_config.pilote = true` (service_role) ajoute `conforme_referentiel` et `verifie_source_externe`, pour une préproduction. `bloque` et `brouillon` ne sont **jamais** servis.
 5. **Aucune donnée interne renvoyée** : ni extrait du référentiel, ni sources, ni justification, ni motif de blocage.
-6. **`valide_expert` uniquement par le registre** : un `UPDATE` ou un `INSERT` direct est refusé par trigger, y compris pour `service_role` ; le semis n'attribue jamais ce statut et refuse de l'exporter.
+6. **`valide_expert` uniquement par le registre** : un `UPDATE` ou un `INSERT` direct est refusé par trigger, y compris pour `service_role`. Le contrôle est structurel, sans paramètre de session falsifiable : la promotion n'est acceptée que si elle s'exécute avec les droits du propriétaire de la fonction d'enregistrement **et** si le registre contient une décision `valide` pour le hash courant ; `service_role` n'a qu'un droit de lecture sur le registre (testé, y compris un `set_config` forgé). Le semis n'attribue jamais ce statut et refuse de l'exporter.
 7. **Validation liée au contenu lu** : l'enregistrement exige le hash exact du contenu (calculé par le serveur), l'identité et la qualité du relecteur, les sources vérifiées ; une question `bloque` ne peut pas être validée ; une question validée dont le contenu change repasse en `bloque`.
-8. **Registre en ajout seul** : ni `UPDATE` ni `DELETE`, même pour le propriétaire (trigger).
-9. **Seuls un administrateur ou le service_role** peuvent enregistrer une validation ; `anon` n'a pas le droit d'exécution.
+8. **Décisions `a_corriger` et `refuse`** : la question passe en `bloque` (motif écrit) et cesse d'être servie, même si elle était validée ; l'historique des décisions est conservé.
+9. **Registre en ajout seul** : ni `UPDATE` ni `DELETE`, même pour le propriétaire (trigger).
+10. **Seuls un administrateur ou le service_role** peuvent enregistrer une validation ; `anon` n'a pas le droit d'exécution.
 
 ## Registre de validation médicale
 
@@ -55,11 +56,11 @@ Pour une question bloquée : lever d'abord le blocage (lire la source, la citer,
 
 ## Tests
 
-- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 50 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
+- `bash scripts/test-mm-quiz-memorisation.sh` (Postgres réel ; `SEMIS=…` applique en plus le semis des 28 questions) : 57 contrôles dont droits, statuts, fermeture de la table, registre. Exécuté en CI.
 - `src/lib/__tests__/quizMemorisationServeur.test.ts`, `QuizItemModes.test.tsx`, `export.test.ts`, `test/quizMemorisationBundle.test.ts`.
 
 ## Limites connues
 
 - Les doublures de `mm_item_gratuit` / `mm_a_acces_premium` du test SQL reprennent leur logique de production ; la migration n'a pas été appliquée à la base Supabase réelle ni testée contre elle.
-- Le trigger protège contre les écritures ordinaires ; un superutilisateur de la base peut toujours l'altérer.
+- Le trigger protège contre les écritures ordinaires, y compris celles de `service_role` ; un superutilisateur ou le propriétaire de la fonction peut toujours altérer la base.
 - La progression « notions à revoir » reste locale à l'appareil.
