@@ -74,7 +74,8 @@ CREATE INDEX IF NOT EXISTS mm_qm_questions_item_idx
 
 ALTER TABLE public.mm_quiz_memorisation_questions ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.mm_quiz_memorisation_questions FROM PUBLIC, anon, authenticated;
-GRANT ALL ON public.mm_quiz_memorisation_questions TO service_role;
+-- Pas de DELETE ni TRUNCATE : supprimer puis réinsérer une question bloquée contournerait la levée explicite.
+GRANT SELECT, INSERT, UPDATE ON public.mm_quiz_memorisation_questions TO service_role;
 
 -- Hash du contenu AFFICHÉ (ce que le relecteur lit), calculé côté serveur.
 CREATE OR REPLACE FUNCTION public.mm_qm_calculer_hash()
