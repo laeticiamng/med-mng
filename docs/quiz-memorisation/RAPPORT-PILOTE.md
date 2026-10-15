@@ -82,8 +82,7 @@ UI existants, `useFicheItemEdn`, `cheminItemEdn`. Non repris volontairement : po
 | IC-160 Tétanos | **peu de compétences** (Premium) | 4 (3 A, 1 B) | 8 (6 A, 2 B) |
 
 Statuts après la revue scientifique du 15.10.2026 (2ᵉ passe) : 12 `verifie_source_externe`, 15 `conforme_referentiel`,
-1 `bloque` (M247-A2, jamais affichée), **0 `valide_expert`**. Corrections : M217-A5, M247-A7, M160-A2 (détail dans le
-registre).
+1 `bloque` (M247-A2, jamais affichée), **0 `valide_expert`**. Corrections : M217-A5, M247-A7, M160-A2, précisées après la revue Codex (détail dans le registre).
 
 ### Activation (aucune en production)
 
@@ -101,6 +100,7 @@ en cours de relecture médicale ». Hors pilote, seul `valide_expert` serait aff
 | `vite build` sans drapeau | OK ; **aucune question dans le bundle** : garde-fou `scripts/quiz-memorisation/verifier-bundle.mjs` vert |
 | `vite build` avec drapeau | OK ; le garde-fou **échoue** comme attendu (questions détectées) |
 | CI | nouvelle étape « Garde-fou du pilote « Mémoriser » » après le build de production : échoue si le drapeau est actif ou si une question est dans `dist` |
+| `npm run build` (donc le Dockerfile de production) | enchaîne le même garde-fou : sans drapeau → OK ; avec drapeau → échec (vérifié) |
 | Extraits du référentiel | 31/31 retrouvés mot pour mot dans `oic_competences` |
 | Mobile (Chromium, 375 × 667, tactile) | aucun débordement horizontal, cibles ≥ 44 px, 0 erreur JS, parcours complet accueil → QCM → rappel → bilan |
 
@@ -146,8 +146,8 @@ d'essai ou abonnement.
 
 1. Relecture par un médecin des 27 questions affichables en pilote, et décision sur M247-A2 (bloquée).
 2. Confirmation de M160-A3/A4 sur le calendrier vaccinal 2025 complet, et de M247-A1 sur le document HAS complet.
-3. Build de préproduction séparé avec `VITE_QUIZ_MEMORISATION_PILOTE=true`, accès restreint aux testeurs (les
-   questions Premium y sont lisibles dans le JavaScript).
+3. Build de préproduction séparé : `VITE_QUIZ_MEMORISATION_PILOTE=true npx vite build` (jamais `npm run build`, qui
+   refuse le drapeau), accès restreint aux testeurs (les questions Premium y sont lisibles dans le JavaScript).
 4. Production : drapeau absent (le garde-fou de CI l'impose) ; seules des questions `valide_expert` servies par une
    RPC serveur pourront y être affichées.
 

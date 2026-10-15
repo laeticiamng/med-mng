@@ -4,12 +4,15 @@
  *
  * Échoue si :
  *  - le drapeau VITE_QUIZ_MEMORISATION_PILOTE vaut « true » dans l'environnement du
- *    build ou dans un fichier .env.production* ;
+ *    build ou dans un fichier .env que Vite charge en mode production (.env, .env.local,
+ *    .env.production, .env.production.local) ;
  *  - un fichier JavaScript du build contient une question du pilote (identifiant
  *    M<item>-<A|B><n>, ou un champ de traçabilité). Les questions des items Premium
  *    ne doivent jamais voyager dans un bundle public.
  *
  * Usage : node scripts/quiz-memorisation/verifier-bundle.mjs dist
+ * Appelé par « npm run build » (donc par le Dockerfile de production) et par la CI.
+ * Un build de préproduction du pilote se fait avec « npx vite build », jamais « npm run build ».
  */
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -39,7 +42,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dist = process.argv[2] ?? 'dist';
   const erreurs = [];
   const envs = readdirSync('.')
-    .filter((n) => /^\.env\.production/.test(n) && !n.endsWith('.example'))
+    .filter((n) => /^\.env(\.local|\.production(\.local)?)?$/.test(n))
     .map((n) => [n, readFileSync(n, 'utf8')]);
   const actif = drapeauActif(process.env, envs);
   if (actif) erreurs.push(`drapeau du pilote actif (${actif})`);

@@ -13,7 +13,8 @@ RUN npm ci --only=production
 # Copy source code
 COPY . .
 
-# Build application
+# Build application (« npm run build » enchaîne le garde-fou du pilote « Mémoriser » :
+# l'image échoue si le drapeau est actif ou si une question du pilote est dans dist)
 RUN npm run build
 
 # Production stage

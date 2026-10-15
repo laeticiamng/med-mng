@@ -57,17 +57,17 @@ export const QUESTIONS_IC_160: QuestionMemo[] = [
     objectifId: 'OIC-160-04-A',
     type: 'rappel',
     question: 'Comment évolue typiquement un tétanos généralisé ?',
-    reponse: 'Contraction généralisée d’évolution descendante, avec dysautonomie, classiquement sans fièvre.',
+    reponse: 'Contraction généralisée d’évolution descendante, avec spasmes douloureux et dysautonomie.',
     explication:
-      'Le trismus ouvre le tableau, puis la contraction gagne tout le corps de haut en bas. La dysautonomie est fréquente ; la fièvre est classiquement absente.',
+      'Le trismus ouvre le tableau, puis la contraction gagne tout le corps de haut en bas. Pas de fièvre au début ; elle peut apparaître ensuite, notamment avec la dysautonomie.',
     verification: {
       statut: 'conforme_referentiel',
       extraitReferentiel:
         'Le tétanos évolue ensuite le plus souvent vers une forme de contraction généralisée, d\'évolution descendante, avec des signes de dysautonomie, sans fièvre.',
       sourcesExternes: [],
-      reponseCorrecte: 'Contraction généralisée, descendante, dysautonomie, classiquement sans fièvre',
+      reponseCorrecte: 'Contraction généralisée, descendante, spasmes douloureux, dysautonomie',
       justification: 'Recopie le texte officiel ; aucune extrapolation clinique.',
-      notes: 'Formulation absolue « sans fièvre » adoucie en « classiquement » le 15.10.2026 (la dysautonomie peut s’accompagner de troubles de la thermorégulation). Pas de source externe retrouvée dans la recherche du 15.10.2026 (requête PubMed sans résultat) : à recouper lors de la relecture médicale.',
+      notes: 'Le référentiel écrit « sans fièvre » pour toute l’évolution. Revue du 15.10.2026 puis revue Codex : l’apyrexie est réservée au début (une fièvre peut apparaître avec la dysautonomie, selon les sources citées par Codex : CDC Pink Book, revue PMC7617864, non ouvertes ici) ; « spasmes douloureux » vient de OIC-160-01-B. Pas de source externe retrouvée dans la recherche du 15.10.2026 (requête PubMed sans résultat) : à recouper lors de la relecture médicale.',
       verifiePar: PAR,
       dateVerification: DATE,
     },

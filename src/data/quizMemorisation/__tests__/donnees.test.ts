@@ -107,11 +107,13 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
   const texteAffiche = (q: QuestionMemo) =>
     [q.question, q.explication, q.type === 'qcm' ? q.options.join(' ') : q.reponse].join(' ');
 
-  it('M217-A5 : le MNI test n’est jamais présenté comme un diagnostic de certitude', () => {
+  it('M217-A5 : le MNI test n’est jamais présenté comme confirmatoire', () => {
     const q = parId('M217-A5');
     expect(texteAffiche(q)).not.toMatch(/certitude/i);
-    expect(q.verification.reponseCorrecte).toMatch(/sérologie EBV/);
-    expect(q.explication).toMatch(/faussement négatif/);
+    expect(q.verification.reponseCorrecte).toBe('Une sérologie EBV');
+    expect(q.verification.reponseCorrecte).not.toMatch(/MNI/);
+    expect(q.explication).toMatch(/ne confirme pas/);
+    expect(q.explication).toMatch(/faux négatifs/);
     for (const autre of toutes) expect(texteAffiche(autre), autre.id).not.toMatch(/diagnostic de certitude/i);
   });
 
@@ -120,15 +122,21 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(parId('M247-A2').verification.motifBlocage).toMatch(/HAS/);
   });
 
-  it('M247-A7 : le resucrage exclut le soda light', () => {
+  it('M247-A7 : chaque alternative du resucrage est quantifiée et non allégée', () => {
     const q = parId('M247-A7');
-    expect(q.type === 'rappel' && q.reponse).toMatch(/non light/);
+    const reponse = q.type === 'rappel' ? q.reponse : '';
+    expect(reponse).toMatch(/15 g/);
+    expect(reponse).toMatch(/demi-verre/);
+    expect(reponse).toMatch(/non allégé/);
+    expect(reponse).not.toMatch(/bonbons/);
     expect(q.explication).toMatch(/light/);
   });
 
-  it('M160-A2 : pas de formulation absolue sur la fièvre', () => {
-    expect(texteAffiche(parId('M160-A2'))).not.toMatch(/(^|[^t]) sans fièvre/);
-    expect(parId('M160-A2').explication).toMatch(/classiquement/);
+  it('M160-A2 : l’apyrexie n’est affirmée que pour le début', () => {
+    const q = parId('M160-A2');
+    expect(q.type === 'rappel' && q.reponse).not.toMatch(/fièvre/);
+    expect(q.explication).not.toMatch(/sans fièvre/);
+    expect(q.explication).toMatch(/Pas de fièvre au début/);
   });
 
   it('IC-160 : immunoglobulines réservées à la plaie majeure non à jour, dose de 250 UI', () => {
