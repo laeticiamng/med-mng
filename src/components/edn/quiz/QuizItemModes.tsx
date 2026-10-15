@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { QuestionMemo } from '@/data/quizMemorisation/types';
-import { chargerQuestionsMemorisation, pilote } from '@/lib/quizMemorisationChargement';
+import type { QuestionAffichee } from '@/data/quizMemorisation/types';
+import { chargerQuestionsAffichables, quizMemorisationActif } from '@/lib/quizMemorisationChargement';
 import React, { useEffect, useState } from 'react';
 import { OicQuizGenerator } from './OicQuizGenerator';
 import { QuizMemorisation } from './QuizMemorisation';
@@ -16,15 +16,21 @@ interface QuizItemModesProps {
  * mémorisation, seul le quiz existant est rendu — comportement inchangé.
  */
 export const QuizItemModes: React.FC<QuizItemModesProps> = ({ itemCode, itemTitle }) => {
-  const actif = pilote();
-  const [questions, setQuestions] = useState<QuestionMemo[] | null>(actif ? null : []);
+  const actif = quizMemorisationActif();
+  const [questions, setQuestions] = useState<QuestionAffichee[] | null>(actif ? null : []);
+  // Bandeau « pilote » : le serveur sert aussi du contenu non encore validé, ou pilote statique.
+  const [modePilote, setModePilote] = useState(false);
 
   useEffect(() => {
     if (!actif) return;
     let encore = true;
     setQuestions(null);
-    chargerQuestionsMemorisation(itemCode)
-      .then((q) => encore && setQuestions(q))
+    chargerQuestionsAffichables(itemCode)
+      .then((r) => {
+        if (!encore) return;
+        setModePilote(r.pilote);
+        setQuestions(r.questions);
+      })
       .catch(() => encore && setQuestions([]));
     return () => { encore = false; };
   }, [actif, itemCode]);
@@ -43,7 +49,7 @@ export const QuizItemModes: React.FC<QuizItemModesProps> = ({ itemCode, itemTitl
         <TabsTrigger value="reconnaitre" className="min-h-11 whitespace-normal">Reconnaître les compétences</TabsTrigger>
       </TabsList>
       <TabsContent value="memoriser" className="mt-4">
-        <QuizMemorisation itemCode={itemCode} itemTitle={itemTitle} questions={questions} pilote />
+        <QuizMemorisation itemCode={itemCode} itemTitle={itemTitle} questions={questions} pilote={modePilote} />
       </TabsContent>
       <TabsContent value="reconnaitre" className="mt-4">
         <OicQuizGenerator itemCode={itemCode} itemTitle={itemTitle} />

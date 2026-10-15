@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
-import type { QuestionMemo } from '@/data/quizMemorisation/types';
-import { chargerQuestionsMemorisation, pilote } from '@/lib/quizMemorisationChargement';
+import type { QuestionAffichee } from '@/data/quizMemorisation/types';
+import { chargerQuestionsAffichables, quizMemorisationActif } from '@/lib/quizMemorisationChargement';
 import { cheminItemEdn } from '@/pages/edn-item/ednItemTabs';
 import { Brain } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -23,13 +23,13 @@ export const LienQuizItem: React.FC<LienQuizItemProps> = ({
   slugUrl,
   accroche = 'Fixer ces notions en quelques minutes',
 }) => {
-  const [questions, setQuestions] = useState<QuestionMemo[]>([]);
+  const [questions, setQuestions] = useState<QuestionAffichee[]>([]);
 
   useEffect(() => {
-    if (!pilote()) return;
+    if (!quizMemorisationActif()) return;
     let encore = true;
-    chargerQuestionsMemorisation(itemCode)
-      .then((q) => encore && setQuestions(q))
+    chargerQuestionsAffichables(itemCode)
+      .then((r) => encore && setQuestions(r.questions))
       .catch(() => encore && setQuestions([]));
     return () => { encore = false; };
   }, [itemCode]);

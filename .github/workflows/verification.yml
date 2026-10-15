@@ -57,6 +57,12 @@ jobs:
           ls /usr/lib/postgresql/*/bin/initdb >/dev/null 2>&1 || { sudo apt-get update -qq && sudo apt-get install -y -qq postgresql; }
           bash scripts/test-mm-usage-compteurs.sh
 
+      - name: Quiz de mémorisation — migration serveur, droits Gratuit/Premium, registre de validation (Postgres réel)
+        run: |
+          ls /usr/lib/postgresql/*/bin/initdb >/dev/null 2>&1 || { sudo apt-get update -qq && sudo apt-get install -y -qq postgresql; }
+          mkdir -p /tmp/qm && QMEMO_EXPORT_DIR=/tmp/qm npx vitest run src/data/quizMemorisation/__tests__/export.test.ts
+          SEMIS=/tmp/qm/semis-questions.sql bash scripts/test-mm-quiz-memorisation.sh
+
       - name: Build de production
         run: npx vite build
 

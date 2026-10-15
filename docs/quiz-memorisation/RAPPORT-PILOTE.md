@@ -163,3 +163,7 @@ d'essai ou abonnement.
    usage réel (aujourd'hui : 6 résultats de quiz en tout).
 4. **À décider séparément, hors de ce travail** : neutraliser les 1101 + 734 gabarits (migration dédiée, après revue des
    20 fonctions listées), corriger les badges « Quiz » et la description SEO, signaler les erreurs du référentiel.
+
+## 8. Suite : infrastructure serveur (sans activation)
+
+Distribution des questions par RPC avec droits Gratuit/Premium côté serveur, registre de validation médicale et feuille de relecture : voir `DISTRIBUTION-SERVEUR-ET-VALIDATION.md`. Rien n'est appliqué ni activé.

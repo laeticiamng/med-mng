@@ -1,5 +1,6 @@
-import type { QuestionMemo } from '@/data/quizMemorisation/types';
+import type { QuestionAffichee, QuestionMemo } from '@/data/quizMemorisation/types';
 import { normaliserCodeItem } from '@/config/offre';
+import { chargerQuestionsServeur, serveurActif } from '@/lib/quizMemorisationServeur';
 import { questionsAffichables } from '@/utils/quizMemorisation';
 
 /**
@@ -28,4 +29,23 @@ export async function chargerQuestionsMemorisation(itemCode: string): Promise<Qu
   const { QUESTIONS_MEMORISATION_PAR_ITEM } = await import('@/data/quizMemorisation');
   const brutes = QUESTIONS_MEMORISATION_PAR_ITEM[normaliserCodeItem(itemCode)] ?? [];
   return questionsAffichables(brutes, true);
+}
+
+/** Une des deux sources est active : serveur (RPC) ou pilote statique de préproduction. */
+export const quizMemorisationActif = (): boolean => serveurActif() || pilote();
+
+/**
+ * Point d'entrée de l'interface. Priorité au SERVEUR (droits Gratuit/Premium et statuts fixés
+ * côté base, aucune question dans le JavaScript) ; à défaut, le pilote statique de préproduction ;
+ * sinon rien (quiz existant seul).
+ */
+export async function chargerQuestionsAffichables(
+  itemCode: string
+): Promise<{ questions: QuestionAffichee[]; pilote: boolean }> {
+  if (serveurActif()) {
+    const { questions, pilote: pilote_ } = await chargerQuestionsServeur(itemCode);
+    return { questions, pilote: pilote_ };
+  }
+  if (pilote()) return { questions: await chargerQuestionsMemorisation(itemCode), pilote: true };
+  return { questions: [], pilote: false };
 }

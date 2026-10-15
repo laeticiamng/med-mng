@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
 import { enregistrerProgressionQuiz, type ClientProgression } from '@/lib/progressionQuiz';
-import type { QuestionMemo } from '@/data/quizMemorisation/types';
+import type { QuestionAffichee } from '@/data/quizMemorisation/types';
 import {
   compterParRang,
   construireSerie,
@@ -27,15 +27,15 @@ import { toast } from 'sonner';
 interface QuizMemorisationProps {
   itemCode: string;
   itemTitle: string;
-  questions: QuestionMemo[];
+  questions: QuestionAffichee[];
   /** Pilote : bandeau « en cours de relecture médicale ». */
   pilote?: boolean;
 }
 
 type Phase =
   | { nom: 'accueil' }
-  | { nom: 'serie'; rang: RangMemo; serie: QuestionMemo[]; rejeu: boolean }
-  | { nom: 'bilan'; rang: RangMemo; serie: QuestionMemo[]; resultats: ResultatQuestion[]; rejeu: boolean };
+  | { nom: 'serie'; rang: RangMemo; serie: QuestionAffichee[]; rejeu: boolean }
+  | { nom: 'bilan'; rang: RangMemo; serie: QuestionAffichee[]; resultats: ResultatQuestion[]; rejeu: boolean };
 
 const LIBELLE_RANG: Record<RangMemo, { titre: string; sous: string }> = {
   A: { titre: 'Les essentiels', sous: 'Rang A' },
@@ -79,7 +79,7 @@ export const QuizMemorisation: React.FC<QuizMemorisationProps> = ({ itemCode, it
   };
 
   const terminerSerie = useCallback(
-    async (rang: RangMemo, serie: QuestionMemo[], resultats: ResultatQuestion[], rejeu: boolean) => {
+    async (rang: RangMemo, serie: QuestionAffichee[], resultats: ResultatQuestion[], rejeu: boolean) => {
       const suivantes = mettreAJourNotions(notions, resultats);
       setNotions(suivantes);
       ecrireNotions(stockage, utilisateurId, suivantes);
@@ -89,35 +89,41 @@ export const QuizMemorisation: React.FC<QuizMemorisationProps> = ({ itemCode, it
       incrementerNombreSeries(stockage, utilisateurId, itemCode, rang);
       if (!utilisateurId) return;
       const { retenues, total, pourcentage } = scoreSerie(resultats);
-      // Même enregistrement que le quiz « Reconnaître les compétences » : l’historique
-      // et la répétition espacée de /edn-complete restent alimentés.
-      const { error } = await supabase.from('quiz_results').insert({
-        user_id: utilisateurId,
-        item_code: itemCode,
-        item_title: itemTitle,
-        score: pourcentage,
-        total_questions: total,
-        correct_answers: retenues,
-        wrong_answers: total - retenues,
-        time_spent: 0,
-        answers: { mode: 'memorisation', rang, notions: resultats.map(({ id, ok }) => ({ id, ok })) },
-      });
-      if (error) {
-        console.error('Résultat de mémorisation non enregistré :', error);
-        toast.error(
-          typeof navigator !== 'undefined' && !navigator.onLine
-            ? 'Résultat non enregistré : connexion interrompue. Refaites une série une fois reconnecté.'
-            : 'Résultat non enregistré. Réessayez plus tard.',
-        );
-        return;
-      }
-      const progression = await enregistrerProgressionQuiz(supabase as unknown as ClientProgression, recordReview, {
-        userId: utilisateurId,
-        itemCode,
-        pourcentage,
-      });
-      if (!progression.historique || progression.carte === false) {
-        toast.error('Résultat enregistré, mais votre suivi de révision n’a pas pu être mis à jour.');
+      try {
+        // Même enregistrement que le quiz « Reconnaître les compétences » : l’historique
+        // et la répétition espacée de /edn-complete restent alimentés.
+        const { error } = await supabase.from('quiz_results').insert({
+          user_id: utilisateurId,
+          item_code: itemCode,
+          item_title: itemTitle,
+          score: pourcentage,
+          total_questions: total,
+          correct_answers: retenues,
+          wrong_answers: total - retenues,
+          time_spent: 0,
+          answers: { mode: 'memorisation', rang, notions: resultats.map(({ id, ok }) => ({ id, ok })) },
+        });
+        if (error) {
+          console.error('Résultat de mémorisation non enregistré :', error);
+          toast.error(
+            typeof navigator !== 'undefined' && !navigator.onLine
+              ? 'Résultat non enregistré : connexion interrompue. Refaites une série une fois reconnecté.'
+              : 'Résultat non enregistré. Réessayez plus tard.',
+          );
+          return;
+        }
+        const progression = await enregistrerProgressionQuiz(supabase as unknown as ClientProgression, recordReview, {
+          userId: utilisateurId,
+          itemCode,
+          pourcentage,
+        });
+        if (!progression.historique || progression.carte === false) {
+          toast.error('Résultat enregistré, mais votre suivi de révision n’a pas pu être mis à jour.');
+        }
+      } catch (err) {
+        // Une exception (réseau, session) ne doit ni bloquer le bilan ni passer sous silence.
+        console.error('Enregistrement de la série de mémorisation impossible :', err);
+        toast.error('Résultat non enregistré. Réessayez plus tard.');
       }
     },
     [itemCode, itemTitle, notions, recordReview, stockage, utilisateurId],
@@ -238,7 +244,7 @@ const BandeauPilote: React.FC = () => (
 );
 
 interface SerieProps {
-  serie: QuestionMemo[];
+  serie: QuestionAffichee[];
   pilote: boolean;
   onTerminee: (resultats: ResultatQuestion[]) => void;
 }
