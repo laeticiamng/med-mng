@@ -7,6 +7,10 @@
  * et ordinaux EN TOUTES LETTRES, sans rien changer au sens. Les paroles affichées à
  * l'étudiant gardent l'écriture médicale usuelle (chiffres, unités).
  *
+ * Même logique pour les sigles non prononçables (« HTA », « AVC », « IRM »…) : une voix chantée
+ * en fait un mot inventé ou une syllabe bancale. Ils sont épelés lettre par lettre (« H-T-A »)
+ * dans la seule version chantée (voir « Sigles » plus bas).
+ *
  * Module pur, partagé site/serveur (aucune importation).
  */
 
@@ -144,11 +148,8 @@ const MOTIF_NOMBRE = new RegExp(
 );
 const MOTIF_INTERVALLE = new RegExp(String.raw`(?<![\p{L}\d-])(${NOMBRE})\s*[-–]\s*(${NOMBRE})(?!\d)`, 'gu');
 
-/**
- * Paroles chantées : nombres, intervalles, unités et ordinaux en toutes lettres.
- * Les codes (OMA, HTA, IC-12, OIC-001…) et les balises de structure ([Refrain]) sont conservés.
- */
-export const parolesChantees = (texte: string): string =>
+/** Nombres, intervalles, unités et ordinaux en toutes lettres (les balises de structure sont conservées). */
+const chiffresEnLettres = (texte: string): string =>
   texte
     .split('\n')
     .map((ligne) => {
@@ -170,3 +171,156 @@ export const parolesChantees = (texte: string): string =>
         });
     })
     .join('\n');
+
+// ---------------------------------------------------------------------------
+// Sigles : épellation lettre par lettre (« HTA » → « H-T-A »)
+// ---------------------------------------------------------------------------
+//
+// Une voix chantée lit mal un sigle d'un seul tenant : « HTA » devient une syllabe bancale,
+// « AVC » un mot inventé. Épelé « H-T-A », il est dit « ache-té-a ». Seule la version CHANTÉE est
+// épelée : les paroles affichées à l'étudiant gardent « HTA ».
+//
+// Origine : logique de `supabase/functions/_shared/phonetiqueChantee.ts` de Memo MNG (dépôt
+// learn-jams, dernier commit du fichier : df5dfd7, 07.10.2026), dont seule la partie « sigles » est
+// reprise (le reste de ce module — nombres, unités, ordinaux — existe déjà ici avec ses propres
+// conventions, calibrées sur le constat du 09.10.2026). Écarts voulus avec Memo MNG :
+//  - listes de mots à ne pas épeler recentrées sur le français médical : « PAS » (pression artérielle
+//    systolique), « TV » (tachycardie ventriculaire), « ENA » (anticorps anti-ENA) sont épelés ;
+//  - seuls les chiffres romains écrits avec I, V, X sont épargnés : « CV », « MM », « DM », « CI »
+//    sont des sigles médicaux avant d'être des nombres ; « IV » est épelé après « voie » ou « en »
+//    (intraveineux), laissé tel quel ailleurs (« stade IV ») ;
+//  - une ligne de sigles (« ECG, RP, NFS, CRP ») n'est pas prise pour un cri ;
+//  - « HbA1c » (casse mixte) est épelé « H-B-A-un-C ».
+// Non repris : chiffres romains, formules chimiques, « B12 » → « B douze » (hors périmètre).
+
+/** Sigle candidat : 2 à 6 capitales isolées. Un trait d'union voisin l'exclut (IC-66, OIC-001-01-A, COVID-19). */
+const MOTIF_SIGLE = /(?<![\p{L}\p{N}-])[A-Z]{2,6}(?![\p{L}\p{N}-])/gu;
+
+/** Sigles qui se disent comme un mot : jamais épelés (« sida » ne devient pas « S-I-D-A »). Liste non exhaustive. */
+const SIGLES_LUS_COMME_UN_MOT = new Set([
+  // santé
+  'SIDA', 'SAMU', 'SMUR', 'SRAS', 'MERS', 'COVID', 'EHPAD', 'APGAR', 'AINS', 'GEU', 'CHU', 'TAVI',
+  'ASAT', 'ALAT', 'HELLP', 'SOFA', 'FAST', 'ECOS',
+  // institutions et noms communs
+  'ONU', 'OTAN', 'UNESCO', 'UNICEF', 'INSERM', 'PACS', 'LASER', 'RADAR', 'SONAR',
+]);
+
+/**
+ * Mots courants qu'un parolier écrit en capitales pour insister : les épeler transformerait un cri
+ * en dictée. Aucune règle sur les voyelles ne sépare « FORT » de « CRP » : la liste est la seule
+ * barrière. Mots français seulement (les paroles sont chantées en français) ; les mots qui sont aussi
+ * des sigles médicaux (PAS, TA, SA, TV…) n'y figurent volontairement pas.
+ */
+const MOTS_EN_MAJUSCULES = new Set([
+  // grammaire et liaisons
+  'JE', 'TU', 'IL', 'ON', 'MOI', 'TOI', 'LUI', 'ELLE', 'ELLES', 'NOUS', 'VOUS', 'EUX', 'SOI', 'ILS',
+  'LE', 'LA', 'LES', 'UN', 'UNE', 'DES', 'DU', 'AU', 'AUX', 'EN', 'DE', 'CE', 'CES', 'CET', 'CETTE',
+  'SE', 'ME', 'TE', 'MON', 'TON', 'SON', 'MES', 'TES', 'SES', 'NOS', 'VOS',
+  'ET', 'OU', 'NI', 'SI', 'QUE', 'QUI', 'DONC', 'MAIS', 'CAR', 'OR', 'PAR', 'COMME', 'QUAND', 'PUIS',
+  'DANS', 'SOUS', 'SUR', 'AVEC', 'SANS', 'POUR', 'VERS', 'CHEZ', 'ENTRE', 'AVANT', 'APRES',
+  'SONT', 'FAUT', 'PEUT', 'FAIT', 'SOIT', 'TEL', 'TANT',
+  // adverbes et quantités
+  'OUI', 'NON', 'PLUS', 'MOINS', 'TOUT', 'TOUS', 'TOUTE', 'RIEN', 'JAMAIS', 'ENCORE', 'DEJA', 'BIEN',
+  'MAL', 'MIEUX', 'PIRE', 'FORT', 'LOIN', 'PRES', 'HAUT', 'BAS', 'VITE', 'LENT', 'TROP', 'ASSEZ',
+  'AUSSI', 'ALORS',
+  // noms fréquents des paroles
+  'VIE', 'MORT', 'SANG', 'COEUR', 'AME', 'CORPS', 'PEAU', 'MAIN', 'YEUX', 'TETE', 'DOS', 'PIED', 'BRAS',
+  'JOUR', 'NUIT', 'SOIR', 'MATIN', 'TEMPS', 'HEURE', 'AN', 'ANS', 'MOIS', 'ETE', 'HIVER', 'CIEL', 'MER',
+  'EAU', 'FEU', 'AIR', 'TERRE', 'SOL', 'VENT', 'NEIGE', 'PLUIE', 'LUNE', 'NORD', 'SUD', 'EST', 'OUEST',
+  'AMOUR', 'PEUR', 'JOIE', 'HAINE', 'ESPOIR', 'REVE', 'CRI', 'RIRE', 'LARME', 'ROI', 'LOI', 'DIEU',
+  'FOI', 'PAIX', 'BUT', 'JEU', 'FIN', 'DEBUT', 'PONT', 'LONG', 'PART', 'MURS', 'DENT', 'BORD', 'FROID',
+  'CHAUD', 'SEUL', 'VRAI', 'FAUX', 'NEUF', 'VIEUX', 'DEHORS', 'TOUJOURS',
+  // insistance propre au registre médical
+  'STOP', 'OK', 'DANGER', 'ALERTE', 'URGENT', 'VITAL', 'RISQUE', 'GRAVE', 'CHOC', 'COMA', 'ERREUR',
+  'OUBLI', 'PIEGE', 'DIX', 'MIX',
+]);
+
+/** Chiffre romain écrit avec I, V, X seulement (I… XXXIX) : laissé tel quel, il n'est pas un sigle. */
+const NUMERAL_ROMAIN = /^X{0,3}(?:IX|IV|V?I{0,3})$/;
+
+/** « voie IV », « en IV » : intraveineux, à épeler (« stade IV » reste un chiffre romain). */
+const VOIE_INTRAVEINEUSE = /(?:^|[^\p{L}])(?:voie|en)\s+$/iu;
+
+/** Le jeton (2 à 6 capitales) doit-il être épelé ? `avant` est le texte qui le précède sur la ligne. */
+export function sigleAEpeler(jeton: string, avant = ''): boolean {
+  if (!/^[A-Z]{2,6}$/.test(jeton)) return false;
+  if (SIGLES_LUS_COMME_UN_MOT.has(jeton) || MOTS_EN_MAJUSCULES.has(jeton)) return false;
+  if (NUMERAL_ROMAIN.test(jeton)) return jeton === 'IV' && VOIE_INTRAVEINEUSE.test(avant);
+  return true;
+}
+
+/**
+ * Une ligne ENTIÈREMENT en capitales dont la moitié des mots, ou moins, sont des sigles à épeler est
+ * un cri (« CRIE FORT AU VENT ») : elle reste telle quelle (dans le doute, l'état d'avant). Une
+ * liste de sigles (« ECG, RP, NFS, CRP ») n'en est pas un : elle est épelée.
+ * Trois mots au moins : « L'ADN et l'ARN » ne doit pas passer pour un cri.
+ */
+function ligneCriee(ligne: string): boolean {
+  const mots = ligne.replace(/\[[^\]]*\]/g, ' ').match(/\p{L}{2,}/gu) ?? [];
+  if (mots.length < 3 || !mots.every((m) => m === m.toUpperCase())) return false;
+  const aEpeler = mots.filter((m) => sigleAEpeler(m)).length;
+  return aEpeler * 2 <= mots.length;
+}
+
+/** Codes de casse mixte épelés d'office (le motif des sigles ne voit que des capitales). */
+const CODES_CASSE_MIXTE: Array<[RegExp, string]> = [
+  [/(?<![\p{L}\p{N}-])HbA1c(?![\p{L}\p{N}-])/giu, 'H-B-A-un-C'],
+];
+
+export interface RapportSigles {
+  texte: string;
+  /** Sigles épelés. */
+  epeles: string[];
+  /** Sigles laissés tels quels (se lisent comme un mot, mot crié, chiffre romain). */
+  laisses: string[];
+}
+
+/**
+ * Épelle les sigles non prononçables d'un texte (« L'HTA et l'AVC » → « L'H-T-A et l'A-V-C »).
+ * Intacts : codes d'item (un trait d'union voisin suffit : IC-66, OIC-001-01-A), sigles lus comme un
+ * mot (SAMU, SIDA…), mots en capitales d'insistance, lignes criées, balises de structure
+ * ([Refrain], [Couplet 1], y compris dans une ligne). Idempotent : « H-T-A » n'est plus un sigle.
+ */
+export function epelerSigles(texte: string): RapportSigles {
+  const epeles = new Set<string>();
+  const laisses = new Set<string>();
+  const sortie = texte
+    .split('\n')
+    .map((ligne) => {
+      if (/^\s*\[[^\]]+\]\s*$/.test(ligne)) return ligne;
+      const criee = ligneCriee(ligne);
+      // Les segments impairs sont des balises ([Refrain]…) : jamais touchées.
+      return ligne
+        .split(/(\[[^\]]*\])/)
+        .map((segment, i) => {
+          if (i % 2 === 1) return segment;
+          let t = segment;
+          for (const [motif, epele] of CODES_CASSE_MIXTE) {
+            t = t.replace(motif, (code) => {
+              epeles.add(code);
+              return epele;
+            });
+          }
+          if (criee) return t;
+          return t.replace(MOTIF_SIGLE, (jeton: string, offset: number, chaine: string) => {
+            if (!sigleAEpeler(jeton, chaine.slice(0, offset))) {
+              laisses.add(jeton);
+              return jeton;
+            }
+            epeles.add(jeton);
+            return jeton.split('').join('-');
+          });
+        })
+        .join('');
+    })
+    .join('\n');
+  return { texte: sortie, epeles: [...epeles], laisses: [...laisses] };
+}
+
+/**
+ * Paroles chantées : nombres, intervalles, unités et ordinaux en toutes lettres, puis sigles non
+ * prononçables épelés (« HTA » → « H-T-A »).
+ * Les codes d'item (IC-12, OIC-001-01-A), les sigles qui se disent comme un mot (SAMU, SIDA…),
+ * les lignes entièrement criées en capitales et les balises de structure ([Refrain]) sont conservés.
+ */
+export const parolesChantees = (texte: string): string => epelerSigles(chiffresEnLettres(texte)).texte;

@@ -53,14 +53,16 @@ describe('paroles chantées — nombres en toutes lettres', () => {
   });
 
   it('unités abrégées', () => {
+    // Les sigles non prononçables sont épelés (« IM » → « I-M »), voir parolesChanteesSigles.test.ts.
     expect(parolesChantees('Adrénaline 0,01 mg/kg en IM')).toBe(
-      'Adrénaline zéro virgule zéro un milligramme par kilo en IM'
+      'Adrénaline zéro virgule zéro un milligramme par kilo en I-M'
     );
     expect(parolesChantees('Glycémie > 2 g/L à 2 h')).toBe(
       'Glycémie > deux grammes par litre à deux heures'
     );
+    // « PAS » = pression artérielle systolique : épelé, pas dit comme l'adverbe.
     expect(parolesChantees('PAS < 90 mmHg pendant 15 min')).toBe(
-      'PAS < quatre-vingt-dix millimètres de mercure pendant quinze minutes'
+      'P-A-S < quatre-vingt-dix millimètres de mercure pendant quinze minutes'
     );
     expect(parolesChantees('pH < 7,30, bicarbonates < 18 mmol/L')).toBe(
       'pH < sept virgule trente, bicarbonates < dix-huit millimoles par litre'
@@ -70,13 +72,15 @@ describe('paroles chantées — nombres en toutes lettres', () => {
     );
   });
 
-  it('ordinaux ; codes et balises intacts', () => {
+  it("ordinaux ; codes d'item et balises intacts, sigles épelés", () => {
     expect(parolesChantees('Antibiotique de 1re intention, en 2e ligne')).toBe(
       'Antibiotique de première intention, en deuxième ligne'
     );
     expect(parolesChantees('[Couplet 1]')).toBe('[Couplet 1]');
+    // Avant le 15.10.2026 les sigles restaient tels quels (« OMA, HTA ») : une voix chantée les
+    // lisait mal. Désormais épelés ; les codes d'item (trait d'union voisin) restent intacts.
     expect(parolesChantees('OMA, HTA, IC-12 et OIC-001-01-A')).toBe(
-      'OMA, HTA, IC-12 et OIC-001-01-A'
+      'O-M-A, H-T-A, IC-12 et OIC-001-01-A'
     );
     expect(parolesChantees('COVID-19 et H1N1')).toBe('COVID-19 et H1N1');
   });
