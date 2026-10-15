@@ -136,6 +136,12 @@ describe('revue scientifique — corrections à ne pas perdre', () => {
     expect(q.explication).toMatch(/light/);
   });
 
+  it('M217-B3 : le DRESS n’est pas décrit « sans cholestase »', () => {
+    const q = parId('M217-B3');
+    expect(q.explication).not.toMatch(/sans cholestase/);
+    expect(q.explication).toMatch(/cholestatique/);
+  });
+
   it('M247-A3 : le seuil est donné en g/L et en mmol/L exacts (11,1)', () => {
     const q = parId('M247-A3');
     expect(q.type === 'rappel' && q.reponse).toMatch(/11,1 mmol\/L/);

@@ -265,14 +265,16 @@ export const QUESTIONS_IC_217: QuestionMemo[] = [
     ],
     indexCorrect: 2,
     explication:
-      'Le DRESS associe une hyperéosinophilie, une cytolyse hépatique (sans cholestase) et parfois une altération de la fonction rénale.',
+      'Le DRESS associe une hyperéosinophilie, une atteinte hépatique (cytolytique, cholestatique ou mixte) et parfois une altération de la fonction rénale.',
     verification: {
       statut: 'verifie_source_externe',
       extraitReferentiel: 'Hyperéosinophilie',
       sourcesExternes: PUBMED_DRESS,
       reponseCorrecte: 'Une hyperéosinophilie',
       justification:
-        'L’éosinophilie fait partie du nom même du syndrome (Drug Reaction with Eosinophilia and Systemic Symptoms, PubMed 36838310) et du référentiel. Cholestase : le référentiel précise cytolyse « sans cholestase ».',
+        'L’éosinophilie fait partie du nom même du syndrome (Drug Reaction with Eosinophilia and Systemic Symptoms, PubMed 36838310) et du référentiel. Le distracteur « cholestase ictérique isolée » reste faux parce qu’il est isolé, sans éosinophilie ; il n’exclut pas une composante cholestatique du DRESS.',
+      notes:
+        'Revue Codex (82a6c1a) : la mention « sans cholestase » (spécifique à l’EBV dans le référentiel) est retirée du DRESS, dont l’atteinte hépatique peut être cytolytique, cholestatique ou mixte (revue PMC6448072 citée par Codex, non ouverte).',
       verifiePar: PAR,
       dateVerification: DATE,
     },
