@@ -63,3 +63,12 @@ Vérifié le 09.10.2026 sur la production. Analyse complète (fonctions SECURITY
 ### Fusions et déploiements
 - #237, #240 et #241 fusionnées le 10.10.2026 sur instruction directe de la propriétaire (la fusion par l'agent avait été refusée par la politique de permissions) ; CI verte et revue Codex sans remarque sur le dernier commit de chacune. Front republié sur Lovable après synchronisation de `main` ; `send-welcome-email` v895. Vérification navigateur en production : à consigner après la campagne de recette.
 <!-- fin section: etat-10-10 -->
+
+<!-- section: diction-chantee-15-10 -->
+## Diction chantée, barre mobile, en-tête d'item (code du 15.10.2026, branche `claude/medmng-diction`)
+
+- **Sigles épelés dans la version chantée** : `supabase/functions/_shared/mm-paroles-chantees.ts` épelle les sigles non prononçables (« HTA » → « H-T-A », « HbA1c » → « H-B-A-un-C »). Intacts : codes d'item (`IC-66`, `OIC-001-01-A`), sigles qui se disent comme un mot (SAMU, SIDA, AINS…), mots et lignes en capitales d'insistance, balises `[Refrain]`. Logique reprise de Memo MNG (`phonetiqueChantee.ts`), partie « sigles » seule ; écarts voulus décrits en tête du module. Les paroles affichées gardent « HTA » ; le lecteur `/med-mng/player` affiche en revanche la version chantée (déjà le cas pour les nombres). Preuve : `src/tests/parolesChanteesSigles.test.ts`, `src/tests/parolesChantees.test.ts`.
+- **Barre mobile basse** (`MobileBottomNav`) : liens avec `aria-current` ; montée aussi sur `/edn-complete` et les fiches d'item (App.tsx, route de mise en page `AvecBarreMobile`) ; le mini-lecteur se pose au-dessus d'elle, l'application réserve la marge basse (`src/hooks/usePublierHauteur.ts`). Preuve : `src/tests/barreBasseMobile.test.tsx` ; rendu à l'écran **non vérifié** (aucun navigateur dans l'environnement de développement).
+- **En-tête d'item EDN** : départ du dégradé en `--accent-text` ; contraste du texte blanc ≥ 4,82:1 en thème clair (avant : 2,59:1), calculs dans la PR.
+- **État de déploiement** : au moment de la rédaction, rien n'est déployé. Le moteur n'est actif en production qu'après redéploiement de `mm-generate-music` (point d'entrée épinglé sur le commit de fusion) puis publication du site. **Non vérifié en production.**
+<!-- fin section: diction-chantee-15-10 -->

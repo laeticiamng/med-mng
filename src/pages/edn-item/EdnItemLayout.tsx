@@ -176,21 +176,26 @@ export default function EdnItemLayout() {
   return (
     <ContexteFicheItemEdn.Provider value={valeurContexte}>
       <div className="min-h-screen bg-gradient-to-br from-accent/5 to-primary/5 flex flex-col">
-        {/* En-tête de l'item */}
-        <header className={`bg-gradient-to-r from-accent to-primary text-primary-foreground ${isMobile ? 'p-4' : 'p-6'}`}>
+        {/* En-tête de l'item. Texte blanc sur un dégradé : le départ vert utilise --accent-text (même
+            teinte que --accent, luminosité abaissée) au lieu de --accent, qui ne donnait que 2,59:1
+            au blanc. Thème sombre : --accent-text = --accent, rendu inchangé. Contrastes calculés
+            (WCAG 2.x, pire cas sur tout le dégradé) : titre et boutons 5,59:1, sous-titre 4,82:1,
+            pastille du numéro 7,19:1, bouton au survol 7,19:1 (clair) ; titre 7,25:1, sous-titre
+            6,27:1, pastille et survol 5,05:1 (sombre, voile inchangé). */}
+        <header className={`bg-gradient-to-r from-[hsl(var(--accent-text))] to-primary text-primary-foreground ${isMobile ? 'p-4' : 'p-6'}`}>
           <div className="container mx-auto">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/edn-complete')}
-              className="text-primary-foreground hover:bg-background/20 mb-3 -ml-2"
+              className="text-primary-foreground hover:text-primary-foreground hover:bg-foreground/20 dark:hover:bg-background/20 mb-3 -ml-2"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Tous les items
             </Button>
 
             <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
-              <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-background/20 rounded-lg flex items-center justify-center shrink-0`}>
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-foreground/20 dark:bg-background/20 rounded-lg flex items-center justify-center shrink-0`}>
                 <span className={`font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{numeroItem}</span>
               </div>
               <div className="min-w-0">
@@ -200,7 +205,7 @@ export default function EdnItemLayout() {
                   {`${item.item_code}: ${item.title}`}
                 </h1>
                 {!isMobile && (
-                  <p className="text-primary-foreground/80 text-sm">
+                  <p className="text-primary-foreground/90 text-sm">
                     {item.subtitle || `Item de connaissance EDN ${item.item_code}`}
                   </p>
                 )}

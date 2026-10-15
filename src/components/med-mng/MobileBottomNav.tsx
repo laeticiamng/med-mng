@@ -1,107 +1,131 @@
 import { TranslatedText } from '@/components/TranslatedText';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification } from '@/hooks/useGamification';
+import { usePublierHauteur, VAR_BARRE_MOBILE } from '@/hooks/usePublierHauteur';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import type { User as UtilisateurSupabase } from '@supabase/supabase-js';
 import { BookOpen, CreditCard, Flame, Home, User } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface BottomNavItemProps {
   icon: React.ReactNode;
   label: string;
-  _path?: string;
-  onClick: () => void;
-  isActive: boolean;
+  to: string;
+  /** Page courante (`page`), section qui contient la page courante (`true`) ou autre (rien). */
+  current?: 'page' | 'true';
 }
 
+/** Lien de la barre : un vrai lien (clic droit, nouvel onglet, historique), jamais un onglet. */
 const BottomNavItem: React.FC<BottomNavItemProps> = ({
   icon,
   label,
-  onClick,
-  isActive
+  to,
+  current,
 }) => {
+  const isActive = Boolean(current);
   return (
-    <button
-      onClick={onClick}
-      role="tab"
-      aria-selected={isActive}
-      aria-label={`Navigation vers ${label}`}
+    <Link
+      to={to}
+      aria-current={current}
       className={cn(
-        "flex flex-col items-center justify-center p-2 transition-all duration-200 min-h-[64px] flex-1",
-        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
-        "active:scale-95",
-        isActive 
-          ? "text-primary bg-primary/5" 
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+        'relative flex flex-col items-center justify-center p-2 transition-all duration-200 min-h-[64px] flex-1',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'active:scale-95',
+        isActive
+          ? 'text-primary bg-primary/5'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
       )}
     >
-      <div className={cn(
-        "transition-all duration-200 mb-1",
-        isActive && "transform scale-110"
-      )}>
+      <div
+        className={cn(
+          'transition-all duration-200 mb-1',
+          isActive && 'transform scale-110'
+        )}
+      >
         {icon}
       </div>
-      <span className={cn(
-        "text-xs font-medium transition-all duration-200",
-        isActive && "font-semibold"
-      )}>
+      <span
+        className={cn(
+          'text-xs font-medium transition-all duration-200',
+          isActive && 'font-semibold'
+        )}
+      >
         <TranslatedText text={label} />
       </span>
       {isActive && (
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-b-full" />
+        <div
+          aria-hidden="true"
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-b-full"
+        />
       )}
-    </button>
+    </Link>
   );
 };
 
+/**
+ * Barre de navigation basse des mobiles (< md). Montée par `MedMngLayout` et, depuis le
+ * 15.10.2026, par les pages d'entrée EDN (`/edn-complete`, fiches d'item) via App.tsx.
+ *
+ * Elle publie sa hauteur (`--barre-mobile-h`) : le mini-lecteur se pose au-dessus d'elle et
+ * l'application réserve la place en bas de page (voir `usePublierHauteur`).
+ */
 export const MobileBottomNav: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { stats } = useGamification();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UtilisateurSupabase | null>(null);
+  const navRef = useRef<HTMLElement>(null);
+  usePublierHauteur(navRef, VAR_BARRE_MOBILE);
 
   useEffect(() => {
     // Affichage seulement : session locale, sans requête réseau (auth/v1/user).
-    supabase.auth.getSession().then(({ data }) => setUser(data?.session?.user ?? null));
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setUser(data?.session?.user ?? null));
   }, []);
 
   const isActive = (path: string) =>
-    path === ROUTE_PATHS.home ? location.pathname === path : location.pathname.startsWith(path);
+    path === ROUTE_PATHS.home
+      ? location.pathname === path
+      : location.pathname.startsWith(path);
+  const current = (path: string): BottomNavItemProps['current'] =>
+    location.pathname === path ? 'page' : isActive(path) ? 'true' : undefined;
 
   const navItems = [
     {
       icon: <Home className="h-5 w-5" />,
-      label: "Accueil",
+      label: 'Accueil',
       path: ROUTE_PATHS.home,
-      onClick: () => navigate(ROUTE_PATHS.home)
     },
     // Entrées cœur : l'ancien « Créer » / « Bibliothèque » menait à un catalogue vide.
     {
       icon: <BookOpen className="h-5 w-5" />,
-      label: "Items",
+      label: 'Items',
       path: ROUTE_PATHS.ednComplete,
-      onClick: () => navigate(ROUTE_PATHS.ednComplete)
     },
     {
       icon: <CreditCard className="h-5 w-5" />,
-      label: "Tarifs",
+      label: 'Tarifs',
       path: ROUTE_PATHS.medMngPricing,
-      onClick: () => navigate(ROUTE_PATHS.medMngPricing)
     },
     {
       icon: <User className="h-5 w-5" />,
-      label: "Profil",
-      path: ROUTE_PATHS.medMngProfile, 
-      onClick: () => navigate(ROUTE_PATHS.medMngProfile)
-    }
+      label: 'Profil',
+      path: ROUTE_PATHS.medMngProfile,
+    },
   ];
 
   return (
-    <nav 
+    <nav
+      ref={navRef}
       className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-card border-t border-border shadow-lg"
-      role="tablist"
       aria-label="Navigation principale mobile"
     >
       {/* Mini gamification stats bar */}
@@ -119,23 +143,25 @@ export const MobileBottomNav: React.FC = () => {
           <span className="text-muted-foreground">•</span>
           <span className="font-medium">Niv. {stats.level}</span>
           <span className="text-muted-foreground">•</span>
-          <span className="text-primary font-medium">{stats.totalPoints} XP</span>
+          <span className="text-primary font-medium">
+            {stats.totalPoints} XP
+          </span>
         </div>
       )}
-      
-      <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
+
+      <ul className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
         {navItems.map((item) => (
-          <BottomNavItem
-            key={item.path}
-            icon={item.icon}
-            label={item.label}
-            _path={item.path}
-            onClick={item.onClick}
-            isActive={isActive(item.path)}
-          />
+          <li key={item.path} className="flex flex-1">
+            <BottomNavItem
+              icon={item.icon}
+              label={item.label}
+              to={item.path}
+              current={current(item.path)}
+            />
+          </li>
         ))}
-      </div>
-      
+      </ul>
+
       {/* Safe area padding for iPhone with home indicator */}
       <div className="h-[env(safe-area-inset-bottom)] bg-card" />
     </nav>

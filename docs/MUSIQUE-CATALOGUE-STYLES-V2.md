@@ -22,7 +22,7 @@ copie de l'audio dans le compartiment `mm-chansons` → bibliothèque (`med_mng_
 | `customMode` / `instrumental` | `true` / `false` | constantes du serveur (le client ne choisit pas) |
 | `model` | `SUNO_MODEL` si autorisé (`V6`, `V6_WILD`, `V6_MINI`, `V4_5ALL`), sinon **`V6`** | secret serveur ; le `model` du client est ignoré |
 | `callBackUrl` | URL du rappel, signée et liée à l'utilisateur | `signerUrlRappel` |
-| `lyrics` | paroles du rang, version « chantée » (nombres et unités en lettres), ≤ 5 000 caractères, coupées en fin de ligne | `parolesChantees` + `tronquerParoles` |
+| `lyrics` | paroles du rang, version « chantée » (nombres et unités en lettres, sigles épelés), ≤ 5 000 caractères, coupées en fin de ligne | `parolesChantees` + `tronquerParoles` |
 | `style` | prompt du style + ambiance libre éventuelle + `clear [male\|female] vocals` + `french lyrics` (si langue `fr`), ≤ 1 000 | `construireStyle` |
 | `title` | `CODE · intitulé court — Rang X`, ≤ 80 | `construireTitre` |
 | `negativeTags` | exclusions du style + exclusions de l'utilisateur, sans contradiction avec le prompt, ≤ 1 000 | `construireNegativeTags` |

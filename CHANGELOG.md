@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-10-15] — Diction chantée (sigles épelés), barre mobile des items EDN, contraste de l'en-tête d'item
+### Audio
+- Paroles chantées : les sigles non prononçables sont épelés dans la version envoyée au moteur (« HTA » → « H-T-A », « AVC », « IRM », « BPCO », « ECG », « OAP », « IDM » ; « HbA1c » → « H-B-A-un-C »). Intacts : codes d'item (`IC-66`, `OIC-001-01-A`), sigles lus comme un mot (SAMU, SIDA, AINS, GEU…), mots et lignes en capitales d'insistance, balises `[Refrain]`. Logique de Memo MNG (`phonetiqueChantee.ts`), partie « sigles » seule, adaptée au français médical (PAS, TV, CV épelés). Modèle, styles, poids, durée et catalogue v2 (désactivé) inchangés. Les paroles affichées gardent « HTA ».
+### Corrigé
+- Barre de navigation mobile basse : vrais liens avec `aria-current` (et non `role="tablist"`/`role="tab"` sur des boutons qui naviguent) ; présente aussi sur `/edn-complete` et les fiches d'item ; le mini-lecteur se pose au-dessus d'elle (il la recouvrait tant qu'un titre jouait) ; marge basse réservée une seule fois pour la barre et le mini-lecteur (le pied de page restait sous la barre).
+- En-tête des fiches d'item : texte blanc sur dégradé vert-bleu à 2,59:1 (départ `--accent`) → départ `--accent-text`, 4,82:1 au pire en thème clair ; thème sombre inchangé (5,05:1 au pire).
+### Tests
+- `parolesChanteesSigles.test.ts` (60 cas : sigles médicaux, codes d'item, sigles lus comme un mot, lignes criées, balises, IV, idempotence, requête Suno), `barreBasseMobile.test.tsx` (15 cas). `parolesChantees.test.ts` : trois attentes mises à jour (« IM », « PAS », « OMA, HTA » désormais épelés).
+### Déploiement
+- Edge Function à redéployer après fusion : `mm-generate-music` (chaîne `_shared/mm-suno-requete.ts` → `mm-paroles-chantees.ts`), puis publication du site. Aucune migration.
+
 ## [2026-10-14] — « Mot de passe oublié » (P0, recette en production)
 ### Corrigé
 - « Mot de passe oublié » : l'e-mail (gabarit Supabase anglais, expéditeur `noreply@mail.app.supabase.io`) menait à `emotionscare.com` sans formulaire, car le projet Supabase est partagé avec EmotionsCare (URL de site `emotionscare.com`, `medmng.com` absent des redirections autorisées). Nouvelle fonction publique `mm-password-reset` : jeton par `auth.admin.generateLink` (aucun e-mail Supabase), lien construit sur une base fixe (`MEDMNG_SITE_URL`, défaut `https://medmng.com`), e-mail français par Resend, limites durables et atomiques 3/h par adresse, 10/h par IP (`cf-connecting-ip`, jamais `x-forwarded-for`) et 300/h au total (table dédiée `mm_reinit_mdp_compteurs`, fonction SQL `mm_reserver_reinit_mdp`, migration `20261014140000` ; échec fermé), jeton dans le fragment de l'adresse (retiré avant Sentry, jetons masqués dans les évènements Sentry), réponse 200 identique que le compte existe ou non et sans écart de délai (réponse renvoyée avant `generateLink` et l'envoi, faits en tâche de fond). La page `/med-mng/reset-password` échange `token_hash` par `verifyOtp` ; lien expiré ou déjà utilisé : message et lien pour refaire une demande ; panne réseau : « Connexion impossible pour le moment » et « Réessayer » sans perdre le jeton. Aucun réglage auth modifié.
