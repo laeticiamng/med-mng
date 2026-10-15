@@ -82,6 +82,15 @@ export interface QuestionRappel extends QuestionMemoBase {
 
 export type QuestionMemo = QuestionQcm | QuestionRappel;
 
+type SansTracabilite<Q> = Q extends unknown ? Omit<Q, 'verification' | 'itemCode' | 'objectifId'> : never;
+
+/**
+ * Ce que l'interface reçoit : la question sans sa traçabilité interne (extrait, sources,
+ * justification). Une `QuestionMemo` complète (chemin statique du pilote) en est un sur-ensemble.
+ * `statut` est renseigné par le serveur ; il sert seulement à signaler le mode pilote.
+ */
+export type QuestionAffichee = SansTracabilite<QuestionMemo> & { statut?: StatutVerification };
+
 export const VERIFICATEUR_PILOTE =
   'Claude (IA) — contrôle automatisé de l’extrait et recoupement documentaire ; aucune relecture médicale humaine';
 export const DATE_VERIFICATION_PILOTE = '2026-10-15';

@@ -1,4 +1,4 @@
-import type { QuestionMemo } from '@/data/quizMemorisation/types';
+import type { QuestionAffichee, QuestionMemo } from '@/data/quizMemorisation/types';
 import { statutAffichable } from '@/data/quizMemorisation/verification';
 
 /**
@@ -16,7 +16,7 @@ export function questionsAffichables(questions: readonly QuestionMemo[], pilote:
   return questions.filter((q) => statutAffichable(q.verification.statut, pilote));
 }
 
-export function compterParRang(questions: readonly QuestionMemo[]): Record<RangMemo, number> {
+export function compterParRang(questions: readonly QuestionAffichee[]): Record<RangMemo, number> {
   return {
     A: questions.filter((q) => q.rang === 'A').length,
     B: questions.filter((q) => q.rang === 'B').length,
@@ -43,12 +43,12 @@ export function construireSerie({
   decalage = 0,
   taille = TAILLE_SERIE,
 }: {
-  questions: readonly QuestionMemo[];
+  questions: readonly QuestionAffichee[];
   rang: RangMemo;
   aRevoir?: NotionsARevoir;
   decalage?: number;
   taille?: number;
-}): QuestionMemo[] {
+}): QuestionAffichee[] {
   const duRang = questions.filter((q) => q.rang === rang);
   const revoir = duRang
     .filter((q) => (aRevoir[q.id]?.erreurs ?? 0) > 0)
@@ -83,7 +83,7 @@ export function mettreAJourNotions(
 }
 
 /** Notions à revoir qui appartiennent bien à la liste de questions donnée. */
-export function notionsConcernees(aRevoir: NotionsARevoir, questions: readonly QuestionMemo[]): string[] {
+export function notionsConcernees(aRevoir: NotionsARevoir, questions: readonly QuestionAffichee[]): string[] {
   return questions.filter((q) => (aRevoir[q.id]?.erreurs ?? 0) > 0).map((q) => q.id);
 }
 

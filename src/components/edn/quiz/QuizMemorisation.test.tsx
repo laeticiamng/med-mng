@@ -187,6 +187,19 @@ describe('QuizMemorisation — parcours', () => {
     erreur.mockRestore();
   });
 
+  it('une exception pendant l’enregistrement ne bloque pas le bilan et prévient l’étudiant', async () => {
+    const erreur = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    m.insert.mockRejectedValue(new Error('réseau coupé'));
+    await rendre();
+    fireEvent.click(screen.getByRole('button', { name: /Pour aller plus loin/ }));
+    repondre(true);
+    repondre(false);
+    expect(screen.getByTestId('memo-bilan')).toHaveTextContent('1 notion retenue sur 2');
+    await waitFor(() => expect(m.toastErreur).toHaveBeenCalledWith(expect.stringMatching(/non enregistré/)));
+    expect(m.enregistrer).not.toHaveBeenCalled();
+    erreur.mockRestore();
+  });
+
   it('prévient aussi quand le suivi de révision (historique ou carte) n’est pas mis à jour', async () => {
     m.enregistrer.mockResolvedValue({ historique: true, carte: false });
     await rendre();
