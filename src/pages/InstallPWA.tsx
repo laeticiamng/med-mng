@@ -8,7 +8,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, Download, Heart, Smartphone, Wifi, Zap, Bell, Shield, Monitor, Apple } from 'lucide-react';
+import { CheckCircle, Download, Heart, Smartphone, Wifi, Zap, Shield, Monitor, Apple } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MVPFooter } from '@/components/layout/MVPFooter';
@@ -99,12 +99,6 @@ const InstallPWA: React.FC = () => {
       title: "Accès rapide",
       description: "Med MNG s'ouvre depuis l'écran d'accueil, comme une application. Une connexion internet est nécessaire pour consulter les contenus.",
       color: "text-primary"
-    },
-    {
-      icon: Bell,
-      title: "Notifications",
-      description: "Recevez des rappels pour vos séances de révision",
-      color: "text-warning"
     },
     {
       icon: Zap,
