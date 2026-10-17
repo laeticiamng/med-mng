@@ -117,7 +117,8 @@ export const ApplePlatformFeatures = () => {
                       className="self-start group/btn hover:bg-primary/10"
                       onClick={() => handleClick(feat.tab, feat.path)}
                     >
-                      <TranslatedText text={user ? "Découvrir" : "S'inscrire pour accéder"} />
+                      {/* Un lien direct (catalogue public) mène à la page sans inscription : libellé « Découvrir ». */}
+                      <TranslatedText text={user || feat.path ? "Découvrir" : "S'inscrire pour accéder"} />
                       <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
                   )}

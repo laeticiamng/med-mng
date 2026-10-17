@@ -84,7 +84,8 @@ export const PlaylistManager = () => {
     e.preventDefault();
     if (!formData.name.trim()) return;
 
-    const result = await createPlaylist(formData.name, formData.description, formData.is_public);
+    // Aucune page publique n'existe : toute playlist est créée privée.
+    const result = await createPlaylist(formData.name, formData.description, false);
     if (result) {
       setIsCreateDialogOpen(false);
       setFormData({ name: '', description: '', is_public: false });
@@ -98,7 +99,8 @@ export const PlaylistManager = () => {
     const result = await updatePlaylist(editingPlaylist.id, {
       name: formData.name,
       description: formData.description,
-      is_public: formData.is_public
+      // Une playlist publique (ancien réglage) redevient privée à l'enregistrement : la bascule a été retirée.
+      is_public: false
     });
 
     if (result) {
