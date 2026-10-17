@@ -1,4 +1,3 @@
-import { SRSStatsExport } from '@/components/srs/SRSStatsExport';
 import { MedicalDisclaimerFooter } from '@/components/legal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -397,24 +396,6 @@ export default function SRSReview() {
                 <p className="text-sm text-muted-foreground">Maîtrisés</p>
               </CardContent>
             </Card>
-          </div>
-        )}
-
-        {/* Stats Export */}
-        {!isSessionActive && stats && (
-          <div className="mb-8">
-          <SRSStatsExport
-              stats={{
-                dueToday: stats.dueToday || 0,
-                newItems: stats.newItems || 0,
-                learningItems: stats.learningItems || 0,
-                masteredItems: stats.masteredItems || 0,
-                totalReviews: 0,
-                averageRetention: 85,
-                streak: gamificationStats?.currentStreak || 0,
-                totalStudyTime: 0
-              }}
-            />
           </div>
         )}
 

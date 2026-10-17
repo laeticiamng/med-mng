@@ -41,8 +41,8 @@ const faqs = [
     answer: "Oui, écrivez à contact@emotionscare.com."
   },
   {
-    question: "Puis-je accéder à Med MNG hors connexion ?",
-    answer: "Les fiches déjà consultées restent lisibles hors connexion grâce à la PWA. L'audio, les quiz et la génération nécessitent une connexion internet."
+    question: "Faut-il une connexion internet pour utiliser Med MNG ?",
+    answer: "Une connexion internet est nécessaire pour consulter les contenus."
   }
 ];
 

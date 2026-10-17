@@ -55,7 +55,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === EDN ===
   '/edn-complete': {
     title: 'Items EDN Complets - 367 items',
-    description: 'Explorez les 367 items EDN avec cours musicaux, QCM, flashcards et vidéos. Chaque item transformé en chanson pour une mémorisation optimale.',
+    description: 'Explorez les 367 items EDN : fiches officielles rang A et rang B, paroles, récit, planches et quiz par item. Contenu rédigé par IA.',
     keywords: `${BASE_KEYWORDS}, items EDN, 367 items, R2C, programme national`,
     canonical: '/edn-complete',
     ogType: 'article',
@@ -108,7 +108,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === AUTH ===
   '/med-mng/login': {
     title: 'Connexion',
-    description: 'Connectez-vous à Med MNG pour accéder à vos révisions médicales en musique. 367 items EDN vous attendent.',
+    description: 'Connectez-vous à Med MNG pour accéder à vos révisions médicales. 367 items EDN vous attendent.',
     keywords: `${BASE_KEYWORDS}, connexion, login, compte`,
     canonical: '/med-mng/login',
   },
@@ -225,8 +225,8 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   // === PWA & MISC ===
   '/install': {
     title: 'Installer Med MNG',
-    description: 'Installez Med MNG sur votre appareil pour un accès rapide hors ligne. Application progressive (PWA).',
-    keywords: `${BASE_KEYWORDS}, installer, PWA, application, hors ligne`,
+    description: 'Installez Med MNG sur votre appareil pour un accès rapide. Application progressive (PWA).',
+    keywords: `${BASE_KEYWORDS}, installer, PWA, application`,
     canonical: '/install',
   },
   '/pwa-analytics': {

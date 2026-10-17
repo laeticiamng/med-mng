@@ -133,7 +133,7 @@ const CookiesPolicy = () => {
                       <tr className="border-b border-border/50">
                         <td className="p-2 font-mono text-xs">med_mng_offline_db, medmng_offline, cache de l'application</td>
                         <td className="p-2">Navigateur (IndexedDB, cache)</td>
-                        <td className="p-2">Application installable et fiches lisibles hors connexion</td>
+                        <td className="p-2">Application installable et mise en cache de l'application</td>
                         <td className="p-2">Jusqu'à effacement des données du site</td>
                       </tr>
                       <tr className="border-b border-border/50">

@@ -15,7 +15,7 @@ const ReussirEdn = () => {
     <>
       <SEOHead
         title="Guide complet pour réussir les EDN 2027 | Med MNG"
-        description="Réussir les EDN 2027 (session d'octobre 2026) : stratégies, planning, méthodes de révision et outils. 367 items, QCM, cas cliniques."
+        description="Réussir les EDN : stratégies, planning, méthodes de révision et outils. 367 items, fiches officielles, quiz par item."
         keywords="réussir EDN, EDN 2027, épreuves dématérialisées nationales, révision médecine, classement national"
         canonical="/reussir-edn"
       />

@@ -20,7 +20,7 @@ const features = [
   },
   {
     id: 'lyrics', icon: Music,
-    title: 'Paroles tirées du référentiel', subtitle: '1 chanson par item EDN',
+    title: 'Paroles tirées du référentiel', subtitle: 'Paroles par item ; audio à la demande (Premium)',
     description: "Les paroles sont écrites à partir des compétences rang A et rang B de l'item. Elles complètent la fiche, sans la remplacer.",
     gradient: 'from-accent to-accent/60', bgGradient: 'from-accent/20 via-accent/5 to-transparent',
     colSpan: 1 as const,

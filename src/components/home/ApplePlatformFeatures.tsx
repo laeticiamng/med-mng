@@ -11,8 +11,9 @@ const features = [
   {
     icon: BookOpen,
     titleFr: 'Catalogue des items',
-    descFr: '367 items EDN organisés par spécialité : fiches officielles rang A et rang B, et contenu immersif (paroles, récit, planches, quiz).',
+    descFr: '367 items EDN : fiches officielles rang A et rang B, et contenu immersif (paroles, récit, planches, quiz).',
     tab: 'content',
+    path: ROUTE_PATHS.ednComplete,
     colSpan: 2,
     gradient: 'from-primary/20 via-primary/5 to-transparent',
     iconBg: 'bg-primary/15 text-primary',
@@ -33,8 +34,12 @@ export const ApplePlatformFeatures = () => {
   const { user } = useAuth();
 
   // Seules des fonctionnalités disponibles sont présentées (plus de cartes « Bientôt »).
-  const handleClick = (tab: string | null) => {
+  const handleClick = (tab: string | null, path?: string) => {
     if (!tab) return;
+    if (path) {
+      navigate(path);
+      return;
+    }
     navigate(user ? `/library?tab=${tab}` : ROUTE_PATHS.medMngSignup);
   };
 
@@ -110,9 +115,10 @@ export const ApplePlatformFeatures = () => {
                       variant="ghost"
                       size="sm"
                       className="self-start group/btn hover:bg-primary/10"
-                      onClick={() => handleClick(feat.tab)}
+                      onClick={() => handleClick(feat.tab, feat.path)}
                     >
-                      <TranslatedText text={user ? "Découvrir" : "S'inscrire pour accéder"} />
+                      {/* Un lien direct (catalogue public) mène à la page sans inscription : libellé « Découvrir ». */}
+                      <TranslatedText text={user || feat.path ? "Découvrir" : "S'inscrire pour accéder"} />
                       <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
                   )}

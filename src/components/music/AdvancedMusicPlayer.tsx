@@ -513,14 +513,6 @@ export const AdvancedMusicPlayer: React.FC = () => {
                   placeholder="Ex: Cardiologie Focus"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is_public"
-                  checked={newPlaylist.is_public}
-                  onCheckedChange={(checked) => setNewPlaylist({...newPlaylist, is_public: checked})}
-                />
-                <Label htmlFor="is_public">Playlist publique</Label>
-              </div>
             </div>
 
             <div>

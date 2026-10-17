@@ -8,7 +8,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, Download, Heart, Smartphone, Wifi, Zap, Bell, Shield, Monitor, Apple } from 'lucide-react';
+import { CheckCircle, Download, Heart, Smartphone, Wifi, Shield, Monitor, Apple } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MVPFooter } from '@/components/layout/MVPFooter';
@@ -96,21 +96,9 @@ const InstallPWA: React.FC = () => {
   const features = [
     {
       icon: Wifi,
-      title: "Fiches lisibles hors ligne",
-      description: "Les fiches déjà consultées restent accessibles sans connexion.",
-      color: "text-primary"
-    },
-    {
-      icon: Bell,
-      title: "Notifications",
-      description: "Recevez des rappels pour vos séances de révision",
-      color: "text-warning"
-    },
-    {
-      icon: Zap,
       title: "Accès rapide",
-      description: "Lancez l'app directement depuis votre écran d'accueil",
-      color: "text-accent"
+      description: "Med MNG s'ouvre depuis l'écran d'accueil, comme une application. Une connexion internet est nécessaire pour consulter les contenus.",
+      color: "text-primary"
     },
     {
       icon: Shield,
@@ -123,7 +111,7 @@ const InstallPWA: React.FC = () => {
   const faqItems = [
     {
       question: "Qu'est-ce qu'une PWA ?",
-      answer: "Une Progressive Web App (PWA) est une application web qui fonctionne comme une application native. Elle s'installe sur votre appareil, fonctionne hors ligne et offre une expérience rapide."
+      answer: "Une Progressive Web App (PWA) est une application web qui fonctionne comme une application native. Elle s'installe sur votre appareil, offre une expérience rapide."
     },
     {
       question: "L'installation est-elle gratuite ?",
@@ -147,8 +135,8 @@ const InstallPWA: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="Installer l'application"
-        description="Installez Med MNG sur votre téléphone pour un accès rapide, mode offline et notifications. Disponible pour iOS et Android."
-        keywords="installer app, PWA, application mobile, offline, médecine mobile"
+        description="Installez Med MNG sur votre téléphone pour un accès rapide depuis l'écran d'accueil. Disponible pour iOS et Android."
+        keywords="installer app, PWA, application mobile, médecine mobile"
       />
 
       <main className="flex-1 p-4 sm:p-6">
