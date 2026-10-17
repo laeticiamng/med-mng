@@ -15,7 +15,7 @@ const PreparationEcos2027 = () => {
     <>
       <SEOHead
         title="Comment préparer les ECOS 2027 – Guide complet | Med MNG"
-        description="Guide complet pour réussir les ECOS 2027 (promotion qui passe les EDN en octobre 2026). Stratégies, planning, fiches interactives et simulation. Préparez-vous efficacement avec Med MNG."
+        description="Guide complet pour réussir les ECOS 2027 (promotion qui passe les EDN en octobre 2026). Stratégies, planning, fiches officielles et situations guidées avec auto-évaluation. Préparez-vous efficacement avec Med MNG."
         keywords="ECOS 2027, préparation ECOS, réussir ECOS, examen clinique objectif structuré, médecine, étudiant"
         canonical="/preparation-ecos-2027"
       />

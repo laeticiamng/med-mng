@@ -54,7 +54,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
                 <span className="font-bold text-lg text-foreground">Med MNG</span>
               </div>
               <p className="text-muted-foreground text-xs">
-                Apprenez la médecine en musique.
+                La mémorisation médicale fiable et durable.
               </p>
             </div>
 
@@ -109,7 +109,7 @@ export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
                 <span className="font-bold text-lg text-foreground">Med MNG</span>
               </div>
               <p className="text-muted-foreground text-xs">
-                Apprenez la médecine en musique.
+                La mémorisation médicale fiable et durable.
               </p>
             </div>
 

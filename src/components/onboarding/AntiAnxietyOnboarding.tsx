@@ -65,7 +65,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
             
             <div className="space-y-3">
               <h2 className="text-2xl font-bold text-foreground">
-                🎧 Apprenez la médecine en musique
+                La mémorisation médicale fiable et durable
               </h2>
               <p className="text-muted-foreground">
                 Écoutez. Retenez. Sans vous épuiser.

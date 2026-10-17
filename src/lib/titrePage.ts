@@ -1,5 +1,5 @@
 /** Titre d'onglet de l'accueil (et titre par défaut de index.html). */
-export const TITRE_ACCUEIL = "Med MNG · Réviser l'EDN en musique";
+export const TITRE_ACCUEIL = "Med MNG · La mémorisation médicale fiable et durable";
 
 /**
  * Titre d'onglet au format « <Page> · Med MNG ».

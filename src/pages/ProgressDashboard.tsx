@@ -1,6 +1,5 @@
 // ProgressDashboard - Learning Progress Tracking
 import { RevisionHistory } from '@/components/analytics/RevisionHistory';
-import { PDFExportService } from '@/components/export/PDFExportService';
 import { ProgressExport } from '@/components/export/ProgressExport';
 import { BadgeCollection } from '@/components/gamification/BadgeCollection';
 import { StreakDisplay } from '@/components/gamification/StreakDisplay';
@@ -10,7 +9,6 @@ import { ItemMasteryGrid } from '@/components/learning/ItemMasteryGrid';
 import { LearningInsights } from '@/components/learning/LearningInsights';
 import { StudyCalendar } from '@/components/learning/StudyCalendar';
 import { StudyCalendarSync } from '@/components/learning/StudyCalendarSync';
-import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -254,12 +252,10 @@ export default function ProgressDashboard() {
 
           <TabsContent value="settings" className="space-y-6 mt-6">
             <div className="grid md:grid-cols-2 gap-6">
-              {user && <SRSNotificationSettings userId={user.id} />}
               <StudyCalendarSync />
               {user && gamificationStats && (
                 <ProgressExport userId={user.id} stats={gamificationStats} />
               )}
-              <PDFExportService />
               {/* OfflineSyncManager retiré le 25/09/2026 : son « téléchargement hors
                   ligne » n'écrivait qu'un stub JSON de quelques octets dans le cache
                   sous une URL fictive, puis annonçait le contenu « disponible hors

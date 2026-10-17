@@ -204,8 +204,8 @@ const About = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Accessibilité</h4>
                 <p className="text-sm text-muted-foreground">
-                  Les fiches officielles des 367 items sont accessibles gratuitement ; l'application s'installe (PWA) et les
-                  fiches déjà consultées restent lisibles hors connexion.
+                  Les fiches officielles des 367 items sont accessibles gratuitement ; l'application s'installe (PWA).
+                  Une connexion internet est nécessaire pour consulter les contenus.
                 </p>
               </div>
               <div className="bg-accent/10 p-4 rounded-lg">

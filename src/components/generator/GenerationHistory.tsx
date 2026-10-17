@@ -13,14 +13,13 @@ import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow, isThisMonth, isThisWeek, isToday } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { BarChart3, ChevronLeft, ChevronRight, Clock, Download, FileDown, Heart, Music, Pause, Play, RefreshCw, Search, Share2, Trash2 } from 'lucide-react';
+import { BarChart3, ChevronLeft, ChevronRight, Clock, Download, FileDown, Heart, Music, Pause, Play, RefreshCw, Search, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { BatchActionsBar } from './BatchActionsBar';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 import { GenerationFilters, type DateRangeType, type FilterType, type SortType } from './GenerationFilters';
 import { GenerationStats } from './GenerationStats';
-import { ShareMusicDialog } from './ShareMusicDialog';
 
 interface GeneratedTrack {
   id: string;
@@ -55,7 +54,6 @@ export const GenerationHistory: React.FC = React.memo(() => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [trackToDelete, setTrackToDelete] = useState<string | null>(null);
   const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] = useState(false);
-  const [shareTrack, setShareTrack] = useState<GeneratedTrack | null>(null);
 
   // Realtime subscription pour les nouvelles générations
   useRealtimeGeneration({
@@ -797,16 +795,6 @@ export const GenerationHistory: React.FC = React.memo(() => {
                         étendue n'était enregistrée nulle part (« disponible dans quelques
                         minutes » sans suite) et chaque clic lançait une génération Suno
                         hors quota. L'action « extend » d'ai-audio est retirée. */}
-                    {/* Bouton partage - hidden on very small screens */}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setShareTrack(track)}
-                      className="hidden xs:flex h-7 w-7 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-primary"
-                      aria-label="Partager"
-                    >
-                      <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -883,16 +871,6 @@ export const GenerationHistory: React.FC = React.memo(() => {
         itemCount={selectedIds.size}
         isLoading={isBatchDeleting}
       />
-
-      {/* Dialog de partage */}
-      {shareTrack && (
-        <ShareMusicDialog
-          trackTitle={shareTrack.title || `${shareTrack.item_code} - Rang ${shareTrack.rang}`}
-          trackId={shareTrack.id}
-          open={!!shareTrack}
-          onOpenChange={(open) => !open && setShareTrack(null)}
-        />
-      )}
     </PremiumCard>
   );
 });

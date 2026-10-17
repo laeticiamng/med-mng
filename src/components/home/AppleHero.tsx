@@ -81,10 +81,10 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6"
         >
-          <span className="text-foreground"><TranslatedText text="Apprenez la médecine" /></span>
+          <span className="text-foreground"><TranslatedText text="La mémorisation médicale" /></span>
           <br />
           <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent text-gradient-animated">
-            <TranslatedText text="en musique." />
+            <TranslatedText text="fiable et durable." />
           </span>
         </motion.h1>
 
@@ -95,15 +95,15 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          <TranslatedText text="Les 367 items EDN, avec leurs compétences officielles rang A et rang B." />{' '}
+          <TranslatedText text="Une méthode complémentaire de vos banques de QCM : les 367 items EDN, avec leurs compétences officielles rang A et rang B." />{' '}
           <br className="hidden sm:block" />
           {GENERATION_AUDIO_DISPONIBLE ? (
             <>
-              <TranslatedText text="Chaque item peut être mis en" /> <span className="text-foreground font-semibold"><TranslatedText text="chanson à la demande" /></span>.
+              <TranslatedText text="En option, avec Premium :" /> <span className="text-foreground font-semibold"><TranslatedText text="audio à la demande" /></span>.
             </>
           ) : (
             <>
-              <TranslatedText text="Chaque item a ses" /> <span className="text-foreground font-semibold"><TranslatedText text="paroles chantables" /></span>, <TranslatedText text="tirées du référentiel officiel." />
+              <TranslatedText text="Chaque item a ses" /> <span className="text-foreground font-semibold"><TranslatedText text="paroles" /></span>, <TranslatedText text="tirées du référentiel officiel." />
             </>
           )}
         </motion.p>

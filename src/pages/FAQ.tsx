@@ -252,7 +252,7 @@ const FAQ = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
                   Oui, Med MNG est une application web installable (PWA) sur smartphone ou tablette, directement
-                  depuis votre navigateur. Les fiches déjà consultées restent lisibles hors connexion. Pour
+                  depuis votre navigateur. Une connexion internet est nécessaire pour consulter les contenus. Pour
                   l'installer, rendez-vous sur la page{' '}
                   <Link to={ROUTE_PATHS.installPwa} className="text-primary underline underline-offset-2 hover:decoration-2">Installer l'app</Link>.
                 </AccordionContent>
@@ -260,12 +260,10 @@ const FAQ = () => {
 
               <AccordionItem value="tech-2" className="border rounded-lg px-4">
                 <AccordionTrigger className="text-left text-sm font-medium">
-                  Puis-je utiliser Med MNG hors connexion ?
+                  Faut-il une connexion internet pour utiliser Med MNG ?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  En partie : une fois la PWA installée, les fiches d'items déjà consultées restent lisibles
-                  hors connexion. L'audio des chansons, les quiz et la génération nécessitent une connexion
-                  internet.
+                  Une connexion internet est nécessaire pour consulter les contenus.
                 </AccordionContent>
               </AccordionItem>
 

@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { usePlaylists, type Playlist } from '@/hooks/usePlaylists';
 import { Edit2, Globe, Lock, Music, Plus, Trash2 } from 'lucide-react';
@@ -194,16 +193,6 @@ export const PlaylistManager = () => {
                   rows={3}
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is_public"
-                  checked={formData.is_public}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public: checked }))}
-                />
-                <Label htmlFor="is_public">
-                  <TranslatedText text="Playlist publique" />
-                </Label>
-              </div>
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   <TranslatedText text="Annuler" />
@@ -339,16 +328,6 @@ export const PlaylistManager = () => {
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={3}
               />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-is_public"
-                checked={formData.is_public}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public: checked }))}
-              />
-              <Label htmlFor="edit-is_public">
-                <TranslatedText text="Playlist publique" />
-              </Label>
             </div>
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => setEditingPlaylist(null)}>

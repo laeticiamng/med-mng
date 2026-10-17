@@ -68,7 +68,7 @@ export const createSoftwareApplicationSchema = () => ({
 export const createEducationalApplicationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: 'Med MNG - Apprentissage Médical Musical',
+  name: 'Med MNG - Mémorisation médicale',
   url: SITE_URL,
   applicationCategory: 'EducationalApplication',
   genre: 'Medical Education',
@@ -79,14 +79,11 @@ export const createEducationalApplicationSchema = () => ({
   },
   educationalLevel: 'Études de médecine (2e et 3e cycle)',
   learningResourceType: [
-    'Chansons médicales IA',
-    'QCM interactifs',
-    'QRU (Question à Réponse Unique)',
-    'QROC (Question à Réponse Ouverte Courte)',
-    'Cas cliniques interactifs',
+    'Fiches officielles rang A et rang B',
+    'Contenus immersifs (paroles, récit, planches)',
+    'Quiz par item',
     'Flashcards SRS (Répétition Espacée)',
-    'Simulations ECOS',
-    'Mode examen EDN',
+    'Situations ECOS guidées avec auto-évaluation',
   ],
   numberOfItems: 367,
   isAccessibleForFree: true,
@@ -194,10 +191,10 @@ export const createFAQPageSchema = () => ({
     },
     {
       '@type': 'Question',
-      name: 'Puis-je utiliser Med MNG hors connexion ?',
+      name: 'Faut-il une connexion internet pour utiliser Med MNG ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'En partie : grâce à la PWA, les fiches déjà consultées restent lisibles hors connexion. L\'audio, les quiz et la génération nécessitent une connexion.',
+        text: 'Une connexion internet est nécessaire pour consulter les contenus.',
       },
     },
     {

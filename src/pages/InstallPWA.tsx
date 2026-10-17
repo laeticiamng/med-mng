@@ -96,8 +96,8 @@ const InstallPWA: React.FC = () => {
   const features = [
     {
       icon: Wifi,
-      title: "Fiches lisibles hors ligne",
-      description: "Les fiches déjà consultées restent accessibles sans connexion.",
+      title: "Accès rapide",
+      description: "Med MNG s'ouvre depuis l'écran d'accueil, comme une application. Une connexion internet est nécessaire pour consulter les contenus.",
       color: "text-primary"
     },
     {
@@ -123,7 +123,7 @@ const InstallPWA: React.FC = () => {
   const faqItems = [
     {
       question: "Qu'est-ce qu'une PWA ?",
-      answer: "Une Progressive Web App (PWA) est une application web qui fonctionne comme une application native. Elle s'installe sur votre appareil, fonctionne hors ligne et offre une expérience rapide."
+      answer: "Une Progressive Web App (PWA) est une application web qui fonctionne comme une application native. Elle s'installe sur votre appareil, offre une expérience rapide."
     },
     {
       question: "L'installation est-elle gratuite ?",
@@ -147,8 +147,8 @@ const InstallPWA: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="Installer l'application"
-        description="Installez Med MNG sur votre téléphone pour un accès rapide, mode offline et notifications. Disponible pour iOS et Android."
-        keywords="installer app, PWA, application mobile, offline, médecine mobile"
+        description="Installez Med MNG sur votre téléphone pour un accès rapide depuis l'écran d'accueil. Disponible pour iOS et Android."
+        keywords="installer app, PWA, application mobile, médecine mobile"
       />
 
       <main className="flex-1 p-4 sm:p-6">

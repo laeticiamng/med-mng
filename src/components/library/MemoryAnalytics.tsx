@@ -2,42 +2,23 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  Brain, Bell, BellRing, Calendar, TrendingDown, TrendingUp,
+  Brain, Calendar, TrendingDown, TrendingUp,
   Clock, CheckCircle2, AlertTriangle, BarChart3, Loader2
 } from 'lucide-react';
 
 interface TopicMemory {
   id: string;
   topic: string;
-  specialty: string;
   learnedAt: Date;
   lastReviewedAt: Date;
   reviewCount: number;
   retentionNow: number;
   nextReviewAt: Date;
   status: 'strong' | 'fading' | 'critical';
-}
-
-// Map item_code prefixes to specialties
-function getSpecialtyFromItemCode(itemCode: string): string {
-  const prefix = itemCode.split('-')[0]?.toUpperCase() || '';
-  const map: Record<string, string> = {
-    'CARD': 'Cardiologie', 'NEURO': 'Neurologie', 'PHARMA': 'Pharmacologie',
-    'CHIR': 'Chirurgie', 'PED': 'Pédiatrie', 'URG': 'Urgences',
-    'IMMUNO': 'Immunologie', 'PNEUMO': 'Pneumologie', 'GASTRO': 'Gastro-entérologie',
-    'NEPHRO': 'Néphrologie', 'HEMATO': 'Hématologie', 'ENDOC': 'Endocrinologie',
-    'DERMATO': 'Dermatologie', 'ORL': 'ORL', 'OPHTA': 'Ophtalmologie',
-  };
-  for (const [key, value] of Object.entries(map)) {
-    if (prefix.startsWith(key)) return value;
-  }
-  return 'Médecine générale';
 }
 
 // Calculate Ebbinghaus retention from SRS data
@@ -96,9 +77,7 @@ export const MemoryAnalytics = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState<TopicMemory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterSpecialty, setFilterSpecialty] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -131,7 +110,6 @@ export const MemoryAnalytics = () => {
           return {
             id: item.id,
             topic: item.item_code.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-            specialty: getSpecialtyFromItemCode(item.item_code),
             learnedAt,
             lastReviewedAt,
             reviewCount: item.total_reviews,
@@ -152,16 +130,11 @@ export const MemoryAnalytics = () => {
     fetchProgress();
   }, []);
 
-  const specialties = useMemo(() =>
-    ['all', ...new Set(topics.map(t => t.specialty))],
-  [topics]);
-
   const filtered = useMemo(() =>
     topics
-      .filter(t => filterSpecialty === 'all' || t.specialty === filterSpecialty)
       .filter(t => filterStatus === 'all' || t.status === filterStatus)
       .sort((a, b) => a.retentionNow - b.retentionNow),
-  [topics, filterSpecialty, filterStatus]);
+  [topics, filterStatus]);
 
   const avgRetention = topics.length > 0
     ? Math.round(topics.reduce((sum, t) => sum + t.retentionNow, 0) / topics.length)
@@ -203,7 +176,7 @@ export const MemoryAnalytics = () => {
           Memory Analytics
         </h2>
         <p className="text-muted-foreground">
-          Courbe d'oubli d'Ebbinghaus & rappels de révision optimaux
+          Courbe d'oubli d'Ebbinghaus et prochaines révisions
         </p>
       </div>
 
@@ -258,17 +231,11 @@ export const MemoryAnalytics = () => {
         </Card>
       )}
 
-      {/* Filters + reminder toggle */}
+      {/* Filtre de statut */}
       {topics.length > 0 && (
         <>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex gap-3">
-              <Select value={filterSpecialty} onValueChange={setFilterSpecialty}>
-                <SelectTrigger className="w-[160px]"><SelectValue placeholder="Spécialité" /></SelectTrigger>
-                <SelectContent>
-                  {specialties.map(s => <SelectItem key={s} value={s}>{s === 'all' ? 'Toutes spécialités' : s}</SelectItem>)}
-                </SelectContent>
-              </Select>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-[140px]"><SelectValue placeholder="Statut" /></SelectTrigger>
                 <SelectContent>
@@ -278,13 +245,6 @@ export const MemoryAnalytics = () => {
                   <SelectItem value="critical">Critique</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
-              <label className="text-sm flex items-center gap-1.5">
-                {remindersEnabled ? <BellRing className="h-4 w-4 text-primary" /> : <Bell className="h-4 w-4 text-muted-foreground" />}
-                Rappels de révision
-              </label>
             </div>
           </div>
 
@@ -306,7 +266,6 @@ export const MemoryAnalytics = () => {
                         </div>
                         <div>
                           <h3 className="font-semibold text-sm">{topic.topic}</h3>
-                          <Badge variant="outline" className="text-[10px] mt-0.5">{topic.specialty}</Badge>
                         </div>
                       </div>
 
