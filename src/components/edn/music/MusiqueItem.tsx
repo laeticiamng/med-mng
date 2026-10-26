@@ -30,6 +30,7 @@ import {
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
 import { useChansonItem, type RangChanson } from '@/hooks/useChansonItem';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
+import { lireRangMemorise, memoriserRang } from '@/lib/rangMusiqueMemorise';
 import { verifierAmbianceLocale } from '../../../../supabase/functions/_shared/mm-ambiance';
 import { Loader2, Music, Sparkles } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -95,14 +96,34 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
   const chanson = useChansonItem(itemCode, paroles);
   const { preferences, savePreferences } = useGeneratorPreferences();
 
-  // Rang : A par défaut, ou le premier rang que l'item possède (IC-30 : rang B seul).
+  // Rang : celui choisi la dernière fois pour cet item (mémorisé comme le style),
+  // sinon A, ou le premier rang que l'item possède (IC-30 : rang B seul).
   const raison = useCallback(
     // Tant que le chargement n'a pas abouti, aucun rang n'est écarté.
-    (rang: RangChanson) =>
-      raisonRangIndisponible(rang, rangAVide ? 0 : 1, rangBVide ? 0 : 1),
+    (rang: RangChanson) => {
+      const nbA = rangAVide ? 0 : 1;
+      const nbB = rangBVide ? 0 : 1;
+      // La raison commune nomme les niveaux de Create (« Essentiel »,
+      // « Approfondissement ») : ici, les onglets s'appellent Rang A et Rang B.
+      if (rang === 'AB' && nbA > 0 && nbB === 0)
+        return 'Même contenu que le rang A : cet item n’a que du rang A au programme officiel';
+      if (rang === 'AB' && nbA === 0 && nbB > 0)
+        return 'Même contenu que le rang B : cet item n’a que du rang B au programme officiel';
+      return raisonRangIndisponible(rang, nbA, nbB);
+    },
     [rangAVide, rangBVide]
   );
-  const [rangChoisi, setRangChoisi] = useState<RangChanson | null>(null);
+  const [choix, setChoix] = useState(() => ({
+    itemCode,
+    rang: lireRangMemorise(itemCode),
+  }));
+  // Le composant peut rester monté d'un item à l'autre (même route) : le choix est relu.
+  const rangChoisi =
+    choix.itemCode === itemCode ? choix.rang : lireRangMemorise(itemCode);
+  const choisirRang = (valeur: RangChanson) => {
+    setChoix({ itemCode, rang: valeur });
+    memoriserRang(itemCode, valeur);
+  };
   const rangsPossibles = RANGS.filter((r) => !raison(r.valeur)).map(
     (r) => r.valeur
   );
@@ -217,7 +238,7 @@ export const MusiqueItem: React.FC<MusiqueItemProps> = ({
 
         <Tabs
           value={rang}
-          onValueChange={(v) => setRangChoisi(v as RangChanson)}
+          onValueChange={(v) => choisirRang(v as RangChanson)}
           className="space-y-5"
         >
           {/* 2. Trois onglets exclusifs */}

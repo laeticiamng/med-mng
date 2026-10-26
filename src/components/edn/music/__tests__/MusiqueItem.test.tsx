@@ -9,7 +9,7 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * Sous-page Musique d'un item EDN. Tout est simulé : aucun appel réseau, aucune
@@ -152,6 +152,11 @@ import { useChansonItem } from '@/hooks/useChansonItem';
 import { assurerChansonEnBibliotheque } from '@/lib/bibliothequeGeneration';
 import { generateComprehensiveLyrics } from '@/utils/generateComprehensiveLyrics';
 import { STYLES_MUSICAUX } from '@/config/stylesMusicaux';
+import {
+  CLE_RANG_MUSIQUE,
+  lireRangMemorise,
+  memoriserRang,
+} from '@/lib/rangMusiqueMemorise';
 
 const REDIGEES_A = [
   '[Couplet 1]',
@@ -254,6 +259,165 @@ describe('Musique d’un item — item présélectionné et structure', () => {
     expect(onglet('Rang A+B')).toBeDisabled();
     expect(onglet('Rang B')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText(/Rang B de l'item|En spécialité/)).toBeTruthy();
+  });
+
+  it('les raisons des onglets inactifs nomment les onglets de la page, pas les niveaux de Create', () => {
+    const { unmount } = rendre({
+      rangAVide: true,
+      paroles: { ...paroles, paroles_rang_a: [] },
+    });
+    expect(
+      screen.getByText(
+        'Rang A : Pas de rang A au programme officiel de cet item'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Rang A+B : Même contenu que le rang B : cet item n’a que du rang B au programme officiel'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Essentiel|Approfondissement/)).toBeNull();
+    unmount();
+
+    rendre({ rangBVide: true, paroles: { ...paroles, paroles_rang_b: [] } });
+    expect(
+      screen.getByText(
+        'Rang A+B : Même contenu que le rang A : cet item n’a que du rang A au programme officiel'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Essentiel|Approfondissement/)).toBeNull();
+  });
+});
+
+describe('Musique d’un item — rang mémorisé pour l’item', () => {
+  // localStorage est une simulation inerte dans src/tests/setup.ts : ici, une vraie mémoire.
+  const stockage = new Map<string, string>();
+  const choisirOnglet = (nom: string) => {
+    fireEvent.mouseDown(onglet(nom), { button: 0 });
+    fireEvent.click(onglet(nom));
+  };
+  const arbre = (client: QueryClient, itemCode: string) => (
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <MusiqueItem
+          itemCode={itemCode}
+          titre="Item de test"
+          numero={14}
+          paroles={{ ...paroles, item_code: itemCode }}
+          rangAVide={false}
+          rangBVide={false}
+        />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+
+  beforeEach(() => {
+    stockage.clear();
+    vi.mocked(localStorage.getItem).mockImplementation(
+      (cle: string) => stockage.get(cle) ?? null
+    );
+    vi.mocked(localStorage.setItem).mockImplementation(
+      (cle: string, valeur: string) => {
+        stockage.set(cle, String(valeur));
+      }
+    );
+  });
+  afterEach(() => {
+    vi.mocked(localStorage.getItem).mockReset();
+    vi.mocked(localStorage.setItem).mockReset();
+  });
+
+  it('le rang choisi est retrouvé en revenant sur la sous-page (autre sous-page, rechargement)', () => {
+    const { unmount } = rendre();
+    choisirOnglet('Rang B');
+    expect(onglet('Rang B')).toHaveAttribute('aria-selected', 'true');
+    unmount();
+
+    rendre();
+    expect(onglet('Rang B')).toHaveAttribute('aria-selected', 'true');
+    expect(
+      screen.getByText('En spécialité, il approfondit la démarche,')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Le médecin écoute le patient avec attention,')
+    ).toBeNull();
+    expect(etat.generer).not.toHaveBeenCalled();
+    expect(etat.invoke).not.toHaveBeenCalled();
+  });
+
+  it('le choix vaut pour son seul item et ne touche pas aux préférences de Create', () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const { rerender } = render(arbre(client, 'IC-14'));
+    choisirOnglet('Rang A+B');
+    expect(onglet('Rang A+B')).toHaveAttribute('aria-selected', 'true');
+
+    // Même composant, autre item (la route reste montée) : rang A par défaut.
+    rerender(arbre(client, 'IC-27'));
+    expect(onglet('Rang A')).toHaveAttribute('aria-selected', 'true');
+    rerender(arbre(client, 'IC-14'));
+    expect(onglet('Rang A+B')).toHaveAttribute('aria-selected', 'true');
+
+    expect(stockage.has('generator_preferences')).toBe(false);
+    expect(
+      Object.keys(JSON.parse(stockage.get(CLE_RANG_MUSIQUE) ?? '{}'))
+    ).toEqual(['IC-14']);
+  });
+
+  it('rang mémorisé que l’item ne possède pas (IC-30 sans rang A) : premier rang disponible', () => {
+    stockage.set(
+      CLE_RANG_MUSIQUE,
+      JSON.stringify({ 'IC-30': { rang: 'A', le: new Date().toISOString() } })
+    );
+    rendre({
+      itemCode: 'IC-30',
+      rangAVide: true,
+      paroles: { ...paroles, item_code: 'IC-30', paroles_rang_a: [] },
+    });
+    expect(onglet('Rang A')).toBeDisabled();
+    expect(onglet('Rang B')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('choix de plus de 7 jours ou mémoire illisible : ignorés, rang A par défaut', () => {
+    const ilYaHuitJours = new Date(
+      Date.now() - 8 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    stockage.set(
+      CLE_RANG_MUSIQUE,
+      JSON.stringify({ 'IC-14': { rang: 'B', le: ilYaHuitJours } })
+    );
+    const { unmount } = rendre();
+    expect(onglet('Rang A')).toHaveAttribute('aria-selected', 'true');
+    unmount();
+
+    stockage.set(CLE_RANG_MUSIQUE, '{pas du JSON');
+    rendre();
+    expect(onglet('Rang A')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('mémoriser retire les choix de plus de 7 jours ; stockage indisponible : aucune erreur', () => {
+    const ilYaHuitJours = new Date(
+      Date.now() - 8 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    stockage.set(
+      CLE_RANG_MUSIQUE,
+      JSON.stringify({
+        'IC-1': { rang: 'A', le: ilYaHuitJours },
+        'IC-2': { rang: 'AB', le: new Date().toISOString() },
+      })
+    );
+    memoriserRang('IC-14', 'B');
+    expect(lireRangMemorise('IC-14')).toBe('B');
+    expect(lireRangMemorise('IC-2')).toBe('AB');
+    expect(
+      Object.keys(JSON.parse(stockage.get(CLE_RANG_MUSIQUE) ?? '{}')).sort()
+    ).toEqual(['IC-14', 'IC-2']);
+
+    vi.mocked(localStorage.setItem).mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(() => memoriserRang('IC-27', 'A')).not.toThrow();
   });
 });
 
