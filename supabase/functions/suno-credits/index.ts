@@ -1,165 +1,68 @@
 /**
- * 🎵 Suno Credits - Vérification des crédits restants
- * 
- * Endpoint: GET /api/v1/get-credits
- * Documentation: https://docs.sunoapi.org/suno-api/quickstart
- * 
- * Améliorations:
- * - Timeout handling avec AbortController
- * - Retry logic avec exponential backoff
- * - Cache côté serveur
- * - Fallback en cas d'erreur
+ * 🎵 suno-credits — solde de crédits sunoapi.org (réservé aux administrateurs et au serveur)
+ *
+ * Point d'entrée du fournisseur : GET /api/v1/generate/credit → { code: 200, msg, data: <solde> }.
+ * L'ancienne version appelait /api/v1/get-credits (404 depuis toujours) et masquait l'échec par de faux soldes
+ * (« 50 crédits, plan demo » sans clé, « 10 crédits, plan fallback » en cas d'erreur) ; elle cherchait aussi des
+ * champs (plan, utilisé, total) que le fournisseur ne renvoie pas. Corrigé le 27.10.2026 :
+ *  - le vrai solde, lu par _shared/mm-suno-solde.ts (même lecture que l'alerte de solde bas) ;
+ *  - aucun solde inventé : clé absente → 503, fournisseur injoignable → 502 (ou le dernier solde réel, signalé
+ *    `stale: true`, s'il est en cache) ;
+ *  - une génération coûte 12 crédits (mesuré le 26.10.2026) : `generationsRestantes` en découle.
+ *
+ * Aucune application n'appelle cette fonction (EmotionsCare lit son solde par suno-music, qui utilisait déjà le bon
+ * point d'entrée ; Med MNG surveille le solde par mm-suno-solde).
  */
 
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
-import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { estTachePlanifiee, exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { COUT_GENERATION_CREDITS, lireSoldeSuno } from '../_shared/mm-suno-solde.ts';
 
-const SUNO_API_BASE = 'https://api.sunoapi.org/api/v1';
-const TIMEOUT_MS = 8000; // 8 secondes max
-const MAX_RETRIES = 2;
+const CACHE_TTL_MS = 60_000;
 
-// Simple in-memory cache (reset on cold start)
-let creditsCache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60000; // 1 minute
+// Cache en mémoire (remis à zéro à chaque démarrage à froid) : uniquement des soldes réellement lus.
+let cache: { credits: number; lu: number } | null = null;
 
-async function fetchWithTimeout(url: string, options: RequestInit, timeout: number): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-    return response;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
+const reponse = (statut: number, corps: Record<string, unknown>) =>
+  new Response(JSON.stringify(corps), { status: statut, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-async function fetchCreditsWithRetry(apiKey: string, retries = MAX_RETRIES): Promise<any> {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await fetchWithTimeout(
-        `${SUNO_API_BASE}/get-credits`,
-        {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${apiKey}` }
-        },
-        TIMEOUT_MS
-      );
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      return await response.json();
-    } catch (error: unknown) {
-      console.warn(`⚠️ Attempt ${attempt + 1}/${retries + 1} failed:`, error instanceof Error ? error.message : String(error));
-      
-      if (attempt < retries) {
-        // Exponential backoff: 500ms, 1000ms, 2000ms...
-        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt)));
-      } else {
-        throw error;
-      }
-    }
-  }
-}
+const corpsSolde = (credits: number, extra: Record<string, unknown>) => ({
+  success: true,
+  credits,
+  generationsRestantes: Math.max(0, Math.floor(credits / COUT_GENERATION_CREDITS)),
+  coutGeneration: COUT_GENERATION_CREDITS,
+  ...extra,
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-  // Réservé aux administrateurs (ou à la clé de service) : déployée avec verify_jwt = false, cette fonction
-  // dépensait des crédits d'API payants pour tout appelant, même anonyme
+  // Réservé aux administrateurs, à la clé de service et aux tâches planifiées (jeton Vault vérifié en base) :
+  // déployée avec verify_jwt = false, cette fonction dépensait des appels d'API pour tout appelant, même anonyme
   // (revue critique du 04.10.2026, _shared/mm-garde.ts).
-  const acces = await exigerAdministrateur(req, corsHeaders);
-  if (acces instanceof Response) return acces;
-
-  try {
-    const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
-    
-    if (!SUNO_API_KEY) {
-      console.warn('⚠️ SUNO_API_KEY not configured - returning default credits');
-      return new Response(JSON.stringify({
-        success: true,
-        credits: 50, // Default for demo
-        plan: 'demo',
-        used: 0,
-        total: 50,
-        cached: false,
-        fallback: true
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Check cache first
-    if (creditsCache && (Date.now() - creditsCache.timestamp) < CACHE_TTL_MS) {
-      console.log('💾 Returning cached credits');
-      return new Response(JSON.stringify({
-        ...creditsCache.data,
-        cached: true
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.log('💳 Fetching Suno credits...');
-    
-    const data = await fetchCreditsWithRetry(SUNO_API_KEY);
-    console.log('✅ Credits response:', JSON.stringify(data).slice(0, 200));
-
-    if (data.code === 200 && data.data) {
-      const result = {
-        success: true,
-        credits: data.data.credits || data.data.remaining || 0,
-        plan: data.data.plan || 'unknown',
-        used: data.data.used || 0,
-        total: data.data.total || 0,
-        cached: false
-      };
-      
-      // Update cache
-      creditsCache = { data: result, timestamp: Date.now() };
-      
-      return new Response(JSON.stringify(result), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    throw new Error(data.msg || 'Invalid API response');
-
-  } catch (error: unknown) {
-    console.error('❌ Credits check error:', error instanceof Error ? error.message : String(error));
-    
-    // Return cached data if available, even if stale
-    if (creditsCache) {
-      console.log('⚠️ Returning stale cache due to error');
-      return new Response(JSON.stringify({
-        ...creditsCache.data,
-        cached: true,
-        stale: true
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    
-    // Graceful fallback
-    return new Response(JSON.stringify({
-      success: true,
-      credits: 10, // Conservative fallback
-      plan: 'fallback',
-      used: 0,
-      total: 10,
-      cached: false,
-      fallback: true,
-      error: (error instanceof Error ? error.message : String(error))
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  if (!(await estTachePlanifiee(req))) {
+    const acces = await exigerAdministrateur(req, corsHeaders);
+    if (acces instanceof Response) return acces;
   }
+
+  const cle = Deno.env.get('SUNO_API_KEY') ?? '';
+  if (cle.length < 10) {
+    return reponse(503, { success: false, code: 'CLE_ABSENTE', error: 'Clé sunoapi.org absente ou invalide.' });
+  }
+
+  if (cache && Date.now() - cache.lu < CACHE_TTL_MS) {
+    return reponse(200, corpsSolde(cache.credits, { cached: true }));
+  }
+
+  const lecture = await lireSoldeSuno(cle);
+  if (lecture.ok === false) {
+    console.error('❌ Solde Suno illisible :', lecture.raison);
+    if (cache) return reponse(200, corpsSolde(cache.credits, { cached: true, stale: true }));
+    return reponse(502, { success: false, code: 'SOLDE_ILLISIBLE', error: 'Solde sunoapi.org illisible.', raison: lecture.raison });
+  }
+
+  cache = { credits: lecture.credits, lu: Date.now() };
+  return reponse(200, corpsSolde(lecture.credits, { cached: false }));
 });

@@ -125,5 +125,24 @@ export async function verifierAccesItem(appelant: Appelant, itemCode: string, co
   return null;
 }
 
+const FORMAT_JETON_TACHE = /^[0-9a-f]{64}$/;
+
+/**
+ * Appel d'une tâche planifiée (pg_cron) : en-tête `x-tache-planifiee` portant le jeton gardé dans Vault
+ * (`f66_jeton_taches_planifiees`), vérifié par la RPC `f66_verifier_jeton_tache` (exécutable par
+ * service_role seulement). Le jeton ne quitte jamais la base. En-tête absent ou mal formé : refus sans
+ * appel réseau ; toute erreur de vérification : refus (fermé par défaut).
+ */
+export async function estTachePlanifiee(req: Request): Promise<boolean> {
+  const jeton = (req.headers.get('x-tache-planifiee') ?? '').trim();
+  if (!FORMAT_JETON_TACHE.test(jeton)) return false;
+  try {
+    const { data, error } = await clientService().rpc('f66_verifier_jeton_tache', { p_jeton: jeton });
+    return !error && data === true;
+  } catch {
+    return false;
+  }
+}
+
 /** Fonctionnalité retirée (410) : remplace un point d'entrée coûteux sans contrôle. */
 export const fonctionRetiree = (cors: Cors, message: string) => repondre(cors, 410, 'RETIREE', message);
