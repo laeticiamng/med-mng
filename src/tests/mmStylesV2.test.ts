@@ -69,7 +69,7 @@ const ACTUEL: ReadonlyArray<[string, string, string]> = [
   ],
 ];
 const HASH_CATALOGUE_ACTUEL =
-  '239744c4fb24d084d6d0e244a2297da6570ded1f784486bf94651a1ce69bcbc8';
+  'cad371916404a1a235f9bc38efe317830f9218a6b9e1b5e4646ead93e1f0bd60';
 
 /** Ambiance libre la plus longue possible : 12 tags de 40 caractères (mm-ambiance.ts). */
 const AMBIANCE_MAX = Array.from(
@@ -517,5 +517,21 @@ describe('comparaison A/B/C : six requêtes préparées, jamais lancées', () =>
     expect(texte).not.toMatch(
       /bearer|api[_-]?key|authorization|eyJ[A-Za-z0-9]|sk-[A-Za-z0-9]/i
     );
+  });
+});
+
+describe('mots refusés par Suno comme noms d’artiste', () => {
+  // Constaté le 27.10.2026 : « Your tags contain artist name skank » (SENSITIVE_WORD_ERROR), génération refusée.
+  const MOTS_REFUSES = [/\bskanks?\b/i];
+
+  it('aucun prompt envoyable (catalogue actuel, v2 composé, référence) ne contient de mot refusé', () => {
+    const textes = [
+      ...STYLES_MUSICAUX.map((s) => s.prompt),
+      ...STYLES_MUSICAUX_V2.map((s) => s.prompt),
+      ...STYLES_MUSICAUX_V2.map((s) => s.promptReference),
+    ];
+    for (const texte of textes) {
+      for (const mot of MOTS_REFUSES) expect(texte).not.toMatch(mot);
+    }
   });
 });
