@@ -150,7 +150,7 @@ export const STYLES_MUSICAUX: readonly StyleMusical[] = [
     slug: 'reggae',
     libelle: 'Reggae',
     description: 'Tempo tranquille, groove chaloupé',
-    prompt: 'roots reggae, offbeat guitar skank, deep bass, laid-back, 76 bpm, sunny and relaxed',
+    prompt: 'roots reggae, offbeat rhythm guitar chops, deep bass, laid-back, 76 bpm, sunny and relaxed',
     negativeTags: `${EXCLUSIONS_COMMUNES}, heavy metal, fast tempo`,
     energie: 'calme',
   },
