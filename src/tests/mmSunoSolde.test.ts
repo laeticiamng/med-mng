@@ -16,7 +16,10 @@ import {
   INTERRUPTION_HEURES,
   alerteDeLEpisode,
   choisirSeuils,
+  construireEmailArret,
   construireEmailInterruption,
+  RAPPEL_VEILLE_HEURES,
+  surveillanceArretee,
   construireEmailSurveillance,
   decrireRaison,
   construireEmailAlerte,
@@ -635,5 +638,102 @@ describe('fonction Edge, migration et configuration', () => {
     expect(src).not.toContain('cle_suno_absente');
     expect(src).toContain("from('mm_suno_solde_config')");
     expect(src).toContain('choisirSeuils(');
+  });
+});
+
+describe('veille de la surveillance (mm-suno-veille)', () => {
+  const maintenant = new Date('2026-10-27T12:00:00Z');
+  const ilYa = (h: number) => new Date(maintenant.getTime() - h * 3_600_000);
+
+  it('surveillance arrêtée : aucun relevé depuis INTERRUPTION_HEURES, ou aucun relevé du tout', () => {
+    expect(surveillanceArretee(ilYa(1), maintenant)).toBe(false);
+    expect(
+      surveillanceArretee(ilYa(INTERRUPTION_HEURES - 0.1), maintenant)
+    ).toBe(false);
+    expect(surveillanceArretee(ilYa(INTERRUPTION_HEURES), maintenant)).toBe(
+      true
+    );
+    expect(surveillanceArretee(ilYa(30), maintenant)).toBe(true);
+    expect(surveillanceArretee(null, maintenant)).toBe(true);
+  });
+
+  it('e-mail d’arrêt : durée, état de la tâche et action, sans adresse ni clé', () => {
+    const active = construireEmailArret({
+      dernierReleve: ilYa(5),
+      tacheActive: true,
+      maintenant,
+    });
+    expect(active.sujet).toContain('arrêtée');
+    expect(active.html).toContain('environ 5 h');
+    expect(active.html).toContain('f66_verifier_jeton_tache');
+    const desactivee = construireEmailArret({
+      dernierReleve: ilYa(5),
+      tacheActive: false,
+      maintenant,
+    });
+    expect(desactivee.html).toContain('désactivée');
+    const absente = construireEmailArret({
+      dernierReleve: null,
+      tacheActive: null,
+      maintenant,
+    });
+    expect(absente.html).toContain('absente');
+    expect(absente.html).toContain('aucun relevé');
+    for (const e of [active, desactivee, absente]) {
+      expect(e.html).not.toMatch(/[\w.+-]+@[\w-]+\.[\w.]+/);
+      expect(e.html).not.toMatch(/SUNO_API_KEY=|Bearer /);
+    }
+    expect(RAPPEL_VEILLE_HEURES).toBeLessThan(24);
+  });
+
+  it('fonction : indépendante du jeton et du fournisseur, envoi réservé en base, réponse sans détail', () => {
+    const src = readFileSync(
+      resolve(__dirname, '../..', 'supabase/functions/mm-suno-veille/index.ts'),
+      'utf8'
+    );
+    expect(src).not.toContain('f66_verifier_jeton_tache');
+    expect(src).not.toContain('SUNO_API_KEY');
+    expect(src).not.toContain('lireSoldeSuno');
+    expect(src).toContain(
+      "rpc('mm_suno_veille_reserver', { p_liberer: false })"
+    );
+    expect(src).toMatch(/req\.method !== 'POST'/);
+    expect(src).not.toMatch(
+      /reponse\(\d+, \{[^}]*\b(destinataire|dernierReleve|veille_alerte_at)\b/
+    );
+    expect(src).not.toMatch(
+      /console\.(log|warn|error)\([^)]*(destinataire\b|cleService)/
+    );
+  });
+
+  it('migration : fonctions réservées au serveur, réservation atomique, tâche toutes les 2 h sans jeton', () => {
+    const sql = readFileSync(
+      resolve(
+        __dirname,
+        '../..',
+        'supabase/migrations/20261027170000_mm_suno_veille.sql'
+      ),
+      'utf8'
+    );
+    for (const f of [
+      'mm_suno_veille_etat()',
+      'mm_suno_veille_reserver(boolean)',
+    ]) {
+      expect(sql).toContain(
+        `REVOKE ALL ON FUNCTION public.${f} FROM PUBLIC, anon, authenticated`
+      );
+      expect(sql).toContain(
+        `GRANT EXECUTE ON FUNCTION public.${f} TO service_role`
+      );
+    }
+    expect(sql.match(/SET search_path = ''/g)?.length).toBe(2);
+    expect(sql).toContain("veille_alerte_at < now() - interval '23 hours'");
+    expect(sql).toContain("'47 */2 * * *'");
+    expect(sql).toContain('/functions/v1/mm-suno-veille');
+    expect(sql).not.toContain('decrypted_secret');
+    expect(sql).not.toMatch(/eyJ[A-Za-z0-9_-]{10,}/);
+    expect(
+      readFileSync(resolve(__dirname, '../..', 'supabase/config.toml'), 'utf8')
+    ).toMatch(/\[functions\.mm-suno-veille\]\s*\nverify_jwt = false/);
   });
 });
