@@ -85,6 +85,16 @@ serve(async (req: Request) => {
           .maybeSingle();
         return data ? { etat: data.etat as EtatSolde, at: new Date(data.releve_at) } : null;
       },
+      dernierRetourOk: async (): Promise<Date | null> => {
+        const { data } = await admin
+          .from('mm_suno_solde_releves')
+          .select('releve_at')
+          .eq('etat', 'ok')
+          .order('releve_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        return data ? new Date(data.releve_at) : null;
+      },
       destinataire: async () => {
         const { data, error } = await admin.rpc('mm_suno_alerte_destinataire');
         return !error && typeof data === 'string' && data.includes('@') ? data : null;

@@ -12,6 +12,7 @@ import {
   SEUIL_BAS_DEFAUT,
   SEUIL_CRITIQUE_DEFAUT,
   URL_CREDITS_SUNO,
+  alerteDeLEpisode,
   construireEmailAlerte,
   evaluerSolde,
   extraireCredits,
@@ -258,6 +259,7 @@ function dependances(
     maintenant: () => MAINTENANT,
     lireCredits: async () => surcharge.lecture ?? { ok: true, credits: 5.6 },
     derniereAlerte: async () => null,
+    dernierRetourOk: async () => null,
     destinataire: async () => 'proprietaire@exemple.invalid',
     envoyer: async (email, cle) => {
       envoyes.push({ ...email, cle });
@@ -307,6 +309,40 @@ describe('verifierSolde (orchestration)', () => {
     expect(envoyes).toHaveLength(1);
     expect(envoyes[0].cle).toBe('mm-suno-solde-critique-2026-10-27T12');
     expect(enregistres[0].alerteEnvoyee).toBe(true);
+  });
+
+  it('solde rechargé puis de nouveau critique avant le rappel : nouvel épisode, nouvelle alerte', async () => {
+    const { deps, envoyes, enregistres } = dependances({
+      derniereAlerte: async () => ({ etat: 'critique', at: ilYaHeures(3) }),
+      dernierRetourOk: async () => ilYaHeures(2),
+    });
+    const s = await verifierSolde(deps, SEUILS);
+    expect(s).toMatchObject({
+      statut: 200,
+      etat: 'critique',
+      alerte: 'envoyee',
+    });
+    expect(envoyes).toHaveLength(1);
+    expect(enregistres[0].alerteEnvoyee).toBe(true);
+  });
+
+  it('aucun retour à « ok » depuis la dernière alerte : le délai de rappel continue de s’appliquer', async () => {
+    const { deps, envoyes } = dependances({
+      derniereAlerte: async () => ({ etat: 'critique', at: ilYaHeures(3) }),
+      dernierRetourOk: async () => ilYaHeures(10),
+    });
+    expect(await verifierSolde(deps, SEUILS)).toMatchObject({
+      alerte: 'non_requise',
+    });
+    expect(envoyes).toHaveLength(0);
+  });
+
+  it('alerteDeLEpisode : un relevé « ok » postérieur efface l’alerte précédente', () => {
+    const alerte: DerniereAlerte = { etat: 'bas', at: ilYaHeures(5) };
+    expect(alerteDeLEpisode(null, ilYaHeures(1))).toBeNull();
+    expect(alerteDeLEpisode(alerte, null)).toBe(alerte);
+    expect(alerteDeLEpisode(alerte, ilYaHeures(6))).toBe(alerte);
+    expect(alerteDeLEpisode(alerte, ilYaHeures(4))).toBeNull();
   });
 
   it('pas de second e-mail avant le délai de rappel', async () => {

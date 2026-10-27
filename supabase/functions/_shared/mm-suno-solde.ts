@@ -88,6 +88,15 @@ export function fautAlerter(etat: EtatSolde, derniere: DerniereAlerte | null, ma
   return heures >= (etat === 'critique' ? RAPPEL_CRITIQUE_HEURES : RAPPEL_BAS_HEURES);
 }
 
+/**
+ * Une alerte n'appartient qu'à son épisode : si le solde est redevenu correct (relevé « ok ») après la dernière
+ * alerte, le compte a été rechargé et une nouvelle baisse est un nouvel épisode, alerté sans attendre le rappel.
+ */
+export function alerteDeLEpisode(derniere: DerniereAlerte | null, dernierRetourOk: Date | null): DerniereAlerte | null {
+  if (!derniere) return null;
+  return dernierRetourOk && dernierRetourOk.getTime() > derniere.at.getTime() ? null : derniere;
+}
+
 export function formaterCredits(credits: number): string {
   return credits.toFixed(1).replace('.', ',');
 }
@@ -146,6 +155,8 @@ export interface DependancesSolde {
   maintenant: () => Date;
   lireCredits: () => Promise<ResultatLecture>;
   derniereAlerte: () => Promise<DerniereAlerte | null>;
+  /** Date du dernier relevé à l'état « ok » (solde redevenu correct), ou null s'il n'y en a aucun. */
+  dernierRetourOk: () => Promise<Date | null>;
   /** Adresse du destinataire de l'alerte, ou null si aucune n'est configurée. */
   destinataire: () => Promise<string | null>;
   /** Envoie l'e-mail ; `cleIdempotence` évite un doublon si la tâche est rejouée. */
@@ -166,7 +177,9 @@ export async function verifierSolde(deps: DependancesSolde, seuils: Seuils): Pro
 
   let alerte: EtatAlerte = 'non_requise';
   let erreurEnvoi: string | undefined;
-  if (fautAlerter(etat, await deps.derniereAlerte(), maintenant)) {
+  const derniere = etat === 'ok' ? null : await deps.derniereAlerte();
+  const retourOk = derniere ? await deps.dernierRetourOk() : null;
+  if (fautAlerter(etat, alerteDeLEpisode(derniere, retourOk), maintenant)) {
     const to = await deps.destinataire();
     if (!to) {
       alerte = 'destinataire_absent';
