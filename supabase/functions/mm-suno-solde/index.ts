@@ -3,8 +3,11 @@
  *
  * Appelée toutes les heures par la tâche pg_cron « mm-suno-solde-horaire » (migration
  * 20261027120000_mm_suno_solde.sql). Lit le solde, l'enregistre dans mm_suno_solde_releves (historique de
- * consommation) et envoie un e-mail au destinataire configuré quand il passe sous le seuil (voir
- * _shared/mm-suno-solde.ts : seuils, rappels, cas d'échec).
+ * consommation) et envoie un e-mail au destinataire configuré : solde sous le seuil, solde illisible plusieurs
+ * fois de suite, surveillance interrompue (voir _shared/mm-suno-solde.ts : seuils, rappels, épisodes).
+ *
+ * Seuils : table mm_suno_solde_config (ligne id = 1, modifiable sans redéploiement), sinon secrets
+ * SUNO_SEUIL_BAS / SUNO_SEUIL_CRITIQUE, sinon 120 / 36 crédits.
  *
  * ACCÈS : serveur uniquement, comme les autres fonctions qui touchent un fournisseur payant.
  *  - clé service_role en jeton porteur ; ou
@@ -21,7 +24,14 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { envoyerEmail, expediteur } from '../_shared/mm-email.ts';
 import { jetonAppelant } from '../_shared/mm-garde.ts';
-import { lireSeuils, lireSoldeSuno, verifierSolde, type DerniereAlerte, type EtatSolde } from '../_shared/mm-suno-solde.ts';
+import {
+  choisirSeuils,
+  lireSoldeSuno,
+  verifierSolde,
+  type DerniereAlerte,
+  type EtatReleve,
+  type FamilleAlerte,
+} from '../_shared/mm-suno-solde.ts';
 
 const EN_TETES = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
 const FORMAT_JETON_TACHE = /^[0-9a-f]{64}$/;
@@ -57,39 +67,65 @@ async function appelAutorise(req: Request, admin: any, cleService: string): Prom
   }
 }
 
+const RELEVES = 'mm_suno_solde_releves';
+const ETATS_SOLDE = ['bas', 'critique'];
+const ETATS_LISIBLES = ['ok', 'bas', 'critique'];
+
 serve(async (req: Request) => {
   if (req.method !== 'POST') return reponse(405, { error: 'methode_non_autorisee' });
 
   const url = Deno.env.get('SUPABASE_URL') ?? '';
   const cleService = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  const cleSuno = Deno.env.get('SUNO_API_KEY') ?? '';
   if (!url || !cleService) return reponse(503, { error: 'configuration_incomplete' });
   const admin = createClient(url, cleService, { auth: { persistSession: false } });
 
   if (!(await appelAutorise(req, admin, cleService))) return reponse(401, { error: 'reserve_au_serveur' });
-  if (cleSuno.length < 10) return reponse(503, { error: 'cle_suno_absente' });
 
-  const seuils = lireSeuils((nom) => Deno.env.get(nom));
+  // Clé absente : ce n'est pas un refus, c'est une panne de surveillance, enregistrée et alertée comme les autres.
+  const cleSuno = Deno.env.get('SUNO_API_KEY') ?? '';
 
+  const { data: config, error: erreurConfig } = await admin
+    .from('mm_suno_solde_config')
+    .select('seuil_bas, seuil_critique')
+    .eq('id', 1)
+    .maybeSingle();
+  if (erreurConfig) console.error('⚠️ Configuration des seuils illisible, seuils par défaut :', erreurConfig.message);
+  const seuils = choisirSeuils(config ?? null, (nom) => Deno.env.get(nom));
+
+  let releveEnregistre = true;
   const sortie = await verifierSolde(
     {
       maintenant: () => new Date(),
       lireCredits: () => lireSoldeSuno(cleSuno),
-      derniereAlerte: async (): Promise<DerniereAlerte | null> => {
+      dernierReleve: async () => {
+        const { data } = await admin.from(RELEVES).select('releve_at').order('releve_at', { ascending: false }).limit(1).maybeSingle();
+        return data ? new Date(data.releve_at) : null;
+      },
+      echecsPrecedents: async () => {
+        const { data } = await admin.from(RELEVES).select('etat').order('releve_at', { ascending: false }).limit(24);
+        let n = 0;
+        for (const r of data ?? []) {
+          if (r.etat !== 'indisponible') break;
+          n += 1;
+        }
+        return n;
+      },
+      derniereAlerte: async (famille: FamilleAlerte): Promise<DerniereAlerte | null> => {
         const { data } = await admin
-          .from('mm_suno_solde_releves')
+          .from(RELEVES)
           .select('etat, releve_at')
           .eq('alerte_envoyee', true)
+          .in('etat', famille === 'solde' ? ETATS_SOLDE : ['indisponible'])
           .order('releve_at', { ascending: false })
           .limit(1)
           .maybeSingle();
-        return data ? { etat: data.etat as EtatSolde, at: new Date(data.releve_at) } : null;
+        return data ? { etat: data.etat as EtatReleve, at: new Date(data.releve_at) } : null;
       },
-      dernierRetourOk: async (): Promise<Date | null> => {
+      dernierRetour: async (famille: FamilleAlerte): Promise<Date | null> => {
         const { data } = await admin
-          .from('mm_suno_solde_releves')
+          .from(RELEVES)
           .select('releve_at')
-          .eq('etat', 'ok')
+          .in('etat', famille === 'solde' ? ['ok'] : ETATS_LISIBLES)
           .order('releve_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -107,30 +143,41 @@ serve(async (req: Request) => {
         return resultat.ok ? { ok: true } : { ok: false, erreur: `${resultat.erreur}${resultat.status ? ` (${resultat.status})` : ''}` };
       },
       enregistrer: async (releve) => {
-        const { error } = await admin.from('mm_suno_solde_releves').insert({
+        const { error } = await admin.from(RELEVES).insert({
           credits: releve.credits,
           etat: releve.etat,
           alerte_envoyee: releve.alerteEnvoyee,
           detail: releve.detail,
         });
-        if (error) console.error('❌ Relevé du solde Suno non enregistré :', error.message);
+        if (error) {
+          releveEnregistre = false;
+          console.error('❌ Relevé du solde Suno non enregistré :', error.message);
+        }
       },
     },
     seuils,
   );
 
+  const commun = {
+    alerte: sortie.alerte,
+    ...(sortie.interruption ? { interruption: sortie.interruption } : {}),
+    ...(sortie.erreurEnvoi ? { erreurEnvoi: sortie.erreurEnvoi } : {}),
+    ...(releveEnregistre ? {} : { releveEnregistre: false }),
+  };
+  if (sortie.erreurEnvoi) console.error('❌ Alerte de solde Suno non envoyée :', sortie.erreurEnvoi);
+
   if (sortie.statut === 502) {
-    console.error('❌ Solde Suno illisible :', sortie.erreur);
-    return reponse(502, { error: 'solde_illisible', raison: sortie.erreur });
+    console.error(`❌ Solde Suno illisible (${sortie.echecs} de suite) :`, sortie.erreur);
+    return reponse(502, { etat: 'indisponible', error: 'solde_illisible', raison: sortie.erreur, echecs: sortie.echecs, ...commun });
   }
   if (sortie.etat !== 'ok') {
     console.warn(`⚠️ Solde Suno ${sortie.etat} : ${sortie.credits} crédits (~${sortie.generationsRestantes} générations), alerte : ${sortie.alerte}`);
   }
-  return reponse(200, {
+  return reponse(releveEnregistre ? 200 : 500, {
     credits: sortie.credits,
     etat: sortie.etat,
     generationsRestantes: sortie.generationsRestantes,
-    alerte: sortie.alerte,
-    ...(sortie.erreurEnvoi ? { erreurEnvoi: sortie.erreurEnvoi } : {}),
+    seuils,
+    ...commun,
   });
 });
