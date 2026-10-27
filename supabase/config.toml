@@ -140,3 +140,6 @@ verify_jwt = true
 # (clé service_role ou jeton des tâches planifiées vérifié en base).
 [functions.mm-suno-solde]
 verify_jwt = false
+
+[functions.mm-suno-veille]
+verify_jwt = false

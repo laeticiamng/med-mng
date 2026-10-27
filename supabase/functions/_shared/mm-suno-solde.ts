@@ -142,6 +142,18 @@ export function surveillanceInterrompue(precedent: Date | null, maintenant: Date
   return precedent != null && heuresDepuis(maintenant, precedent) >= INTERRUPTION_HEURES;
 }
 
+/**
+ * Veille indépendante (fonction mm-suno-veille, toutes les 2 h) : la surveillance est arrêtée si aucun relevé,
+ * même « indisponible », n'a été enregistré depuis INTERRUPTION_HEURES. Couvre le cas que la reprise ne signale
+ * jamais : la tâche horaire ou la fonction mm-suno-solde ne repart pas.
+ */
+export function surveillanceArretee(dernierReleve: Date | null, maintenant: Date): boolean {
+  return dernierReleve == null || heuresDepuis(maintenant, dernierReleve) >= INTERRUPTION_HEURES;
+}
+
+/** Rappel de la veille tant que l'arrêt dure (la veille passe toutes les 2 h : un e-mail par jour environ). */
+export const RAPPEL_VEILLE_HEURES = 23;
+
 export function formaterCredits(credits: number): string {
   return credits.toFixed(1).replace('.', ',');
 }
@@ -206,6 +218,28 @@ export function construireEmailInterruption(p: { depuis: Date; reprise: Date }):
       `<p>Aucune vérification du solde Suno n'a eu lieu entre le ${formaterDate(p.depuis)} et le ${formaterDate(p.reprise)}. Elle vient de reprendre.</p>`,
       `<p>Pendant ce temps, une baisse du solde n'aurait pas été signalée. Causes possibles : tâche planifiée « mm-suno-solde-horaire » désactivée, fonction mm-suno-solde en erreur, jeton des tâches planifiées modifié.</p>`,
       PIED,
+    ].join('\n'),
+  };
+}
+
+export function construireEmailArret(p: { dernierReleve: Date | null; tacheActive: boolean | null; maintenant: Date }): EmailAlerte {
+  const depuis = p.dernierReleve
+    ? `depuis le ${formaterDate(p.dernierReleve)} (environ ${Math.round(heuresDepuis(p.maintenant, p.dernierReleve))} h)`
+    : 'depuis sa mise en place (aucun relevé enregistré)';
+  const tache =
+    p.tacheActive === true
+      ? `La tâche planifiée « mm-suno-solde-horaire » est active : elle se déclenche, mais la fonction mm-suno-solde n'enregistre plus rien. Causes probables : fonction en erreur (voir ses journaux dans Supabase) ou jeton des tâches planifiées refusé (RPC f66_verifier_jeton_tache).`
+      : p.tacheActive === false
+        ? `La tâche planifiée « mm-suno-solde-horaire » est <strong>désactivée</strong> : la réactiver (cron.alter_job) ou réappliquer la migration 20261027120000_mm_suno_solde.sql.`
+        : `La tâche planifiée « mm-suno-solde-horaire » est <strong>absente</strong> : réappliquer la migration 20261027120000_mm_suno_solde.sql.`;
+  return {
+    sujet: 'Med MNG : la surveillance des crédits Suno est arrêtée',
+    html: [
+      `<p>Aucune vérification du solde Suno n'a été enregistrée ${depuis}.</p>`,
+      `<p>Tant que cela dure, ni une baisse du solde ni une panne du fournisseur ne peuvent être signalées.</p>`,
+      `<p>${tache}</p>`,
+      `<p>Rappel environ toutes les ${RAPPEL_VEILLE_HEURES + 1} heures tant que l'arrêt dure.</p>`,
+      `<p>Message automatique de la veille de la surveillance Suno (fonction mm-suno-veille, toutes les 2 heures).</p>`,
     ].join('\n'),
   };
 }
