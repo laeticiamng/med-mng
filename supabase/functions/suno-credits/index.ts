@@ -16,7 +16,7 @@
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
-import { exigerAdministrateur } from '../_shared/mm-garde.ts';
+import { estTachePlanifiee, exigerAdministrateur } from '../_shared/mm-garde.ts';
 import { COUT_GENERATION_CREDITS, lireSoldeSuno } from '../_shared/mm-suno-solde.ts';
 
 const CACHE_TTL_MS = 60_000;
@@ -39,10 +39,13 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-  // Réservé aux administrateurs (ou à la clé de service) : déployée avec verify_jwt = false, cette fonction
-  // dépensait des appels d'API pour tout appelant, même anonyme (revue critique du 04.10.2026, _shared/mm-garde.ts).
-  const acces = await exigerAdministrateur(req, corsHeaders);
-  if (acces instanceof Response) return acces;
+  // Réservé aux administrateurs, à la clé de service et aux tâches planifiées (jeton Vault vérifié en base) :
+  // déployée avec verify_jwt = false, cette fonction dépensait des appels d'API pour tout appelant, même anonyme
+  // (revue critique du 04.10.2026, _shared/mm-garde.ts).
+  if (!(await estTachePlanifiee(req))) {
+    const acces = await exigerAdministrateur(req, corsHeaders);
+    if (acces instanceof Response) return acces;
+  }
 
   const cle = Deno.env.get('SUNO_API_KEY') ?? '';
   if (cle.length < 10) {
