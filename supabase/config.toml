@@ -135,3 +135,8 @@ verify_jwt = false
 
 [functions.mm-referentiel-lisa-2026]
 verify_jwt = true
+
+# Surveillance du solde de crédits sunoapi.org (tâche pg_cron horaire) : serveur uniquement, contrôle en code
+# (clé service_role ou jeton des tâches planifiées vérifié en base).
+[functions.mm-suno-solde]
+verify_jwt = false
